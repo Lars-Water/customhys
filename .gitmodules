@@ -1,3 +1,9 @@
 [submodule "src/external/CUSTOMHys"]
 	path = src/external/CUSTOMHys
 	url = https://github.com/jcrvz/customhys.git
+[submodule "src/external/inet4.5"]
+	path = src/external/inet4.5
+	url = https://github.com/inet-framework/inet.git
+[submodule "src/external/omnetpp-6.0.1"]
+	path = src/external/omnetpp-6.0.1
+	url = https://github.com/omnetpp/omnetpp.git
