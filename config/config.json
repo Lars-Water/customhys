@@ -1,0 +1,18 @@
+{
+    "HyperHeuristic": {
+      "max_iterations": 500
+    },
+    "Simulation": {
+      "cqn": {
+          "boundaries": {
+              "numTandems": [2, 10],
+              "numQueuesPerTandem": [3, 15],
+              "sDelay": [0.1, 1.0],
+              "qDelay": [0.2, 2.0]
+          },
+          "optimal_solution": [10, 15, 0.1, 0.2],
+          "optimal_fitness": 510
+      }
+    }
+}
+  
