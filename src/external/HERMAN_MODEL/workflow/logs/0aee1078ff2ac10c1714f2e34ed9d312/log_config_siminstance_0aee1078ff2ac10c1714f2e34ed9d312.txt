@@ -1,0 +1,27 @@
+[ config_siminstance_0aee1078ff2ac10c1714f2e34ed9d312  06-09-2023 16:36:27  INFO     ]  Default config file: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/src/utils/default.cfg
+[ config_siminstance_0aee1078ff2ac10c1714f2e34ed9d312  06-09-2023 16:36:27  INFO     ]  Using config file: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/sims/0/config.json
+[ config_siminstance_0aee1078ff2ac10c1714f2e34ed9d312  06-09-2023 16:36:27  INFO     ]  Loading config file: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/sims/0/config.json
+[ config_siminstance_0aee1078ff2ac10c1714f2e34ed9d312  06-09-2023 16:36:36  WARNING  ]  Could not get: ('omnet', 'simulation', 'param_sweep', 'active')
+[ config_siminstance_0aee1078ff2ac10c1714f2e34ed9d312  06-09-2023 16:36:36  ERROR    ]  'param_sweep'
+[                                                                                    ]  Traceback (most recent call last):
+[                                                                                    ]    File "/home/lars-water/master-code/Scalable-Simulation-DCPS-main/src/utils/config_reader.py", line 49, in tryGet
+[                                                                                    ]      conf = conf[arg]
+[                                                                                    ]  KeyError: 'param_sweep'
+[ config_siminstance_0aee1078ff2ac10c1714f2e34ed9d312  06-09-2023 16:36:36  WARNING  ]  Could not get: ('omnet', 'simulation', 'time_limit')
+[ config_siminstance_0aee1078ff2ac10c1714f2e34ed9d312  06-09-2023 16:36:36  ERROR    ]  'time_limit'
+[                                                                                    ]  Traceback (most recent call last):
+[                                                                                    ]    File "/home/lars-water/master-code/Scalable-Simulation-DCPS-main/src/utils/config_reader.py", line 49, in tryGet
+[                                                                                    ]      conf = conf[arg]
+[                                                                                    ]  KeyError: 'time_limit'
+[ config_siminstance_0aee1078ff2ac10c1714f2e34ed9d312  06-09-2023 16:36:36  WARNING  ]  Could not get: ('omnet', 'simulation', 'ned_paths')
+[ config_siminstance_0aee1078ff2ac10c1714f2e34ed9d312  06-09-2023 16:36:36  ERROR    ]  'ned_paths'
+[                                                                                    ]  Traceback (most recent call last):
+[                                                                                    ]    File "/home/lars-water/master-code/Scalable-Simulation-DCPS-main/src/utils/config_reader.py", line 49, in tryGet
+[                                                                                    ]      conf = conf[arg]
+[                                                                                    ]  KeyError: 'ned_paths'
+[ config_siminstance_0aee1078ff2ac10c1714f2e34ed9d312  06-09-2023 16:36:36  WARNING  ]  Could not get: ('omnet', 'simulation', 'libraries')
+[ config_siminstance_0aee1078ff2ac10c1714f2e34ed9d312  06-09-2023 16:36:36  ERROR    ]  'libraries'
+[                                                                                    ]  Traceback (most recent call last):
+[                                                                                    ]    File "/home/lars-water/master-code/Scalable-Simulation-DCPS-main/src/utils/config_reader.py", line 49, in tryGet
+[                                                                                    ]      conf = conf[arg]
+[                                                                                    ]  KeyError: 'libraries'

@@ -1,0 +1,8 @@
+[ resource_controller  06-09-2023 15:53:27  INFO     ]  Reading in config file: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/experiments/data/campaign_seq_comm/n1_w1_s1/20230906_155326/config.json
+[ resource_controller  06-09-2023 15:53:27  INFO     ]  Resource controller config provided
+[ resource_controller  06-09-2023 15:53:27  INFO     ]  Resource controller config specifies supported cluster local
+[ resource_controller  06-09-2023 15:53:29  INFO     ]  Sending all tasks (1) in queue to worker cluster
+[ resource_controller  06-09-2023 15:53:29  INFO     ]  Sending sim instance 07e152f751461fdffb7ea4863ee8c301 to worker cluster
+[ resource_controller  06-09-2023 15:53:29  INFO     ]  Retrieving DASK futures for given tasks
+[ resource_controller  06-09-2023 15:53:29  INFO     ]  Waiting for all tasks to complete
+[ resource_controller  06-09-2023 15:54:56  INFO     ]  All tasks have completed
