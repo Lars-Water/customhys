@@ -1,2 +1,2 @@
-[ sim_cache  06-09-2023 16:36:30  INFO     ]  Reading in config file: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/workflow/config/workflow_local.json
-[ sim_cache  06-09-2023 16:36:30  INFO     ]  Sims path: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/sims
+[ sim_cache  12-09-2023 11:58:23  INFO     ]  Reading in config file: /home/larryvanderwater/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json
+[ sim_cache  12-09-2023 11:58:23  INFO     ]  Sims path: /home/larryvanderwater/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims

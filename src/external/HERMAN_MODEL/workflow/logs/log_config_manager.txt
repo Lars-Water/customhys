@@ -1,3 +1,3 @@
-[ config_manager  06-09-2023 16:36:27  INFO     ]  Default config file: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/src/utils/default.cfg
-[ config_manager  06-09-2023 16:36:27  INFO     ]  Using config file: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/workflow/config/workflow_local.json
-[ config_manager  06-09-2023 16:36:27  INFO     ]  Loading config file: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/workflow/config/workflow_local.json
+[ config_manager  12-09-2023 11:58:23  INFO     ]  Default config file: /home/larryvanderwater/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/src/utils/default.cfg
+[ config_manager  12-09-2023 11:58:23  INFO     ]  Using config file: /home/larryvanderwater/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json
+[ config_manager  12-09-2023 11:58:23  INFO     ]  Loading config file: /home/larryvanderwater/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json
