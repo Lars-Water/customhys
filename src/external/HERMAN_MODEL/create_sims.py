@@ -10,22 +10,25 @@ def create_sim(workflow_config, id, dummy_sim_path, dummy_sim, config, pdes=None
     ##### Create copy of a dummy sim
     sim_folder = os.path.join(workflow_config["sims_path"], str(id))
 
+    print(sim_folder)
+    print(dummy_sim_folder)
+
     if os.path.exists(sim_folder):
         shutil.rmtree(sim_folder)
     shutil.copytree(dummy_sim_folder, sim_folder)
 
-    with open(os.path.join(sim_folder, "id.txt"), "w") as fp:
-        fp.write("id: {}".format(id))
-    ##### Create copy of a dummy sim
+    # with open(os.path.join(sim_folder, "id.txt"), "w") as fp:
+    #     fp.write("id: {}".format(id))
+    # ##### Create copy of a dummy sim
 
-    config_file = workflow_config["local_sim_config"] + ".json"
-    config_path = os.path.join(sim_folder, config_file)
+    # config_file = workflow_config["local_sim_config"] + ".json"
+    # config_path = os.path.join(sim_folder, config_file)
 
-    omnet_config = OmnetSimConfig(True, True, ini, config, "Cmdenv", time_limit=time_limit, pdes=pdes, libraries=libraries, ned_paths=ned_paths, metadata=None)
-    sim_instance_config = SiminstanceConfig("omnet", omnet_config)
-    sim_instance_config.write_conf(config_path)
+    # omnet_config = OmnetSimConfig(True, True, ini, config, "Cmdenv", time_limit=time_limit, pdes=pdes, libraries=libraries, ned_paths=ned_paths, metadata=None)
+    # sim_instance_config = SiminstanceConfig("omnet", omnet_config)
+    # sim_instance_config.write_conf(config_path)
 
-    return Siminstance(sim_folder, workflow_config)
+    # return Siminstance(sim_folder, workflow_config)
 
 def create_sim_inet_lans(workflow_config, dummy_sim_path, id, inet_base):
     dummy_sim = "dummy_sim_lans"
