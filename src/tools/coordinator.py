@@ -2,19 +2,22 @@
 from src.external import HERMAN_MODEL, CUSTOMHys
 import subprocess
 
+from HERMAN_MODEL.src.manager import Manager
+
 class HeuristicSimulationCoordinator:
     
     def __init__(self):
         # TODO - Initialize the OMNeT++ and CUSTOMHys frameworks
-        pass
+        self.simulation_manager = Manager(args.workflowConfigFile, args.workflowLogsFolder)
     
-    def call_simulation_run(self, config):
+    def evaluate_simulation_instances(self, config):
         try:
             # Configure the simulation
             pass
             
             # Run the simulation and capture the output
-            pass
+            self.simulation_manager.enqueue_tasks(sim_instances)
+            evaluated_sim_instances = self.simulation_manager.evaluate_all()
             
         except Exception as e:
             print(f"An error occurred while running the simulation: {e}")
@@ -43,3 +46,6 @@ if __name__ == "__main__":
     
     # Process output
     coordinator.process_simulation_output(simulation_output)
+
+    coordinator.simulation_manager.shutdown()
+    
