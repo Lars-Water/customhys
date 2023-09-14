@@ -16,9 +16,9 @@
 # python3 workflow.py --platform local --sims_path "/home/larryvanderwater/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims" --dummy_path "/home/larryvanderwater/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims" --inet_path "home/larryvanderwater/omnetpp-6.0.1/inet4.5" --workflowConfigFile  /home/larryvanderwater/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json --workflowLogsFolder /home/larryvanderwater/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/logs --workflowResultsFolder  /home/larryvanderwater/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/results --workflowRuntimeFolder  /home/larryvanderwater/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/runtime
 # GITHUB CODESPACES
 CUR=$(pwd)
-cd /workspaces/omnetpp-6.0.1
+cd /workspaces/hyper-heuristic-dse-2.0/omnetpp-6.0.1
 source setenv
-cd /workspaces/omnetpp-6.0.1/inet4.5
+cd /workspaces/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5
 source setenv
 cd $CUR
 python3 workflow.py --platform local --sims_path "/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims" --dummy_path "/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims" --inet_path "/workspaces/omnetpp-6.0.1/inet4.5" --workflowConfigFile  /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json --workflowLogsFolder /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/logs --workflowResultsFolder  /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/results --workflowRuntimeFolder  /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/runtime
