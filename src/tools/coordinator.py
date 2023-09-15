@@ -1,14 +1,22 @@
-# Assuming you can import these modules
-from src.external import HERMAN_MODEL, CUSTOMHys
-import subprocess
+import tools.tools as tools
 
-from HERMAN_MODEL.src.manager import Manager
+from src.external.HERMAN_MODEL.src.manager import Manager
+from src.external import CUSTOMHys
+import subprocess
 
 class HeuristicSimulationCoordinator:
     
-    def __init__(self):
-        # TODO - Initialize the OMNeT++ and CUSTOMHys frameworks
-        self.simulation_manager = Manager(args.workflowConfigFile, args.workflowLogsFolder)
+    def __init__(self, config_path):
+        
+        test_path = "/workspaces/hyper-heuristic-dse-2.0/config/coordinator_evaluate_one_dp.json"
+        self.config = tools.load_config(test_path)
+        # self.config = tools.load_config(config_path)
+    
+    def generate_dp(self):
+    
+    def setup_simulation_manager(self):
+
+        self.simulation_manager = Manager(self.config["manager"]["workflowConfigFile"], self.config["manager"]["workflowLogsFolder"])
     
     def evaluate_simulation_instances(self, config):
         try:
