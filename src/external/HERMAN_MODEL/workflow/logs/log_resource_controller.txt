@@ -1,8 +1,8 @@
-[ resource_controller  17-09-2023 07:46:49  INFO     ]  Reading in config file: /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json
-[ resource_controller  17-09-2023 07:46:49  INFO     ]  Resource controller config provided
-[ resource_controller  17-09-2023 07:46:49  INFO     ]  Resource controller config specifies supported cluster local
-[ resource_controller  17-09-2023 07:46:56  INFO     ]  Sending all tasks (1) in queue to worker cluster
-[ resource_controller  17-09-2023 07:46:56  INFO     ]  Sending sim instance 0aee1078ff2ac10c1714f2e34ed9d312 to worker cluster
-[ resource_controller  17-09-2023 07:46:56  INFO     ]  Retrieving DASK futures for given tasks
-[ resource_controller  17-09-2023 07:46:56  INFO     ]  Waiting for all tasks to complete
-[ resource_controller  17-09-2023 07:47:55  INFO     ]  All tasks have completed
+[ resource_controller  17-09-2023 10:34:39  INFO     ]  Reading in config file: /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json
+[ resource_controller  17-09-2023 10:34:39  INFO     ]  Resource controller config provided
+[ resource_controller  17-09-2023 10:34:39  INFO     ]  Resource controller config specifies supported cluster local
+[ resource_controller  17-09-2023 10:34:40  INFO     ]  Sending all tasks (1) in queue to worker cluster
+[ resource_controller  17-09-2023 10:34:40  INFO     ]  Sending sim instance 0aee1078ff2ac10c1714f2e34ed9d312 to worker cluster
+[ resource_controller  17-09-2023 10:34:40  INFO     ]  Retrieving DASK futures for given tasks
+[ resource_controller  17-09-2023 10:34:40  INFO     ]  Waiting for all tasks to complete
+[ resource_controller  17-09-2023 10:35:14  INFO     ]  All tasks have completed
