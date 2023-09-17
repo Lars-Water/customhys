@@ -58,15 +58,13 @@ if __name__ == "__main__":
 
     coordinator = HeuristicSimulationCoordinator("/workspaces/hyper-heuristic-dse-2.0/config/coordinator.json")
 
-    # Define source and destination directories
     src_dir = '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/dummy_sim_pdes_communicate'
     dest_dir = '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/custom_dummy'
 
-    # Create destination directory if it does not exist
-    if not os.path.exists(dest_dir):
-        os.makedirs(dest_dir)
+    # Delete destination directory if it exists
+    if os.path.exists(dest_dir):
+        shutil.rmtree(dest_dir)
 
-    # Copy the directory
     shutil.copytree(src_dir, dest_dir, ignore=coordinator.ignore_file('communicate_intensive.ini'))
 
     # Dynamic parameters as a dictionary
@@ -79,11 +77,9 @@ if __name__ == "__main__":
         "*.tandemQueue[*].switch[*].retain": 0.2
     }
 
-    # Path to the old and new .ini files
     old_ini_file_path = os.path.join(src_dir, 'communicate_intensive.ini')
     new_ini_file_path = os.path.join(dest_dir, 'communicate_intensive.ini')
 
-    # Write the new .ini file with updated parameters
     coordinator.write_new_ini_file(old_ini_file_path, new_ini_file_path, param_dict)
 
 
