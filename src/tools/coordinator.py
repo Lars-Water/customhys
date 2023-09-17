@@ -1,5 +1,5 @@
 import sys
-sys.path.append('/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL')
+sys.path.append('/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model')
 import experiments
 
 # from import experiment_seq
@@ -19,7 +19,7 @@ class HeuristicSimulationCoordinator:
         pass
     
     def generate_design_point(self):
-        return herman_model.create_sim_pdes_comm(self.config["dp"]["workflowConfigFile"], self.config["dp"]["dummy_sim_path"], self.config["dp"]["inet_base"], id=0)
+        return simulation_model.create_sim_pdes_comm(self.config["dp"]["workflowConfigFile"], self.config["dp"]["dummy_sim_path"], self.config["dp"]["inet_base"], id=0)
     
     def setup_workflow_config(self):
         pass
@@ -58,19 +58,19 @@ if __name__ == "__main__":
     # # Temporarily replace command-line arguments
     # sys.argv = [
     #     'experiment_seq.py', 
-    #     '--data_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/experiments/', 
+    #     '--data_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/', 
     #     '--inet_path=/workspaces/omnetpp-6.0.1/inet4.5/', 
-    #     '--sims_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/',
-    #     '--dummy_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/',
+    #     '--sims_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
+    #     '--dummy_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
     #     '--platform=local'
     # ]
     # Temporarily replace command-line arguments
     sys.argv = [
         'experiment_seq.py', 
-        '--experiments_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/experiments/', 
+        '--experiments_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/', 
         '--inet_path=/workspaces/omnetpp-6.0.1/inet4.5/', 
-        '--sims_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/',
-        '--dummy_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/',
+        '--sims_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
+        '--dummy_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
         '--platform=local'
     ]
 
