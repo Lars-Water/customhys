@@ -1,0 +1,3 @@
+[ config_resource_controller  17-09-2023 13:05:28  INFO     ]  Default config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/default.cfg
+[ config_resource_controller  17-09-2023 13:05:28  INFO     ]  Using config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/config/workflow_local.json
+[ config_resource_controller  17-09-2023 13:05:28  INFO     ]  Loading config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/config/workflow_local.json
