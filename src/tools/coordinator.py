@@ -1,24 +1,28 @@
-import tools.tools as tools
+import sys
+sys.path.append('/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL')
+import experiments
 
-from src.external import CUSTOMHys
-from src.external import HERMAN_MODEL as sim_model
-from src.external.HERMAN_MODEL.src.manager import Manager
-from src.external.HERMAN_MODEL.src.utils.config_creator import WorkflowConfig
+# from import experiment_seq
+# from src.manager import Manager
+# from src.utils.config_creator import WorkflowConfig
+
+# from tools import tools
 
 import subprocess
 
 class HeuristicSimulationCoordinator:
     
     def __init__(self, config_path):
-        test_path = "/workspaces/hyper-heuristic-dse-2.0/config/coordinator.json"
-        self.config = tools.load_config(test_path)
+        # test_path = "/workspaces/hyper-heuristic-dse-2.0/config/coordinator.json"
+        # self.config = tools.load_config(test_path)
         # self.config = tools.load_config(config_path)
+        pass
     
     def generate_design_point(self):
-        return sim_model.create_sim_pdes_comm(self.config["dp"]["workflowConfigFile"], self.config["dp"]["dummy_sim_path"], self.config["dp"]["inet_base"], id=0)
+        return herman_model.create_sim_pdes_comm(self.config["dp"]["workflowConfigFile"], self.config["dp"]["dummy_sim_path"], self.config["dp"]["inet_base"], id=0)
     
     def setup_workflow_config(self):
-        self.workflow_config()
+        pass
     
     def setup_simulation_manager(self):
         self.simulation_manager = Manager(self.config["manager"]["workflowConfigFile"], self.config["manager"]["workflowLogsFolder"])
@@ -47,11 +51,37 @@ class HeuristicSimulationCoordinator:
 
 # Example usage
 if __name__ == "__main__":
-    
-    # Initate simulation-heuristic coordinator.
-    coordinator = HeuristicSimulationCoordinator()
 
-    coordinator.simulation_manager.shutdown()
+    # Backup the original command-line arguments
+    original_argv = sys.argv
+
+    # # Temporarily replace command-line arguments
+    # sys.argv = [
+    #     'experiment_seq.py', 
+    #     '--data_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/experiments/', 
+    #     '--inet_path=/workspaces/omnetpp-6.0.1/inet4.5/', 
+    #     '--sims_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/',
+    #     '--dummy_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/',
+    #     '--platform=local'
+    # ]
+    # Temporarily replace command-line arguments
+    sys.argv = [
+        'experiment_seq.py', 
+        '--experiments_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/experiments/', 
+        '--inet_path=/workspaces/omnetpp-6.0.1/inet4.5/', 
+        '--sims_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/',
+        '--dummy_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/',
+        '--platform=local'
+    ]
+
+    # Run the main function of the target script
+    experiments.main()
+
+    # Restore original command-line arguments
+    sys.argv = original_argv    
+
+    # # Initate simulation-heuristic coordinator.
+    # coordinator = HeuristicSimulationCoordinator()
     
     # # Configure model boundaries
     # boundaries = {"param1": "value1", "param2": "value2"}
@@ -64,3 +94,4 @@ if __name__ == "__main__":
     # # Process output
     # coordinator.process_simulation_output(simulation_output)
     
+    # coordinator.simulation_manager.shutdown()
