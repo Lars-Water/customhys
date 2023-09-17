@@ -1,6 +1,0 @@
-{
-    "manager": {
-        "workflowLogsFolder": "/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/logs",
-        "workflowConfigFile": "/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json"
-    }
-}

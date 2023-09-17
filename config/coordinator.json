@@ -1,0 +1,11 @@
+{
+    "manager": {
+        "workflowLogsFolder": "/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/logs",
+        "workflowConfigFile": "/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json"
+    },
+    "dp": {
+        "workflowConfigFile": "/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json",
+        "dummy_sim_path": "/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims",
+        "inet_base": "/workspaces/omnetpp-6.0.1/inet4.5"
+    }
+}
