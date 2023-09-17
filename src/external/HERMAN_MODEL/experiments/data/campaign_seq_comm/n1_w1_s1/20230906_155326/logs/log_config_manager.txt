@@ -1,3 +1,0 @@
-[ config_manager  06-09-2023 15:53:27  INFO     ]  Default config file: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/src/utils/default.cfg
-[ config_manager  06-09-2023 15:53:27  INFO     ]  Using config file: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/experiments/data/campaign_seq_comm/n1_w1_s1/20230906_155326/config.json
-[ config_manager  06-09-2023 15:53:27  INFO     ]  Loading config file: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/experiments/data/campaign_seq_comm/n1_w1_s1/20230906_155326/config.json

@@ -1,6 +1,6 @@
 import sys
 sys.path.append('/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL')
-import experiment_seq
+import experiments
 
 # from import experiment_seq
 # from src.manager import Manager
@@ -55,10 +55,19 @@ if __name__ == "__main__":
     # Backup the original command-line arguments
     original_argv = sys.argv
 
+    # # Temporarily replace command-line arguments
+    # sys.argv = [
+    #     'experiment_seq.py', 
+    #     '--data_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/experiments/', 
+    #     '--inet_path=/workspaces/omnetpp-6.0.1/inet4.5/', 
+    #     '--sims_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/',
+    #     '--dummy_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/',
+    #     '--platform=local'
+    # ]
     # Temporarily replace command-line arguments
     sys.argv = [
         'experiment_seq.py', 
-        '--data_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/experiments/', 
+        '--experiments_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/experiments/', 
         '--inet_path=/workspaces/omnetpp-6.0.1/inet4.5/', 
         '--sims_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/',
         '--dummy_path=/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/',
@@ -66,7 +75,7 @@ if __name__ == "__main__":
     ]
 
     # Run the main function of the target script
-    experiment_seq.main()
+    experiments.main()
 
     # Restore original command-line arguments
     sys.argv = original_argv    
