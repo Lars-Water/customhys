@@ -3,12 +3,6 @@ import sys
 sys.path.append('/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model')
 import experiments
 
-# from import experiment_seq
-# from src.manager import Manager
-# from src.utils.config_creator import WorkflowConfig
-
-# from tools import tools
-
 import subprocess
 
 class HeuristicSimulationCoordinator:
@@ -27,19 +21,6 @@ class HeuristicSimulationCoordinator:
     
     def setup_simulation_manager(self):
         self.simulation_manager = Manager(self.config["manager"]["workflowConfigFile"], self.config["manager"]["workflowLogsFolder"])
-    
-    def evaluate_simulation_instances(self, config):
-        try:
-            # Configure the simulation
-            pass
-            
-            # Run the simulation and capture the output
-            self.simulation_manager.enqueue_tasks(sim_instances)
-            evaluated_sim_instances = self.simulation_manager.evaluate_all()
-            
-        except Exception as e:
-            print(f"An error occurred while running the simulation: {e}")
-            return None
     
     def configure_model_boundaries(self, boundaries):
         # Configure the CUSTOMHys framework
