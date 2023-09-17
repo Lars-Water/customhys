@@ -1,0 +1,5 @@
+[ output_handler  06-09-2023 14:59:31  INFO     ]  Reading in config file: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/experiments/data/campaign_seq_comm/n1_w1_s1/20230906_145928/config.json
+[ output_handler  06-09-2023 14:59:31  INFO     ]  Sims path: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/sims
+[ output_handler  06-09-2023 14:59:31  INFO     ]  Global results path: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/experiments/data/campaign_seq_comm/n1_w1_s1/20230906_145928/results
+[ output_handler  06-09-2023 14:59:31  INFO     ]  Global logs path: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/experiments/data/campaign_seq_comm/n1_w1_s1/20230906_145928/logs
+[ output_handler  06-09-2023 14:59:31  INFO     ]  Global runtime path: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/experiments/data/campaign_seq_comm/n1_w1_s1/20230906_145928/runtime
