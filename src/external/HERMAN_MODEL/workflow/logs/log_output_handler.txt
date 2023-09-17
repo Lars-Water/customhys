@@ -1,15 +1,15 @@
-[ output_handler  17-09-2023 10:34:40  INFO     ]  Reading in config file: /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json
-[ output_handler  17-09-2023 10:34:40  INFO     ]  Sims path: /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims
-[ output_handler  17-09-2023 10:34:40  INFO     ]  Global results path: /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/results
-[ output_handler  17-09-2023 10:34:40  INFO     ]  Global logs path: /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/logs
-[ output_handler  17-09-2023 10:34:40  INFO     ]  Global runtime path: /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/runtime
-[ output_handler  17-09-2023 10:35:14  INFO     ]  Removing results folder for 0aee1078ff2ac10c1714f2e34ed9d312
-[ output_handler  17-09-2023 10:35:14  INFO     ]  Writing runtime stats data to '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/runtime/0aee1078ff2ac10c1714f2e34ed9d312/runtime.json'
-[ output_handler  17-09-2023 10:35:14  INFO     ]  Removing old config file for 0aee1078ff2ac10c1714f2e34ed9d312
-[ output_handler  17-09-2023 10:35:14  INFO     ]  Moving config at '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/0/config.json' to '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/runtime/0aee1078ff2ac10c1714f2e34ed9d312/config.json'
-[ output_handler  17-09-2023 10:35:14  INFO     ]  Removing old workflow config file for 0aee1078ff2ac10c1714f2e34ed9d312
-[ output_handler  17-09-2023 10:35:14  INFO     ]  Copying workflow config at '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json' to '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/runtime/0aee1078ff2ac10c1714f2e34ed9d312/workflow_config.json'
-[ output_handler  17-09-2023 10:35:14  INFO     ]  Removing old sim executable file for 0aee1078ff2ac10c1714f2e34ed9d312
-[ output_handler  17-09-2023 10:35:14  INFO     ]  Moving sim executable at '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/0/run_sim' to '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/runtime/0aee1078ff2ac10c1714f2e34ed9d312/sim_exec'
-[ output_handler  17-09-2023 10:35:14  INFO     ]  Removing old logs folder for 0aee1078ff2ac10c1714f2e34ed9d312
-[ output_handler  17-09-2023 10:35:14  INFO     ]  Moving logs at '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/0/logs' to '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/logs/0aee1078ff2ac10c1714f2e34ed9d312'
+[ output_handler  17-09-2023 07:46:56  INFO     ]  Reading in config file: /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json
+[ output_handler  17-09-2023 07:46:56  INFO     ]  Sims path: /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims
+[ output_handler  17-09-2023 07:46:56  INFO     ]  Global results path: /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/results
+[ output_handler  17-09-2023 07:46:56  INFO     ]  Global logs path: /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/logs
+[ output_handler  17-09-2023 07:46:56  INFO     ]  Global runtime path: /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/runtime
+[ output_handler  17-09-2023 07:47:55  INFO     ]  Removing results folder for 0aee1078ff2ac10c1714f2e34ed9d312
+[ output_handler  17-09-2023 07:47:55  INFO     ]  Writing runtime stats data to '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/runtime/0aee1078ff2ac10c1714f2e34ed9d312/runtime.json'
+[ output_handler  17-09-2023 07:47:55  INFO     ]  Removing old config file for 0aee1078ff2ac10c1714f2e34ed9d312
+[ output_handler  17-09-2023 07:47:55  INFO     ]  Moving config at '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/0/config.json' to '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/runtime/0aee1078ff2ac10c1714f2e34ed9d312/config.json'
+[ output_handler  17-09-2023 07:47:55  INFO     ]  Removing old workflow config file for 0aee1078ff2ac10c1714f2e34ed9d312
+[ output_handler  17-09-2023 07:47:55  INFO     ]  Copying workflow config at '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json' to '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/runtime/0aee1078ff2ac10c1714f2e34ed9d312/workflow_config.json'
+[ output_handler  17-09-2023 07:47:55  INFO     ]  Removing old sim executable file for 0aee1078ff2ac10c1714f2e34ed9d312
+[ output_handler  17-09-2023 07:47:55  INFO     ]  Moving sim executable at '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/0/run_sim' to '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/runtime/0aee1078ff2ac10c1714f2e34ed9d312/sim_exec'
+[ output_handler  17-09-2023 07:47:55  INFO     ]  Removing old logs folder for 0aee1078ff2ac10c1714f2e34ed9d312
+[ output_handler  17-09-2023 07:47:55  INFO     ]  Moving logs at '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/sims/0/logs' to '/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/logs/0aee1078ff2ac10c1714f2e34ed9d312'

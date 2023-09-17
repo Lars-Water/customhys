@@ -1,14 +1,14 @@
-import sys
-sys.path.append('/workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL')
-import experiment_seq
+import tools.tools as tools
 
-# from import experiment_seq
-# from src.manager import Manager
-# from src.utils.config_creator import WorkflowConfig
-
-# from tools import tools
+from src.external import CUSTOMHys
+from src.external import HERMAN_MODEL as herman_model
+from src.external.HERMAN_MODEL.src.manager import Manager
+from src.external.HERMAN_MODEL.src.utils.config_creator import WorkflowConfig
 
 import subprocess
+
+import sys
+from src.external.HERMAN_MODEL import experiment_seq
 
 class HeuristicSimulationCoordinator:
     
@@ -69,7 +69,9 @@ if __name__ == "__main__":
     experiment_seq.main()
 
     # Restore original command-line arguments
-    sys.argv = original_argv    
+    sys.argv = original_argv
+
+    
 
     # # Initate simulation-heuristic coordinator.
     # coordinator = HeuristicSimulationCoordinator()
