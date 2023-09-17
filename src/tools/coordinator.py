@@ -2,8 +2,8 @@ import os
 import sys
 sys.path.append('/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model')
 import experiments
+import experiment_campaign
 
-import subprocess
 
 class HeuristicSimulationCoordinator:
     
@@ -37,31 +37,37 @@ if __name__ == "__main__":
     # Backup the original command-line arguments
     original_argv = sys.argv
     original_directory = os.getcwd()
-
+    
     # # Temporarily replace command-line arguments
     # sys.argv = [
-    #     'experiment_seq.py', 
-    #     '--data_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/', 
+    #     'experiments.py', 
+    #     '--experiments_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/',
     #     '--inet_path=/workspaces/omnetpp-6.0.1/inet4.5/', 
     #     '--sims_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
     #     '--dummy_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
     #     '--platform=local'
     # ]
+
     # Temporarily replace command-line arguments
     sys.argv = [
-        'experiments.py', 
-        '--experiments_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/',
+        'experiment_campaign.py', 
+        '--data_path=', 
         '--inet_path=/workspaces/omnetpp-6.0.1/inet4.5/', 
         '--sims_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
         '--dummy_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
-        '--platform=local'
+        '--platform=local',
+        '--model=',
+        '--num_nodes=',
+        '--num_workers=',
+        '--num_sims='
     ]
 
     # Temporarily change the working directory
     os.chdir('/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/')
 
     # Run the main function of the target script
-    experiments.main()
+    # experiments.main()
+    experiment_campaign.main()
 
     # Restore original command-line arguments and working directory
     sys.argv = original_argv
