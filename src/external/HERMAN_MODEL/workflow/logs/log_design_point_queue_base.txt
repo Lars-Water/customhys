@@ -1,14 +1,14 @@
-[ design_point_queue_base  12-09-2023 17:56:00  INFO     ]  ID of design point queue: base
-[ design_point_queue_base  12-09-2023 17:56:00  INFO     ]  Reading in config file: /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json
-[ design_point_queue_base  12-09-2023 17:56:00  INFO     ]  Design point queues config data present in config file
-[ design_point_queue_base  12-09-2023 17:56:00  INFO     ]  Design point queue has priority 0
-[ design_point_queue_base  12-09-2023 17:56:00  INFO     ]  Design point queue has sorting algorithm FIFO
-[ design_point_queue_base  12-09-2023 17:56:00  INFO     ]  Checking validity of sorting algorithm param: FIFO
-[ design_point_queue_base  12-09-2023 17:56:00  INFO     ]  FIFO is a valid sorting algorithm
-[ design_point_queue_base  12-09-2023 17:56:00  INFO     ]  Setting design point queue sorting algorithm to: FIFO
-[ design_point_queue_base  12-09-2023 17:56:00  INFO     ]  Sorting the queue according to the sorting algorithm: FIFO
-[ design_point_queue_base  12-09-2023 17:56:00  INFO     ]  FIFO sorting algorithm does not change the current order of the queue
-[ design_point_queue_base  12-09-2023 17:56:01  INFO     ]  Inserting design point at the back of the queue
-[ design_point_queue_base  12-09-2023 17:56:01  INFO     ]  The current size of the design point queue: 1
-[ design_point_queue_base  12-09-2023 17:56:01  INFO     ]  The current size of the design point queue: 1
-[ design_point_queue_base  12-09-2023 17:56:01  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  17-09-2023 07:46:49  INFO     ]  ID of design point queue: base
+[ design_point_queue_base  17-09-2023 07:46:49  INFO     ]  Reading in config file: /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json
+[ design_point_queue_base  17-09-2023 07:46:49  INFO     ]  Design point queues config data present in config file
+[ design_point_queue_base  17-09-2023 07:46:49  INFO     ]  Design point queue has priority 0
+[ design_point_queue_base  17-09-2023 07:46:49  INFO     ]  Design point queue has sorting algorithm FIFO
+[ design_point_queue_base  17-09-2023 07:46:49  INFO     ]  Checking validity of sorting algorithm param: FIFO
+[ design_point_queue_base  17-09-2023 07:46:49  INFO     ]  FIFO is a valid sorting algorithm
+[ design_point_queue_base  17-09-2023 07:46:49  INFO     ]  Setting design point queue sorting algorithm to: FIFO
+[ design_point_queue_base  17-09-2023 07:46:49  INFO     ]  Sorting the queue according to the sorting algorithm: FIFO
+[ design_point_queue_base  17-09-2023 07:46:49  INFO     ]  FIFO sorting algorithm does not change the current order of the queue
+[ design_point_queue_base  17-09-2023 07:46:56  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  17-09-2023 07:46:56  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  17-09-2023 07:46:56  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  17-09-2023 07:46:56  INFO     ]  Popping 1 design points from the front of the queue
