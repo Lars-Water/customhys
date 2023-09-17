@@ -1,3 +1,4 @@
+import os
 import sys
 sys.path.append('/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model')
 import experiments
@@ -54,6 +55,7 @@ if __name__ == "__main__":
 
     # Backup the original command-line arguments
     original_argv = sys.argv
+    original_directory = os.getcwd()
 
     # # Temporarily replace command-line arguments
     # sys.argv = [
@@ -66,32 +68,20 @@ if __name__ == "__main__":
     # ]
     # Temporarily replace command-line arguments
     sys.argv = [
-        'experiment_seq.py', 
-        '--experiments_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/', 
+        'experiments.py', 
+        '--experiments_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/',
         '--inet_path=/workspaces/omnetpp-6.0.1/inet4.5/', 
         '--sims_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
         '--dummy_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
         '--platform=local'
     ]
 
+    # Temporarily change the working directory
+    os.chdir('/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/')
+
     # Run the main function of the target script
     experiments.main()
 
-    # Restore original command-line arguments
-    sys.argv = original_argv    
-
-    # # Initate simulation-heuristic coordinator.
-    # coordinator = HeuristicSimulationCoordinator()
-    
-    # # Configure model boundaries
-    # boundaries = {"param1": "value1", "param2": "value2"}
-    # coordinator.configure_model_boundaries(boundaries)
-    
-    # # Run simulation
-    # config = {"setting1": "value1", "setting2": "value2"}
-    # simulation_output = coordinator.call_simulation_run(config)
-    
-    # # Process output
-    # coordinator.process_simulation_output(simulation_output)
-    
-    # coordinator.simulation_manager.shutdown()
+    # Restore original command-line arguments and working directory
+    sys.argv = original_argv
+    os.chdir(original_directory)
