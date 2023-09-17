@@ -92,3 +92,10 @@ def create_sim_seq_sub(workflow_config, dummy_sim_path, id, inet_base):
     ini = "subsystem_intensive.ini"
 
     return create_sim(workflow_config, id, dummy_sim_path, dummy_sim, config, ini=ini)
+
+def create_sim_custom_dummy(workflow_config, dummy_sim_path, id, inet_base):
+    dummy_sim = "custom_dummy"
+    config = "General"
+    ini = "communicate_intensive.ini"
+
+    return create_sim(workflow_config, id, dummy_sim_path, dummy_sim, config, ini=ini)

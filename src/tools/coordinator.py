@@ -53,29 +53,53 @@ class HeuristicSimulationCoordinator:
                         updated_line = f"{param} = {value}\n"
                 new_file.write(updated_line)
 
-# Example usage
+    @staticmethod
+    def update_file_params(filepath, new_params):
+        directory, filename = os.path.split(filepath)
+        temp_filepath = os.path.join(directory, f"temp_{filename}")
+        try:
+            with open(filepath, 'r') as file_to_read, open(temp_filepath, 'w') as file_to_write:
+                for line in file_to_read:
+                    updated_line = line
+                    for param, value in new_params.items():
+                        if line.startswith(param):
+                            updated_line = f"{param} = {value}\n"
+                            break
+                    file_to_write.write(updated_line)
+
+            # Replace original file with updated file
+            shutil.move(temp_filepath, filepath)
+        except FileNotFoundError:
+            print("File not found.")
+        except Exception as e:
+            print("An error occurred:", e)
+
+
 if __name__ == "__main__":
 
     coordinator = HeuristicSimulationCoordinator("/workspaces/hyper-heuristic-dse-2.0/config/coordinator.json")
 
+    # Dynamic parameters as a dictionary
+    param_dict = {
+        "*.sDelay": "exponential(0.2s)",
+        "*.tandemQueue[*].queue[*].numInitialJobs": "2000",
+        "*.tandemQueue[*].queue[*].serviceTime": "exponential(0.2s)",
+        "*.tandemQueue[*].qDelay": "exponential(0.2s)",
+        "*.tandemQueue[*].switch[*].retain": "0.2"
+    }
+    
     src_dir = '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/dummy_sim_pdes_communicate'
     dest_dir = '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/custom_dummy'
 
+    # Update existing file.
+    # ini_file_path = os.path.join(src_dir, 'communicate_intensive.ini')
+    # coordinator.update_file_params(ini_file_path, param_dict)
+    
     # Delete destination directory if it exists
     if os.path.exists(dest_dir):
         shutil.rmtree(dest_dir)
-
+    # Duplicate a new custom dummy sim directory and ignore the given filename.
     shutil.copytree(src_dir, dest_dir, ignore=coordinator.ignore_file('communicate_intensive.ini'))
-
-    # Dynamic parameters as a dictionary
-    param_dict = {
-        "*.tandemQueue[*].numQueues": 2000,
-        "*.sDelay": "exponential(0.2s)",
-        "*.tandemQueue[*].queue[*].numInitialJobs": 2000,
-        "*.tandemQueue[*].queue[*].serviceTime": "exponential(0.2s)",
-        "*.tandemQueue[*].qDelay": "exponential(0.2s)",
-        "*.tandemQueue[*].switch[*].retain": 0.2
-    }
 
     old_ini_file_path = os.path.join(src_dir, 'communicate_intensive.ini')
     new_ini_file_path = os.path.join(dest_dir, 'communicate_intensive.ini')
