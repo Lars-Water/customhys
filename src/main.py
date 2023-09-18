@@ -14,7 +14,7 @@ def main(base_path):
 
     heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator("/workspaces/hyper-heuristic-dse-2.0/config/coordinator.json") # noqa 501
 
-    # Create fake CQN formulation from config file and simulation model.
+    # Create CQN formulation from the config file.
     config = tools.load_config(base_path + '/config/config.json')
     cqn_instance = model.generate_instance(4,
                                            config['Simulation']['cqn'],

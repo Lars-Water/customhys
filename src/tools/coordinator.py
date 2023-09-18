@@ -2,6 +2,7 @@ import os
 import shutil
 import sys
 import time
+import numpy as np
 
 sys.path.append('/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model')
 import experiments
@@ -16,9 +17,48 @@ class HeuristicSimulationCoordinator:
         # self.config = tools.load_config(config_path)
         pass
     
-    def simulation_run(self, variables):
-        # Run the simulation model with the given variables.
-        print("Configuration variables: ", variables)
+    def simulation_run(self, config_values):
+        
+        # Your boundary configuration
+        boundaries = {
+            "retain": [0.1, 0.5],
+            "serviceTime": [0.1, 0.5],
+            "sDelay": [0.1, 0.5],
+            "qDelay": [0.1, 0.5]
+        }
+        
+        # Dynamic parameters as a dictionary
+        param_dict = {
+            "*.sDelay": "exponential(0.2s)",
+            "*.tandemQueue[*].queue[*].serviceTime": "exponential(0.2s)",
+            "*.tandemQueue[*].qDelay": "exponential(0.2s)",
+            "*.tandemQueue[*].switch[*].retain": "0.2"
+        }
+        
+        # Map from boundary keys to param_dict keys
+        boundary_to_param_map = {
+            "retain": ("*.tandemQueue[*].switch[*].retain", "uniform"),
+            "serviceTime": ("*.tandemQueue[*].queue[*].serviceTime", "exponential"),
+            "sDelay": ("*.sDelay", "exponential"),
+            "qDelay": ("*.tandemQueue[*].qDelay", "exponential")
+        }
+
+        # Update param_dict based on boundaries and distributions
+        for idx, (boundary_key, _) in enumerate(boundaries.items()):
+            param_key, distribution = boundary_to_param_map.get(boundary_key, (None, None))
+            config_value = config_values[idx]  # Fetch the corresponding value from config values
+            
+            if param_key:
+                if distribution == "exponential":
+                    new_value = f"exponential({config_value}s)"
+                elif distribution == "uniform":
+                    new_value = str(config_value)
+                # Add other distributions here...
+                
+                param_dict[param_key] = new_value
+
+        print(param_dict)
+
         return 1 + 1
     
     def configure_model_boundaries(self, boundaries):
@@ -74,13 +114,13 @@ if __name__ == "__main__":
 
     coordinator = HeuristicSimulationCoordinator("/workspaces/hyper-heuristic-dse-2.0/config/coordinator.json")
 
-    # # Dynamic parameters as a dictionary
-    # param_dict = {
-    #     "*.sDelay": "exponential(0.2s)",
-    #     "*.tandemQueue[*].queue[*].serviceTime": "exponential(0.2s)",
-    #     "*.tandemQueue[*].qDelay": "exponential(0.2s)",
-    #     "*.tandemQueue[*].switch[*].retain": "0.2"
-    # }
+    # Dynamic parameters as a dictionary
+    param_dict = {
+        "*.sDelay": "exponential(0.2s)",
+        "*.tandemQueue[*].queue[*].serviceTime": "exponential(0.2s)",
+        "*.tandemQueue[*].qDelay": "exponential(0.2s)",
+        "*.tandemQueue[*].switch[*].retain": "0.2"
+    }
     # src_dir = '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/dummy_sim_pdes_communicate'
     # dest_dir = '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/custom_dummy'
 
