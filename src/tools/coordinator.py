@@ -28,7 +28,11 @@ class HeuristicSimulationCoordinator:
         # Write an updated version of the igored file from the directory that was just duplicated.
         old_ini_file_path = os.path.join(src_dir, "communicate_intensive.ini")
         new_ini_file_path = os.path.join(dest_dir, "communicate_intensive.ini")
-        coordinator.write_new_ini_file(old_ini_file_path, new_ini_file_path, param_dict)
+        HeuristicSimulationCoordinator.write_new_ini_file(
+            old_ini_file_path, 
+            new_ini_file_path, 
+            param_dict
+        )
         
         return 1 + 1
     
