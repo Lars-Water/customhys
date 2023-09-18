@@ -16,6 +16,10 @@ class HeuristicSimulationCoordinator:
         # self.config = tools.load_config(config_path)
         pass
     
+    def simulation_run(self, variables):
+        print("test")
+        return 1 + 1
+    
     def configure_model_boundaries(self, boundaries):
         # Configure the CUSTOMHys framework
         # self.customhys.configure_boundaries(boundaries)
