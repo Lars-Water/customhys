@@ -1,6 +1,7 @@
 import os
 import shutil
 import sys
+import time
 
 sys.path.append('/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model')
 import experiments
@@ -13,17 +14,6 @@ class HeuristicSimulationCoordinator:
         # test_path = "/workspaces/hyper-heuristic-dse-2.0/config/coordinator.json"
         # self.config = tools.load_config(test_path)
         # self.config = tools.load_config(config_path)
-        pass
-    
-    def generate_design_point(self):
-        #return simulation_model.create_sim_pdes_comm(self.config["dp"]["workflowConfigFile"], self.config["dp"]["dummy_sim_path"], self.config["dp"]["inet_base"], id=0)
-        pass
-    
-    def setup_workflow_config(self):
-        pass
-    
-    def setup_simulation_manager(self):
-        #self.simulation_manager = Manager(self.config["manager"]["workflowConfigFile"], self.config["manager"]["workflowLogsFolder"])
         pass
     
     def configure_model_boundaries(self, boundaries):
@@ -79,39 +69,36 @@ if __name__ == "__main__":
 
     coordinator = HeuristicSimulationCoordinator("/workspaces/hyper-heuristic-dse-2.0/config/coordinator.json")
 
-    # Dynamic parameters as a dictionary
-    param_dict = {
-        "*.sDelay": "exponential(0.2s)",
-        "*.tandemQueue[*].queue[*].numInitialJobs": "2000",
-        "*.tandemQueue[*].queue[*].serviceTime": "exponential(0.2s)",
-        "*.tandemQueue[*].qDelay": "exponential(0.2s)",
-        "*.tandemQueue[*].switch[*].retain": "0.2"
-    }
+    # # Dynamic parameters as a dictionary
+    # param_dict = {
+    #     "*.sDelay": "exponential(0.2s)",
+    #     "*.tandemQueue[*].queue[*].serviceTime": "exponential(0.2s)",
+    #     "*.tandemQueue[*].qDelay": "exponential(0.2s)",
+    #     "*.tandemQueue[*].switch[*].retain": "0.2"
+    # }
+    # src_dir = '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/dummy_sim_pdes_communicate'
+    # dest_dir = '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/custom_dummy'
+
+    # # # Update an existing file.
+    # # ini_file_path = os.path.join(src_dir, 'communicate_intensive.ini')
+    # # coordinator.update_file_params(ini_file_path, param_dict)
     
-    src_dir = '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/dummy_sim_pdes_communicate'
-    dest_dir = '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/custom_dummy'
+    # # Delete destination directory if it exists
+    # if os.path.exists(dest_dir):
+    #     shutil.rmtree(dest_dir)
+    # # Duplicate a new custom dummy sim directory and ignore the given filename.
+    # shutil.copytree(src_dir, dest_dir, ignore=coordinator.ignore_file('communicate_intensive.ini'))
 
-    # Update existing file.
-    # ini_file_path = os.path.join(src_dir, 'communicate_intensive.ini')
-    # coordinator.update_file_params(ini_file_path, param_dict)
-    
-    # Delete destination directory if it exists
-    if os.path.exists(dest_dir):
-        shutil.rmtree(dest_dir)
-    # Duplicate a new custom dummy sim directory and ignore the given filename.
-    shutil.copytree(src_dir, dest_dir, ignore=coordinator.ignore_file('communicate_intensive.ini'))
-
-    old_ini_file_path = os.path.join(src_dir, 'communicate_intensive.ini')
-    new_ini_file_path = os.path.join(dest_dir, 'communicate_intensive.ini')
-
-    coordinator.write_new_ini_file(old_ini_file_path, new_ini_file_path, param_dict)
-
+    # # Write an updated version of file from the directory that was just copied.
+    # old_ini_file_path = os.path.join(src_dir, 'communicate_intensive.ini')
+    # new_ini_file_path = os.path.join(dest_dir, 'communicate_intensive.ini')
+    # coordinator.write_new_ini_file(old_ini_file_path, new_ini_file_path, param_dict)
 
     # # Backup the original command-line arguments
     # original_argv = sys.argv
     # original_directory = os.getcwd()
     
-    # # # Temporarily replace command-line arguments
+    # # # Temporarily replace command-line arguments for experiments.py
     # # sys.argv = [
     # #     'experiments.py', 
     # #     '--experiments_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/',
@@ -121,25 +108,33 @@ if __name__ == "__main__":
     # #     '--platform=local'
     # # ]
 
-    # # Temporarily replace command-line arguments
+    # model = "custom"
+    # num_nodes = str(1)
+    # num_workers = str(1)
+    # num_sims = str(1)
+    # time_stamp = time.strftime("%Y%m%d_%H%M%S")
+    # experiments_path = "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments"
+    # data_path = os.path.join(experiments_path, "data", "campaign_{}".format(model), "n{}_w{}_s{}".format(num_nodes, num_workers, num_sims), time_stamp)
+    
+    # # Temporarily replace command-line arguments for experiment_campaign.py
     # sys.argv = [
     #     'experiment_campaign.py', 
-    #     '--data_path=', 
+    #     '--data_path=' + data_path,
     #     '--inet_path=/workspaces/omnetpp-6.0.1/inet4.5/', 
     #     '--sims_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
     #     '--dummy_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
     #     '--platform=local',
-    #     '--model=',
-    #     '--num_nodes=',
-    #     '--num_workers=',
-    #     '--num_sims='
+    #     '--model=' + model,
+    #     '--num_nodes=' + num_nodes,
+    #     '--num_workers=' + num_workers,
+    #     '--num_sims=' + num_sims
     # ]
 
     # # Temporarily change the working directory
     # os.chdir('/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/')
 
-    # # Run the main function of the target script
-    # # experiments.main()
+    # # # Run the main function of the target script
+    # # # experiments.main()
     # experiment_campaign.main()
 
     # # Restore original command-line arguments and working directory

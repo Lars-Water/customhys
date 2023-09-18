@@ -1,0 +1,44 @@
+OMNeT++ Discrete Event Simulation  (C) 1992-2022 Andras Varga, OpenSim Ltd.
+Version: 6.0.1, build: 220831-e4f07d04b8, edition: Academic Public License -- NOT FOR COMMERCIAL USE
+See the license for distribution terms and warranty disclaimer
+
+Setting up Cmdenv...
+
+Loading NED files from .:  6
+
+Preparing for running configuration General, run #0...
+Assigned runID=General-0-20230917-20:16:15-43911
+Setting up network "ClosedQueueingNetB"...
+Initializing...
+
+Running simulation...
+** Event #0   t=0   Elapsed: 1.6e-05s (0m 00s)  0% completed  (0% total)
+     Speed:     ev/sec=0   simsec/sec=0   ev/simsec=0
+     Messages:  created: 16008000   present: 16008000   in FES: 8001
+** Event #1726976   t=21.703595795205   Elapsed: 2.00006s (0m 02s)  14% completed  (14% total)
+     Speed:     ev/sec=863467   simsec/sec=10.8515   ev/simsec=79571
+     Messages:  created: 16008000   present: 16008000   in FES: 18042
+** Event #3533568   t=44.320651115294   Elapsed: 4.00018s (0m 04s)  29% completed  (29% total)
+     Speed:     ev/sec=903245   simsec/sec=11.3079   ev/simsec=79877.4
+     Messages:  created: 16008000   present: 16008000   in FES: 18197
+** Event #5289728   t=66.265677635393   Elapsed: 6.00045s (0m 06s)  44% completed  (44% total)
+     Speed:     ev/sec=877959   simsec/sec=10.971   ev/simsec=80025.4
+     Messages:  created: 16008000   present: 16008000   in FES: 18155
+** Event #7039488   t=88.158439451966   Elapsed: 8.00069s (0m 08s)  58% completed  (58% total)
+     Speed:     ev/sec=874775   simsec/sec=10.9451   ev/simsec=79924.1
+     Messages:  created: 16008000   present: 16008000   in FES: 18095
+** Event #8829184   t=110.554611423202   Elapsed: 10.0007s (0m 10s)  73% completed  (73% total)
+     Speed:     ev/sec=894835   simsec/sec=11.1979   ev/simsec=79910.8
+     Messages:  created: 16008000   present: 16008000   in FES: 18186
+** Event #10588672   t=132.514754447786   Elapsed: 12.0008s (0m 12s)  88% completed  (88% total)
+     Speed:     ev/sec=879705   simsec/sec=10.9796   ev/simsec=80121.9
+     Messages:  created: 16008000   present: 16008000   in FES: 18059
+** Event #11987895   t=150   Elapsed: 13.5413s (0m 13s)  100% completed  (100% total)
+     Speed:     ev/sec=908281   simsec/sec=11.3502   ev/simsec=80023.1
+     Messages:  created: 16008000   present: 16008000   in FES: 18106
+
+<!> Simulation time limit reached -- at t=150s, event #11987895
+
+Calling finish() at end of Run #0...
+
+End.

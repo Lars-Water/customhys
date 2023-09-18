@@ -1,0 +1,27 @@
+[ config_siminstance_2e7af8eb30bb341d0d458ab2af535d61  17-09-2023 20:07:44  INFO     ]  Default config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/default.cfg
+[ config_siminstance_2e7af8eb30bb341d0d458ab2af535d61  17-09-2023 20:07:44  INFO     ]  Using config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/config.json
+[ config_siminstance_2e7af8eb30bb341d0d458ab2af535d61  17-09-2023 20:07:44  INFO     ]  Loading config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/config.json
+[ config_siminstance_2e7af8eb30bb341d0d458ab2af535d61  17-09-2023 20:07:47  WARNING  ]  Could not get: ('omnet', 'simulation', 'param_sweep', 'active')
+[ config_siminstance_2e7af8eb30bb341d0d458ab2af535d61  17-09-2023 20:07:47  ERROR    ]  'param_sweep'
+[                                                                                    ]  Traceback (most recent call last):
+[                                                                                    ]    File "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/config_reader.py", line 49, in tryGet
+[                                                                                    ]      conf = conf[arg]
+[                                                                                    ]  KeyError: 'param_sweep'
+[ config_siminstance_2e7af8eb30bb341d0d458ab2af535d61  17-09-2023 20:07:47  WARNING  ]  Could not get: ('omnet', 'simulation', 'time_limit')
+[ config_siminstance_2e7af8eb30bb341d0d458ab2af535d61  17-09-2023 20:07:47  ERROR    ]  'time_limit'
+[                                                                                    ]  Traceback (most recent call last):
+[                                                                                    ]    File "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/config_reader.py", line 49, in tryGet
+[                                                                                    ]      conf = conf[arg]
+[                                                                                    ]  KeyError: 'time_limit'
+[ config_siminstance_2e7af8eb30bb341d0d458ab2af535d61  17-09-2023 20:07:47  WARNING  ]  Could not get: ('omnet', 'simulation', 'ned_paths')
+[ config_siminstance_2e7af8eb30bb341d0d458ab2af535d61  17-09-2023 20:07:47  ERROR    ]  'ned_paths'
+[                                                                                    ]  Traceback (most recent call last):
+[                                                                                    ]    File "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/config_reader.py", line 49, in tryGet
+[                                                                                    ]      conf = conf[arg]
+[                                                                                    ]  KeyError: 'ned_paths'
+[ config_siminstance_2e7af8eb30bb341d0d458ab2af535d61  17-09-2023 20:07:47  WARNING  ]  Could not get: ('omnet', 'simulation', 'libraries')
+[ config_siminstance_2e7af8eb30bb341d0d458ab2af535d61  17-09-2023 20:07:47  ERROR    ]  'libraries'
+[                                                                                    ]  Traceback (most recent call last):
+[                                                                                    ]    File "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/config_reader.py", line 49, in tryGet
+[                                                                                    ]      conf = conf[arg]
+[                                                                                    ]  KeyError: 'libraries'
