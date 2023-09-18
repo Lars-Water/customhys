@@ -52,8 +52,6 @@ class instance(BP):
     Generate a basic problem instance from a given simulation model
     configuration and simulation run functionality.
 '''
-
-
 def generate_instance(variable_num, instance_config, sim_run):
     min_range = np.array([instance_config['boundaries'][key][0]
                           for key in instance_config['boundaries']])
