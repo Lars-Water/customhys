@@ -18,47 +18,18 @@ class HeuristicSimulationCoordinator:
         pass
     
     def simulation_run(self, config_values):
+        param_dict = self.set_param_values(config_values)
         
-        # Your boundary configuration
-        boundaries = {
-            "retain": [0.1, 0.5],
-            "serviceTime": [0.1, 0.5],
-            "sDelay": [0.1, 0.5],
-            "qDelay": [0.1, 0.5]
-        }
+        # Duplicate the preferred dummy_sim directory to the custom directory.
+        src_dir = '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/dummy_sim_pdes_communicate'
+        dest_dir = '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/custom_dummy'
+        self.duplicate_directory(src_dir, dest_dir, "communicate_intensive.ini")
+
+        # Write an updated version of the igored file from the directory that was just duplicated.
+        old_ini_file_path = os.path.join(src_dir, "communicate_intensive.ini")
+        new_ini_file_path = os.path.join(dest_dir, "communicate_intensive.ini")
+        coordinator.write_new_ini_file(old_ini_file_path, new_ini_file_path, param_dict)
         
-        # Dynamic parameters as a dictionary
-        param_dict = {
-            "*.sDelay": "exponential(0.2s)",
-            "*.tandemQueue[*].queue[*].serviceTime": "exponential(0.2s)",
-            "*.tandemQueue[*].qDelay": "exponential(0.2s)",
-            "*.tandemQueue[*].switch[*].retain": "0.2"
-        }
-        
-        # Map from boundary keys to param_dict keys
-        boundary_to_param_map = {
-            "retain": ("*.tandemQueue[*].switch[*].retain", "uniform"),
-            "serviceTime": ("*.tandemQueue[*].queue[*].serviceTime", "exponential"),
-            "sDelay": ("*.sDelay", "exponential"),
-            "qDelay": ("*.tandemQueue[*].qDelay", "exponential")
-        }
-
-        # Update param_dict based on boundaries and distributions
-        for idx, (boundary_key, _) in enumerate(boundaries.items()):
-            param_key, distribution = boundary_to_param_map.get(boundary_key, (None, None))
-            config_value = config_values[idx]  # Fetch the corresponding value from config values
-            
-            if param_key:
-                if distribution == "exponential":
-                    new_value = f"exponential({config_value}s)"
-                elif distribution == "uniform":
-                    new_value = str(config_value)
-                # Add other distributions here...
-                
-                param_dict[param_key] = new_value
-
-        print(param_dict)
-
         return 1 + 1
     
     def configure_model_boundaries(self, boundaries):
@@ -109,18 +80,58 @@ class HeuristicSimulationCoordinator:
         except Exception as e:
             print("An error occurred:", e)
 
+    @staticmethod
+    def set_param_values(config_values):
+
+        # Boundary configuration.
+        boundaries = {
+            "*.sDelay": [0.1, 0.5],
+            "*.tandemQueue[*].queue[*].serviceTime": [0.1, 0.5],
+            "*.tandemQueue[*].qDelay": [0.1, 0.5],
+            "*.tandemQueue[*].switch[*].retain": [0.1, 0.5]
+        }
+
+        # Dynamic parameters mapped to value distriution.
+        param_dict = {
+            "*.sDelay": "exponential",
+            "*.tandemQueue[*].queue[*].serviceTime": "exponential",
+            "*.tandemQueue[*].qDelay": "exponential",
+            "*.tandemQueue[*].switch[*].retain": "uniform"
+        }
+
+        # Update param_dict based on provided config values following the order of the boundaries.
+        for idx, (param_key, _) in enumerate(boundaries.items()):
+            distribution = param_dict.get(param_key, None)
+            config_value = config_values[idx]  # Fetch the corresponding value from the confiq_values
+            
+            if distribution == "exponential":
+                param_dict[param_key] = f"exponential({config_value}s)"
+            elif distribution == "uniform":
+                param_dict[param_key] = str(config_value)
+            # Add other distributions here...
+        
+        return param_dict
+    
+    @staticmethod
+    def duplicate_directory(src_dir, dest_dir, file_to_ignore):
+        # Delete destination directory if it exists
+        if os.path.exists(dest_dir):
+            shutil.rmtree(dest_dir)
+        # Duplicate a new custom dummy sim directory and ignore the given filename.
+        shutil.copytree(src_dir, dest_dir, ignore=ignore_file(file_to_ignore))
+
 
 if __name__ == "__main__":
 
     coordinator = HeuristicSimulationCoordinator("/workspaces/hyper-heuristic-dse-2.0/config/coordinator.json")
 
-    # Dynamic parameters as a dictionary
-    param_dict = {
-        "*.sDelay": "exponential(0.2s)",
-        "*.tandemQueue[*].queue[*].serviceTime": "exponential(0.2s)",
-        "*.tandemQueue[*].qDelay": "exponential(0.2s)",
-        "*.tandemQueue[*].switch[*].retain": "0.2"
-    }
+    # # Dynamic parameters as a dictionary
+    # param_dict = {
+    #     "*.sDelay": "exponential(0.2s)",
+    #     "*.tandemQueue[*].queue[*].serviceTime": "exponential(0.2s)",
+    #     "*.tandemQueue[*].qDelay": "exponential(0.2s)",
+    #     "*.tandemQueue[*].switch[*].retain": "0.2"
+    # }
     # src_dir = '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/dummy_sim_pdes_communicate'
     # dest_dir = '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/custom_dummy'
 
