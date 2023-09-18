@@ -21,27 +21,24 @@ def main(base_path):
                                            heur_sim_coordinator.simulation_run)
     prob = cqn_instance.get_formatted_problem()
 
-    # print the generated problem instance
-    print(prob)
+    # Create metaheuristic search operator for uniform random search.
+    # For all default operators see "~data/external/default_operators.txt"
+    heur = [(
+        'random_search',
+        {
+            'scale': 1.0,
+            'distribution': 'uniform'
+        },
+        'greedy'
+    )]
 
-    # # Create metaheuristic search operator for uniform random search.
-    # # For all default operators see "~data/external/default_operators.txt"
-    # heur = [(
-    #     'random_search',
-    #     {
-    #         'scale': 1.0,
-    #         'distribution': 'uniform'
-    #     },
-    #     'greedy'
-    # )]
-
-    # # Generate a metaheuristic search method for the CQN model.
-    # met = mh.Metaheuristic(prob, heur, num_agents=1, num_iterations=1)
-    # met.verbose = True
+    # Generate a metaheuristic search method for the CQN model.
+    met = mh.Metaheuristic(prob, heur, num_agents=1, num_iterations=1)
+    met.verbose = True
 
     # Run the metaheuristic on the problem. The fitness value is calculated at
     # every iteration step by the run function in the SimulationModel class.
-    # met.run()
+    met.run()
 
     # # Save the best fitness value for every iteration in a plot.
     # visualization.save_simulation_fitness(met.historical,
