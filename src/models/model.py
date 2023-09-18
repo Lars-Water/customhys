@@ -1,6 +1,7 @@
 import numpy as np
 
-from external.CUSTOMHys.customhys import benchmark_func as bf
+# from external.CUSTOMHys.customhys import benchmark_func as bf
+from customhys import benchmark_func as bf
 
 # Import BasicProblem object for generating a custom optimisation problem.
 BP = bf.BasicProblem
