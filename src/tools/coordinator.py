@@ -18,6 +18,7 @@ class HeuristicSimulationCoordinator:
     
     def simulation_run(self, variables):
         # Run the simulation model with the given variables.
+        print("Configuration variables: ", variables)
         return 1 + 1
     
     def configure_model_boundaries(self, boundaries):
