@@ -17,6 +17,7 @@ class HeuristicSimulationCoordinator:
         pass
     
     def simulation_run(self, config_values):
+        # Set the values of the parameters in the simulation model.
         param_dict = self.set_param_values(config_values)
         
         # Duplicate the preferred dummy_sim directory to the custom directory.
@@ -24,7 +25,7 @@ class HeuristicSimulationCoordinator:
         dest_dir = '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/custom_dummy'
         self.duplicate_directory(src_dir, dest_dir, "communicate_intensive.ini")
 
-        # Write an updated version of the igored file from the directory that was just duplicated.
+        # Write an updated version of the ignored param value file from the directory that was just duplicated.
         old_ini_file_path = os.path.join(src_dir, "communicate_intensive.ini")
         new_ini_file_path = os.path.join(dest_dir, "communicate_intensive.ini")
         self.write_new_ini_file(
@@ -46,17 +47,18 @@ class HeuristicSimulationCoordinator:
 
         # Collect the sim_runtime.
         sim_runtime_csv_file_path = self.campaign_run_collect(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
-        df = pd.read_csv(sim_runtime_csv_file_path)
-        sim_exec_time = df.loc[0, 'simulation.sim_exec_time']
-        print(f"simulation.sim_exec_time: {sim_exec_time}")
+        sim_exec_time = self.process_simulation_output(sim_runtime_csv_file_path, 'simulation.sim_exec_time')
         
-        return 1 + 1
+        return sim_exec_time
     
     def configure_model_boundaries(self):
         pass
     
-    def process_simulation_output(self, output):
-        pass
+    @staticmethod
+    def process_simulation_output(sim_runtime_csv_file_path, column_name):
+        df = pd.read_csv(sim_runtime_csv_file_path)
+        sim_exec_time = df.loc[0, column_name]
+        return sim_exec_time
 
     @staticmethod
     def ignore_file(file_name):
@@ -95,6 +97,12 @@ class HeuristicSimulationCoordinator:
         except Exception as e:
             print("An error occurred:", e)
 
+    '''
+    Set the values of the parameters in the simulation model.
+
+    Args:
+        config_values: A list of values for the parameters in the simulation model.
+    '''
     @staticmethod
     def set_param_values(config_values):
 

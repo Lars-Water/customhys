@@ -1,3 +1,5 @@
+import os
+
 import tools.tools as tools
 import tools.coordinator as coordinator
 import models.model as model
@@ -33,16 +35,16 @@ def main(base_path):
     )]
 
     # Generate a metaheuristic search method for the CQN model.
-    met = mh.Metaheuristic(prob, heur, num_agents=1, num_iterations=1)
+    met = mh.Metaheuristic(prob, heur, num_agents=1, num_iterations=5)
     met.verbose = True
 
     # Run the metaheuristic on the problem. The fitness value is calculated at
     # every iteration step by the run function in the SimulationModel class.
     met.run()
 
-    # # Save the best fitness value for every iteration in a plot.
-    # visualization.save_simulation_fitness(met.historical,
-    #                                       base_path + '/data/processed/Fake_CQN_fitness_over_iteration.png') # noqa 501
+    # Save the best fitness value for every iteration in a plot.
+    image_path = "/data/processed/test_run_heuristic_simulation_workflow.png" # noqa 501
+    visualization.save_simulation_fitness(met.historical, os.path.join(base_path, image_path)) # noqa 501
 
     # # Setup parameters for the hyperheuristic
     # parameters = dict(
@@ -77,7 +79,7 @@ def main(base_path):
     # visualization.save_simulation_fitness({"fitness": historical_best},
     #                                       base_path + '/data/processed/Fake_CQN_fitness_hh.png') # noqa 501
 
-    # return
+    return
 
 
 if __name__ == "__main__":
