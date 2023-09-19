@@ -1,3 +1,4 @@
+import argparse
 import os
 import shutil
 import sys
@@ -34,10 +35,19 @@ class HeuristicSimulationCoordinator:
             param_dict
         )
 
+        # Define flag values for the experiment campaign.
+        model = "custom"
+        num_nodes = str(1)
+        num_workers = str(1)
+        num_sims = str(1)
+        time_stamp = time.strftime("%Y%m%d_%H%M%S")
+        experiments_path = "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments"
+        
         # Run the experiment campaign.
-        self.run_experiment_campaign()
+        self.run_experiment_campaign(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
 
         # TODO: Print the fitness value of the simulation run.
+        self.campaign_run_collect(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
         
         return 1 + 1
     
@@ -128,19 +138,13 @@ class HeuristicSimulationCoordinator:
         )
 
     @staticmethod
-    def run_experiment_campaign():
+    def run_experiment_campaign(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path):
 
         # Backup the original command-line arguments
         original_argv = sys.argv
         original_directory = os.getcwd()
 
         # define flag values for the experiment campaign.
-        model = "custom"
-        num_nodes = str(1)
-        num_workers = str(1)
-        num_sims = str(1)
-        time_stamp = time.strftime("%Y%m%d_%H%M%S")
-        experiments_path = "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments"
         data_path = os.path.join(experiments_path, "data", "campaign_{}".format(model), "n{}_w{}_s{}".format(num_nodes, num_workers, num_sims), time_stamp)
         
         # Temporarily replace command-line arguments for experiment_campaign.py
@@ -162,6 +166,34 @@ class HeuristicSimulationCoordinator:
 
         # Run the main function of the target script
         experiment_campaign.main()
+
+        # Restore original command-line arguments and working directory
+        sys.argv = original_argv
+        os.chdir(original_directory)
+
+    @staticmethod
+    def campaign_run_collect(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path):
+
+        # Backup the original command-line arguments
+        original_argv = sys.argv
+        original_directory = os.getcwd()
+
+        # Temporarily replace command-line arguments for experiments.campaign_run_collect()
+        sys.argv = [
+            'experiments.py', 
+            f'--experiments_path={experiments_path}'
+        ]
+
+        # Set up the argument parser for experiments.campaign_run_collect()
+        arg_parser = argparse.ArgumentParser()
+        arg_parser.add_argument("--experiments_path", default="experiments/", help="specifies the base path of the project")
+        args = arg_parser.parse_args()
+
+        # Temporarily change the working directory
+        os.chdir('/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/')
+
+        # Run the data collection function of the target script.
+        experiments.campaign_run_collect(args, model, num_nodes, num_workers, num_sims, time_stamp)
 
         # Restore original command-line arguments and working directory
         sys.argv = original_argv
