@@ -1,0 +1,28 @@
+{
+    "sims_path": "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/",
+    "local_sim_config": "config",
+    "local_sim_exec": "run_sim",
+    "local_sim_results": "results",
+    "local_sim_logs": "logs",
+    "local_sim_out": "out",
+    "global_sim_runtime": "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20230919_092545/runtime",
+    "global_sim_results": "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20230919_092545/results",
+    "global_sim_logs": "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20230919_092545/logs",
+    "uid_scheme": "md5-files",
+    "design_point_queues": {
+        "base": {
+            "priority": 0,
+            "sorting_algo": "FIFO"
+        }
+    },
+    "resource_controller": {
+        "cluster": {
+            "interface": "local",
+            "n_workers": 1,
+            "threads_per_worker": 6
+        }
+    },
+    "output_handler": {
+        "remove_sca": true
+    }
+}
