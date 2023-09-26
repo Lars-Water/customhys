@@ -9,7 +9,7 @@ import visualization.visualization as visualization
 # from external.CUSTOMHys.customhys import hyperheuristic as hh
 
 from customhys import metaheuristic as mh
-from customhys import hyperheuristic as hh
+# from customhys import hyperheuristic as hh
 
 
 def main(base_path):
@@ -18,9 +18,11 @@ def main(base_path):
 
     # Create CQN formulation from the config file.
     config = tools.load_config(base_path + '/config/config.json')
-    cqn_instance = model.generate_instance(4,
-                                           config['Simulation']['cqn'],
-                                           heur_sim_coordinator.simulation_run)
+    cqn_instance = model.generate_instance(
+        4,
+        config['Simulation']['cqn'],
+        heur_sim_coordinator.simulation_run
+    )
     prob = cqn_instance.get_formatted_problem()
 
     # Create metaheuristic search operator for uniform random search.
@@ -35,16 +37,16 @@ def main(base_path):
     )]
 
     # Generate a metaheuristic search method for the CQN model.
-    met = mh.Metaheuristic(prob, heur, num_agents=1, num_iterations=5)
-    met.verbose = True
+    met = mh.Metaheuristic(prob, heur, num_agents=1, num_iterations=10)
+    # met.verbose = True
 
     # Run the metaheuristic on the problem. The fitness value is calculated at
     # every iteration step by the run function in the SimulationModel class.
     met.run()
 
     # Save the best fitness value for every iteration in a plot.
-    image_path = "/data/processed/test_run_heuristic_simulation_workflow.png" # noqa 501
-    visualization.save_simulation_fitness(met.historical, os.path.join(base_path, image_path)) # noqa 501
+    data_path = "data/processed/" # noqa 501
+    visualization.save_simulation_fitness(met.historical, os.path.join(base_path, data_path, "test_run_heuristic_simulation_workflow.png")) # noqa 501
 
     # # Setup parameters for the hyperheuristic
     # parameters = dict(
@@ -88,5 +90,5 @@ if __name__ == "__main__":
     # PyCharm
     # base_path = r'C:\Users\larry\Desktop\SE_Thesis\hh-dse-2.0'
     # Codespaces
-    base_path = "/workspaces/hyper-heuristic-dse-2.0"
+    base_path = "/workspaces/hyper-heuristic-dse-2.0/"
     main(base_path)

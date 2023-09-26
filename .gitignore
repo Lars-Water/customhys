@@ -101,7 +101,7 @@ bin/
 /data/raw
 
 # exclude external models from source control
-# /src/external/
+/src/external/
 
 # exclude omnet_directory from source control
 /omnetpp-6.0.1

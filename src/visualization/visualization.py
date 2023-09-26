@@ -1,4 +1,6 @@
+import os
 import matplotlib.pyplot as plt
+import numpy as np
 
 '''
     Save the best fitness values at every iteration step as
@@ -11,11 +13,27 @@ import matplotlib.pyplot as plt
 
 def save_simulation_fitness(hist_values, store_path):
 
-    # Invert the historical values as the fitness values are the inverse.
-    inverted_values = [1 / x for x in hist_values['fitness']]
+    # Create directory if it doesn't exist
+    if not os.path.exists(os.path.dirname(store_path)):
+        os.makedirs(os.path.dirname(store_path))
+    
+    # # From local machine, but I do not really know why anymore. CHECK Notebook if I have
+    # # local machine again!
+    # # Invert the historical values as the fitness values are the inverse.
+    # inverted_values = [1 / x for x in hist_values['fitness']]
 
+    print("hist_values: ", hist_values)
+
+    # Extract the 'fitness' values into a list and convert the arrays to regular numbers
+    fitness_values = [x for x in hist_values['fitness']]
+
+    # Create the plot
     plt.figure()
-    plt.plot(inverted_values, lw=2)
-    plt.xlabel('Iteration'), plt.ylabel('Fitness')
-    plt.tight_layout()
-    plt.savefig(store_path)
+    plt.plot(fitness_values, lw=2)
+    plt.xlabel('Iteration')
+    plt.ylabel('Simulation exection time')
+    plt.xlim(0, len(fitness_values) - 1)
+    plt.ylim(0, max(fitness_values) + 1)
+    plt.xticks(np.arange(0, len(fitness_values), step=1))
+    plt.grid()
+    plt.savefig("/workspaces/hyper-heuristic-dse-2.0/data/processed/my_figure.png")

@@ -5,10 +5,10 @@
     "Simulation": {
       "cqn": {
           "boundaries": {
-              "*.sDelay": [0.1, 0.5],
-              "*.tandemQueue[*].queue[*].serviceTime": [0.1, 0.5],
-              "*.tandemQueue[*].qDelay": [0.1, 0.5],
-              "*.tandemQueue[*].switch[*].retain": [0.1, 0.5]
+              "*.sDelay": [0.1, 1.5],
+              "*.tandemQueue[*].queue[*].serviceTime": [0.1, 2.0],
+              "*.tandemQueue[*].qDelay": [0.1, 2.0],
+              "*.tandemQueue[*].switch[*].retain": [0.1, 2.0]
           },
           "optimal_solution": [0.1, 0.1, 0.1, 0.1],
           "optimal_fitness": 510
