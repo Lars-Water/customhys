@@ -27,17 +27,30 @@ def main(base_path):
 
     # Create metaheuristic search operator for uniform random search.
     # For all default operators see "~data/external/default_operators.txt"
-    heur = [(
-        'random_search',
-        {
-            'scale': 1.0,
-            'distribution': 'uniform'
-        },
-        'greedy'
-    )]
+    heur = [
+        (
+            'genetic_crossover', 
+            {
+                'pairing': 'random', 
+                'crossover': 'single', 
+                'mating_pool_factor': 0.4
+            }, 
+            'all'
+        ), 
+        (
+            'genetic_mutation', 
+            {
+                'scale': 1.0, 
+                'elite_rate': 0.1, 
+                'mutation_rate': 0.25, 
+                'distribution': 'uniform'
+            }, 
+            'all'
+        )
+    ]
 
     # Generate a metaheuristic search method for the CQN model.
-    met = mh.Metaheuristic(prob, heur, num_agents=1, num_iterations=10)
+    met = mh.Metaheuristic(prob, heur, num_agents=10, num_iterations=10)
     # met.verbose = True
 
     # Run the metaheuristic on the problem. The fitness value is calculated at

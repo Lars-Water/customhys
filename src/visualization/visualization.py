@@ -22,8 +22,6 @@ def save_simulation_fitness(hist_values, store_path):
     # # Invert the historical values as the fitness values are the inverse.
     # inverted_values = [1 / x for x in hist_values['fitness']]
 
-    print("hist_values: ", hist_values)
-
     # Extract the 'fitness' values into a list and convert the arrays to regular numbers
     fitness_values = [x for x in hist_values['fitness']]
 
