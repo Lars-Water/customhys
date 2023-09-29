@@ -93,6 +93,16 @@ def create_sim_seq_sub(workflow_config, dummy_sim_path, id, inet_base):
 
     return create_sim(workflow_config, id, dummy_sim_path, dummy_sim, config, ini=ini)
 
+# -------------------------------------------------------------------------------------------
+# NOTE: The following functions are added by me (Lars) and does not exist in the original code.
+# -------------------------------------------------------------------------------------------
+def create_sim_seq(workflow_config, dummy_sim_path, id, inet_base):
+    dummy_sim = "dummy_sim_seq"
+    config = "General"
+    ini = "omnetpp.ini"
+
+    return create_sim(workflow_config, id, dummy_sim_path, dummy_sim, config, ini=ini)
+
 def create_sim_custom_dummy(workflow_config, dummy_sim_path, id, inet_base):
     dummy_sim = "custom_dummy"
     config = "General"

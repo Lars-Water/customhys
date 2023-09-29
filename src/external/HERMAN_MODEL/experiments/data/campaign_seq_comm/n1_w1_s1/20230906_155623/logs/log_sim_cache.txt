@@ -1,2 +1,0 @@
-[ sim_cache  06-09-2023 15:56:25  INFO     ]  Reading in config file: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/experiments/data/campaign_seq_comm/n1_w1_s1/20230906_155623/config.json
-[ sim_cache  06-09-2023 15:56:25  INFO     ]  Sims path: /home/lars-water/master-code/Scalable-Simulation-DCPS-main/sims

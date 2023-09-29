@@ -7,7 +7,7 @@ import time
 
 from experiments import create_sim, create_sim_inet_lans, create_sim_pdes_comm, create_sim_pdes_comp, create_sim_pdes_sub
 from experiments import create_sim_seq_comm, create_sim_seq_comp, create_sim_seq_sub
-from experiments import create_sim_custom_dummy
+from experiments import create_sim_custom_dummy, create_sim_seq
 
 
 from src.manager import Manager
@@ -67,6 +67,12 @@ def campaign(args):
     elif args.model == "seq_sub":
         num_sims = args.num_sims
         sim_instances = [create_sim_seq_sub(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
+# -------------------------------------------------------------------------------------------
+# NOTE: The following functions are added by me (Lars) and does not exist in the original code.
+# -------------------------------------------------------------------------------------------
+    elif args.model == "seq":
+        num_sims = args.num_sims
+        sim_instances = [create_sim_seq(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
     elif args.model == "custom":
         num_sims = args.num_sims
         sim_instances = [create_sim_custom_dummy(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]

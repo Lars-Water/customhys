@@ -1,3 +1,0 @@
-[ config_sim_cache  17-09-2023 07:46:56  INFO     ]  Default config file: /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/src/utils/default.cfg
-[ config_sim_cache  17-09-2023 07:46:56  INFO     ]  Using config file: /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json
-[ config_sim_cache  17-09-2023 07:46:56  INFO     ]  Loading config file: /workspaces/hyper-heuristic-dse-2.0/src/external/HERMAN_MODEL/workflow/config/workflow_local.json

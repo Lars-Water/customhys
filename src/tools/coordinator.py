@@ -3,7 +3,6 @@ import os
 import shutil
 import sys
 import time
-import numpy as np
 import pandas as pd
 
 sys.path.append('/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model')
@@ -36,6 +35,7 @@ class HeuristicSimulationCoordinator:
         )
 
         # Define flag values for the experiment campaign.
+        # TODO: Make these configurable.
         model = "custom"
         num_nodes = str(1)
         num_workers = str(1)
@@ -51,9 +51,6 @@ class HeuristicSimulationCoordinator:
         sim_exec_time = self.process_simulation_output(sim_runtime_csv_file_path, 'simulation.sim_exec_time')
 
         return sim_exec_time
-    
-    def configure_model_boundaries(self):
-        pass
     
     @staticmethod
     def process_simulation_output(sim_runtime_csv_file_path, column_name):
@@ -221,15 +218,15 @@ if __name__ == "__main__":
     # original_argv = sys.argv
     # original_directory = os.getcwd()
     
-    # # # Temporarily replace command-line arguments for experiments.py
-    # # sys.argv = [
-    # #     'experiments.py', 
-    # #     '--experiments_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/',
-    # #     '--inet_path=/workspaces/omnetpp-6.0.1/inet4.5/', 
-    # #     '--sims_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
-    # #     '--dummy_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
-    # #     '--platform=local'
-    # # ]
+    # # Temporarily replace command-line arguments for experiments.py
+    # sys.argv = [
+    #     'experiments.py', 
+    #     '--experiments_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/',
+    #     '--inet_path=/workspaces/omnetpp-6.0.1/inet4.5/', 
+    #     '--sims_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
+    #     '--dummy_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
+    #     '--platform=local'
+    # ]
 
     # # Temporarily change the working directory
     # os.chdir('/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/')

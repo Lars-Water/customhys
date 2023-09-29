@@ -1,2 +1,0 @@
-workflow,design_point_queue_base.general.num_dp_queued,design_point_queue_base.general.num_dp_dequeued,workflow,manager.general.environment_start,manager.general.num_dp,manager.general.num_dp_unique,manager.general.num_eval_rc,manager.general.num_dp_finished,manager.general.environment_end,manager.general.environment_time,workflow,workflow,workflow,num_nodes,num_workers,num_sims,model,time_stamp
-n1_w1_s1,1,1,n1_w1_s1,1694008407.8736432,1,1,1,1,1694008496.6445196,88.77087640762329,n1_w1_s1,n1_w1_s1,n1_w1_s1,1,1,1,seq_comm,20230906_155326
