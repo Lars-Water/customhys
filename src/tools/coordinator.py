@@ -36,7 +36,7 @@ class HeuristicSimulationCoordinator:
 
         # Define flag values for the experiment campaign.
         # TODO: Make these configurable.
-        model = "custom"
+        model = "tictoc"
         num_nodes = str(1)
         num_workers = str(1)
         num_sims = str(1)

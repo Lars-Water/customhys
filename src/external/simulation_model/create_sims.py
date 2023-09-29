@@ -96,8 +96,8 @@ def create_sim_seq_sub(workflow_config, dummy_sim_path, id, inet_base):
 # -------------------------------------------------------------------------------------------
 # NOTE: The following functions are added by me (Lars) and does not exist in the original code.
 # -------------------------------------------------------------------------------------------
-def create_sim_seq(workflow_config, dummy_sim_path, id, inet_base):
-    dummy_sim = "dummy_sim_seq"
+def create_tictoc(workflow_config, dummy_sim_path, id, inet_base):
+    dummy_sim = "tictoc"
     config = "General"
     ini = "omnetpp.ini"
 
