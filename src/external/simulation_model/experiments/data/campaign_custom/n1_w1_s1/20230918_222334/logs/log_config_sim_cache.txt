@@ -1,6 +1,0 @@
-[ config_sim_cache  18-09-2023 22:23:37  INFO     ]  Default config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/default.cfg
-[ config_sim_cache  18-09-2023 22:23:37  INFO     ]  Using config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20230918_222334/config.json
-[ config_sim_cache  18-09-2023 22:23:37  INFO     ]  Loading config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20230918_222334/config.json
-[ config_sim_cache  18-09-2023 22:24:08  INFO     ]  Default config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/default.cfg
-[ config_sim_cache  18-09-2023 22:24:08  INFO     ]  Using config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20230918_222402/config.json
-[ config_sim_cache  18-09-2023 22:24:08  INFO     ]  Loading config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20230918_222402/config.json

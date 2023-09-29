@@ -1,5 +1,0 @@
-[ output_handler  18-09-2023 22:23:07  INFO     ]  Reading in config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20230918_222304/config.json
-[ output_handler  18-09-2023 22:23:07  INFO     ]  Sims path: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/
-[ output_handler  18-09-2023 22:23:07  INFO     ]  Global results path: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20230918_222304/results
-[ output_handler  18-09-2023 22:23:07  INFO     ]  Global logs path: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20230918_222304/logs
-[ output_handler  18-09-2023 22:23:07  INFO     ]  Global runtime path: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20230918_222304/runtime
