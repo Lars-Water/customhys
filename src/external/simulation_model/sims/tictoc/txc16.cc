@@ -79,6 +79,11 @@ void Txc16::handleMessage(cMessage *msg)
         EV << newmsg << endl;
         forwardMessage(newmsg);
     }
+    // Make a conditional statement that stops the simulation when the hopcount is higher than 10.
+    else if (ttmsg->getHopCount() > 10) {
+        EV << "Message " << ttmsg << " dropped.\n";
+        delete ttmsg;
+    }
     else {
         // We need to forward the message.
         forwardMessage(ttmsg);
