@@ -1,0 +1,12 @@
+[ output_handler  02-10-2023 14:44:38  INFO     ]  Reading in config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/config/workflow_local.json
+[ output_handler  02-10-2023 14:44:38  INFO     ]  Sims path: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims
+[ output_handler  02-10-2023 14:44:38  INFO     ]  Global results path: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/results
+[ output_handler  02-10-2023 14:44:38  INFO     ]  Global logs path: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/logs
+[ output_handler  02-10-2023 14:44:38  INFO     ]  Global runtime path: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/runtime
+[ output_handler  02-10-2023 14:44:41  INFO     ]  Removing results folder for b737a56fa8c4c2cde07bc64fb99098a1
+[ output_handler  02-10-2023 14:44:41  INFO     ]  Writing runtime stats data to '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/runtime/b737a56fa8c4c2cde07bc64fb99098a1/runtime.json'
+[ output_handler  02-10-2023 14:44:41  INFO     ]  Moving config at '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/config.json' to '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/runtime/b737a56fa8c4c2cde07bc64fb99098a1/config.json'
+[ output_handler  02-10-2023 14:44:41  INFO     ]  Copying workflow config at '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/config/workflow_local.json' to '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/runtime/b737a56fa8c4c2cde07bc64fb99098a1/workflow_config.json'
+[ output_handler  02-10-2023 14:44:41  INFO     ]  Moving sim executable at '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/run_sim' to '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/runtime/b737a56fa8c4c2cde07bc64fb99098a1/sim_exec'
+[ output_handler  02-10-2023 14:44:41  INFO     ]  Removing old logs folder for b737a56fa8c4c2cde07bc64fb99098a1
+[ output_handler  02-10-2023 14:44:41  INFO     ]  Moving logs at '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/logs' to '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/logs/b737a56fa8c4c2cde07bc64fb99098a1'
