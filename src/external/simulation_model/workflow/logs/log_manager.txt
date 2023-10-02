@@ -1,18 +1,18 @@
-[ manager  29-09-2023 12:14:55  INFO     ]  Reading in config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/config/workflow_local.json
-[ manager  29-09-2023 12:14:55  INFO     ]  Creating design point queue(s)
-[ manager  29-09-2023 12:14:55  INFO     ]  Creating design point queue with id: base
-[ manager  29-09-2023 12:14:55  INFO     ]  Design point queue order (highest priority first):
-[ manager  29-09-2023 12:14:55  INFO     ]  base with priority 0
-[ manager  29-09-2023 12:14:55  INFO     ]  Creating resource controller
-[ manager  29-09-2023 12:14:57  INFO     ]  Creating output handler
-[ manager  29-09-2023 12:14:57  INFO     ]  Creating sim cache
-[ manager  29-09-2023 12:14:57  INFO     ]  Manager received sim instances (1)
-[ manager  29-09-2023 12:14:57  INFO     ]  Queue for given id does not exist
-[ manager  29-09-2023 12:14:57  INFO     ]  Filtered 0 duplicate sim instances
-[ manager  29-09-2023 12:14:57  INFO     ]  Filtered 0 sim instances based on cache
-[ manager  29-09-2023 12:14:57  INFO     ]  Inserting sim instances (1) in design point queue None
-[ manager  29-09-2023 12:14:57  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
-[ manager  29-09-2023 12:14:57  INFO     ]  Requesting 1 sim instances from design point queue base
-[ manager  29-09-2023 12:14:57  INFO     ]  Recieved 1 sim instances from design point queue base
-[ manager  29-09-2023 12:14:57  INFO     ]  Setting sim instances (1) to processing state in cache
-[ manager  29-09-2023 12:14:57  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  02-10-2023 10:43:14  INFO     ]  Reading in config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/config/workflow_local.json
+[ manager  02-10-2023 10:43:14  INFO     ]  Creating design point queue(s)
+[ manager  02-10-2023 10:43:14  INFO     ]  Creating design point queue with id: base
+[ manager  02-10-2023 10:43:14  INFO     ]  Design point queue order (highest priority first):
+[ manager  02-10-2023 10:43:14  INFO     ]  base with priority 0
+[ manager  02-10-2023 10:43:14  INFO     ]  Creating resource controller
+[ manager  02-10-2023 10:43:15  INFO     ]  Creating output handler
+[ manager  02-10-2023 10:43:15  INFO     ]  Creating sim cache
+[ manager  02-10-2023 10:43:15  INFO     ]  Manager received sim instances (1)
+[ manager  02-10-2023 10:43:15  INFO     ]  Queue for given id does not exist
+[ manager  02-10-2023 10:43:15  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  02-10-2023 10:43:15  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  02-10-2023 10:43:15  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  02-10-2023 10:43:15  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  02-10-2023 10:43:15  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  02-10-2023 10:43:15  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  02-10-2023 10:43:15  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  02-10-2023 10:43:15  INFO     ]  Sending sim instances (1) to resource controller
