@@ -9,7 +9,7 @@ from src.outputhandler import OutputHandler
 from src.siminstance import Siminstance
 from src.utils.config_creator import OmnetSimConfig, SiminstanceConfig, WorkflowConfig
 
-from create_sims import create_sim_seq_comm, create_sim_pdes_comm, create_sim_custom_dummy, create_sim_seq, create_sim_pdes_comm, create_sim_pdes_comp, create_sim_pdes_sub, create_sim_pdes, create_sim_inet_lans
+from create_sims import create_sim_seq_comm, create_sim_pdes_comm, create_sim_custom_dummy, create_tictoc, create_sim_pdes_comm, create_sim_pdes_comp, create_sim_pdes_sub, create_sim_pdes, create_sim_inet_lans
 
 def main():
     arg_parser = argparse.ArgumentParser()
@@ -51,7 +51,7 @@ def main():
     num_sims = 1
 
     # sim_instances = [create_sim_pdes_comm(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
-    sim_instances = [create_sim_seq(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
+    sim_instances = [create_tictoc(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
     # sim_instances = [create_sim_custom_dummy(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
     # sim_instances = [create_sim_seq_comm(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
 
@@ -59,6 +59,7 @@ def main():
 
     m.enqueue_tasks(sim_instances)
     evaluated_sim_instances = m.evaluate_all()
+    print(evaluated_sim_instances[0].uid)
     m.shutdown()
 
 
