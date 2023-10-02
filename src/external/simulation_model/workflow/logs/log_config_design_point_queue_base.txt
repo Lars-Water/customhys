@@ -1,3 +1,0 @@
-[ config_design_point_queue_base  02-10-2023 10:43:14  INFO     ]  Default config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/default.cfg
-[ config_design_point_queue_base  02-10-2023 10:43:14  INFO     ]  Using config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/config/workflow_local.json
-[ config_design_point_queue_base  02-10-2023 10:43:14  INFO     ]  Loading config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/config/workflow_local.json
