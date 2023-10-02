@@ -1,0 +1,62 @@
+OMNeT++ Discrete Event Simulation  (C) 1992-2022 Andras Varga, OpenSim Ltd.
+Version: 6.0.1, build: 220831-e4f07d04b8, edition: Academic Public License -- NOT FOR COMMERCIAL USE
+See the license for distribution terms and warranty disclaimer
+
+Setting up Cmdenv...
+
+Loading NED files from .:  1
+
+Preparing for running configuration General, run #0...
+Assigned runID=General-0-20231002-15:07:53-4089
+Setting up network "Tictoc16"...
+Initializing...
+
+Running simulation...
+** Event #0   t=0   Elapsed: 1e-05s (0m 00s)
+     Speed:     ev/sec=0   simsec/sec=0   ev/simsec=0
+     Messages:  created: 1   present: 1   in FES: 1
+** Event #7587840   t=758783.9   Elapsed: 2.01578s (0m 02s)
+     Speed:     ev/sec=3.76425e+06   simsec/sec=376425   ev/simsec=10
+     Messages:  created: 785688   present: 1   in FES: 0
+** Event #14711040   t=1471103.9   Elapsed: 4.01578s (0m 04s)
+     Speed:     ev/sec=3.56159e+06   simsec/sec=356159   ev/simsec=10
+     Messages:  created: 1523129   present: 1   in FES: 0
+** Event #21504768   t=2150476.7   Elapsed: 6.01578s (0m 06s)
+     Speed:     ev/sec=3.39686e+06   simsec/sec=339686   ev/simsec=10
+     Messages:  created: 2224615   present: 1   in FES: 0
+** Event #28982784   t=2898278.3   Elapsed: 8.01581s (0m 08s)
+     Speed:     ev/sec=3.73895e+06   simsec/sec=373895   ev/simsec=10
+     Messages:  created: 2997233   present: 1   in FES: 0
+** Event #35335168   t=3533516.7   Elapsed: 10.0158s (0m 10s)
+     Speed:     ev/sec=3.17617e+06   simsec/sec=317617   ev/simsec=10
+     Messages:  created: 3653411   present: 1   in FES: 0
+** Event #42759680   t=4275967.9   Elapsed: 12.0159s (0m 12s)
+     Speed:     ev/sec=3.7122e+06   simsec/sec=371220   ev/simsec=10
+     Messages:  created: 4422100   present: 1   in FES: 0
+** Event #50007040   t=5000703.9   Elapsed: 14.0159s (0m 14s)
+     Speed:     ev/sec=3.62365e+06   simsec/sec=362365   ev/simsec=10
+     Messages:  created: 5170959   present: 1   in FES: 0
+** Event #56531968   t=5653196.7   Elapsed: 16.0159s (0m 16s)
+     Speed:     ev/sec=3.26243e+06   simsec/sec=326243   ev/simsec=10
+     Messages:  created: 5846000   present: 1   in FES: 0
+** Event #63993856   t=6399385.5   Elapsed: 18.0159s (0m 18s)
+     Speed:     ev/sec=3.73091e+06   simsec/sec=373091   ev/simsec=10
+     Messages:  created: 6617523   present: 1   in FES: 0
+** Event #70254592   t=7025459.1   Elapsed: 20.0226s (0m 20s)
+     Speed:     ev/sec=3.11994e+06   simsec/sec=311994   ev/simsec=10
+     Messages:  created: 7264308   present: 1   in FES: 0
+** Event #77656320   t=7765631.9   Elapsed: 22.0226s (0m 22s)
+     Speed:     ev/sec=3.70085e+06   simsec/sec=370085   ev/simsec=10
+     Messages:  created: 8028892   present: 1   in FES: 0
+** Event #84868864   t=8486886.3   Elapsed: 24.0226s (0m 24s)
+     Speed:     ev/sec=3.60625e+06   simsec/sec=360625   ev/simsec=10
+     Messages:  created: 8774621   present: 1   in FES: 0
+** Event #91487744   t=9148774.3   Elapsed: 26.0226s (0m 26s)
+     Speed:     ev/sec=3.30944e+06   simsec/sec=330944   ev/simsec=10
+     Messages:  created: 9457696   present: 1   in FES: 0
+** Event #92233721   t=9223372   Elapsed: 26.1891s (0m 26s)
+     Speed:     ev/sec=4.48209e+06   simsec/sec=448209   ev/simsec=10
+     Messages:  created: 9534549   present: 1   in FES: 0
+undisposed object: (TicTocMsg16) Tictoc16.tic.tic-1-to-5 -- check module destructor
+
+End.
