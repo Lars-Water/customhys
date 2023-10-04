@@ -109,7 +109,6 @@ class OutputHandler:
         sim_global_results_path = self.sim_global_results_path(sim_instance)
 
         if self.cnf.tryGet("output_handler", "remove_sca"):
-            print("Removing sca files")
             self.__remove_folder(sim_local_results_path, "results", sim_instance.uid)
         else:
             self.__move_folder(sim_local_results_path, sim_global_results_path, "results", sim_instance.uid)
