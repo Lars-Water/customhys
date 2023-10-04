@@ -1,0 +1,26 @@
+OMNeT++ Discrete Event Simulation  (C) 1992-2022 Andras Varga, OpenSim Ltd.
+Version: 6.0.1, build: 220831-e4f07d04b8, edition: Academic Public License -- NOT FOR COMMERCIAL USE
+See the license for distribution terms and warranty disclaimer
+
+Setting up Cmdenv...
+
+Loading NED files from .:  1
+
+Preparing for running configuration General, run #0...
+Assigned runID=General-0-20231004-21:00:05-3960
+Setting up network "Tictoc16"...
+Initializing...
+
+Running simulation...
+** Event #0   t=0   Elapsed: 9e-06s (0m 00s)
+     Speed:     ev/sec=0   simsec/sec=0   ev/simsec=0
+     Messages:  created: 1   present: 1   in FES: 1
+** Event #12   t=1.1   Elapsed: 8.1e-05s (0m 00s)
+     Speed:     ev/sec=0   simsec/sec=0   ev/simsec=0
+     Messages:  created: 1   present: 0   in FES: 0
+
+<!> No more events, simulation completed -- at t=1.1s, event #12
+
+Calling finish() at end of Run #0...
+
+End.

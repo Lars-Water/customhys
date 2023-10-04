@@ -50,8 +50,8 @@ def main():
 
     num_sims = 1
 
-    sim_instances = [create_sim_pdes_comm(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
-    # sim_instances = [create_tictoc(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
+    # sim_instances = [create_sim_pdes_comm(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
+    sim_instances = [create_tictoc(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
     # sim_instances = [create_sim_custom_dummy(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
     # sim_instances = [create_sim_seq_comm(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
 
