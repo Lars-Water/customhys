@@ -17,7 +17,7 @@ class WorkflowConfig:
                  global_sim_results, global_sim_logs, global_sim_runtime,
                  design_queues,
                  uid_scheme,
-                 cluster_config, remove_sca=False):
+                 cluster_config, remove_sca=True):
 
         self.workflow_config = {}
         self.workflow_config["sims_path"] = sims_path

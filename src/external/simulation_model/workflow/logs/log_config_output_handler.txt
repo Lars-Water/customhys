@@ -1,3 +1,3 @@
-[ config_output_handler  04-10-2023 19:28:39  INFO     ]  Default config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/default.cfg
-[ config_output_handler  04-10-2023 19:28:39  INFO     ]  Using config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/config/workflow_local.json
-[ config_output_handler  04-10-2023 19:28:39  INFO     ]  Loading config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/config/workflow_local.json
+[ config_output_handler  04-10-2023 20:30:24  INFO     ]  Default config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/default.cfg
+[ config_output_handler  04-10-2023 20:30:24  INFO     ]  Using config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/config/workflow_local.json
+[ config_output_handler  04-10-2023 20:30:24  INFO     ]  Loading config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/config/workflow_local.json

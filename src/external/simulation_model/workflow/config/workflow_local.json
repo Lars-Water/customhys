@@ -23,6 +23,6 @@
         }
     },
     "output_handler": {
-        "remove_sca": true
+        "remove_sca": false
     }
 }
