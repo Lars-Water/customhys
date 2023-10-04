@@ -1,0 +1,18 @@
+{
+    "simulator": "omnet",
+    "omnet": {
+        "make": {
+            "opp_makemake": {
+                "force": true
+            },
+            "verbose": true
+        },
+        "simulation": {
+            "ini": "omnetpp.ini",
+            "config": "General",
+            "environment": "Cmdenv",
+            "record_eventlog": false
+        },
+        "metadata": null
+    }
+}
