@@ -39,20 +39,22 @@ def save_simulation_fitness(hist_values, store_path):
 
 
 '''
-    Read the csv file in path /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/results/ab5f71b5e22b1928ce6aeae0ae2aaadb/tictoc.csv
-    to a dataframe and print the dataframe with column 'type' having value 'statistic'.
-
-    skip on columns 'underflows,overflows,binedges,binvalues'
+    Read the csv file in path /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/results/ab5f71b5e22b1928ce6aeae0ae2aaadb/tictoc.csv to a dataframe. 
+    
+    Define the dataframe such that it contains all rows with column 'type' having value 'statistic'. Skip on columns 'underflows,overflows,binedges,binvalues'.
 '''
 def save_hop_count():
-    df = pd.read_csv(
-        "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/results/ab5f71b5e22b1928ce6aeae0ae2aaadb/tictoc.csv", 
-        skipinitialspace=True, 
-        skiprows=0, 
-        skip_blank_lines=True, 
-        usecols=lambda x: x not in ['underflows','overflows','binedges','binvalues']
-    )
-    print(df[df['type'] == 'statistic'])
+    df = pd.read_csv("/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/results/ab5f71b5e22b1928ce6aeae0ae2aaadb/tictoc.csv")
+    df = df[df.type == 'statistic'].drop(columns=['underflows','overflows','binedges','binvalues'])
+    
+    # For every row, make a box plot with the values 'mean, stddev, min, max'. The plot title should be the value of column 'module'
+    for index, row in df.iterrows():
+        plt.figure()
+        plt.boxplot([row['mean'], row['stddev'], row['min'], row['max']])
+        plt.title(row['module'])
+        plt.savefig("/workspaces/hyper-heuristic-dse-2.0/data/processed/" + row['module'] + ".png")
+
+
 
 if __name__ == "__main__":
     save_hop_count()
