@@ -45,3 +45,7 @@ def save_simulation_fitness(hist_values, store_path):
 def save_hop_count():
     df = pd.read_csv("/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/results/ab5f71b5e22b1928ce6aeae0ae2aaadb/tictoc.csv")
     print(df[df['type'] == 'statistic'])
+
+if __name__ == "__main__":
+    save_hop_count()
+    # save_simulation_fitness()
