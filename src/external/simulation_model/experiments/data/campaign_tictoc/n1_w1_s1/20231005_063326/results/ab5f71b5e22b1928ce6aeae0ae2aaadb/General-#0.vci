@@ -1,0 +1,49 @@
+file 1875 1696487619                                            
+version 3
+run General-0-20231005-06:33:39-4490
+attr configname General
+attr datetime 20231005-06:33:39
+attr datetimef 20231005-063339
+attr experiment General
+attr inifile /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/omnetpp.ini
+attr iterationvars ""
+attr iterationvarsd ""
+attr iterationvarsf ""
+attr measurement ""
+attr network Tictoc16
+attr processid 4490
+attr repetition 0
+attr replication #0
+attr resultdir /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/results
+attr runnumber 0
+attr seedset 0
+config result-dir /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/results
+config network Tictoc16
+config **.tic[1].hopCount.result-recording-modes +histogram
+config **.tic[0..2].hopCount.result-recording-modes -vector
+
+vector 0 Tictoc16.tic[5] hopCount:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source arrival
+attr title "hop count"
+vector 1 Tictoc16.tic[3] hopCount:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source arrival
+attr title "hop count"
+vector 2 Tictoc16.tic[4] hopCount:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source arrival
+attr title "hop count"
+vector 3 Tictoc16.tic[1] hopCount:vector ETV
+attr interpolationmode none
+attr recordingmode vector
+attr source arrival
+attr title "hop count"
+0	1364 140 18 446 1.7 44.5 11 1 29 103 1765
+1	1504 79 74 440 7.3 43.9 6 1 45 108 3358
+2	1583 121 77 351 7.6 35 10 1 19 40 444
+3	1704 170 140 448 13.9 44.7 13 1 13 41 297
+
