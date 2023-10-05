@@ -51,7 +51,7 @@ def save_hop_count():
     for index, row in df.iterrows():
         plt.figure()
         plt.boxplot([row['mean'], row['stddev'], row['min'], row['max']])
-        plt.title(row['module'])
+        plt.title(f'Hop count distribution - {row["module"]}')
         plt.savefig("/workspaces/hyper-heuristic-dse-2.0/data/processed/" + row['module'] + ".png")
 
 
