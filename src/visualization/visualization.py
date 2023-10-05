@@ -1,6 +1,7 @@
 import os
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 
 '''
     Save the best fitness values at every iteration step as
@@ -35,3 +36,12 @@ def save_simulation_fitness(hist_values, store_path):
     plt.xticks(np.arange(0, len(fitness_values), step=1))
     plt.grid()
     plt.savefig("/workspaces/hyper-heuristic-dse-2.0/data/processed/my_figure.png")
+
+
+'''
+    Read the csv file in path /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/results/ab5f71b5e22b1928ce6aeae0ae2aaadb/tictoc.csv
+    to a dataframe and print the dataframe with column 'type' having value 'statistic'.
+'''
+def save_hop_count():
+    df = pd.read_csv("/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/results/ab5f71b5e22b1928ce6aeae0ae2aaadb/tictoc.csv")
+    print(df[df['type'] == 'statistic'])
