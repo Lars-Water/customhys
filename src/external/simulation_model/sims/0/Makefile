@@ -33,11 +33,10 @@ PROJECTRELATIVE_PATH =
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc, .msg and .sm files
-OBJS = $O/txc16.o $O/tictoc16_m.o
+OBJS = $O/Queue.o $O/Switch.o
 
 # Message files
-MSGFILES = \
-    tictoc16.msg
+MSGFILES =
 
 # SM files
 SMFILES =
