@@ -56,7 +56,7 @@ void AbstractQueue::initialize()
     queueLength.setName("queueLength");
 
     // Set the signal for the response time.
-    simsignal_t responseTimeSignal = registerSignal("responseTime");
+    responseTimeSignal = registerSignal("responseTime");
 }
 
 void AbstractQueue::handleMessage(cMessage *msg)
