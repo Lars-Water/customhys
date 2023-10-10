@@ -63,10 +63,10 @@ void AbstractQueue::handleMessage(cMessage *msg)
 {
     if (msg == endServiceMsg) {
 
-        // // Calculate the response time from the starttime of the service to the endtime of the service.
-        // simtime_t responseTime = simTime() - msgServiced->par("startTime");
-        // // Emit the responsetime signal.
-        // emit(responseTimeSignal, responseTime);
+        // Calculate the response time from the starttime of the service to the endtime of the service.
+        int responseTime = 43 - msgServiced->par("startTime");
+        // Emit the responsetime signal.
+        emit(responseTimeSignal, responseTime);
 
         endService(msgServiced);
         if (queue.isEmpty()) {
@@ -89,7 +89,7 @@ void AbstractQueue::handleMessage(cMessage *msg)
 
         // Set a paramater for msgServiced that represents the starttime of the service.
         msgServiced->addPar("startTime");
-        msgServiced->par("startTime") = simTime();
+        msgServiced->par("startTime") = 42;
     }
     else {
         arrival(msg);
