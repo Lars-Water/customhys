@@ -87,9 +87,9 @@ void AbstractQueue::handleMessage(cMessage *msg)
         endServiceMsg->setSchedulingPriority(priority);
         scheduleAt(simTime()+serviceTime, endServiceMsg);
 
-        // // Set a paramater for msgServiced that represents the starttime of the service.
-        // msgServiced->addPar("startTime");
-        // msgServiced->par("startTime") = simTime();
+        // Set a paramater for msgServiced that represents the starttime of the service.
+        msgServiced->addPar("startTime");
+        msgServiced->par("startTime") = simTime();
     }
     else {
         arrival(msg);
