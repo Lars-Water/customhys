@@ -63,10 +63,10 @@ void AbstractQueue::handleMessage(cMessage *msg)
 {
     if (msg == endServiceMsg) {
 
-        // Calculate the response time from the starttime of the service to the endtime of the service.
-        simtime_t responseTime = simTime() - msgServiced->par("startTime");
-        // Emit the responsetime signal.
-        emit(responseTimeSignal, responseTime);
+        // // Calculate the response time from the starttime of the service to the endtime of the service.
+        // simtime_t responseTime = simTime() - msgServiced->par("startTime");
+        // // Emit the responsetime signal.
+        // emit(responseTimeSignal, responseTime);
 
         endService(msgServiced);
         if (queue.isEmpty()) {
@@ -87,9 +87,9 @@ void AbstractQueue::handleMessage(cMessage *msg)
         endServiceMsg->setSchedulingPriority(priority);
         scheduleAt(simTime()+serviceTime, endServiceMsg);
 
-        // Set a paramater for msgServiced that represents the starttime of the service.
-        msgServiced->addPar("startTime");
-        msgServiced->par("startTime") = simTime();
+        // // Set a paramater for msgServiced that represents the starttime of the service.
+        // msgServiced->addPar("startTime");
+        // msgServiced->par("startTime") = simTime();
     }
     else {
         arrival(msg);
@@ -110,10 +110,6 @@ void AbstractQueue::refreshDisplay() const
  */
 class Queue : public AbstractQueue
 {
-  private:
-    simsignal_t responseTimeSignal;
-    simtime_t entryTime;
-  
   public:
     virtual void initialize() override;
 
