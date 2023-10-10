@@ -20,6 +20,8 @@ simple Queue
         volatile double serviceTime @unit(s);
         int priority = default(0);
         @display("i=block/activeq;q=queue");
+        @signal[responseTime](type="double");
+        @statistic[latency](title="latency"; source="responseTime"; record=stats; interpolationmode=none);
     gates:
         input in[];
         output out;
