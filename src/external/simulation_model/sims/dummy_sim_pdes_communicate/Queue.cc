@@ -18,6 +18,9 @@ using namespace omnetpp;
  */
 class AbstractQueue : public cSimpleModule
 {
+  private:
+    simsignal_t responseTimeSignal;
+
   protected:
     short int priority;
     cMessage *msgServiced = nullptr;
@@ -51,11 +54,20 @@ void AbstractQueue::initialize()
     endServiceMsg = new cMessage("end-service");
     queue.setName("queue");
     queueLength.setName("queueLength");
+
+    // Set the signal for the response time.
+    simsignal_t responseTimeSignal = registerSignal("responseTime");
 }
 
 void AbstractQueue::handleMessage(cMessage *msg)
 {
     if (msg == endServiceMsg) {
+
+        // Calculate the response time from the starttime of the service to the endtime of the service.
+        simtime_t responseTime = simTime() - msgServiced->par("startTime");
+        // Emit the responsetime signal.
+        emit(responseTimeSignal, responseTime);
+
         endService(msgServiced);
         if (queue.isEmpty()) {
             msgServiced = nullptr;
@@ -74,6 +86,10 @@ void AbstractQueue::handleMessage(cMessage *msg)
         simtime_t serviceTime = startService(msgServiced);
         endServiceMsg->setSchedulingPriority(priority);
         scheduleAt(simTime()+serviceTime, endServiceMsg);
+
+        // Set a paramater for msgServiced that represents the starttime of the service.
+        msgServiced->addPar("startTime");
+        msgServiced->par("startTime") = simTime();
     }
     else {
         arrival(msg);
@@ -94,6 +110,10 @@ void AbstractQueue::refreshDisplay() const
  */
 class Queue : public AbstractQueue
 {
+  private:
+    simsignal_t responseTimeSignal;
+    simtime_t entryTime;
+  
   public:
     virtual void initialize() override;
 

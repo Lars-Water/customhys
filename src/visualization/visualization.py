@@ -55,7 +55,6 @@ def save_hop_count():
         plt.savefig("/workspaces/hyper-heuristic-dse-2.0/data/processed/" + row['module'] + ".png")
 
 
-
 if __name__ == "__main__":
     save_hop_count()
     # save_simulation_fitness()

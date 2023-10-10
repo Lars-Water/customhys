@@ -1,3 +1,0 @@
-[ config_manager  05-10-2023 06:33:27  INFO     ]  Default config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/default.cfg
-[ config_manager  05-10-2023 06:33:27  INFO     ]  Using config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_tictoc/n1_w1_s1/20231005_063326/config.json
-[ config_manager  05-10-2023 06:33:27  INFO     ]  Loading config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_tictoc/n1_w1_s1/20231005_063326/config.json
