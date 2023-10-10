@@ -64,7 +64,10 @@ void AbstractQueue::handleMessage(cMessage *msg)
     if (msg == endServiceMsg) {
 
         // Calculate the response time from the starttime of the service to the endtime of the service.
-        int responseTime = 43 - msgServiced->par("startTime");
+        double serviceStartTime = msgServiced->par("startTime");
+        double serviceEndTime = simTime().dbl();
+        double responseTime = serviceEndTime - serviceStartTime;
+
         // Emit the responsetime signal.
         emit(responseTimeSignal, responseTime);
 
@@ -83,13 +86,13 @@ void AbstractQueue::handleMessage(cMessage *msg)
     else if (!msgServiced) {
         arrival(msg);
         msgServiced = msg;
+
+        // Set the start time of the message that is currently being serviced.
+        msgServiced->par("startTime") = simTime().dbl();
+
         simtime_t serviceTime = startService(msgServiced);
         endServiceMsg->setSchedulingPriority(priority);
         scheduleAt(simTime()+serviceTime, endServiceMsg);
-
-        // Set a paramater for msgServiced that represents the starttime of the service.
-        msgServiced->addPar("startTime");
-        msgServiced->par("startTime") = 42;
     }
     else {
         arrival(msg);
@@ -126,6 +129,10 @@ void Queue::initialize()
     long numInitialJobs = par("numInitialJobs");
     for (long i = 0; i < numInitialJobs; i++) {
         cMessage *job = new cMessage("job");
+
+        // Declare a paramater for msgServiced that represents the starttime of the service.
+        job->addPar("startTime");
+
         queue.insert(job);
         queueLength.record(queue.getLength());
     }
