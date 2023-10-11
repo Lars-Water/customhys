@@ -16,8 +16,6 @@
 simple Queue
 {
     parameters:
-        @signal[response](type="double");
-        @statistic[latency](title="latency"; source="response"; record=stats; interpolationmode=none);
         int numInitialJobs;
         volatile double serviceTime @unit(s);
         int priority = default(0);
