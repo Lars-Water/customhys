@@ -56,11 +56,10 @@ def save_hop_count():
         plt.savefig("/workspaces/hyper-heuristic-dse-2.0/data/processed/" + row['module'] + ".png")
 
 def save_average_response_time():
-    folder_path = r"C:\Users\leenlaptop\Documents\GitHub\hyper-heuristic-dse-2.0\src\external\simulation_model\workflow\results\343ddead4455987aae4c6e56e3cb132a"
+    folder_path = r"/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/results/343ddead4455987aae4c6e56e3cb132a"
     sca_files = glob.glob(os.path.join(folder_path, "*.sca"))
 
     for sca_file in sca_files:
-        print(sca_file)
         # with open(sca_file, 'r') as file:
         #     # Process the contents of each .sca file as needed
         #     content = file.read()
@@ -68,5 +67,6 @@ def save_average_response_time():
 
 
 if __name__ == "__main__":
+    save_average_response_time()
     # save_hop_count()
     # save_simulation_fitness()
