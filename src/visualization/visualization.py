@@ -2,6 +2,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+import glob
 
 '''
     Save the best fitness values at every iteration step as
@@ -54,7 +55,18 @@ def save_hop_count():
         plt.title(f'Hop count distribution - {row["module"]}')
         plt.savefig("/workspaces/hyper-heuristic-dse-2.0/data/processed/" + row['module'] + ".png")
 
+def save_average_response_time():
+    folder_path = r"C:\Users\leenlaptop\Documents\GitHub\hyper-heuristic-dse-2.0\src\external\simulation_model\workflow\results\343ddead4455987aae4c6e56e3cb132a"
+    sca_files = glob.glob(os.path.join(folder_path, "*.sca"))
+
+    for sca_file in sca_files:
+        print(sca_file)
+        # with open(sca_file, 'r') as file:
+        #     # Process the contents of each .sca file as needed
+        #     content = file.read()
+        #     # Do something with the content
+
 
 if __name__ == "__main__":
-    save_hop_count()
+    # save_hop_count()
     # save_simulation_fitness()
