@@ -19,7 +19,7 @@ using namespace omnetpp;
 class AbstractQueue : public cSimpleModule
 {
   private:
-    simsignal_t responseTimeSignal;
+    simsignal_t responseSignal;
 
   protected:
     short int priority;
@@ -56,7 +56,7 @@ void AbstractQueue::initialize()
     queueLength.setName("queueLength");
 
     // Set the signal for the response time.
-    responseTimeSignal = registerSignal("responseTime");
+    responseSignal = registerSignal("response");
 }
 
 void AbstractQueue::handleMessage(cMessage *msg)
@@ -66,10 +66,10 @@ void AbstractQueue::handleMessage(cMessage *msg)
         // Calculate the response time from the starttime of the service to the endtime of the service.
         double serviceStartTime = msgServiced->par("startTime");
         double serviceEndTime = simTime().dbl();
-        double responseTime = serviceEndTime - serviceStartTime;
+        double response = serviceEndTime - serviceStartTime;
 
-        // Emit the responsetime signal.
-        emit(responseTimeSignal, responseTime);
+        // Emit the response signal.
+        emit(responseSignal, response);
 
         endService(msgServiced);
         if (queue.isEmpty()) {
