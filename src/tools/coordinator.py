@@ -13,6 +13,7 @@ import experiment_campaign
 class HeuristicSimulationCoordinator:
     
     def __init__(self, config_path):
+        #TODO: Create a logger and config.
         pass
     
     def simulation_run(self, config_values):
