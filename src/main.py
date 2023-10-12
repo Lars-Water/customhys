@@ -29,23 +29,12 @@ def main(base_path):
     # For all default operators see "~data/external/default_operators.txt"
     heur = [
         (
-            'genetic_crossover', 
-            {
-                'pairing': 'random', 
-                'crossover': 'single', 
-                'mating_pool_factor': 0.4
-            }, 
-            'all'
-        ), 
-        (
-            'genetic_mutation', 
+            'random_search', 
             {
                 'scale': 1.0, 
-                'elite_rate': 0.1, 
-                'mutation_rate': 0.25, 
                 'distribution': 'uniform'
             }, 
-            'all'
+            'greedy'
         )
     ]
 
