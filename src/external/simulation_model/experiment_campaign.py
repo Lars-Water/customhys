@@ -84,6 +84,7 @@ def campaign(args):
 
     m.enqueue_tasks(sim_instances)
     evaluated_sim_instances = m.evaluate_all()
+    print("evaluated_sim_instances: ", evaluated_sim_instances)
     m.shutdown()
 
 def main():

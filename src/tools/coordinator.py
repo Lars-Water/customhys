@@ -64,42 +64,41 @@ class HeuristicSimulationCoordinator:
     
     def simulation_run(self, config_values):
         
-        # # Set the values of the parameters in the simulation model.
-        # param_dict = self.set_param_values(config_values)
+        # Set the values of the parameters in the simulation model.
+        param_dict = self.set_param_values(config_values)
         
-        # src_dir = self.conf.tryGet("dummy_sim_src_dir")
-        # dest_dir = self.conf.tryGet("dummy_sim_dest_dir")
+        src_dir = self.conf.tryGet("dummy_sim_src_dir")
+        dest_dir = self.conf.tryGet("dummy_sim_dest_dir")
         
-        # # Duplicate the preferred dummy_sim directory to the custom directory.
-        # self.duplicate_directory(src_dir, dest_dir, "communicate_intensive.ini")
+        # Duplicate the preferred dummy_sim directory to the custom directory.
+        self.duplicate_directory(src_dir, dest_dir, "communicate_intensive.ini")
 
-        # # Write an updated version of the ignored param value file from the directory that was just duplicated.
-        # old_ini_file_path = os.path.join(src_dir, "communicate_intensive.ini")
-        # new_ini_file_path = os.path.join(dest_dir, "communicate_intensive.ini")
-        # self.write_new_ini_file(
-        #     old_ini_file_path, 
-        #     new_ini_file_path, 
-        #     param_dict
-        # )
+        # Write an updated version of the ignored param value file from the directory that was just duplicated.
+        old_ini_file_path = os.path.join(src_dir, "communicate_intensive.ini")
+        new_ini_file_path = os.path.join(dest_dir, "communicate_intensive.ini")
+        self.write_new_ini_file(
+            old_ini_file_path, 
+            new_ini_file_path, 
+            param_dict
+        )
 
-        # # Define flag values for the experiment campaign.
-        # # TODO: Make these configurable.
-        # model = "tictoc"
-        # num_nodes = str(1)
-        # num_workers = str(1)
-        # num_sims = str(1)
-        # time_stamp = time.strftime("%Y%m%d_%H%M%S")
-        # experiments_path = "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments"
+        # Define flag values for the experiment campaign.
+        # TODO: Make these configurable.
+        model = "tictoc"
+        num_nodes = str(1)
+        num_workers = str(1)
+        num_sims = str(1)
+        time_stamp = time.strftime("%Y%m%d_%H%M%S")
+        experiments_path = "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments"
         
-        # # Run the experiment campaign.
-        # self.run_experiment_campaign(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
+        # Run the experiment campaign.
+        self.run_experiment_campaign(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
 
         # Transform the outputted scalar files into csv format.
         self.transform_scalar_files()
 
         # Collect the simulation stats from the simulation run.
         fitness_value = self.obtain_simulation_stats()
-        print("Average fitness value: ", fitness_value)
 
         # # Collect the sim_runtime.
         # sim_runtime_csv_file_path = self.campaign_run_collect(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)

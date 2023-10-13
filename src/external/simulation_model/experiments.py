@@ -299,8 +299,8 @@ def main():
     num_workers_list = [1]
     repetitions = 1
 
-    # campaign(args, "seq_comm", num_nodes_list, num_workers_list, num_sims_list, repetitions)
-    campaign(args, "tictoc", num_nodes_list, num_workers_list, num_sims_list, repetitions)
+    campaign(args, "seq_comm", num_nodes_list, num_workers_list, num_sims_list, repetitions)
+    # campaign(args, "tictoc", num_nodes_list, num_workers_list, num_sims_list, repetitions)
 
 if __name__ == '__main__':
     main()
