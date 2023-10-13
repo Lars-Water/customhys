@@ -59,7 +59,6 @@ def main():
 
     m.enqueue_tasks(sim_instances)
     evaluated_sim_instances = m.evaluate_all()
-    print(evaluated_sim_instances[0].uid)
     m.shutdown()
 
 
