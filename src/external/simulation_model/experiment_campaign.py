@@ -106,6 +106,5 @@ def main():
     return campaign(args)
 
 
-
 if __name__ == '__main__':
     main()
