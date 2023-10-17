@@ -36,35 +36,37 @@ class HeuristicSimulationCoordinator:
         
         data_path = os.path.join(experiments_path, "data", "campaign_{}".format(model), "n{}_w{}_s{}".format(str(num_nodes), str(num_workers), str(num_sims)), time_stamp)
 
-        # sims_path = "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims"
+        sims_path = "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims"
         
-        # design_queues = [WorkflowConfig.create_design_point_queue_config("base", 0, "FIFO")]
+        design_queues = [WorkflowConfig.create_design_point_queue_config("base", 0, "FIFO")]
         
-        # num_threads_per_worker = int(6 / num_workers)
+        num_threads_per_worker = int(6 / num_workers)
         
-        # cluster_config = WorkflowConfig.create_local_cluster_config(num_workers, num_threads_per_worker)
+        cluster_config = WorkflowConfig.create_local_cluster_config(num_workers, num_threads_per_worker)
 
-        # # Define params for configuration file creation.
-        # workflow_config_file = os.path.join(data_path, "config.json")
-        # workflow_results_folder = os.path.join(data_path, "results")
-        # workflow_logs_folder = os.path.join(data_path, "logs")
-        # workflow_runtime_folder = os.path.join(data_path, "runtime")
+        # Define params for configuration file creation.
+        workflow_config_file = os.path.join(data_path, "config.json")
+        workflow_results_folder = os.path.join(data_path, "results")
+        workflow_logs_folder = os.path.join(data_path, "logs")
+        workflow_runtime_folder = os.path.join(data_path, "runtime")
         
-        # # Set up workflow configuration file.
-        # self.logger.info("Setting up workflow configuration file...")
-        # self.workflow_config = WorkflowConfig(sims_path, "config", "run_sim", "results", "logs", "out",
-        #                     workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, design_queues, "md5-files", cluster_config)
-        # self.config = self.workflow_config.conf()
-        # self.workflow_config.write_conf(workflow_config_file)
+        # Set up workflow configuration file.
+        self.logger.info("Setting up workflow configuration file...")
+        self.workflow_config = WorkflowConfig(sims_path, "config", "run_sim", "results", "logs", "out",
+                            workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, design_queues, "md5-files", cluster_config)
+        self.config = self.workflow_config.conf()
+        self.workflow_config.write_conf(workflow_config_file)
         
-        # # Read the config file.
-        # self.logger.info("Reading config file...")
-        # self.conf = Config(Path(workflow_config_file), Path(workflow_logs_folder), "config_manager")
+        # Set up the Manager.
+        self.logger.info("Setting up the Manager...")
+        self.manager = Manager(workflow_config_file, workflow_logs_folder)
+        
+        # Read the config file.
+        self.logger.info("Reading coordinator config file...")
+        coordinator_path = "/workspaces/hyper-heuristic-dse-2.0/coordinator"
+        coordinator_config_file = "/workspaces/hyper-heuristic-dse-2.0/config/config_coordinator.json"
+        self.conf = Config(Path(coordinator_config_file), Path(coordinator_path), "coordinator_config_manager")
 
-        # # Set up the Manager.
-        # self.logger.info("Setting up the Manager...")
-        # self.manager = Manager(workflow_config_file, workflow_logs_folder)
-    
     '''
         Shutdown the Manager.
     '''
