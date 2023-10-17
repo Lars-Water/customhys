@@ -83,6 +83,8 @@ def main(base_path):
     # visualization.save_simulation_fitness({"fitness": historical_best},
     #                                       base_path + '/data/processed/Fake_CQN_fitness_hh.png') # noqa 501
 
+    heur_sim_coordinator.shutdown_manager()
+    
     return
 
 

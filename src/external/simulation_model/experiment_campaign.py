@@ -40,7 +40,6 @@ def campaign(args):
     workflow_logs_folder = os.path.join(args.data_path, "logs")
     workflow_runtime_folder = os.path.join(args.data_path, "runtime")
 
-
     workflow_config = WorkflowConfig(sims_path, "config", "run_sim", "results", "logs", "out",
                             workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, design_queues, "md5-files", cluster_config)
     config = workflow_config.conf()

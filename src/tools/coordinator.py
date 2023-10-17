@@ -1,6 +1,4 @@
 from tools.logger import logger
-from tools.config_reader import Config
-from tools.config_creator import WorkflowConfig
 from pathlib import Path
 
 import argparse
@@ -16,6 +14,8 @@ import experiments
 from experiments import create_sim_custom_dummy
 import experiment_campaign
 from src.manager import Manager
+from src.utils.config_reader import Config
+from src.utils.config_creator import WorkflowConfig
 
 
 class HeuristicSimulationCoordinator:
@@ -25,29 +25,23 @@ class HeuristicSimulationCoordinator:
         # Set up the logger.
         self.logger = logger("coordinator", Path("/workspaces/hyper-heuristic-dse-2.0/data/raw/heuristic_run/logs"))
 
-        # Read the config file.
-        self.logger.info("Reading config file...")
-        self.conf = Config(Path("/workspaces/hyper-heuristic-dse-2.0/config/config_coordinator.json"), Path("/workspaces/hyper-heuristic-dse-2.0/data/raw/heuristic_run/logs"), "config_coordinator")
-
+        # TODO: Change the following hardcoded parameter definition to reading a config file.
         # Define params to set up the Manager.
-        experiments_path = self.conf.tryGet("experiments_path")
-        model = self.conf.tryGet("model")
-        num_nodes = self.conf.tryGet("num_nodes")
-        num_workers = self.conf.tryGet("num_workers")
-        num_sims = self.conf.tryGet("num_sims")
+        experiments_path = "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments"
+        model = "custom"
+        num_nodes = 1
+        num_workers = 1
+        num_sims = 1
         time_stamp = time.strftime("%Y%m%d_%H%M%S")
         data_path = os.path.join(experiments_path, "data", "campaign_{}".format(model), "n{}_w{}_s{}".format(str(num_nodes), str(num_workers), str(num_sims)), time_stamp)
         workflow_config_file = os.path.join(data_path, "config.json")
         workflow_logs_folder = os.path.join(data_path, "logs")
-        
-        # Set up the Manager.
-        self.logger.info("Setting up the Manager...")
-        self.manager = Manager(workflow_config_file, workflow_logs_folder)
+
+        sims_path = "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims"
 
         # Define params for configuration file creation.
         workflow_results_folder = os.path.join(data_path, "results")
         workflow_runtime_folder = os.path.join(data_path, "runtime")
-        sims_path = self.conf.tryGet("sims_path")
         design_queues = [WorkflowConfig.create_design_point_queue_config("base", 0, "FIFO")]
         num_threads_per_worker = int(6 / num_workers)
         cluster_config = WorkflowConfig.create_local_cluster_config(num_workers, num_threads_per_worker)
@@ -58,6 +52,14 @@ class HeuristicSimulationCoordinator:
                             workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, design_queues, "md5-files", cluster_config)
         self.config = self.workflow_config.conf()
         self.workflow_config.write_conf(workflow_config_file)
+        
+        # Read the config file.
+        self.logger.info("Reading config file...")
+        self.conf = Config(Path(workflow_config_file), Path(workflow_logs_folder), "config_manager")
+
+        # Set up the Manager.
+        self.logger.info("Setting up the Manager...")
+        self.manager = Manager(workflow_config_file, workflow_logs_folder)
     
     '''
         Shutdown the Manager.
