@@ -34,7 +34,7 @@ class HeuristicSimulationCoordinator:
         num_sims = 1
         time_stamp = time.strftime("%Y%m%d_%H%M%S")
         
-        data_path = os.path.join(experiments_path, "data", "campaign_{}".format(model), "n{}_w{}_s{}".format(str(num_nodes), str(num_workers), str(num_sims)), time_stamp)
+        self.data_path = os.path.join(experiments_path, "data", "campaign_{}".format(model), "n{}_w{}_s{}".format(str(num_nodes), str(num_workers), str(num_sims)), time_stamp)
 
         sims_path = "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims"
         
@@ -45,10 +45,10 @@ class HeuristicSimulationCoordinator:
         cluster_config = WorkflowConfig.create_local_cluster_config(num_workers, num_threads_per_worker)
 
         # Define params for configuration file creation.
-        workflow_config_file = os.path.join(data_path, "config.json")
-        workflow_results_folder = os.path.join(data_path, "results")
-        workflow_logs_folder = os.path.join(data_path, "logs")
-        workflow_runtime_folder = os.path.join(data_path, "runtime")
+        workflow_config_file = os.path.join(self.data_path, "config.json")
+        workflow_results_folder = os.path.join(self.data_path, "results")
+        workflow_logs_folder = os.path.join(self.data_path, "logs")
+        workflow_runtime_folder = os.path.join(self.data_path, "runtime")
         
         # Set up workflow configuration file.
         self.logger.info("Setting up workflow configuration file...")
@@ -85,7 +85,7 @@ class HeuristicSimulationCoordinator:
         if new_path not in current_path:
             os.environ['PATH'] = new_path + os.pathsep + current_path
         
-        sim_results_directory = self.conf.tryGet(os.path.join("results_base", uid))
+        sim_results_directory = os.path.join(self.data_path, "results", uid)
         scavetool_command = "opp_scavetool export -F CSV-R -o x.csv *.sca"
 
         # Attempt to transform the scalar files in the given results directory.
@@ -98,7 +98,7 @@ class HeuristicSimulationCoordinator:
     def obtain_simulation_stats(self, uid):
 
         # Load the transformed outputted data from the simulation run.
-        csv_file_path = os.path.join(self.conf.tryGet("results_base"), uid, "x.csv")
+        csv_file_path = os.path.join(self.data_path, "results", uid, "x.csv")
         df = pd.read_csv(csv_file_path)
 
         # Filter rows with 'type' column equal to 'statistic' and drop unnecessary columns
