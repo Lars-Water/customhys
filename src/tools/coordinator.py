@@ -152,11 +152,10 @@ class HeuristicSimulationCoordinator:
 
         # Transform the outputted scalar files into csv format.
         self.transform_scalar_files(uid)
+        print("UID: ", uid)
 
-        # Collect the simulation stats from the simulation run.
-        fitness_value = self.obtain_simulation_stats(uid)
-
-        print("fitness_value: ", fitness_value)
+        # # Collect the simulation stats from the simulation run.
+        # fitness_value = self.obtain_simulation_stats()
 
         # # Collect the sim_runtime.
         # sim_runtime_csv_file_path = self.campaign_run_collect(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)

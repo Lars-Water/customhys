@@ -13,8 +13,6 @@
 network ClosedQueueingNetA
 {
     parameters:
-        @signal[response](type="double");
-        @statistic[latency](title="latency"; source="response"; record=count; interpolationmode=none);
         int numTandems; // number of switches (and also of tandem queues)
         int numQueuesPerTandem; // number of queues in a tandem queue
         double sDelay @unit(s);  // delay between switch and queues

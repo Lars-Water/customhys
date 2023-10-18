@@ -15,8 +15,6 @@ network ClosedQueueingNetB
     parameters:
         int numTandems;
         double sDelay @unit(s);
-        @signal[response](type="double");
-        @statistic[latency](title="latency"; source="response"; record=stats; interpolationmode=none);
     submodules:
         tandemQueue[numTandems]: TandemQueue {
             parameters:

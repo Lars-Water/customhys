@@ -1,0 +1,35 @@
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:23  INFO     ]  Path to simulation instance source: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:23  INFO     ]  UID of sim instance: 343ddead4455987aae4c6e56e3cb132a
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:23  INFO     ]  Local logs path: logs
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:23  INFO     ]  Local results path: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/results
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:23  INFO     ]  Local executable name: run_sim
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:23  INFO     ]  Local config path: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/config.json
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:23  INFO     ]  Local out path: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/out
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:23  INFO     ]  Reading in config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/config.json
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:27  INFO     ]  Omnet config data present in config file
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:27  INFO     ]  opp_makemake will use run_sim as executable filename
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:27  INFO     ]  Omnet config has specification for make
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:27  INFO     ]  Omnet config has specification for opp_makemake
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:27  INFO     ]  opp_makemake will force overwrite of makefile
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:27  INFO     ]  opp_makemake will output executable folder /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/out
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:27  INFO     ]  Running opp_makemake command
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:27  INFO     ]  Opp_makemake execution return code: 0
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:27  INFO     ]  Opp_makemake execution was successfull
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:27  INFO     ]  Omnet config has specification for make
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:27  INFO     ]  Make output will be verbose
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:27  INFO     ]  Running make command
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:35  INFO     ]  Make execution return code: 0
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:35  INFO     ]  Make execution was successfull
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:35  INFO     ]  Compilation took 7.671 seconds
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:35  INFO     ]  Omnet config data present in config file
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:35  INFO     ]  Omnet config has specification for simulation execution
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:35  INFO     ]  Omnet execution will not make use of param_sweep (i.e., it will be sequential)
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:35  INFO     ]  Omnet executable is: run_sim
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:35  INFO     ]  Omnet environment is: Cmdenv
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:35  INFO     ]  Omnet result output path is: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/results
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:35  INFO     ]  Omnet execution will perform pdes with 8 lps
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:35  INFO     ]  Omnet config is: General
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:25:35  INFO     ]  Running simulation command: ['mpiexec', '--oversubscribe', '-n', '8', './run_sim', '-u', 'Cmdenv', '--result-dir', '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/results', '--parallel-simulation', 'true', '--parsim-communications-class', 'cMPICommunications', '-c', 'General', '/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/communicate_intensive.ini']
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:26:25  INFO     ]  Simulation execution return code: 0
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:26:25  INFO     ]  Simulation execution was successfull
+[ siminstance_343ddead4455987aae4c6e56e3cb132a  11-10-2023 13:26:25  INFO     ]  Simulation took 50.48 seconds

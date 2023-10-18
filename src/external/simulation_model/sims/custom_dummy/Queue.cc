@@ -18,9 +18,6 @@ using namespace omnetpp;
  */
 class AbstractQueue : public cSimpleModule
 {
-  private:
-    simsignal_t responseSignal;
-
   protected:
     short int priority;
     cMessage *msgServiced = nullptr;
@@ -54,23 +51,11 @@ void AbstractQueue::initialize()
     endServiceMsg = new cMessage("end-service");
     queue.setName("queue");
     queueLength.setName("queueLength");
-
-    // Set the signal for the response time.
-    responseSignal = registerSignal("response");
 }
 
 void AbstractQueue::handleMessage(cMessage *msg)
 {
     if (msg == endServiceMsg) {
-
-        // Calculate the response time from the starttime of the service to the endtime of the service.
-        double serviceStartTime = msgServiced->par("startTime");
-        double serviceEndTime = simTime().dbl();
-        double response = serviceEndTime - serviceStartTime;
-
-        // Emit the response signal.
-        emit(responseSignal, response);
-
         endService(msgServiced);
         if (queue.isEmpty()) {
             msgServiced = nullptr;
@@ -86,10 +71,6 @@ void AbstractQueue::handleMessage(cMessage *msg)
     else if (!msgServiced) {
         arrival(msg);
         msgServiced = msg;
-
-        // Set the start time of the message that is currently being serviced.
-        msgServiced->par("startTime") = simTime().dbl();
-
         simtime_t serviceTime = startService(msgServiced);
         endServiceMsg->setSchedulingPriority(priority);
         scheduleAt(simTime()+serviceTime, endServiceMsg);
@@ -129,10 +110,6 @@ void Queue::initialize()
     long numInitialJobs = par("numInitialJobs");
     for (long i = 0; i < numInitialJobs; i++) {
         cMessage *job = new cMessage("job");
-
-        // Declare a paramater for msgServiced that represents the starttime of the service.
-        job->addPar("startTime");
-
         queue.insert(job);
         queueLength.record(queue.getLength());
     }
