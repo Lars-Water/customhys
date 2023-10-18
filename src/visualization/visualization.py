@@ -32,7 +32,7 @@ def save_simulation_fitness(hist_values, store_path):
     plt.figure()
     plt.plot(fitness_values, lw=2)
     plt.xlabel('Iteration')
-    plt.ylabel('Simulation exection time')
+    plt.ylabel('Average response time')
     plt.xlim(0, len(fitness_values) - 1)
     plt.ylim(0, max(fitness_values) + 1)
     plt.xticks(np.arange(0, len(fitness_values), step=1))

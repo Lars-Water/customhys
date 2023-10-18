@@ -39,7 +39,7 @@ def main(base_path):
     ]
 
     # Generate a metaheuristic search method for the CQN model.
-    met = mh.Metaheuristic(prob, heur, num_agents=1, num_iterations=4)
+    met = mh.Metaheuristic(prob, heur, num_agents=1, num_iterations=19)
     met.verbose = True
 
     # Run the metaheuristic on the problem. The fitness value is calculated at
