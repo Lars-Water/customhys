@@ -1,0 +1,33 @@
+[ coordinator_config_manager  18-10-2023 06:56:55  INFO     ]  Default config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/default.cfg
+[ coordinator_config_manager  18-10-2023 06:56:55  INFO     ]  Using config file: /workspaces/hyper-heuristic-dse-2.0/config/config_coordinator.json
+[ coordinator_config_manager  18-10-2023 06:56:55  INFO     ]  Loading config file: /workspaces/hyper-heuristic-dse-2.0/config/config_coordinator.json
+[ coordinator_config_manager  18-10-2023 06:56:55  WARNING  ]  Could not get: ('inet_base',)
+[ coordinator_config_manager  18-10-2023 06:56:55  ERROR    ]  'inet_base'
+[                                                           ]  Traceback (most recent call last):
+[                                                           ]    File "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/config_reader.py", line 49, in tryGet
+[                                                           ]      conf = conf[arg]
+[                                                           ]  KeyError: 'inet_base'
+[ coordinator_config_manager  18-10-2023 06:57:14  WARNING  ]  Could not get: ('inet_base',)
+[ coordinator_config_manager  18-10-2023 06:57:14  ERROR    ]  'inet_base'
+[                                                           ]  Traceback (most recent call last):
+[                                                           ]    File "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/config_reader.py", line 49, in tryGet
+[                                                           ]      conf = conf[arg]
+[                                                           ]  KeyError: 'inet_base'
+[ coordinator_config_manager  18-10-2023 06:57:33  WARNING  ]  Could not get: ('inet_base',)
+[ coordinator_config_manager  18-10-2023 06:57:33  ERROR    ]  'inet_base'
+[                                                           ]  Traceback (most recent call last):
+[                                                           ]    File "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/config_reader.py", line 49, in tryGet
+[                                                           ]      conf = conf[arg]
+[                                                           ]  KeyError: 'inet_base'
+[ coordinator_config_manager  18-10-2023 06:57:57  WARNING  ]  Could not get: ('inet_base',)
+[ coordinator_config_manager  18-10-2023 06:57:57  ERROR    ]  'inet_base'
+[                                                           ]  Traceback (most recent call last):
+[                                                           ]    File "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/config_reader.py", line 49, in tryGet
+[                                                           ]      conf = conf[arg]
+[                                                           ]  KeyError: 'inet_base'
+[ coordinator_config_manager  18-10-2023 06:58:16  WARNING  ]  Could not get: ('inet_base',)
+[ coordinator_config_manager  18-10-2023 06:58:16  ERROR    ]  'inet_base'
+[                                                           ]  Traceback (most recent call last):
+[                                                           ]    File "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/config_reader.py", line 49, in tryGet
+[                                                           ]      conf = conf[arg]
+[                                                           ]  KeyError: 'inet_base'

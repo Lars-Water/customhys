@@ -154,14 +154,16 @@ class HeuristicSimulationCoordinator:
         self.transform_scalar_files(uid)
         print("UID: ", uid)
 
-        # # Collect the simulation stats from the simulation run.
-        # fitness_value = self.obtain_simulation_stats()
+        # Collect the simulation stats from the simulation run.
+        fitness_value = self.obtain_simulation_stats(uid)
+
+        print("fitness_value: ", fitness_value)
 
         # # Collect the sim_runtime.
         # sim_runtime_csv_file_path = self.campaign_run_collect(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
         # sim_exec_time = self.process_simulation_output(sim_runtime_csv_file_path, 'simulation.sim_exec_time')
 
-        return 1
+        return fitness_value
     
     @staticmethod
     def process_simulation_output(sim_runtime_csv_file_path, column_name):
