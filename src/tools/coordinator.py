@@ -94,6 +94,12 @@ class HeuristicSimulationCoordinator:
             subprocess.run(scavetool_command, shell=True, cwd=sim_results_directory, check=True)
         except subprocess.CalledProcessError as e:
             self.logger.error(f"Error executing the command: {e}")
+
+        # Remove the scalar files in the given results directory.
+        self.logger.info(f"Removing scalar files in directory: {sim_results_directory}")
+        for file in os.listdir(sim_results_directory):
+            if file.endswith(".sca"):
+                os.remove(os.path.join(sim_results_directory, file))
     
     def obtain_simulation_stats(self, uid):
 
