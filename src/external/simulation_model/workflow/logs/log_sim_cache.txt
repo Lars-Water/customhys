@@ -1,2 +1,0 @@
-[ sim_cache  11-10-2023 13:25:27  INFO     ]  Reading in config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/config/workflow_local.json
-[ sim_cache  11-10-2023 13:25:27  INFO     ]  Sims path: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims
