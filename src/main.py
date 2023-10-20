@@ -17,7 +17,7 @@ def main(base_path):
     heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator("/workspaces/hyper-heuristic-dse-2.0/config/coordinator.json") # noqa 501
 
     # Collect the simulation stats from the simulation run.
-    heur_sim_coordinator.obtain_simulation_stats("34ce786bf246aef3d2e29a09a3d034c1")
+    print(heur_sim_coordinator.obtain_simulation_stats("34ce786bf246aef3d2e29a09a3d034c1"))
 
     # # Create CQN formulation from the config file.
     # config = tools.load_config(base_path + '/config/config.json')

@@ -104,16 +104,18 @@ class HeuristicSimulationCoordinator:
     def obtain_simulation_stats(self, uid):
 
         # Load the transformed outputted data from the simulation run.
-        csv_file_path = os.path.join(self.data_path, "results", uid, "x.csv")
+        # csv_file_path = os.path.join(self.data_path, "results", uid, "x.csv")
+        csv_file_path = os.path.join("/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow", "results", uid, "x.csv")
+
         df = pd.read_csv(csv_file_path)
 
         # # Filter rows with 'type' column equal to 'statistic' and drop unnecessary columns
         # df = df[df['type'] == 'statistic'].drop(columns=['underflows', 'overflows', 'binedges', 'binvalues'])
         
-        # Filter rows with 'type' column equal to 'statistic' and 'name' column ending with ".cli" and drop unnecessary columns
-        df = df[(df['type'] == 'statistic') and (df['name'].str.endswith(".cli"))].drop(columns=['underflows', 'overflows', 'binedges', 'binvalues'])
-
-        print(df)
+        # Filter rows with 'type' column equal to 'histogram', 'module' column ending with ".cli", `name` column starting with "endToEndDelay".
+        df = df[df['type'] == 'histogram']
+        df = df[df['module'].str.endswith(".cli")]
+        df = df[df['name'].str.startswith("endToEndDelay")]
 
         # return the average of the column 'mean' in the dataframe.
         return df['mean'].mean()
