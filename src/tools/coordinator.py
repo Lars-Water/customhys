@@ -85,7 +85,8 @@ class HeuristicSimulationCoordinator:
         if new_path not in current_path:
             os.environ['PATH'] = new_path + os.pathsep + current_path
         
-        sim_results_directory = os.path.join(self.data_path, "results", uid)
+        # sim_results_directory = os.path.join(self.data_path, "results", uid)
+        sim_results_directory = os.path.join("/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow", "results", uid)
         scavetool_command = "opp_scavetool export -F CSV-R -o x.csv *.sca"
 
         # Attempt to transform the scalar files in the given results directory.
@@ -116,6 +117,7 @@ class HeuristicSimulationCoordinator:
         df = df[df['type'] == 'histogram']
         df = df[df['module'].str.endswith(".cli")]
         df = df[df['name'].str.startswith("endToEndDelay")]
+        print("End-to-End Delay: ", df['mean'].mean())
 
         # return the average of the column 'mean' in the dataframe.
         return df['mean'].mean()

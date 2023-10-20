@@ -1,0 +1,129 @@
+OMNeT++ Discrete Event Simulation  (C) 1992-2022 Andras Varga, OpenSim Ltd.
+Version: 6.0.1, build: 220831-e4f07d04b8, edition: Academic Public License -- NOT FOR COMMERCIAL USE
+See the license for distribution terms and warranty disclaimer
+
+Setting up Cmdenv...
+
+Loading NED files from /workspaces/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/src:  1187
+Loading NED files from /workspaces/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/examples:  185
+Loading NED files from /workspaces/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/showcases:  76
+Loading NED files from /workspaces/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tests/validation:  5
+Loading NED files from /workspaces/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tests/networks:  6
+Loading NED files from /workspaces/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tutorials:  20
+Loading NED files from /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0:  3
+
+Preparing for running configuration LargeNet, run #0...
+Assigned runID=LargeNet-0-20231020-07:54:14-23394
+Setting up network "LargeNet"...
+Initializing...
+
+Running simulation...
+** Event #0   t=0   Elapsed: 2e-05s (0m 00s)  0% completed  (0% total)
+     Speed:     ev/sec=0   simsec/sec=0   ev/simsec=0
+     Messages:  created: 6354   present: 6354   in FES: 505
+** Event #557824   t=3.537116256961   Elapsed: 2.00024s (0m 02s)  2% completed  (2% total)
+     Speed:     ev/sec=278880   simsec/sec=1.76835   ev/simsec=157706
+     Messages:  created: 348933   present: 6135   in FES: 270
+** Event #1188864   t=7.607828491505   Elapsed: 4.00088s (0m 04s)  6% completed  (6% total)
+     Speed:     ev/sec=315420   simsec/sec=2.03471   ev/simsec=155020
+     Messages:  created: 733344   present: 6136   in FES: 278
+** Event #1842432   t=12.0945746733   Elapsed: 6.00168s (0m 06s)  10% completed  (10% total)
+     Speed:     ev/sec=326654   simsec/sec=2.24248   ev/simsec=145666
+     Messages:  created: 1129191   present: 6115   in FES: 258
+** Event #2401536   t=15.958567417022   Elapsed: 8.00176s (0m 08s)  13% completed  (13% total)
+     Speed:     ev/sec=279540   simsec/sec=1.93191   ev/simsec=144696
+     Messages:  created: 1468205   present: 6114   in FES: 260
+** Event #3084288   t=20.433095154969   Elapsed: 10.0025s (0m 10s)  17% completed  (17% total)
+     Speed:     ev/sec=341251   simsec/sec=2.23645   ev/simsec=152586
+     Messages:  created: 1883194   present: 6130   in FES: 266
+** Event #3727104   t=24.876382081639   Elapsed: 12.0031s (0m 12s)  20% completed  (20% total)
+     Speed:     ev/sec=321307   simsec/sec=2.22095   ev/simsec=144671
+     Messages:  created: 2273284   present: 6128   in FES: 266
+** Event #4377344   t=29.231693336937   Elapsed: 14.0035s (0m 14s)  24% completed  (24% total)
+     Speed:     ev/sec=325055   simsec/sec=2.17722   ev/simsec=149298
+     Messages:  created: 2668655   present: 6124   in FES: 265
+** Event #5014016   t=33.652635740592   Elapsed: 16.0036s (0m 16s)  28% completed  (28% total)
+     Speed:     ev/sec=318317   simsec/sec=2.21034   ev/simsec=144013
+     Messages:  created: 3056253   present: 6116   in FES: 258
+** Event #5607424   t=37.402067073798   Elapsed: 18.0045s (0m 18s)  31% completed  (31% total)
+     Speed:     ev/sec=296582   simsec/sec=1.87394   ev/simsec=158266
+     Messages:  created: 3417726   present: 6129   in FES: 266
+** Event #6257920   t=41.729421804802   Elapsed: 20.0048s (0m 20s)  34% completed  (34% total)
+     Speed:     ev/sec=325196   simsec/sec=2.16333   ev/simsec=150322
+     Messages:  created: 3812909   present: 6111   in FES: 254
+** Event #6894336   t=46.03326027419   Elapsed: 22.0055s (0m 22s)  38% completed  (38% total)
+     Speed:     ev/sec=318098   simsec/sec=2.15118   ev/simsec=147872
+     Messages:  created: 4199859   present: 6140   in FES: 274
+** Event #7561728   t=50.572107044781   Elapsed: 24.0062s (0m 24s)  42% completed  (42% total)
+     Speed:     ev/sec=333582   simsec/sec=2.26865   ev/simsec=147040
+     Messages:  created: 4604589   present: 6111   in FES: 260
+** Event #8231680   t=55.252493676078   Elapsed: 26.0067s (0m 26s)  46% completed  (46% total)
+     Speed:     ev/sec=334893   simsec/sec=2.33961   ev/simsec=143140
+     Messages:  created: 5012061   present: 6111   in FES: 260
+** Event #8823808   t=59.009784362237   Elapsed: 28.0073s (0m 28s)  49% completed  (49% total)
+     Speed:     ev/sec=295967   simsec/sec=1.87803   ev/simsec=157594
+     Messages:  created: 5372716   present: 6141   in FES: 270
+** Event #9454848   t=63.37417477097   Elapsed: 30.0078s (0m 30s)  52% completed  (52% total)
+     Speed:     ev/sec=315445   simsec/sec=2.18168   ev/simsec=144588
+     Messages:  created: 5756020   present: 6117   in FES: 266
+** Event #10037248   t=67.223824797997   Elapsed: 32.008s (0m 32s)  56% completed  (56% total)
+     Speed:     ev/sec=291168   simsec/sec=1.92461   ev/simsec=151286
+     Messages:  created: 6109411   present: 6160   in FES: 282
+** Event #10675200   t=71.628020744505   Elapsed: 34.0088s (0m 34s)  59% completed  (59% total)
+     Speed:     ev/sec=318852   simsec/sec=2.20124   ev/simsec=144851
+     Messages:  created: 6498093   present: 6148   in FES: 277
+** Event #11332096   t=76.20687682107   Elapsed: 36.0097s (0m 36s)  63% completed  (63% total)
+     Speed:     ev/sec=328302   simsec/sec=2.28841   ev/simsec=143463
+     Messages:  created: 6895838   present: 6130   in FES: 267
+** Event #11899648   t=80.088875917245   Elapsed: 38.0108s (0m 38s)  66% completed  (66% total)
+     Speed:     ev/sec=283614   simsec/sec=1.93989   ev/simsec=146201
+     Messages:  created: 7241583   present: 6130   in FES: 263
+** Event #12507904   t=84.07407240332   Elapsed: 40.0109s (0m 40s)  70% completed  (70% total)
+     Speed:     ev/sec=304117   simsec/sec=1.99253   ev/simsec=152629
+     Messages:  created: 7612222   present: 6105   in FES: 253
+** Event #13156608   t=88.37556043214   Elapsed: 42.0116s (0m 42s)  73% completed  (73% total)
+     Speed:     ev/sec=324244   simsec/sec=2.15003   ev/simsec=150809
+     Messages:  created: 8006496   present: 6119   in FES: 260
+** Event #13732608   t=92.288860314465   Elapsed: 44.0117s (0m 44s)  76% completed  (76% total)
+     Speed:     ev/sec=287981   simsec/sec=1.95652   ev/simsec=147190
+     Messages:  created: 8355719   present: 6135   in FES: 267
+** Event #14323712   t=96.37210391068   Elapsed: 46.0118s (0m 46s)  80% completed  (80% total)
+     Speed:     ev/sec=295540   simsec/sec=2.04154   ev/simsec=144763
+     Messages:  created: 8714354   present: 6139   in FES: 270
+** Event #14919424   t=100.294137075968   Elapsed: 48.0119s (0m 48s)  83% completed  (83% total)
+     Speed:     ev/sec=297831   simsec/sec=1.96085   ev/simsec=151889
+     Messages:  created: 9076455   present: 6107   in FES: 258
+** Event #15523840   t=104.172656762825   Elapsed: 50.0128s (0m 50s)  86% completed  (86% total)
+     Speed:     ev/sec=302073   simsec/sec=1.93839   ev/simsec=155837
+     Messages:  created: 9442937   present: 6128   in FES: 275
+** Event #16182528   t=108.67778163605   Elapsed: 52.0129s (0m 52s)  90% completed  (90% total)
+     Speed:     ev/sec=329342   simsec/sec=2.25255   ev/simsec=146209
+     Messages:  created: 9842394   present: 6134   in FES: 270
+** Event #16755712   t=112.536854884363   Elapsed: 54.013s (0m 54s)  93% completed  (93% total)
+     Speed:     ev/sec=286567   simsec/sec=1.92937   ev/simsec=148529
+     Messages:  created: 10190768   present: 6167   in FES: 283
+** Event #17404928   t=116.723312098402   Elapsed: 56.0134s (0m 56s)  97% completed  (97% total)
+     Speed:     ev/sec=324553   simsec/sec=2.09287   ev/simsec=155075
+     Messages:  created: 10584315   present: 6127   in FES: 267
+** Event #17910125   t=120   Elapsed: 57.4836s (0m 57s)  100% completed  (100% total)
+     Speed:     ev/sec=343619   simsec/sec=2.22869   ev/simsec=154180
+     Messages:  created: 10891803   present: 6144   in FES: 280
+
+<!> Simulation time limit reached -- at t=120s, event #17910125
+
+Calling finish() at end of Run #0...
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-1004-241-resp-6 (1518 B) (inet::SequenceChunk) length = 1518 B
+[INFO]	Pulling packet, [1mpacket[0m = [2m(Packet)[0m[3mreq-1004-241-resp-7[0m (448 B) [[2mEthernetMacHeader[0m, [1mtypeOrLength[0m = 430 | [2mIeee8022LlcHeader[0m, [1mdsap[0m = 240, [1mssap[0m = 241, [1mcontrol[0m = 3 | [2mEtherAppResp[0m, [1mrequestId[0m = 241, [1mnumFrames[0m = 0 | [2mEthernetFcs[0m, [1mfcs[0m = 0, [1mfcsMode[0m = 1 (FCS_DECLARED_CORRECT)].
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-1004-241-resp-7 (448 B) (inet::SequenceChunk) length = 448 B
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-1004-241-resp-5 (1518 B) (inet::SequenceChunk) length = 1518 B
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-4283-250-resp-4 (1518 B) (inet::SequenceChunk) length = 1518 B
+[INFO]	Pulling packet, [1mpacket[0m = [2m(Packet)[0m[3mreq-4283-250-resp-5[0m (1518 B) [[2mEthernetMacHeader[0m, [1mtypeOrLength[0m = 1500 | [2mIeee8022LlcHeader[0m, [1mdsap[0m = 240, [1mssap[0m = 241, [1mcontrol[0m = 3 | [2mEtherAppResp[0m, [1mrequestId[0m = 250, [1mnumFrames[0m = 0 | [2mEthernetFcs[0m, [1mfcs[0m = 0, [1mfcsMode[0m = 1 (FCS_DECLARED_CORRECT)].
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-4283-250-resp-5 (1518 B) (inet::SequenceChunk) length = 1518 B
+[INFO]	Pulling packet, [1mpacket[0m = [2m(Packet)[0m[3mreq-4283-250-resp-6[0m (123 B) [[2mEthernetMacHeader[0m, [1mtypeOrLength[0m = 105 | [2mIeee8022LlcHeader[0m, [1mdsap[0m = 240, [1mssap[0m = 241, [1mcontrol[0m = 3 | [2mEtherAppResp[0m, [1mrequestId[0m = 250, [1mnumFrames[0m = 0 | [2mEthernetFcs[0m, [1mfcs[0m = 0, [1mfcsMode[0m = 1 (FCS_DECLARED_CORRECT)].
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-4283-250-resp-6 (123 B) (inet::SequenceChunk) length = 123 B
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-5534-246-resp-4 (1518 B) (inet::SequenceChunk) length = 1518 B
+[INFO]	Pulling packet, [1mpacket[0m = [2m(Packet)[0m[3mreq-5534-246-resp-5[0m (572 B) [[2mEthernetMacHeader[0m, [1mtypeOrLength[0m = 554 | [2mIeee8022LlcHeader[0m, [1mdsap[0m = 240, [1mssap[0m = 241, [1mcontrol[0m = 3 | [2mEtherAppResp[0m, [1mrequestId[0m = 246, [1mnumFrames[0m = 0 | [2mEthernetFcs[0m, [1mfcs[0m = 0, [1mfcsMode[0m = 1 (FCS_DECLARED_CORRECT)].
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-5534-246-resp-5 (572 B) (inet::SequenceChunk) length = 572 B
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-8300-235 (1092 B) (inet::SequenceChunk) length = 1092 B
+
+End.
