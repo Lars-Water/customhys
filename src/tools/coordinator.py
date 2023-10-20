@@ -107,8 +107,13 @@ class HeuristicSimulationCoordinator:
         csv_file_path = os.path.join(self.data_path, "results", uid, "x.csv")
         df = pd.read_csv(csv_file_path)
 
-        # Filter rows with 'type' column equal to 'statistic' and drop unnecessary columns
-        df = df[df['type'] == 'statistic'].drop(columns=['underflows', 'overflows', 'binedges', 'binvalues'])
+        # # Filter rows with 'type' column equal to 'statistic' and drop unnecessary columns
+        # df = df[df['type'] == 'statistic'].drop(columns=['underflows', 'overflows', 'binedges', 'binvalues'])
+        
+        # Filter rows with 'type' column equal to 'statistic' and 'name' column ending with ".cli" and drop unnecessary columns
+        df = df[(df['type'] == 'statistic') and (df['name'].str.endswith(".cli"))].drop(columns=['underflows', 'overflows', 'binedges', 'binvalues'])
+
+        print(df)
 
         # return the average of the column 'mean' in the dataframe.
         return df['mean'].mean()
@@ -158,12 +163,9 @@ class HeuristicSimulationCoordinator:
 
         # Transform the outputted scalar files into csv format.
         self.transform_scalar_files(uid)
-        print("UID: ", uid)
 
         # Collect the simulation stats from the simulation run.
         fitness_value = self.obtain_simulation_stats(uid)
-
-        print("fitness_value: ", fitness_value)
 
         # # Collect the sim_runtime.
         # sim_runtime_csv_file_path = self.campaign_run_collect(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
