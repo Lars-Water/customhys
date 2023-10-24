@@ -85,8 +85,8 @@ class HeuristicSimulationCoordinator:
         if new_path not in current_path:
             os.environ['PATH'] = new_path + os.pathsep + current_path
         
-        # sim_results_directory = os.path.join(self.data_path, "results", uid)
-        sim_results_directory = os.path.join("/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow", "results", uid)
+        sim_results_directory = os.path.join(self.data_path, "results", uid)
+        # sim_results_directory = os.path.join("/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow", "results", uid)
         scavetool_command = "opp_scavetool export -F CSV-R -o x.csv *.sca"
 
         # Attempt to transform the scalar files in the given results directory.
@@ -105,19 +105,19 @@ class HeuristicSimulationCoordinator:
     def obtain_simulation_stats(self, uid):
 
         # Load the transformed outputted data from the simulation run.
-        # csv_file_path = os.path.join(self.data_path, "results", uid, "x.csv")
-        csv_file_path = os.path.join("/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow", "results", uid, "x.csv")
+        csv_file_path = os.path.join(self.data_path, "results", uid, "x.csv")
+        # csv_file_path = os.path.join("/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow", "results", uid, "x.csv")
 
         df = pd.read_csv(csv_file_path)
 
-        # # Filter rows with 'type' column equal to 'statistic' and drop unnecessary columns
-        # df = df[df['type'] == 'statistic'].drop(columns=['underflows', 'overflows', 'binedges', 'binvalues'])
+        # Filter rows with 'type' column equal to 'statistic' and drop unnecessary columns
+        df = df[df['type'] == 'statistic'].drop(columns=['underflows', 'overflows', 'binedges', 'binvalues'])
         
-        # Filter rows with 'type' column equal to 'histogram', 'module' column ending with ".cli", `name` column starting with "endToEndDelay".
-        df = df[df['type'] == 'histogram']
-        df = df[df['module'].str.endswith(".cli")]
-        df = df[df['name'].str.startswith("endToEndDelay")]
-        print("End-to-End Delay: ", df['mean'].mean())
+        # # Filter rows with 'type' column equal to 'histogram', 'module' column ending with ".cli", `name` column starting with "endToEndDelay".
+        # df = df[df['type'] == 'histogram']
+        # df = df[df['module'].str.endswith(".cli")]
+        # df = df[df['name'].str.startswith("endToEndDelay")]
+        # print("End-to-End Delay: ", df['mean'].mean())
 
         # return the average of the column 'mean' in the dataframe.
         return df['mean'].mean()
@@ -158,7 +158,12 @@ class HeuristicSimulationCoordinator:
         num_sims = self.conf.tryGet("num_sims")
         inet_path = self.conf.tryGet("inet_base")
         dummy_sim_path = self.conf.tryGet("dummy_path")
+
+        print(f"\Creating SIM instance:\n\t{self.config}, \n\t{dummy_sim_path}, \n\t{id}, \n\t{inet_path}\n")
+
         sim_instances = [create_sim_custom_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(num_sims)]
+
+        print(f"Created SIM instance: {sim_instances}\n")
 
         # Run the configured simulation model.
         self.manager.enqueue_tasks(sim_instances)
