@@ -85,8 +85,10 @@ class HeuristicSimulationCoordinator:
         if new_path not in current_path:
             os.environ['PATH'] = new_path + os.pathsep + current_path
         
-        sim_results_directory = os.path.join(self.data_path, "results", uid)
-        # sim_results_directory = os.path.join("/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow", "results", uid)
+        # # Automated workflow.
+        # sim_results_directory = os.path.join(self.data_path, "results", uid)
+        # Manual operation from running local workflow.
+        sim_results_directory = os.path.join("/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow", "results", uid)
         scavetool_command = "opp_scavetool export -F CSV-R -o x.csv *.sca"
 
         # Attempt to transform the scalar files in the given results directory.
@@ -123,14 +125,18 @@ class HeuristicSimulationCoordinator:
         # df = df[df['type'] == 'statistic'].drop(columns=['underflows', 'overflows', 'binedges', 'binvalues'])
         
         # Get the end-to-end delay statistics that are gathered by default in INET LANS simulation runs.
-        df = df[df['type'] == 'histogram']
-        df = df[df['module'].str.endswith(".cli")]
-        df = df[df['name'].str.startswith("endToEndDelay")]
+        latency_df = df[df["type"] == "histogram"]
+        latency_df = latency_df[latency_df["module"].str.endswith(".cli")]
+        latency_df = latency_df[latency_df["name"].str.startswith("endToEndDelay")]
+
+        # Get the cost of all components with a cost paramater in the simulation model.
+        cost_df = df[df['type'] == "param"]
+        cost_df = cost_df[cost_df["name"] == "cost"]
 
         # return the average of the column 'mean' in the dataframe.
         return {
-            "latency": df['mean'].mean(), 
-            "network_cost": 0
+            "latency": latency_df['mean'].mean(), 
+            "network_cost": cost_df['value'].sum()
         }
     
     '''
