@@ -136,7 +136,7 @@ class HeuristicSimulationCoordinator:
         # return the average of the column 'mean' in the dataframe.
         return {
             "latency": latency_df['mean'].mean(), 
-            "network_cost": cost_df['value'].sum()
+            "network_cost": cost_df['value'].astype(float).sum()
         }
     
     '''
@@ -153,7 +153,8 @@ class HeuristicSimulationCoordinator:
         if fitness_function == "latency_cost":
             weight_latency = self.conf.tryGet("weight_latency")
             weight_cost = self.conf.tryGet("weight_cost")
-            fitness_value = (weight_latency ∗ simulation_metrics["latency"]) + (weight_cost ∗ simulation_metrics["network_cost"])
+            fitness_value = (weight_latency * simulation_metrics["latency"]) + (weight_cost * simulation_metrics["network_cost"])
+
             return fitness_value
         
         # TODO: Add other fitness functions here.

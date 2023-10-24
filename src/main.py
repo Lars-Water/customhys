@@ -18,8 +18,8 @@ def main(base_path):
 
     # Collect the simulation stats from the simulation run.
     uid = "491e65ec2f6a2342fe509480d09a5987"
-    heur_sim_coordinator.transform_scalar_files(uid)
-    print(heur_sim_coordinator.obtain_simulation_stats(uid))
+    # heur_sim_coordinator.transform_scalar_files(uid)
+    heur_sim_coordinator.obtain_simulation_stats(uid)
 
     # # Create CQN formulation from the config file.
     # config = tools.load_config(base_path + '/config/config.json')
