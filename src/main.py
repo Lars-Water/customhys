@@ -16,10 +16,11 @@ def main(base_path):
 
     heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator("/workspaces/hyper-heuristic-dse-2.0/config/coordinator.json") # noqa 501
 
-    # Collect the simulation stats from the simulation run.
-    uid = "491e65ec2f6a2342fe509480d09a5987"
-    # heur_sim_coordinator.transform_scalar_files(uid)
-    heur_sim_coordinator.obtain_simulation_stats(uid)
+    # # Collect the simulation stats from the simulation run.
+    # uid = "491e65ec2f6a2342fe509480d09a5987"
+    # # heur_sim_coordinator.transform_scalar_files(uid)
+    # simulation_metrics = heur_sim_coordinator.obtain_simulation_stats(uid)
+    # fitness_value = heur_sim_coordinator.fitness_evaluation(simulation_metrics)
 
     # # Create CQN formulation from the config file.
     # config = tools.load_config(base_path + '/config/config.json')

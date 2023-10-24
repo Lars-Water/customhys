@@ -151,10 +151,9 @@ class HeuristicSimulationCoordinator:
         
         # Fitness value evaluates the objectives for latency and network cost.
         if fitness_function == "latency_cost":
-            weight_latency = self.conf.tryGet("weight_latency")
-            weight_cost = self.conf.tryGet("weight_cost")
-            fitness_value = (weight_latency * simulation_metrics["latency"]) + (weight_cost * simulation_metrics["network_cost"])
-
+            weight_latency = fitness_config["weight_latency"]
+            weight_cost = fitness_config["weight_cost"]
+            fitness_value = (weight_latency * (1 / simulation_metrics["latency"])) + (weight_cost * simulation_metrics["network_cost"])
             return fitness_value
         
         # TODO: Add other fitness functions here.
