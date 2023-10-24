@@ -22,6 +22,7 @@ channel cable extends DatarateChannel
     parameters:
         delay;
         datarate;
+        double cost;
 }
 
 
