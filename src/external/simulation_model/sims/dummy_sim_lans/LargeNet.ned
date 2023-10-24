@@ -20,8 +20,8 @@ import ned.DatarateChannel;
 channel cable extends DatarateChannel
 {
     parameters:
-        delay = default(0.1us);
-        datarate = default(100Mbps);
+        delay;
+        datarate;
 }
 
 

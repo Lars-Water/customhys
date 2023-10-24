@@ -10,5 +10,10 @@
     "num_sims": 1,
     "inet_path": "/workspaces/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5",
     "dummy_path": "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims",
-    "sims_path": "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims"
+    "sims_path": "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims",
+    "fitness_config": {
+        "fitness_function": "latency_cost",
+        "weight_latency": 0.5,
+        "weight_cost": 0.5
+    }
 }

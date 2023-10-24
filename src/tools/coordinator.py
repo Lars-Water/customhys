@@ -102,25 +102,57 @@ class HeuristicSimulationCoordinator:
             if file.endswith(".sca"):
                 os.remove(os.path.join(sim_results_directory, file))
     
+    '''
+        Collect the simulation stats from the simulation run.
+
+        Args:
+            uid: The unique identifier of the simulation run.
+    '''
     def obtain_simulation_stats(self, uid):
 
         # Load the transformed outputted data from the simulation run.
-        csv_file_path = os.path.join(self.data_path, "results", uid, "x.csv")
-        # csv_file_path = os.path.join("/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow", "results", uid, "x.csv")
+
+        # # Automated workflow.
+        # csv_file_path = os.path.join(self.data_path, "results", uid, "x.csv")
+        # Manual operation from running local workflow.
+        csv_file_path = os.path.join("/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow", "results", uid, "x.csv")
 
         df = pd.read_csv(csv_file_path)
 
-        # Filter rows with 'type' column equal to 'statistic' and drop unnecessary columns
-        df = df[df['type'] == 'statistic'].drop(columns=['underflows', 'overflows', 'binedges', 'binvalues'])
+        # # Filter rows with 'type' column equal to 'statistic' and drop unnecessary columns
+        # df = df[df['type'] == 'statistic'].drop(columns=['underflows', 'overflows', 'binedges', 'binvalues'])
         
-        # # Filter rows with 'type' column equal to 'histogram', 'module' column ending with ".cli", `name` column starting with "endToEndDelay".
-        # df = df[df['type'] == 'histogram']
-        # df = df[df['module'].str.endswith(".cli")]
-        # df = df[df['name'].str.startswith("endToEndDelay")]
-        # print("End-to-End Delay: ", df['mean'].mean())
+        # Get the end-to-end delay statistics that are gathered by default in INET LANS simulation runs.
+        df = df[df['type'] == 'histogram']
+        df = df[df['module'].str.endswith(".cli")]
+        df = df[df['name'].str.startswith("endToEndDelay")]
 
         # return the average of the column 'mean' in the dataframe.
-        return df['mean'].mean()
+        return {
+            "latency": df['mean'].mean(), 
+            "network_cost": 0
+        }
+    
+    '''
+        Evaluate the fitness value of the simulation run.
+
+        Args:
+            simulation_metrics: The simulation metrics obtained from the simulation run.
+    '''
+    def fitness_evaluation(self, simulation_metrics):        
+        fitness_config = self.conf.tryGet("fitness_config")
+        fitness_function = fitness_config["fitness_function"]
+        
+        # Fitness value evaluates the objectives for latency and network cost.
+        if fitness_function == "latency_cost":
+            weight_latency = self.conf.tryGet("weight_latency")
+            weight_cost = self.conf.tryGet("weight_cost")
+            fitness_value = (weight_latency ∗ simulation_metrics["latency"]) + (weight_cost ∗ simulation_metrics["network_cost"])
+            return fitness_value
+        
+        # TODO: Add other fitness functions here.
+        else:
+            return 0
     
     def simulation_run(self, config_values):
         
@@ -174,13 +206,15 @@ class HeuristicSimulationCoordinator:
         self.transform_scalar_files(uid)
 
         # Collect the simulation stats from the simulation run.
-        fitness_value = self.obtain_simulation_stats(uid)
+        simulation_metrics = self.obtain_simulation_stats(uid)
+
+        fitness_value = self.fitness_evaluation(simulation_metrics)
 
         # # Collect the sim_runtime.
         # sim_runtime_csv_file_path = self.campaign_run_collect(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
         # sim_exec_time = self.process_simulation_output(sim_runtime_csv_file_path, 'simulation.sim_exec_time')
 
-        return fitness_value
+        return simulation_metrics
     
     @staticmethod
     def process_simulation_output(sim_runtime_csv_file_path, column_name):
