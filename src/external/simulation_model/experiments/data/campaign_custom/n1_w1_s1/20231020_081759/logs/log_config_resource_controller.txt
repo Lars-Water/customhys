@@ -1,3 +1,0 @@
-[ config_resource_controller  20-10-2023 08:17:59  INFO     ]  Default config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/default.cfg
-[ config_resource_controller  20-10-2023 08:17:59  INFO     ]  Using config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231020_081759/config.json
-[ config_resource_controller  20-10-2023 08:17:59  INFO     ]  Loading config file: /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231020_081759/config.json

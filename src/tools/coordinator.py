@@ -82,37 +82,31 @@ class HeuristicSimulationCoordinator:
         config_values: A list of values for the parameters in the simulation model.
     '''
     def set_param_values(self, config_values):
-        # # Boundary configuration.
-        # boundaries = {
-        #     "*.sDelay": [0.1, 0.5],
-        #     "*.tandemQueue[*].queue[*].serviceTime": [0.1, 0.5],
-        #     "*.tandemQueue[*].qDelay": [0.1, 0.5],
-        #     "*.tandemQueue[*].switch[*].retain": [0.1, 0.5]
-        # }
-
-        # # Dynamic parameters mapped to value distriution.
-        # param_dict = {
-        #     "*.sDelay": "exponential",
-        #     "*.tandemQueue[*].queue[*].serviceTime": "exponential",
-        #     "*.tandemQueue[*].qDelay": "exponential",
-        #     "*.tandemQueue[*].switch[*].retain": "uniform"
-        # }
-
         self.logger.info("Setting up the simulation model parameters...")
+        param_dict = {}
         try:
-            param_dict = self.simulation_model.get("params", None)
+            inet_lans = self.simulation_model[1]
+            param_dict = inet_lans.get("params", None)
         except Exception as e:
             self.logger.error(f"Error getting the simulation model params: {e}")
         
         # Update param_dict based on provided config values of the heuristic following the order of config file params.
         for idx, param_key in enumerate(param_dict):
-            param_distribution = param_dict.get(param_key, None)
-            config_value = config_values.get(idx, None)  # Fetch the corresponding value from the confiq_values
+            param = param_dict.get(param_key, None)
+            param_distribution = param.get("distribution", None)
+            param_unit = param.get("unit", None)
+            config_value = config_values[idx]  # Fetch the corresponding value from the confiq_values
             
             if param_distribution == "exponential":
-                param_dict[param_key] = f"exponential({config_value}s)"
+                if param_unit:
+                    param_dict[param_key] = f"exponential({config_value}{param_unit})"
+                else:
+                    param_dict[param_key] = f"exponential({config_value})"
             else:
-                param_dict[param_key] = str(config_value)
+                if param_unit:
+                    param_dict[param_key] = f"{str(config_value)}{param_unit}"
+                else:
+                    param_dict[param_key] = f"{str(config_value)}"
             # Add other distributions here...
         
         return param_dict
@@ -213,11 +207,11 @@ class HeuristicSimulationCoordinator:
         dest_dir = self.conf.tryGet("dummy_sim_dest_dir")
         
         # Duplicate the preferred dummy_sim directory to the custom directory.
-        self.duplicate_directory(src_dir, dest_dir, "communicate_intensive.ini")
+        self.duplicate_directory(src_dir, dest_dir, "largeNet.ini")
 
         # Write an updated version of the ignored param value file from the directory that was just duplicated.
-        old_ini_file_path = os.path.join(src_dir, "communicate_intensive.ini")
-        new_ini_file_path = os.path.join(dest_dir, "communicate_intensive.ini")
+        old_ini_file_path = os.path.join(src_dir, "largeNet.ini")
+        new_ini_file_path = os.path.join(dest_dir, "largeNet.ini")
         self.write_new_ini_file(
             old_ini_file_path, 
             new_ini_file_path, 
@@ -236,35 +230,36 @@ class HeuristicSimulationCoordinator:
         # # Run the experiment campaign.
         # uid = self.run_experiment_campaign(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
 
-        # Configure siminstances.
-        num_sims = self.conf.tryGet("num_sims")
-        inet_path = self.conf.tryGet("inet_base")
-        dummy_sim_path = self.conf.tryGet("dummy_path")
+        # # Configure siminstances.
+        # num_sims = self.conf.tryGet("num_sims")
+        # inet_path = self.conf.tryGet("inet_base")
+        # dummy_sim_path = self.conf.tryGet("dummy_path")
 
-        print(f"\Creating SIM instance:\n\t{self.config}, \n\t{dummy_sim_path}, \n\t{id}, \n\t{inet_path}\n")
+        # print(f"\Creating SIM instance:\n\t{self.config}, \n\t{dummy_sim_path}, \n\t{id}, \n\t{inet_path}\n")
 
-        sim_instances = [create_sim_custom_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(num_sims)]
+        # sim_instances = [create_sim_custom_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(num_sims)]
 
-        print(f"Created SIM instance: {sim_instances}\n")
+        # print(f"Created SIM instance: {sim_instances}\n")
 
-        # Run the configured simulation model.
-        self.manager.enqueue_tasks(sim_instances)
-        evaluated_sim_instances = self.manager.evaluate_all()
-        uid = evaluated_sim_instances[0].uid
+        # # Run the configured simulation model.
+        # self.manager.enqueue_tasks(sim_instances)
+        # evaluated_sim_instances = self.manager.evaluate_all()
+        # uid = evaluated_sim_instances[0].uid
 
-        # Transform the outputted scalar files into csv format.
-        self.transform_scalar_files(uid)
+        # # Transform the outputted scalar files into csv format.
+        # self.transform_scalar_files(uid)
 
-        # Collect the simulation stats from the simulation run.
-        simulation_metrics = self.obtain_simulation_stats(uid)
+        # # Collect the simulation stats from the simulation run.
+        # simulation_metrics = self.obtain_simulation_stats(uid)
 
-        fitness_value = self.fitness_evaluation(simulation_metrics)
+        # fitness_value = self.fitness_evaluation(simulation_metrics)
 
-        # # Collect the sim_runtime.
-        # sim_runtime_csv_file_path = self.campaign_run_collect(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
-        # sim_exec_time = self.process_simulation_output(sim_runtime_csv_file_path, 'simulation.sim_exec_time')
+        # # # Collect the sim_runtime.
+        # # sim_runtime_csv_file_path = self.campaign_run_collect(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
+        # # sim_exec_time = self.process_simulation_output(sim_runtime_csv_file_path, 'simulation.sim_exec_time')
 
-        return simulation_metrics
+        # return simulation_metrics
+        return 1
     
     @staticmethod
     def process_simulation_output(sim_runtime_csv_file_path, column_name):

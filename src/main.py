@@ -16,7 +16,7 @@ def main(base_path):
 
     heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator("/workspaces/hyper-heuristic-dse-2.0/config/coordinator.json") # noqa 501
 
-    print( heur_sim_coordinator.set_param_values([1,2,3,4]) )
+    print( heur_sim_coordinator.simulation_run([1,2,3]) )
     
     # # Collect the simulation stats from the simulation run.
     # uid = "491e65ec2f6a2342fe509480d09a5987"
