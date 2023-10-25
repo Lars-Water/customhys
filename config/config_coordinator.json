@@ -30,14 +30,17 @@
             "model": "inet-lans",
             "params": {
                 "**.channel.datarate": {
+                    "ini_line": "**.channel.datarate",
                     "unit": "Mbps",
                     "distribution": null
                 },
                 "**.channel.delay": {
+                    "ini_line": "**.channel.delay",
                     "unit": "us",
                     "distribution": null
                 },
                 "**.channel.cost": {
+                    "ini_line": "**.channel.cost",
                     "unit": "",
                     "distribution": null 
                 }

@@ -90,12 +90,29 @@ class HeuristicSimulationCoordinator:
         except Exception as e:
             self.logger.error(f"Error getting the simulation model params: {e}")
         
+        datarate = None
+        delay = None
+        
         # Update param_dict based on provided config values of the heuristic following the order of config file params.
         for idx, param_key in enumerate(param_dict):
             param = param_dict.get(param_key, None)
             param_distribution = param.get("distribution", None)
             param_unit = param.get("unit", None)
-            config_value = config_values[idx]  # Fetch the corresponding value from the confiq_values
+            config_value = None
+            
+            if ".cost" in param_key:
+                # Define cost coefficients (these need to be determined based on real-world data)
+                cost_per_data_rate_unit = 10  # Cost per unit of data rate (e.g., Mbps)
+                cost_per_delay_unit = 100     # Cost per unit of delay (e.g., milliseconds)
+                
+                # Calculate the cost based on data rate and delay
+                config_value = (datarate * cost_per_data_rate_unit) + (delay * cost_per_delay_unit)
+            elif ".datarate" in param_key:
+                config_value = config_values[idx]  # Fetch the corresponding value from the confiq_values
+                datarate = config_value
+            elif ".delay" in param_key:
+                config_value = config_values[idx]  # Fetch the corresponding value from the confiq_values
+                delay = config_value
             
             if param_distribution == "exponential":
                 if param_unit:
