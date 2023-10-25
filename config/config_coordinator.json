@@ -15,5 +15,24 @@
         "fitness_function": "latency_cost",
         "weight_latency": 0.5,
         "weight_cost": 0.5
-    }
+    },
+    "simulation_model": [
+        {
+            "model": "cqn",
+            "params": {
+                "*.sDelay": "exponential",
+                "*.tandemQueue[*].queue[*].serviceTime": "exponential",
+                "*.tandemQueue[*].qDelay": "exponential",
+                "*.tandemQueue[*].switch[*].retain": null
+            }
+        },
+        {
+            "model": "inet-lans",
+            "params": {
+                "**.channel.datarate": null,
+                "**.channel.delay": null,
+                "**.channel.cost": null
+            }
+        }
+    ]
 }
