@@ -12,7 +12,16 @@
           },
           "optimal_solution": [0.1, 0.1, 0.1, 0.1],
           "optimal_fitness": 510
-      }
+      },
+      "inet_lans": {
+        "boundaries": {
+            "**.channel.datarate": [0.1, 1.5],
+            "**.channel.delay": [0.01, 0.1],
+            "**.channel.cost": [0, 0]
+        },
+        "optimal_solution": [1.5, 0.1, 0],
+        "optimal_fitness": 510
+    }
     }
 }
   

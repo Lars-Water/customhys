@@ -15,8 +15,6 @@ from customhys import metaheuristic as mh
 def main(base_path):
 
     heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator("/workspaces/hyper-heuristic-dse-2.0/config/coordinator.json") # noqa 501
-
-    print( heur_sim_coordinator.simulation_run([1,2,3]) )
     
     # # Collect the simulation stats from the simulation run.
     # uid = "491e65ec2f6a2342fe509480d09a5987"
@@ -24,40 +22,41 @@ def main(base_path):
     # simulation_metrics = heur_sim_coordinator.obtain_simulation_stats(uid)
     # fitness_value = heur_sim_coordinator.fitness_evaluation(simulation_metrics)
 
-    # # Create CQN formulation from the config file.
-    # config = tools.load_config(base_path + '/config/config.json')
-    # cqn_instance = model.generate_instance(
-    #     4,
-    #     config['Simulation']['cqn'],
-    #     heur_sim_coordinator.simulation_run
-    # )
-    # prob = cqn_instance.get_formatted_problem()
+    # Create CQN formulation from the config file.
+    config = tools.load_config(base_path + '/config/config.json')
+    cqn_instance = model.generate_instance(
+        3,
+        config['Simulation']['inet_lans'],
+        heur_sim_coordinator.simulation_run
+    )
+    prob = cqn_instance.get_formatted_problem()
 
     # Create metaheuristic search operator for uniform random search.
     # For all default operators see "~data/external/default_operators.txt"
-    # heur = [
-    #     (
-    #         'random_search', 
-    #         {
-    #             'scale': 1.0, 
-    #             'distribution': 'uniform'
-    #         }, 
-    #         'greedy'
-    #     )
-    # ]
+    heur = [
+        (
+            'random_search', 
+            {
+                'scale': 1.0, 
+                'distribution': 'uniform'
+            }, 
+            'greedy'
+        )
+    ]
+
     # # heur = [('differential_mutation', {'expression': 'rand-to-best-and-current', 'num_rands': 1, 'factor': 1.0}, 'greedy'), ('differential_crossover', {'crossover_rate': 0.2, 'version': 'binomial'}, 'greedy')]
 
-    # # Generate a metaheuristic search method for the CQN model.
-    # met = mh.Metaheuristic(prob, heur, num_agents=1, num_iterations=49)
-    # met.verbose = True
+    # Generate a metaheuristic search method for the CQN model.
+    met = mh.Metaheuristic(prob, heur, num_agents=1, num_iterations=9)
+    met.verbose = True
 
-    # # Run the metaheuristic on the problem. The fitness value is calculated at
-    # # every iteration step by the run function in the SimulationModel class.
-    # met.run()
+    # Run the metaheuristic on the problem. The fitness value is calculated at
+    # every iteration step by the run function in the SimulationModel class.
+    met.run()
 
-    # # Save the best fitness value for every iteration in a plot.
-    # data_path = "data/processed/" # noqa 501
-    # visualization.save_simulation_fitness(met.historical, os.path.join(base_path, data_path, "test_run_heuristic_simulation_workflow.png")) # noqa 501
+    # Save the best fitness value for every iteration in a plot.
+    data_path = "data/processed/" # noqa 501
+    visualization.save_simulation_fitness(met.historical, os.path.join(base_path, data_path, "test_run_heuristic_simulation_workflow.png")) # noqa 501
 
     # # # Setup parameters for the hyperheuristic
     # # parameters = dict(

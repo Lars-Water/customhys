@@ -32,12 +32,12 @@ def save_simulation_fitness(hist_values, store_path):
     plt.figure()
     plt.plot(fitness_values, lw=2)
     plt.xlabel('Iteration')
-    plt.ylabel('Average response time')
+    plt.ylabel('Latency and cost evaluation')
     plt.xlim(0, len(fitness_values) - 1)
     plt.ylim(0, max(fitness_values) + 1)
     plt.xticks(np.arange(0, len(fitness_values), step=1))
     plt.grid()
-    plt.savefig("/workspaces/hyper-heuristic-dse-2.0/data/processed/my_figure.png")
+    plt.savefig("/workspaces/hyper-heuristic-dse-2.0/data/processed/inet_lans.png")
 
 
 '''
