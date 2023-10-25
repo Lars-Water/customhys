@@ -47,7 +47,7 @@ def main(base_path):
     # # heur = [('differential_mutation', {'expression': 'rand-to-best-and-current', 'num_rands': 1, 'factor': 1.0}, 'greedy'), ('differential_crossover', {'crossover_rate': 0.2, 'version': 'binomial'}, 'greedy')]
 
     # Generate a metaheuristic search method for the CQN model.
-    met = mh.Metaheuristic(prob, heur, num_agents=1, num_iterations=9)
+    met = mh.Metaheuristic(prob, heur, num_agents=1, num_iterations=0)
     met.verbose = True
 
     # Run the metaheuristic on the problem. The fitness value is calculated at
