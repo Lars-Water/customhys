@@ -102,8 +102,8 @@ class HeuristicSimulationCoordinator:
             
             if ".cost" in param_key:
                 # Define cost coefficients (these need to be determined based on real-world data)
-                cost_per_data_rate_unit = 10  # Cost per unit of data rate (e.g., Mbps)
-                cost_per_delay_unit = 100     # Cost per unit of delay (e.g., milliseconds)
+                cost_per_data_rate_unit = 0.1  # Cost per unit of data rate (e.g., Mbps)
+                cost_per_delay_unit = 1.0     # Cost per unit of delay (e.g., milliseconds)
                 
                 # Calculate the cost based on data rate and delay
                 config_value = (datarate * cost_per_data_rate_unit) + (delay * cost_per_delay_unit)
@@ -235,48 +235,47 @@ class HeuristicSimulationCoordinator:
             param_dict
         )
 
-        # # Define flag values for the experiment campaign.
-        # # TODO: Make these configurable.
-        # model = "custom"
-        # num_nodes = str(1)
-        # num_workers = str(1)
-        # num_sims = str(1)
-        # time_stamp = time.strftime("%Y%m%d_%H%M%S")
-        # experiments_path = "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments"
+        # Define flag values for the experiment campaign.
+        # TODO: Make these configurable.
+        model = "custom"
+        num_nodes = str(1)
+        num_workers = str(1)
+        num_sims = str(1)
+        time_stamp = time.strftime("%Y%m%d_%H%M%S")
+        experiments_path = "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments"
 
-        # # Run the experiment campaign.
-        # uid = self.run_experiment_campaign(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
+        # Run the experiment campaign.
+        uid = self.run_experiment_campaign(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
 
-        # # Configure siminstances.
-        # num_sims = self.conf.tryGet("num_sims")
-        # inet_path = self.conf.tryGet("inet_base")
-        # dummy_sim_path = self.conf.tryGet("dummy_path")
+        # Configure siminstances.
+        num_sims = self.conf.tryGet("num_sims")
+        inet_path = self.conf.tryGet("inet_base")
+        dummy_sim_path = self.conf.tryGet("dummy_path")
 
         # print(f"\Creating SIM instance:\n\t{self.config}, \n\t{dummy_sim_path}, \n\t{id}, \n\t{inet_path}\n")
 
-        # sim_instances = [create_sim_custom_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(num_sims)]
+        sim_instances = [create_sim_custom_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(num_sims)]
 
         # print(f"Created SIM instance: {sim_instances}\n")
 
-        # # Run the configured simulation model.
-        # self.manager.enqueue_tasks(sim_instances)
-        # evaluated_sim_instances = self.manager.evaluate_all()
-        # uid = evaluated_sim_instances[0].uid
+        # Run the configured simulation model.
+        self.manager.enqueue_tasks(sim_instances)
+        evaluated_sim_instances = self.manager.evaluate_all()
+        uid = evaluated_sim_instances[0].uid
 
-        # # Transform the outputted scalar files into csv format.
-        # self.transform_scalar_files(uid)
+        # Transform the outputted scalar files into csv format.
+        self.transform_scalar_files(uid)
 
-        # # Collect the simulation stats from the simulation run.
-        # simulation_metrics = self.obtain_simulation_stats(uid)
+        # Collect the simulation stats from the simulation run.
+        simulation_metrics = self.obtain_simulation_stats(uid)
 
-        # fitness_value = self.fitness_evaluation(simulation_metrics)
+        fitness_value = self.fitness_evaluation(simulation_metrics)
 
-        # # # Collect the sim_runtime.
-        # # sim_runtime_csv_file_path = self.campaign_run_collect(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
-        # # sim_exec_time = self.process_simulation_output(sim_runtime_csv_file_path, 'simulation.sim_exec_time')
+        # # Collect the sim_runtime.
+        # sim_runtime_csv_file_path = self.campaign_run_collect(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
+        # sim_exec_time = self.process_simulation_output(sim_runtime_csv_file_path, 'simulation.sim_exec_time')
 
-        # return simulation_metrics
-        return 1
+        return fitness_value
     
     @staticmethod
     def process_simulation_output(sim_runtime_csv_file_path, column_name):
