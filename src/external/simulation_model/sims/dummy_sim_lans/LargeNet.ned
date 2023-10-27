@@ -22,7 +22,7 @@ channel cable extends DatarateChannel
     parameters:
         delay = default(0.1us);
         datarate = default(100Mbps);
-        double cost = 0.1;
+        double cost = default(0.1);
 }
 
 //
@@ -33,7 +33,7 @@ channel cable1 extends DatarateChannel
     parameters:
         delay = default(0.1us);
         datarate = default(10Mbps);
-        double cost = 0.01;
+        double cost = default(0.01);
 }
 
 //
@@ -218,10 +218,6 @@ network LargeNet
         int ds;  // number of small LANs on switch D
         int dm;  // number of medium LANs on switch D
         int dl;  // number of large LANs on switch D
-
-        // Define an array of cable types
-        object cableTypes = [cable, cable1];
-
     types:
         channel cabletoserver extends DatarateChannel
         {
@@ -316,6 +312,9 @@ network LargeNet
         }
     connections:
         // "backbone" switches
+        for k=0..n-2 {
+            switchBB[k].ethg++ <--> cable <--> switchBB[k+1].ethg++;
+        }
         for k=0..n-1, for i=0..bbs-1 {
             switchBB[k].ethg++ <--> cable <--> slanBB[k*bbs+i].ethg;
         }
@@ -324,9 +323,6 @@ network LargeNet
         }
         for k=0..n-1, for i=0..bbl-1 {
             switchBB[k].ethg++ <--> cable <--> llanBB[k*bbl+i].ethg;
-        }
-        for k=0..n-2 {
-            switchBB[k].ethg++ <--> cableTypes[0] <--> switchBB[k+1].ethg++;
         }
 
         // switch A
