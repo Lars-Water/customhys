@@ -29,20 +29,80 @@
         {
             "model": "inet-lans",
             "params": {
-                "**.channel.datarate": {
-                    "ini_line": "**.channel.datarate",
+                "**.switchBB[0].ethg$o[0].channel.datarate": {
+                    "ini_line": "**.switchBB[0].ethg$o[0].channel.datarate",
                     "unit": "Mbps",
                     "distribution": null
                 },
-                "**.channel.delay": {
-                    "ini_line": "**.channel.delay",
-                    "unit": "us",
+                "**.switchBB[1].ethg$o[0].channel.datarate": {
+                    "ini_line": "**.switchBB[1].ethg$o[0].channel.datarate",
+                    "unit": "Mbps",
                     "distribution": null
                 },
-                "**.channel.cost": {
-                    "ini_line": "**.channel.cost",
-                    "unit": "",
-                    "distribution": null 
+                "**.switchBB[2].ethg$o[0].channel.datarate": {
+                    "ini_line": "**.switchBB[2].ethg$o[0].channel.datarate",
+                    "unit": "Mbps",
+                    "distribution": null
+                },
+                "**.switchBB[3].ethg$o[0].channel.datarate": {
+                    "ini_line": "**.switchBB[3].ethg$o[0].channel.datarate",
+                    "unit": "Mbps",
+                    "distribution": null
+                },
+                "**.switchBB[4].ethg$o[0].channel.datarate": {
+                    "ini_line": "**.switchBB[4].ethg$o[0].channel.datarate",
+                    "unit": "Mbps",
+                    "distribution": null
+                },
+                "**.switchBB[5].ethg$o[0].channel.datarate": {
+                    "ini_line": "**.switchBB[5].ethg$o[0].channel.datarate",
+                    "unit": "Mbps",
+                    "distribution": null
+                },
+                "**.switchBB[6].ethg$o[0].channel.datarate": {
+                    "ini_line": "**.switchBB[6].ethg$o[0].channel.datarate",
+                    "unit": "Mbps",
+                    "distribution": null
+                },
+                "**.switchBB[7].ethg$o[0].channel.datarate": {
+                    "ini_line": "**.switchBB[7].ethg$o[0].channel.datarate",
+                    "unit": "Mbps",
+                    "distribution": null
+                },
+                "**.switchBB[1].ethg$o[1].channel.datarate": {
+                    "ini_line": "**.switchBB[1].ethg$o[1].channel.datarate",
+                    "unit": "Mbps",
+                    "distribution": null
+                },
+                "**.switchBB[2].ethg$o[1].channel.datarate": {
+                    "ini_line": "**.switchBB[2].ethg$o[1].channel.datarate",
+                    "unit": "Mbps",
+                    "distribution": null
+                },
+                "**.switchBB[3].ethg$o[1].channel.datarate": {
+                    "ini_line": "**.switchBB[3].ethg$o[1].channel.datarate",
+                    "unit": "Mbps",
+                    "distribution": null
+                },
+                "**.switchBB[4].ethg$o[1].channel.datarate": {
+                    "ini_line": "**.switchBB[4].ethg$o[1].channel.datarate",
+                    "unit": "Mbps",
+                    "distribution": null
+                },
+                "**.switchBB[5].ethg$o[1].channel.datarate": {
+                    "ini_line": "**.switchBB[5].ethg$o[1].channel.datarate",
+                    "unit": "Mbps",
+                    "distribution": null
+                },
+                "**.switchBB[6].ethg$o[1].channel.datarate": {
+                    "ini_line": "**.switchBB[6].ethg$o[1].channel.datarate",
+                    "unit": "Mbps",
+                    "distribution": null
+                },
+                "**.switchBB[7].ethg$o[1].channel.datarate": {
+                    "ini_line": "**.switchBB[7].ethg$o[1].channel.datarate",
+                    "unit": "Mbps",
+                    "distribution": null
                 }
             }
         }

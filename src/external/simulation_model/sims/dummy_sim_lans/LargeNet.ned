@@ -22,7 +22,7 @@ channel cable extends DatarateChannel
     parameters:
         delay = default(0.1us);
         datarate = default(100Mbps);
-        double cost = default(0.1);
+        double cost = default(0.01);
 }
 
 //
@@ -32,8 +32,30 @@ channel cable1 extends DatarateChannel
 {
     parameters:
         delay = default(0.1us);
+        datarate = default(1Gbps);
+        double cost = default(1.0);
+}
+
+//
+// A 10Mb/s Ethernet cable. Part of ~LargeNet.
+//
+channel cable2 extends DatarateChannel
+{
+    parameters:
+        delay = default(0.1us);
         datarate = default(10Mbps);
         double cost = default(0.01);
+}
+
+//
+// A 10Mb/s Ethernet cable. Part of ~LargeNet.
+//
+channel cable3 extends DatarateChannel
+{
+    parameters:
+        delay = default(0.1us);
+        datarate = default(100Mbps);
+        double cost = default(0.1);
 }
 
 //
@@ -313,7 +335,7 @@ network LargeNet
     connections:
         // "backbone" switches
         for k=0..n-2 {
-            switchBB[k].ethg++ <--> cable <--> switchBB[k+1].ethg++;
+            switchBB[k].ethg++ <--> <default("cable")> like DatarateChannel <--> switchBB[k+1].ethg++;
         }
         for k=0..n-1, for i=0..bbs-1 {
             switchBB[k].ethg++ <--> cable <--> slanBB[k*bbs+i].ethg;
