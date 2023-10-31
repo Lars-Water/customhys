@@ -335,7 +335,7 @@ network LargeNet
     connections:
         // "backbone" switches
         for k=0..n-2 {
-            switchBB[k].ethg++ <--> <default("cable")> like DatarateChannel <--> switchBB[k+1].ethg++;
+            switchBB[k].ethg++ <--> cable1 <--> switchBB[k+1].ethg++;
         }
         for k=0..n-1, for i=0..bbs-1 {
             switchBB[k].ethg++ <--> cable <--> slanBB[k*bbs+i].ethg;

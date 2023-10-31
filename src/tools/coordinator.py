@@ -6,12 +6,13 @@ import os
 import shutil
 import sys
 import pandas as pd
+import numpy as np
 import subprocess
 import time
 
-sys.path.append('/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model')
+sys.path.append('/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model')
 import experiments
-from experiments import create_sim_custom_dummy
+from experiments import create_sim_custom_dummy, create_sim_inet_lans_dummy
 import experiment_campaign
 from src.manager import Manager
 from src.utils.config_reader import Config
@@ -21,27 +22,27 @@ from src.utils.config_creator import WorkflowConfig
 class HeuristicSimulationCoordinator:
     
     def __init__(self, config_path):
-        
+
         # Set up the logger.
-        self.logger = logger("coordinator", Path("/workspaces/hyper-heuristic-dse-2.0/data/raw/heuristic_run/logs"))
+        self.logger = logger("coordinator", Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/heuristic_run/logs"))
 
         # TODO: Change the following hardcoded parameter definition to reading a config file.
         # Define params to set up the Manager.
-        experiments_path = "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments"
+        experiments_path = "/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments"
         model = "custom"
         num_nodes = 1
         num_workers = 1
         num_sims = 1
         time_stamp = time.strftime("%Y%m%d_%H%M%S")
-        
+
         self.data_path = os.path.join(experiments_path, "data", "campaign_{}".format(model), "n{}_w{}_s{}".format(str(num_nodes), str(num_workers), str(num_sims)), time_stamp)
 
-        sims_path = "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims"
-        
+        sims_path = "/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims"
+
         design_queues = [WorkflowConfig.create_design_point_queue_config("base", 0, "FIFO")]
-        
+
         num_threads_per_worker = int(6 / num_workers)
-        
+
         cluster_config = WorkflowConfig.create_local_cluster_config(num_workers, num_threads_per_worker)
 
         # Define params for configuration file creation.
@@ -49,25 +50,23 @@ class HeuristicSimulationCoordinator:
         workflow_results_folder = os.path.join(self.data_path, "results")
         workflow_logs_folder = os.path.join(self.data_path, "logs")
         workflow_runtime_folder = os.path.join(self.data_path, "runtime")
-        
+
         # Set up workflow configuration file.
         self.logger.info("Setting up workflow configuration file...")
         self.workflow_config = WorkflowConfig(sims_path, "config", "run_sim", "results", "logs", "out",
                             workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, design_queues, "md5-files", cluster_config)
         self.config = self.workflow_config.conf()
         self.workflow_config.write_conf(workflow_config_file)
-        
+
         # Set up the Manager.
         self.logger.info("Setting up the Manager...")
         self.manager = Manager(workflow_config_file, workflow_logs_folder)
-        
+
         # Read the config file.
         self.logger.info("Reading coordinator config file...")
-        coordinator_path = "/workspaces/hyper-heuristic-dse-2.0/coordinator"
-        coordinator_config_file = "/workspaces/hyper-heuristic-dse-2.0/config/config_coordinator.json"
+        coordinator_path = "/home/larry/hyper-heuristic-dse-2.0/coordinator"
+        coordinator_config_file = "/home/larry/hyper-heuristic-dse-2.0/config/config_coordinator.json"
         self.conf = Config(Path(coordinator_config_file), Path(coordinator_path), "coordinator_config_manager")
-
-        self.simulation_model = self.conf.tryGet("simulation_model")
 
     '''
         Shutdown the Manager.
@@ -83,50 +82,96 @@ class HeuristicSimulationCoordinator:
     '''
     def set_param_values(self, config_values):
         self.logger.info("Setting up the simulation model parameters...")
-        param_dict = {}
-        try:
-            inet_lans = self.simulation_model[1]
-            param_dict = inet_lans.get("params", None)
-        except Exception as e:
-            self.logger.error(f"Error getting the simulation model params: {e}")
+        params = self.conf.tryGet("simulation_model", "params")
         
-        datarate = None
-        delay = None
-        
-        # Update param_dict based on provided config values of the heuristic following the order of config file params.
-        for idx, param_key in enumerate(param_dict):
-            param = param_dict.get(param_key, None)
-            param_distribution = param.get("distribution", None)
-            param_unit = param.get("unit", None)
-            config_value = None
-            
-            if ".cost" in param_key:
-                # Define cost coefficients (these need to be determined based on real-world data)
-                cost_per_data_rate_unit = 0.1  # Cost per unit of data rate (e.g., Mbps)
-                cost_per_delay_unit = 1.0     # Cost per unit of delay (e.g., milliseconds)
+        # Transform input values into configuration parameters
+        configurations = []
+
+        for param in params:
+            config_pattern = param["configuration_pattern"]
+            num_configs = param["number_of_configs"]
+            param_values = param["values"]
+
+            for param_idx in range(num_configs):
                 
-                # Calculate the cost based on data rate and delay
-                config_value = (datarate * cost_per_data_rate_unit) + (delay * cost_per_delay_unit)
-            elif ".datarate" in param_key:
-                config_value = config_values[idx].round(1)  # Fetch the corresponding value from the confiq_values
-                datarate = config_value
-            elif ".delay" in param_key:
-                config_value = config_values[idx].round(1)  # Fetch the corresponding value from the confiq_values
-                delay = config_value
-            
-            if param_distribution == "exponential":
-                if param_unit:
-                    param_dict[param_key] = f"exponential({config_value}{param_unit})"
-                else:
-                    param_dict[param_key] = f"exponential({config_value})"
-            else:
-                if param_unit:
-                    param_dict[param_key] = f"{str(config_value)}{param_unit}"
-                else:
-                    param_dict[param_key] = f"{str(config_value)}"
-            # Add other distributions here...
+                # Retrieve the corresponding parameter value by indexing the provided config value to the size of the available values.
+                config_value = config_values[param_idx]
+                value_index = int(config_value * (len(param_values) - 1))
+
+                print(f"PARAM VALUE: {config_value} -> CALCULATION: {config_value} * {len(param_values) - 1} = {value_index}")
+
+                # # Determine the indices for each value based on the size of the list
+                # num_segments = len(param_values)
+                # indices = np.floor(config_values * num_segments).astype(int)
+
+                # print(indices)
+
+                selected_param_value = param_values[value_index]
+
+                # Set first switch gate index to 0 if param idx is 0 and otherwise to 1
+                first_switch_gate_index = "1" if param_idx > 0 else "0"
+                second_switch_gate_index = "0"
+                
+                # Replace placeholders in the configuration pattern
+                current_param_pattern = config_pattern.replace("__switch_index", str(param_idx))
+                current_param_pattern = current_param_pattern.replace("__gate_index", first_switch_gate_index)
+
+                configurations.append({
+                    "config_pattern": current_param_pattern,
+                    "value": selected_param_value
+                })
+
+                # Replace placeholders in the configuration pattern
+                current_param_pattern = config_pattern.replace("__switch_index", str(param_idx+1))
+                current_param_pattern = current_param_pattern.replace("__gate_index", second_switch_gate_index)
+
+                configurations.append({
+                    "config_pattern": current_param_pattern,
+                    "value": selected_param_value
+                })
+
+        return configurations
         
-        return param_dict
+        # # Transform the provided config indices to the corresponding datarate values.
+        # transformed_values = [
+        #     datarate_values[
+        #         int(value * (len(datarate_values)))
+        #     ] for value in config_values]
+        
+        # # Update param_dict based on provided config values of the heuristic following the order of config file params.
+        # for idx, param_key in enumerate(param_dict):
+        #     param = param_dict.get(param_key, None)
+        #     param_distribution = param.get("distribution", None)
+        #     param_unit = param.get("unit", None)
+        #     config_value = None
+            
+        #     if ".cost" in param_key:
+        #         # Define cost coefficients (these need to be determined based on real-world data)
+        #         cost_per_data_rate_unit = 0.1  # Cost per unit of data rate (e.g., Mbps)
+        #         cost_per_delay_unit = 1.0     # Cost per unit of delay (e.g., milliseconds)
+                
+        #         # Calculate the cost based on data rate and delay
+        #         config_value = (datarate * cost_per_data_rate_unit) + (delay * cost_per_delay_unit)
+        #     elif ".datarate" in param_key:
+        #         config_value = config_values[idx].round(1)  # Fetch the corresponding value from the confiq_values
+        #         datarate = config_value
+        #     elif ".delay" in param_key:
+        #         config_value = config_values[idx].round(1)  # Fetch the corresponding value from the confiq_values
+        #         delay = config_value
+            
+        #     if param_distribution == "exponential":
+        #         if param_unit:
+        #             param_dict[param_key] = f"exponential({config_value}{param_unit})"
+        #         else:
+        #             param_dict[param_key] = f"exponential({config_value})"
+        #     else:
+        #         if param_unit:
+        #             param_dict[param_key] = f"{str(config_value)}{param_unit}"
+        #         else:
+        #             param_dict[param_key] = f"{str(config_value)}"
+        #     # Add other distributions here...
+        
+        # return param_dict
     
     '''
         Transform the scalar files generated by the simulation model into a csv format.
@@ -141,9 +186,10 @@ class HeuristicSimulationCoordinator:
             os.environ['PATH'] = new_path + os.pathsep + current_path
         
         # # Automated workflow.
-        # sim_results_directory = os.path.join(self.data_path, "results", uid)
-        # Manual operation from running local workflow.
-        sim_results_directory = os.path.join("/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow", "results", uid)
+        sim_results_directory = os.path.join(self.data_path, "results", uid)
+        # # Manual operation from running local workflow.
+        # sim_results_directory = os.path.join("/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow", "results", uid)
+        
         scavetool_command = "opp_scavetool export -F CSV-R -o x.csv *.sca"
 
         # Attempt to transform the scalar files in the given results directory.
@@ -170,9 +216,9 @@ class HeuristicSimulationCoordinator:
         # Load the transformed outputted data from the simulation run.
 
         # # Automated workflow.
-        # csv_file_path = os.path.join(self.data_path, "results", uid, "x.csv")
-        # Manual operation from running local workflow.
-        csv_file_path = os.path.join("/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow", "results", uid, "x.csv")
+        csv_file_path = os.path.join(self.data_path, "results", uid, "x.csv")
+        # # Manual operation from running local workflow.
+        # csv_file_path = os.path.join("/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow", "results", uid, "x.csv")
 
         df = pd.read_csv(csv_file_path)
 
@@ -218,7 +264,7 @@ class HeuristicSimulationCoordinator:
     def simulation_run(self, config_values):
         
         # Set the values of the parameters in the simulation model.
-        param_dict = self.set_param_values(config_values)
+        configurations = self.set_param_values(config_values)
         
         src_dir = self.conf.tryGet("dummy_sim_src_dir")
         dest_dir = self.conf.tryGet("dummy_sim_dest_dir")
@@ -229,10 +275,11 @@ class HeuristicSimulationCoordinator:
         # Write an updated version of the ignored param value file from the directory that was just duplicated.
         old_ini_file_path = os.path.join(src_dir, "largeNet.ini")
         new_ini_file_path = os.path.join(dest_dir, "largeNet.ini")
-        self.write_new_ini_file(
+        
+        self.write_new_ini_file_new(
             old_ini_file_path,
             new_ini_file_path,
-            param_dict
+            configurations
         )
 
         # # Define flag values for the experiment campaign.
@@ -242,40 +289,44 @@ class HeuristicSimulationCoordinator:
         # num_workers = str(1)
         # num_sims = str(1)
         # time_stamp = time.strftime("%Y%m%d_%H%M%S")
-        # experiments_path = "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments"
+        # experiments_path = "/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments"
 
         # # Run the experiment campaign.
         # uid = self.run_experiment_campaign(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
 
-        # # Configure siminstances.
-        # num_sims = self.conf.tryGet("num_sims")
-        # inet_path = self.conf.tryGet("inet_base")
-        # dummy_sim_path = self.conf.tryGet("dummy_path")
+        # Configure siminstances.
+        num_sims = self.conf.tryGet("num_sims")
+        inet_path = self.conf.tryGet("inet_path")
+        dummy_sim_path = self.conf.tryGet("dummy_path")
 
         # # print(f"\Creating SIM instance:\n\t{self.config}, \n\t{dummy_sim_path}, \n\t{id}, \n\t{inet_path}\n")
 
+        # # Create SIM instances for dummy omnet.
         # sim_instances = [create_sim_custom_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(num_sims)]
+        
+        # # Create SIM instances for dummy inet lans.
+        sim_instances = [create_sim_inet_lans_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(num_sims)]
 
-        # # print(f"Created SIM instance: {sim_instances}\n")
+        # # # print(f"Created SIM instance: {sim_instances}\n")
 
-        # # Run the configured simulation model.
-        # self.manager.enqueue_tasks(sim_instances)
-        # evaluated_sim_instances = self.manager.evaluate_all()
-        # uid = evaluated_sim_instances[0].uid
+        # Run the configured simulation model.
+        self.manager.enqueue_tasks(sim_instances)
+        evaluated_sim_instances = self.manager.evaluate_all()
+        uid = evaluated_sim_instances[0].uid
 
-        # # Transform the outputted scalar files into csv format.
-        # self.transform_scalar_files(uid)
+        # Transform the outputted scalar files into csv format.
+        self.transform_scalar_files(uid)
 
-        # # Collect the simulation stats from the simulation run.
-        # simulation_metrics = self.obtain_simulation_stats(uid)
+        # Collect the simulation stats from the simulation run.
+        simulation_metrics = self.obtain_simulation_stats(uid)
 
-        # fitness_value = self.fitness_evaluation(simulation_metrics)
+        fitness_value = self.fitness_evaluation(simulation_metrics)
 
         # # Collect the sim_runtime.
         # sim_runtime_csv_file_path = self.campaign_run_collect(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
         # sim_exec_time = self.process_simulation_output(sim_runtime_csv_file_path, 'simulation.sim_exec_time')
 
-        return 1
+        return fitness_value
     
     @staticmethod
     def process_simulation_output(sim_runtime_csv_file_path, column_name):
@@ -288,6 +339,19 @@ class HeuristicSimulationCoordinator:
         def _ignore(_, filenames):
             return [name for name in filenames if name == file_name]
         return _ignore
+    
+    @staticmethod
+    def write_new_ini_file_new(old_file_path, new_file_path, configurations):
+        with open(old_file_path, 'r') as old_file, open(new_file_path, 'w') as new_file:
+            for line in old_file:
+                new_file.write(line)
+
+            new_file.write("\n# Custom parameters\n")
+
+            for configuration in configurations:
+                config_pattern = configuration["config_pattern"]
+                value = configuration["value"]
+                new_file.write(f"{config_pattern} = {value}\n")
     
     @staticmethod
     def write_new_ini_file(old_file_path, new_file_path, param_dict):
@@ -345,9 +409,9 @@ class HeuristicSimulationCoordinator:
         sys.argv = [
             'experiment_campaign.py', 
             '--data_path=' + data_path,
-            '--inet_path=/workspaces/omnetpp-6.0.1/inet4.5/', 
-            '--sims_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
-            '--dummy_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
+            '--inet_path=/home/larry/omnetpp-6.0.1/inet4.5/', 
+            '--sims_path=/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
+            '--dummy_path=/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
             '--platform=local',
             '--model=' + model,
             '--num_nodes=' + num_nodes,
@@ -356,7 +420,7 @@ class HeuristicSimulationCoordinator:
         ]
 
         # Temporarily change the working directory
-        os.chdir('/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/')
+        os.chdir('/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/')
 
         # Run the main function of the target script
         uid = experiment_campaign.main()
@@ -387,7 +451,7 @@ class HeuristicSimulationCoordinator:
         results_path = os.path.join(args.experiments_path, "results", "campaign_{}".format(model), "n{}_w{}_s{}".format(num_nodes, num_workers, num_sims), time_stamp)
 
         # Temporarily change the working directory
-        os.chdir('/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/')
+        os.chdir('/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/')
 
         # Run the data collection function of the target script.
         experiments.campaign_run_collect(args, model, num_nodes, num_workers, num_sims, time_stamp)
@@ -401,7 +465,7 @@ class HeuristicSimulationCoordinator:
 
 if __name__ == "__main__":
 
-    coordinator = HeuristicSimulationCoordinator("/workspaces/hyper-heuristic-dse-2.0/config/coordinator.json")
+    coordinator = HeuristicSimulationCoordinator("/home/larry/hyper-heuristic-dse-2.0/config/coordinator.json")
 
     # # Backup the original command-line arguments
     # original_argv = sys.argv
@@ -410,15 +474,15 @@ if __name__ == "__main__":
     # # Temporarily replace command-line arguments for experiments.py
     # sys.argv = [
     #     'experiments.py', 
-    #     '--experiments_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/',
-    #     '--inet_path=/workspaces/omnetpp-6.0.1/inet4.5/', 
-    #     '--sims_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
-    #     '--dummy_path=/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
+    #     '--experiments_path=/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/',
+    #     '--inet_path=/home/larry/omnetpp-6.0.1/inet4.5/', 
+    #     '--sims_path=/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
+    #     '--dummy_path=/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
     #     '--platform=local'
     # ]
 
     # # Temporarily change the working directory
-    # os.chdir('/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/')
+    # os.chdir('/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/')
 
     # # Run the main function of the target script
     # experiments.main()

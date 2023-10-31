@@ -1,0 +1,8 @@
+[ resource_controller  31-10-2023 21:19:06  INFO     ]  Reading in config file: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231031_211906/config.json
+[ resource_controller  31-10-2023 21:19:06  INFO     ]  Resource controller config provided
+[ resource_controller  31-10-2023 21:19:06  INFO     ]  Resource controller config specifies supported cluster local
+[ resource_controller  31-10-2023 21:19:07  INFO     ]  Sending all tasks (1) in queue to worker cluster
+[ resource_controller  31-10-2023 21:19:07  INFO     ]  Sending sim instance 7edae72f1651d9b4ab116d135229c159 to worker cluster
+[ resource_controller  31-10-2023 21:19:07  INFO     ]  Retrieving DASK futures for given tasks
+[ resource_controller  31-10-2023 21:19:07  INFO     ]  Waiting for all tasks to complete
+[ resource_controller  31-10-2023 21:19:14  INFO     ]  All tasks have completed

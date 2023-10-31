@@ -2,7 +2,7 @@
 # OMNeT++/OMNEST Makefile for run_sim
 #
 # This file was generated with the command:
-#  opp_makemake -o run_sim -f -O /workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/out
+#  opp_makemake -o run_sim -f -O /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/out
 #
 
 # Name of target to be created (-o option)
@@ -33,7 +33,7 @@ PROJECTRELATIVE_PATH =
 O = $(PROJECT_OUTPUT_DIR)/$(CONFIGNAME)/$(PROJECTRELATIVE_PATH)
 
 # Object files for local .cc, .msg and .sm files
-OBJS = $O/Queue.o $O/Switch.o
+OBJS =
 
 # Message files
 MSGFILES =

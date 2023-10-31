@@ -1,110 +1,33 @@
 {
-    "omnetpp_base": "/workspaces/hyper-heuristic-dse-2.0/omnetpp-6.0.1",
-    "results_base": "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/results",
-    "dummy_sim_src_dir": "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/dummy_sim_lans",
-    "dummy_sim_dest_dir": "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/custom_dummy",
-    "experiments_path": "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments",
+    "omnetpp_base": "/home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1",
+    "results_base": "/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/results",
+    "dummy_sim_src_dir": "/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/dummy_sim_lans",
+    "dummy_sim_dest_dir": "/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/custom_dummy",
+    "experiments_path": "/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments",
     "model": "custom",
     "num_nodes": 1,
     "num_workers": 1,
     "num_sims": 1,
-    "inet_path": "/workspaces/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5",
-    "dummy_path": "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims",
-    "sims_path": "/workspaces/hyper-heuristic-dse-2.0/src/external/simulation_model/sims",
+    "inet_path": "/home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5",
+    "dummy_path": "/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims",
+    "sims_path": "/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims",
     "fitness_config": {
         "fitness_function": "latency_cost",
         "weight_latency": 0.5,
         "weight_cost": 0.5
     },
-    "simulation_model": [
-        {
-            "model": "cqn",
-            "params": {
-                "*.sDelay": "exponential",
-                "*.tandemQueue[*].queue[*].serviceTime": "exponential",
-                "*.tandemQueue[*].qDelay": "exponential",
-                "*.tandemQueue[*].switch[*].retain": null
+    "simulation_model": {
+        "params": [
+            {
+                "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate",
+                "number_of_configs": 7,
+                "values": [
+                    "10Mbps",
+                    "100Mbps",
+                    "1Gbps",
+                    "10Gbps"
+                ]
             }
-        },
-        {
-            "model": "inet-lans",
-            "params": {
-                "**.switchBB[0].ethg$o[0].channel.datarate": {
-                    "ini_line": "**.switchBB[0].ethg$o[0].channel.datarate",
-                    "unit": "Mbps",
-                    "distribution": null
-                },
-                "**.switchBB[1].ethg$o[0].channel.datarate": {
-                    "ini_line": "**.switchBB[1].ethg$o[0].channel.datarate",
-                    "unit": "Mbps",
-                    "distribution": null
-                },
-                "**.switchBB[2].ethg$o[0].channel.datarate": {
-                    "ini_line": "**.switchBB[2].ethg$o[0].channel.datarate",
-                    "unit": "Mbps",
-                    "distribution": null
-                },
-                "**.switchBB[3].ethg$o[0].channel.datarate": {
-                    "ini_line": "**.switchBB[3].ethg$o[0].channel.datarate",
-                    "unit": "Mbps",
-                    "distribution": null
-                },
-                "**.switchBB[4].ethg$o[0].channel.datarate": {
-                    "ini_line": "**.switchBB[4].ethg$o[0].channel.datarate",
-                    "unit": "Mbps",
-                    "distribution": null
-                },
-                "**.switchBB[5].ethg$o[0].channel.datarate": {
-                    "ini_line": "**.switchBB[5].ethg$o[0].channel.datarate",
-                    "unit": "Mbps",
-                    "distribution": null
-                },
-                "**.switchBB[6].ethg$o[0].channel.datarate": {
-                    "ini_line": "**.switchBB[6].ethg$o[0].channel.datarate",
-                    "unit": "Mbps",
-                    "distribution": null
-                },
-                "**.switchBB[7].ethg$o[0].channel.datarate": {
-                    "ini_line": "**.switchBB[7].ethg$o[0].channel.datarate",
-                    "unit": "Mbps",
-                    "distribution": null
-                },
-                "**.switchBB[1].ethg$o[1].channel.datarate": {
-                    "ini_line": "**.switchBB[1].ethg$o[1].channel.datarate",
-                    "unit": "Mbps",
-                    "distribution": null
-                },
-                "**.switchBB[2].ethg$o[1].channel.datarate": {
-                    "ini_line": "**.switchBB[2].ethg$o[1].channel.datarate",
-                    "unit": "Mbps",
-                    "distribution": null
-                },
-                "**.switchBB[3].ethg$o[1].channel.datarate": {
-                    "ini_line": "**.switchBB[3].ethg$o[1].channel.datarate",
-                    "unit": "Mbps",
-                    "distribution": null
-                },
-                "**.switchBB[4].ethg$o[1].channel.datarate": {
-                    "ini_line": "**.switchBB[4].ethg$o[1].channel.datarate",
-                    "unit": "Mbps",
-                    "distribution": null
-                },
-                "**.switchBB[5].ethg$o[1].channel.datarate": {
-                    "ini_line": "**.switchBB[5].ethg$o[1].channel.datarate",
-                    "unit": "Mbps",
-                    "distribution": null
-                },
-                "**.switchBB[6].ethg$o[1].channel.datarate": {
-                    "ini_line": "**.switchBB[6].ethg$o[1].channel.datarate",
-                    "unit": "Mbps",
-                    "distribution": null
-                },
-                "**.switchBB[7].ethg$o[1].channel.datarate": {
-                    "ini_line": "**.switchBB[7].ethg$o[1].channel.datarate",
-                    "unit": "Mbps",
-                    "distribution": null
-                }
-            }
-        }
-    ]
+        ]
+    }
 }

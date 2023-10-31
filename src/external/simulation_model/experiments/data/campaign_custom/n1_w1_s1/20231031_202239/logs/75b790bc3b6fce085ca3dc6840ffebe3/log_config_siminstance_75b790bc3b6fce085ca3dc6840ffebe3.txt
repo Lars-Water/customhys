@@ -1,0 +1,27 @@
+[ config_siminstance_75b790bc3b6fce085ca3dc6840ffebe3  31-10-2023 20:24:09  INFO     ]  Default config file: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/default.cfg
+[ config_siminstance_75b790bc3b6fce085ca3dc6840ffebe3  31-10-2023 20:24:09  INFO     ]  Using config file: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/config.json
+[ config_siminstance_75b790bc3b6fce085ca3dc6840ffebe3  31-10-2023 20:24:09  INFO     ]  Loading config file: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0/config.json
+[ config_siminstance_75b790bc3b6fce085ca3dc6840ffebe3  31-10-2023 20:24:09  WARNING  ]  Could not get: ('omnet', 'simulation', 'pdes')
+[ config_siminstance_75b790bc3b6fce085ca3dc6840ffebe3  31-10-2023 20:24:09  ERROR    ]  'pdes'
+[                                                                                    ]  Traceback (most recent call last):
+[                                                                                    ]    File "/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/config_reader.py", line 49, in tryGet
+[                                                                                    ]      conf = conf[arg]
+[                                                                                    ]  KeyError: 'pdes'
+[ config_siminstance_75b790bc3b6fce085ca3dc6840ffebe3  31-10-2023 20:24:10  WARNING  ]  Could not get: ('omnet', 'simulation', 'param_sweep', 'active')
+[ config_siminstance_75b790bc3b6fce085ca3dc6840ffebe3  31-10-2023 20:24:10  ERROR    ]  'param_sweep'
+[                                                                                    ]  Traceback (most recent call last):
+[                                                                                    ]    File "/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/config_reader.py", line 49, in tryGet
+[                                                                                    ]      conf = conf[arg]
+[                                                                                    ]  KeyError: 'param_sweep'
+[ config_siminstance_75b790bc3b6fce085ca3dc6840ffebe3  31-10-2023 20:24:10  WARNING  ]  Could not get: ('omnet', 'simulation', 'time_limit')
+[ config_siminstance_75b790bc3b6fce085ca3dc6840ffebe3  31-10-2023 20:24:10  ERROR    ]  'time_limit'
+[                                                                                    ]  Traceback (most recent call last):
+[                                                                                    ]    File "/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/config_reader.py", line 49, in tryGet
+[                                                                                    ]      conf = conf[arg]
+[                                                                                    ]  KeyError: 'time_limit'
+[ config_siminstance_75b790bc3b6fce085ca3dc6840ffebe3  31-10-2023 20:24:10  WARNING  ]  Could not get: ('omnet', 'simulation', 'pdes')
+[ config_siminstance_75b790bc3b6fce085ca3dc6840ffebe3  31-10-2023 20:24:10  ERROR    ]  'pdes'
+[                                                                                    ]  Traceback (most recent call last):
+[                                                                                    ]    File "/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/config_reader.py", line 49, in tryGet
+[                                                                                    ]      conf = conf[arg]
+[                                                                                    ]  KeyError: 'pdes'

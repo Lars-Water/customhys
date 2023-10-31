@@ -1,0 +1,18 @@
+[ manager  31-10-2023 21:19:06  INFO     ]  Reading in config file: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231031_211906/config.json
+[ manager  31-10-2023 21:19:06  INFO     ]  Creating design point queue(s)
+[ manager  31-10-2023 21:19:06  INFO     ]  Creating design point queue with id: base
+[ manager  31-10-2023 21:19:06  INFO     ]  Design point queue order (highest priority first):
+[ manager  31-10-2023 21:19:06  INFO     ]  base with priority 0
+[ manager  31-10-2023 21:19:06  INFO     ]  Creating resource controller
+[ manager  31-10-2023 21:19:07  INFO     ]  Creating output handler
+[ manager  31-10-2023 21:19:07  INFO     ]  Creating sim cache
+[ manager  31-10-2023 21:19:07  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 21:19:07  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 21:19:07  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 21:19:07  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 21:19:07  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 21:19:07  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 21:19:07  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 21:19:07  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 21:19:07  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 21:19:07  INFO     ]  Sending sim instances (1) to resource controller
