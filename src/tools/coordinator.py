@@ -92,37 +92,31 @@ class HeuristicSimulationCoordinator:
             num_configs = param["number_of_configs"]
             param_values = param["values"]
 
-            for param_idx in range(num_configs):
-                
-                # Retrieve the corresponding parameter value by indexing the provided config value to the size of the available values.
-                config_value = config_values[param_idx]
-                value_index = int(config_value * (len(param_values) - 1))
+            # Determine the param value index by segment indexing the config values from CUSTOMHys.
+            num_segments = len(param_values)
+            value_indices = np.floor(np.clip(config_values, 0, 1) * num_segments).astype(int)
+            value_indices[config_values == 1.0] = num_segments - 1
 
-                print(f"PARAM VALUE: {config_value} -> CALCULATION: {config_value} * {len(param_values) - 1} = {value_index}")
+            # Create a configuration for each parameter.
+            for switch_idx, value_idx in enumerate(value_indices):
+                selected_param_value = param_values[value_idx]
 
-                # # Determine the indices for each value based on the size of the list
-                # num_segments = len(param_values)
-                # indices = np.floor(config_values * num_segments).astype(int)
-
-                # print(indices)
-
-                selected_param_value = param_values[value_index]
-
-                # Set first switch gate index to 0 if param idx is 0 and otherwise to 1
-                first_switch_gate_index = "1" if param_idx > 0 else "0"
+                # Conditional handling for the switch gates where the first switch is handled differently.
+                first_switch_gate_index = "1" if switch_idx > 0 else "0"
                 second_switch_gate_index = "0"
                 
-                # Replace placeholders in the configuration pattern
-                current_param_pattern = config_pattern.replace("__switch_index", str(param_idx))
+                # Replace placeholders in the configuration pattern are replaced with the corresponding indices.
+                current_param_pattern = config_pattern.replace("__switch_index", str(switch_idx))
                 current_param_pattern = current_param_pattern.replace("__gate_index", first_switch_gate_index)
 
+                # Create a configuration for the current parameter.
                 configurations.append({
                     "config_pattern": current_param_pattern,
                     "value": selected_param_value
                 })
 
-                # Replace placeholders in the configuration pattern
-                current_param_pattern = config_pattern.replace("__switch_index", str(param_idx+1))
+                # Replace placeholders in the configuration pattern are replaced with the corresponding indices.
+                current_param_pattern = config_pattern.replace("__switch_index", str(switch_idx+1))
                 current_param_pattern = current_param_pattern.replace("__gate_index", second_switch_gate_index)
 
                 configurations.append({
@@ -131,47 +125,6 @@ class HeuristicSimulationCoordinator:
                 })
 
         return configurations
-        
-        # # Transform the provided config indices to the corresponding datarate values.
-        # transformed_values = [
-        #     datarate_values[
-        #         int(value * (len(datarate_values)))
-        #     ] for value in config_values]
-        
-        # # Update param_dict based on provided config values of the heuristic following the order of config file params.
-        # for idx, param_key in enumerate(param_dict):
-        #     param = param_dict.get(param_key, None)
-        #     param_distribution = param.get("distribution", None)
-        #     param_unit = param.get("unit", None)
-        #     config_value = None
-            
-        #     if ".cost" in param_key:
-        #         # Define cost coefficients (these need to be determined based on real-world data)
-        #         cost_per_data_rate_unit = 0.1  # Cost per unit of data rate (e.g., Mbps)
-        #         cost_per_delay_unit = 1.0     # Cost per unit of delay (e.g., milliseconds)
-                
-        #         # Calculate the cost based on data rate and delay
-        #         config_value = (datarate * cost_per_data_rate_unit) + (delay * cost_per_delay_unit)
-        #     elif ".datarate" in param_key:
-        #         config_value = config_values[idx].round(1)  # Fetch the corresponding value from the confiq_values
-        #         datarate = config_value
-        #     elif ".delay" in param_key:
-        #         config_value = config_values[idx].round(1)  # Fetch the corresponding value from the confiq_values
-        #         delay = config_value
-            
-        #     if param_distribution == "exponential":
-        #         if param_unit:
-        #             param_dict[param_key] = f"exponential({config_value}{param_unit})"
-        #         else:
-        #             param_dict[param_key] = f"exponential({config_value})"
-        #     else:
-        #         if param_unit:
-        #             param_dict[param_key] = f"{str(config_value)}{param_unit}"
-        #         else:
-        #             param_dict[param_key] = f"{str(config_value)}"
-        #     # Add other distributions here...
-        
-        # return param_dict
     
     '''
         Transform the scalar files generated by the simulation model into a csv format.
@@ -299,19 +252,20 @@ class HeuristicSimulationCoordinator:
         inet_path = self.conf.tryGet("inet_path")
         dummy_sim_path = self.conf.tryGet("dummy_path")
 
-        # # print(f"\Creating SIM instance:\n\t{self.config}, \n\t{dummy_sim_path}, \n\t{id}, \n\t{inet_path}\n")
-
         # # Create SIM instances for dummy omnet.
         # sim_instances = [create_sim_custom_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(num_sims)]
         
-        # # Create SIM instances for dummy inet lans.
+        # Create SIM instances for dummy inet lans.
         sim_instances = [create_sim_inet_lans_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(num_sims)]
 
-        # # # print(f"Created SIM instance: {sim_instances}\n")
-
+        print(f"Created sim instances {sim_instances[0].uid}")
+        
         # Run the configured simulation model.
         self.manager.enqueue_tasks(sim_instances)
         evaluated_sim_instances = self.manager.evaluate_all()
+
+        print(f"Evaluated sim instances {evaluated_sim_instances}")
+
         uid = evaluated_sim_instances[0].uid
 
         # Transform the outputted scalar files into csv format.
@@ -321,6 +275,8 @@ class HeuristicSimulationCoordinator:
         simulation_metrics = self.obtain_simulation_stats(uid)
 
         fitness_value = self.fitness_evaluation(simulation_metrics)
+
+        print("fitness_value: ", fitness_value)
 
         # # Collect the sim_runtime.
         # sim_runtime_csv_file_path = self.campaign_run_collect(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)

@@ -1,0 +1,29 @@
+{
+    "simulator": "omnet",
+    "omnet": {
+        "make": {
+            "opp_makemake": {
+                "force": true
+            },
+            "verbose": true
+        },
+        "simulation": {
+            "ini": "largeNet.ini",
+            "config": "LargeNet",
+            "environment": "Cmdenv",
+            "libraries": [
+                "/home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/src/INET"
+            ],
+            "ned_paths": [
+                "/home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/src",
+                "/home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/examples",
+                "/home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/showcases",
+                "/home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tests/validation",
+                "/home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tests/networks",
+                "/home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tutorials"
+            ],
+            "record_eventlog": false
+        },
+        "metadata": null
+    }
+}

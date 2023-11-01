@@ -1,0 +1,65 @@
+OMNeT++ Discrete Event Simulation  (C) 1992-2022 Andras Varga, OpenSim Ltd.
+Version: 6.0.1, build: 220831-e4f07d04b8, edition: Academic Public License -- NOT FOR COMMERCIAL USE
+See the license for distribution terms and warranty disclaimer
+
+Setting up Cmdenv...
+
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/src:  1187
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/examples:  185
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/showcases:  76
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tests/validation:  5
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tests/networks:  6
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tutorials:  20
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/0:  3
+
+Preparing for running configuration LargeNet, run #0...
+Assigned runID=LargeNet-0-20231031-23:12:45-67374
+Setting up network "LargeNet"...
+Initializing...
+
+Running simulation...
+** Event #0   t=0   Elapsed: 2.3e-05s (0m 00s)  0% completed  (0% total)
+     Speed:     ev/sec=0   simsec/sec=0   ev/simsec=0
+     Messages:  created: 10826   present: 10826   in FES: 917
+** Event #226816   t=0.573966956298   Elapsed: 2.00122s (0m 02s)  28% completed  (28% total)
+     Speed:     ev/sec=113340   simsec/sec=0.286811   ev/simsec=395174
+     Messages:  created: 154404   present: 10429   in FES: 499
+** Event #381184   t=1.024875471402   Elapsed: 4.00204s (0m 04s)  51% completed  (51% total)
+     Speed:     ev/sec=77154.6   simsec/sec=0.225368   ev/simsec=342349
+     Messages:  created: 251703   present: 10397   in FES: 474
+** Event #620800   t=1.729384949952   Elapsed: 6.00282s (0m 06s)  86% completed  (86% total)
+     Speed:     ev/sec=119758   simsec/sec=0.352108   ev/simsec=340117
+     Messages:  created: 400654   present: 10395   in FES: 466
+** Event #703566   t=2   Elapsed: 7.16833s (0m 07s)  100% completed  (100% total)
+     Speed:     ev/sec=71012   simsec/sec=0.232152   ev/simsec=305886
+     Messages:  created: 452447   present: 10429   in FES: 498
+
+<!> Simulation time limit reached -- at t=2s, event #703566
+
+Calling finish() at end of Run #0...
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-888-5-resp-3 (520 B) (inet::SequenceChunk) length = 520 B
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-888-5-resp-2 (1518 B) (inet::SequenceChunk) length = 1518 B
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-888-5-resp-1 (1518 B) (inet::SequenceChunk) length = 1518 B
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-6953-2-resp-1 (1518 B) (inet::SequenceChunk) length = 1518 B
+[INFO]	Pulling packet, [1mpacket[0m = [2m(Packet)[0m[3mreq-6953-2-resp-2[0m (1518 B) [[2mEthernetMacHeader[0m, [1mtypeOrLength[0m = 1500 | [2mIeee8022LlcHeader[0m, [1mdsap[0m = 240, [1mssap[0m = 241, [1mcontrol[0m = 3 | [2mEtherAppResp[0m, [1mrequestId[0m = 2, [1mnumFrames[0m = 0 | [2mEthernetFcs[0m, [1mfcs[0m = 0, [1mfcsMode[0m = 1 (FCS_DECLARED_CORRECT)].
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-6953-2-resp-2 (1518 B) (inet::SequenceChunk) length = 1518 B
+[INFO]	Pulling packet, [1mpacket[0m = [2m(Packet)[0m[3mreq-6953-2-resp-3[0m (1518 B) [[2mEthernetMacHeader[0m, [1mtypeOrLength[0m = 1500 | [2mIeee8022LlcHeader[0m, [1mdsap[0m = 240, [1mssap[0m = 241, [1mcontrol[0m = 3 | [2mEtherAppResp[0m, [1mrequestId[0m = 2, [1mnumFrames[0m = 0 | [2mEthernetFcs[0m, [1mfcs[0m = 0, [1mfcsMode[0m = 1 (FCS_DECLARED_CORRECT)].
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-6953-2-resp-3 (1518 B) (inet::SequenceChunk) length = 1518 B
+[INFO]	Pulling packet, [1mpacket[0m = [2m(Packet)[0m[3mreq-6953-2-resp-4[0m (1518 B) [[2mEthernetMacHeader[0m, [1mtypeOrLength[0m = 1500 | [2mIeee8022LlcHeader[0m, [1mdsap[0m = 240, [1mssap[0m = 241, [1mcontrol[0m = 3 | [2mEtherAppResp[0m, [1mrequestId[0m = 2, [1mnumFrames[0m = 0 | [2mEthernetFcs[0m, [1mfcs[0m = 0, [1mfcsMode[0m = 1 (FCS_DECLARED_CORRECT)].
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-6953-2-resp-4 (1518 B) (inet::SequenceChunk) length = 1518 B
+[INFO]	Pulling packet, [1mpacket[0m = [2m(Packet)[0m[3mreq-6953-2-resp-5[0m (1518 B) [[2mEthernetMacHeader[0m, [1mtypeOrLength[0m = 1500 | [2mIeee8022LlcHeader[0m, [1mdsap[0m = 240, [1mssap[0m = 241, [1mcontrol[0m = 3 | [2mEtherAppResp[0m, [1mrequestId[0m = 2, [1mnumFrames[0m = 0 | [2mEthernetFcs[0m, [1mfcs[0m = 0, [1mfcsMode[0m = 1 (FCS_DECLARED_CORRECT)].
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-6953-2-resp-5 (1518 B) (inet::SequenceChunk) length = 1518 B
+[INFO]	Pulling packet, [1mpacket[0m = [2m(Packet)[0m[3mreq-6953-2-resp-6[0m (1518 B) [[2mEthernetMacHeader[0m, [1mtypeOrLength[0m = 1500 | [2mIeee8022LlcHeader[0m, [1mdsap[0m = 240, [1mssap[0m = 241, [1mcontrol[0m = 3 | [2mEtherAppResp[0m, [1mrequestId[0m = 2, [1mnumFrames[0m = 0 | [2mEthernetFcs[0m, [1mfcs[0m = 0, [1mfcsMode[0m = 1 (FCS_DECLARED_CORRECT)].
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-6953-2-resp-6 (1518 B) (inet::SequenceChunk) length = 1518 B
+[INFO]	Pulling packet, [1mpacket[0m = [2m(Packet)[0m[3mreq-6953-2-resp-7[0m (1518 B) [[2mEthernetMacHeader[0m, [1mtypeOrLength[0m = 1500 | [2mIeee8022LlcHeader[0m, [1mdsap[0m = 240, [1mssap[0m = 241, [1mcontrol[0m = 3 | [2mEtherAppResp[0m, [1mrequestId[0m = 2, [1mnumFrames[0m = 0 | [2mEthernetFcs[0m, [1mfcs[0m = 0, [1mfcsMode[0m = 1 (FCS_DECLARED_CORRECT)].
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-6953-2-resp-7 (1518 B) (inet::SequenceChunk) length = 1518 B
+[INFO]	Pulling packet, [1mpacket[0m = [2m(Packet)[0m[3mreq-6953-2-resp-8[0m (1518 B) [[2mEthernetMacHeader[0m, [1mtypeOrLength[0m = 1500 | [2mIeee8022LlcHeader[0m, [1mdsap[0m = 240, [1mssap[0m = 241, [1mcontrol[0m = 3 | [2mEtherAppResp[0m, [1mrequestId[0m = 2, [1mnumFrames[0m = 0 | [2mEthernetFcs[0m, [1mfcs[0m = 0, [1mfcsMode[0m = 1 (FCS_DECLARED_CORRECT)].
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-6953-2-resp-8 (1518 B) (inet::SequenceChunk) length = 1518 B
+[INFO]	Pulling packet, [1mpacket[0m = [2m(Packet)[0m[3mreq-6953-2-resp-9[0m (1518 B) [[2mEthernetMacHeader[0m, [1mtypeOrLength[0m = 1500 | [2mIeee8022LlcHeader[0m, [1mdsap[0m = 240, [1mssap[0m = 241, [1mcontrol[0m = 3 | [2mEtherAppResp[0m, [1mrequestId[0m = 2, [1mnumFrames[0m = 0 | [2mEthernetFcs[0m, [1mfcs[0m = 0, [1mfcsMode[0m = 1 (FCS_DECLARED_CORRECT)].
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-6953-2-resp-9 (1518 B) (inet::SequenceChunk) length = 1518 B
+[INFO]	Pulling packet, [1mpacket[0m = [2m(Packet)[0m[3mreq-6953-2-resp-10[0m (901 B) [[2mEthernetMacHeader[0m, [1mtypeOrLength[0m = 883 | [2mIeee8022LlcHeader[0m, [1mdsap[0m = 240, [1mssap[0m = 241, [1mcontrol[0m = 3 | [2mEtherAppResp[0m, [1mrequestId[0m = 2, [1mnumFrames[0m = 0 | [2mEthernetFcs[0m, [1mfcs[0m = 0, [1mfcsMode[0m = 1 (FCS_DECLARED_CORRECT)].
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-6953-2-resp-10 (901 B) (inet::SequenceChunk) length = 901 B
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-11225-5-resp-0 (1398 B) (inet::SequenceChunk) length = 1398 B
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-13938-6-resp-4 (1109 B) (inet::SequenceChunk) length = 1109 B
+
+End.

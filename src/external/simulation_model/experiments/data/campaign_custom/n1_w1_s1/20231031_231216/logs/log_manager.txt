@@ -1,0 +1,258 @@
+[ manager  31-10-2023 23:12:16  INFO     ]  Reading in config file: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231031_231216/config.json
+[ manager  31-10-2023 23:12:16  INFO     ]  Creating design point queue(s)
+[ manager  31-10-2023 23:12:16  INFO     ]  Creating design point queue with id: base
+[ manager  31-10-2023 23:12:16  INFO     ]  Design point queue order (highest priority first):
+[ manager  31-10-2023 23:12:16  INFO     ]  base with priority 0
+[ manager  31-10-2023 23:12:16  INFO     ]  Creating resource controller
+[ manager  31-10-2023 23:12:19  INFO     ]  Creating output handler
+[ manager  31-10-2023 23:12:19  INFO     ]  Creating sim cache
+[ manager  31-10-2023 23:12:19  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:12:19  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:12:19  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:12:19  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:12:19  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:12:19  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:12:19  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:12:19  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:12:19  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:12:19  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:12:44  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:12:44  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:12:44  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:12:44  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:12:44  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:12:44  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:12:44  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:12:44  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:12:44  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:12:44  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:13:10  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:13:10  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:13:10  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:13:10  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:13:10  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:13:10  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:13:10  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:13:10  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:13:10  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:13:10  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:13:34  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:13:34  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:13:34  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:13:34  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:13:34  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:13:34  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:13:34  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:13:34  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:13:34  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:13:34  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:13:59  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:13:59  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:13:59  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:13:59  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:13:59  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:13:59  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:13:59  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:13:59  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:13:59  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:13:59  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:14:23  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:14:23  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:14:23  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:14:23  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:14:23  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:14:23  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:14:23  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:14:23  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:14:23  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:14:23  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:14:47  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:14:47  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:14:47  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:14:47  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:14:47  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:14:47  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:14:47  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:14:47  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:14:47  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:14:47  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:15:10  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:15:10  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:15:10  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:15:10  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:15:10  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:15:10  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:15:10  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:15:10  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:15:10  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:15:10  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:15:34  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:15:34  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:15:34  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:15:34  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:15:34  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:15:34  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:15:34  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:15:34  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:15:34  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:15:34  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:15:58  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:15:58  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:15:58  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:15:58  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:15:58  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:15:58  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:15:58  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:15:58  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:15:58  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:15:58  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:16:24  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:16:24  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:16:24  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:16:24  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:16:24  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:16:24  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:16:24  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:16:24  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:16:24  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:16:24  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:16:49  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:16:49  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:16:49  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:16:49  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:16:49  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:16:49  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:16:49  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:16:49  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:16:49  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:16:49  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:17:14  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:17:14  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:17:14  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:17:14  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:17:14  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:17:14  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:17:14  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:17:14  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:17:14  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:17:14  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:17:39  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:17:39  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:17:39  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:17:39  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:17:39  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:17:39  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:17:39  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:17:39  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:17:39  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:17:39  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:18:03  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:18:03  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:18:03  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:18:03  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:18:03  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:18:03  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:18:03  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:18:03  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:18:03  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:18:03  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:18:27  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:18:27  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:18:27  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:18:27  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:18:27  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:18:27  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:18:27  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:18:27  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:18:27  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:18:27  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:18:51  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:18:51  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:18:51  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:18:51  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:18:51  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:18:51  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:18:51  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:18:51  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:18:51  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:18:51  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:19:15  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:19:15  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:19:15  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:19:15  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:19:15  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:19:15  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:19:15  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:19:15  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:19:15  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:19:15  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:19:39  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:19:39  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:19:39  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:19:39  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:19:39  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:19:39  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:19:39  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:19:39  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:19:39  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:19:39  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:20:06  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:20:06  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:20:06  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:20:06  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:20:06  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:20:06  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:20:06  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:20:06  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:20:06  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:20:06  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:20:31  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:20:31  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:20:31  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:20:31  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:20:31  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:20:31  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:20:31  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:20:31  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:20:31  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:20:31  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:20:54  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:20:54  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:20:54  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:20:54  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:20:54  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:20:54  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:20:54  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:20:54  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:20:54  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:20:54  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:21:19  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:21:19  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:21:19  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:21:19  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:21:19  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:21:19  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:21:19  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:21:19  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:21:19  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:21:19  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:21:44  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:21:44  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:21:44  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:21:44  INFO     ]  Filtered 0 sim instances based on cache
+[ manager  31-10-2023 23:21:44  INFO     ]  Inserting sim instances (1) in design point queue None
+[ manager  31-10-2023 23:21:44  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:21:44  INFO     ]  Requesting 1 sim instances from design point queue base
+[ manager  31-10-2023 23:21:44  INFO     ]  Recieved 1 sim instances from design point queue base
+[ manager  31-10-2023 23:21:44  INFO     ]  Setting sim instances (1) to processing state in cache
+[ manager  31-10-2023 23:21:44  INFO     ]  Sending sim instances (1) to resource controller
+[ manager  31-10-2023 23:22:09  INFO     ]  Manager received sim instances (1)
+[ manager  31-10-2023 23:22:09  INFO     ]  Queue for given id does not exist
+[ manager  31-10-2023 23:22:09  INFO     ]  Filtered 0 duplicate sim instances
+[ manager  31-10-2023 23:22:09  INFO     ]  Filtered 1 sim instances based on cache
+[ manager  31-10-2023 23:22:09  INFO     ]  No sim instances to enqueue
+[ manager  31-10-2023 23:22:09  INFO     ]  Requesting all sim instances from design point queues (highest priority first)
+[ manager  31-10-2023 23:22:09  INFO     ]  Requesting 0 sim instances from design point queue base
+[ manager  31-10-2023 23:22:09  INFO     ]  Recieved 0 sim instances from design point queue base
+[ manager  31-10-2023 23:22:09  INFO     ]  Setting sim instances (0) to processing state in cache
+[ manager  31-10-2023 23:22:09  INFO     ]  Sending sim instances (0) to resource controller

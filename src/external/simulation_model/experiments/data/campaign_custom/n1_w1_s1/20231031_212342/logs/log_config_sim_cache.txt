@@ -1,3 +1,0 @@
-[ config_sim_cache  31-10-2023 21:23:43  INFO     ]  Default config file: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/default.cfg
-[ config_sim_cache  31-10-2023 21:23:43  INFO     ]  Using config file: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231031_212342/config.json
-[ config_sim_cache  31-10-2023 21:23:43  INFO     ]  Loading config file: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231031_212342/config.json

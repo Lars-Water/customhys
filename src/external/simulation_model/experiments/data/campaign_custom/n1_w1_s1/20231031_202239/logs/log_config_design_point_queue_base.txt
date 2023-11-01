@@ -1,3 +1,0 @@
-[ config_design_point_queue_base  31-10-2023 20:22:39  INFO     ]  Default config file: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/src/utils/default.cfg
-[ config_design_point_queue_base  31-10-2023 20:22:39  INFO     ]  Using config file: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231031_202239/config.json
-[ config_design_point_queue_base  31-10-2023 20:22:39  INFO     ]  Loading config file: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231031_202239/config.json

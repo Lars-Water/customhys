@@ -1,0 +1,109 @@
+[ design_point_queue_base  31-10-2023 23:12:16  INFO     ]  ID of design point queue: base
+[ design_point_queue_base  31-10-2023 23:12:16  INFO     ]  Reading in config file: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231031_231216/config.json
+[ design_point_queue_base  31-10-2023 23:12:16  INFO     ]  Design point queues config data present in config file
+[ design_point_queue_base  31-10-2023 23:12:16  INFO     ]  Design point queue has priority 0
+[ design_point_queue_base  31-10-2023 23:12:16  INFO     ]  Design point queue has sorting algorithm FIFO
+[ design_point_queue_base  31-10-2023 23:12:16  INFO     ]  Checking validity of sorting algorithm param: FIFO
+[ design_point_queue_base  31-10-2023 23:12:16  INFO     ]  FIFO is a valid sorting algorithm
+[ design_point_queue_base  31-10-2023 23:12:16  INFO     ]  Setting design point queue sorting algorithm to: FIFO
+[ design_point_queue_base  31-10-2023 23:12:16  INFO     ]  Sorting the queue according to the sorting algorithm: FIFO
+[ design_point_queue_base  31-10-2023 23:12:16  INFO     ]  FIFO sorting algorithm does not change the current order of the queue
+[ design_point_queue_base  31-10-2023 23:12:19  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:12:19  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:12:19  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:12:19  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:12:44  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:12:44  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:12:44  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:12:44  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:13:10  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:13:10  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:13:10  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:13:10  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:13:34  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:13:34  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:13:34  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:13:34  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:13:59  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:13:59  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:13:59  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:13:59  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:14:23  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:14:23  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:14:23  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:14:23  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:14:47  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:14:47  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:14:47  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:14:47  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:15:10  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:15:10  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:15:10  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:15:10  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:15:34  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:15:34  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:15:34  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:15:34  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:15:58  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:15:58  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:15:58  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:15:58  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:16:24  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:16:24  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:16:24  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:16:24  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:16:49  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:16:49  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:16:49  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:16:49  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:17:14  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:17:14  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:17:14  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:17:14  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:17:39  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:17:39  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:17:39  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:17:39  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:18:03  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:18:03  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:18:03  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:18:03  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:18:27  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:18:27  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:18:27  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:18:27  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:18:51  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:18:51  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:18:51  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:18:51  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:19:15  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:19:15  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:19:15  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:19:15  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:19:39  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:19:39  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:19:39  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:19:39  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:20:06  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:20:06  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:20:06  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:20:06  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:20:31  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:20:31  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:20:31  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:20:31  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:20:54  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:20:54  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:20:54  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:20:54  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:21:19  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:21:19  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:21:19  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:21:19  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:21:44  INFO     ]  Inserting design point at the back of the queue
+[ design_point_queue_base  31-10-2023 23:21:44  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:21:44  INFO     ]  The current size of the design point queue: 1
+[ design_point_queue_base  31-10-2023 23:21:44  INFO     ]  Popping 1 design points from the front of the queue
+[ design_point_queue_base  31-10-2023 23:22:09  INFO     ]  The current size of the design point queue: 0
+[ design_point_queue_base  31-10-2023 23:22:09  INFO     ]  The current size of the design point queue: 0
+[ design_point_queue_base  31-10-2023 23:22:09  INFO     ]  Popping 0 design points from the front of the queue
