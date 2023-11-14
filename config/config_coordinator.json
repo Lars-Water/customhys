@@ -27,6 +27,16 @@
                     "1Gbps",
                     "10Gbps"
                 ]
+            },
+            {
+                "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost",
+                "number_of_configs": 7,
+                "values": [
+                    1,
+                    2,
+                    4,
+                    5
+                ]
             }
         ]
     }

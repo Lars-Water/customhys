@@ -14,7 +14,7 @@ import subprocess
 '''
 
 
-def save_simulation_fitness(hist_values, store_path):
+def save_simulation_fitness(hist_values, store_path, title, filename):
 
     # Create directory if it doesn't exist
     if not os.path.exists(os.path.dirname(store_path)):
@@ -32,12 +32,20 @@ def save_simulation_fitness(hist_values, store_path):
     plt.figure()
     plt.plot(fitness_values, lw=2)
     plt.xlabel('Iteration')
-    plt.ylabel('Latency')
+    plt.ylabel('Latency and cost evaluation')
     plt.xlim(0, len(fitness_values) - 1)
     plt.ylim(0, max(fitness_values) + 1)
     plt.xticks(np.arange(0, len(fitness_values), step=1))
     plt.grid()
-    plt.savefig("/home/larry/hyper-heuristic-dse-2.0/data/processed/inet_lans.png")
+
+    # Add the formula as text annotation in the top right corner
+    formula_text = f"(0.5 * (1 / end_to_end delay))\n + (0.5 * network_cost)"
+    plt.text(0.5, 0.9, formula_text, fontsize=12, color='red', transform=plt.gca().transAxes, bbox=dict(boxstyle='round', facecolor='white', edgecolor='red'))
+
+    # Add a title to your plot
+    plt.title(title)
+    
+    plt.savefig(f"/home/larry/hyper-heuristic-dse-2.0/data/processed/{filename}.png")
 
 
 '''

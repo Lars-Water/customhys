@@ -1,5 +1,6 @@
 from tools.logger import logger
 from pathlib import Path
+from time import sleep
 
 import argparse
 import os
@@ -94,7 +95,7 @@ class HeuristicSimulationCoordinator:
 
             # Determine the param value index by segment indexing the config values from CUSTOMHys.
             num_segments = len(param_values)
-            value_indices = np.floor(np.clip(config_values, 0, 1) * num_segments).astype(int)
+            value_indices = np.floor(config_values * num_segments).astype(int)
             value_indices[config_values == 1.0] = num_segments - 1
 
             # Create a configuration for each parameter.
@@ -123,7 +124,7 @@ class HeuristicSimulationCoordinator:
                     "config_pattern": current_param_pattern,
                     "value": selected_param_value
                 })
-
+        
         return configurations
     
     '''
@@ -214,7 +215,7 @@ class HeuristicSimulationCoordinator:
         else:
             return 0
     
-    def simulation_run(self, config_values):
+    def simulation_run(self, fitfunc, config_values):
         
         # Set the values of the parameters in the simulation model.
         configurations = self.set_param_values(config_values)
@@ -229,23 +230,12 @@ class HeuristicSimulationCoordinator:
         old_ini_file_path = os.path.join(src_dir, "largeNet.ini")
         new_ini_file_path = os.path.join(dest_dir, "largeNet.ini")
         
+        # Write a new ini file with the parameter configurations.
         self.write_new_ini_file_new(
             old_ini_file_path,
             new_ini_file_path,
             configurations
         )
-
-        # # Define flag values for the experiment campaign.
-        # # TODO: Make these configurable.
-        # model = "custom"
-        # num_nodes = str(1)
-        # num_workers = str(1)
-        # num_sims = str(1)
-        # time_stamp = time.strftime("%Y%m%d_%H%M%S")
-        # experiments_path = "/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments"
-
-        # # Run the experiment campaign.
-        # uid = self.run_experiment_campaign(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
 
         # Configure siminstances.
         num_sims = self.conf.tryGet("num_sims")
@@ -258,11 +248,17 @@ class HeuristicSimulationCoordinator:
         # Create SIM instances for dummy inet lans.
         sim_instances = [create_sim_inet_lans_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(num_sims)]
 
-        print(f"Created sim instances {sim_instances[0].uid}")
+        # print(f"Created sim instances {sim_instances[0].uid}")
+        # print(f"HEUR CONFIG VALUES: {config_values}")
+        # for config in configurations:
+        #     print(f"SIMULATION PARAMETER: {config}")
         
         # Run the configured simulation model.
         self.manager.enqueue_tasks(sim_instances)
         evaluated_sim_instances = self.manager.evaluate_all()
+
+        # TODO: Test sleep function in relation to occasional simulation run failures.
+        # sleep(5)
 
         print(f"Evaluated sim instances {evaluated_sim_instances}")
 
@@ -274,13 +270,12 @@ class HeuristicSimulationCoordinator:
         # Collect the simulation stats from the simulation run.
         simulation_metrics = self.obtain_simulation_stats(uid)
 
-        fitness_value = self.fitness_evaluation(simulation_metrics)
+        fitness_config = self.conf.tryGet("fitness_config")
+        fitness_value = fitfunc(fitness_config, simulation_metrics)        
+        
+        # fitness_value = self.fitness_evaluation(simulation_metrics)
 
-        print("fitness_value: ", fitness_value)
-
-        # # Collect the sim_runtime.
-        # sim_runtime_csv_file_path = self.campaign_run_collect(model, num_nodes, num_workers, num_sims, time_stamp, experiments_path)
-        # sim_exec_time = self.process_simulation_output(sim_runtime_csv_file_path, 'simulation.sim_exec_time')
+        print(f"Evaluated SIM instance {uid} | Fitness value: {fitness_value}")
 
         return fitness_value
     
@@ -422,27 +417,3 @@ class HeuristicSimulationCoordinator:
 if __name__ == "__main__":
 
     coordinator = HeuristicSimulationCoordinator("/home/larry/hyper-heuristic-dse-2.0/config/coordinator.json")
-
-    # # Backup the original command-line arguments
-    # original_argv = sys.argv
-    # original_directory = os.getcwd()
-    
-    # # Temporarily replace command-line arguments for experiments.py
-    # sys.argv = [
-    #     'experiments.py', 
-    #     '--experiments_path=/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/',
-    #     '--inet_path=/home/larry/omnetpp-6.0.1/inet4.5/', 
-    #     '--sims_path=/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
-    #     '--dummy_path=/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
-    #     '--platform=local'
-    # ]
-
-    # # Temporarily change the working directory
-    # os.chdir('/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/')
-
-    # # Run the main function of the target script
-    # experiments.main()
-
-    # # Restore original command-line arguments and working directory
-    # sys.argv = original_argv
-    # os.chdir(original_directory)

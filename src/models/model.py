@@ -45,8 +45,27 @@ class instance(BP):
         Run the simulation model with the given variables.
     '''
     def get_func_val(self, variables, *args):
-        return self.sim_run(variables)
+        return self.sim_run(self.fitfunc, variables)
+    
+    '''
+        Evaluate the fitness value of the simulation run.
 
+        Args:
+            simulation_metrics: The simulation metrics obtained from the simulation run.
+    '''
+    def fitfunc(self, fitness_config, simulation_metrics):
+        fitness_function = fitness_config["fitness_function"]
+
+        # Fitness value evaluates the objectives for latency and network cost.
+        if fitness_function == "latency_cost":
+            weight_latency = fitness_config["weight_latency"]
+            weight_cost = fitness_config["weight_cost"]
+            fitness_value = (weight_latency * (1 / simulation_metrics["latency"])) + (weight_cost * simulation_metrics["network_cost"])
+            return fitness_value
+
+        # TODO: Add other fitness functions here.
+        else:
+            return 0
 
 '''
     Generate a basic problem instance from a given simulation model

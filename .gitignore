@@ -101,12 +101,7 @@ bin/
 /data/raw
 
 # exclude external models from source control
-# /src/external
+/src/external
 
 # exclude omnet_directory from source control
 /omnetpp-6.0.1
-
-src/external/simulation_model/sims/0/results/
-src/external/simulation_model/workflow/logs/siminstance_660def9f7e2aadb2b8d1af897fc44e19_sim_stdout
-src/external/simulation_model/workflow/results/93666e7c1d6507e06d87b624e223b02e/x.csv
-src/external/simulation_model/workflow/results/8f46d2734ad3052a7aeb9247c78b62c7/x.csv
