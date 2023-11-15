@@ -41,12 +41,14 @@ class instance(BP):
                          'Unimodal': True,
                          'Convex': False}
 
+
     '''
         Run the simulation model with the given variables.
     '''
     def get_func_val(self, variables, *args):
         return self.sim_run(self.fitfunc, variables)
     
+
     '''
         Evaluate the fitness value of the simulation run.
 
@@ -66,6 +68,7 @@ class instance(BP):
         # TODO: Add other fitness functions here.
         else:
             return 0
+
 
 '''
     Generate a basic problem instance from a given simulation model

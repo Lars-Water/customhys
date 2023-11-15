@@ -25,7 +25,8 @@ class HeuristicSimulationCoordinator:
     def __init__(self, config_path):
 
         # Set up the logger.
-        self.logger = logger("coordinator", Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/heuristic_run/logs"))
+        os.makedirs("/home/larry/hyper-heuristic-dse-2.0/data/logs/coordinator", exist_ok=True)
+        self.logger = logger("coordinator", Path("/home/larry/hyper-heuristic-dse-2.0/data/logs/coordinator"))
 
         # TODO: Change the following hardcoded parameter definition to reading a config file.
         # Define params to set up the Manager.
@@ -217,6 +218,8 @@ class HeuristicSimulationCoordinator:
     
     def simulation_run(self, fitfunc, config_values):
         
+        self.logger.debug(f"Simulation run with config values: {config_values}")
+        
         # Set the values of the parameters in the simulation model.
         configurations = self.set_param_values(config_values)
         
@@ -231,10 +234,12 @@ class HeuristicSimulationCoordinator:
         new_ini_file_path = os.path.join(dest_dir, "largeNet.ini")
         
         # Write a new ini file with the parameter configurations.
+        # TODO: Change the hardcoded number of backbone switches to a variable.
         self.write_new_ini_file_new(
             old_ini_file_path,
             new_ini_file_path,
-            configurations
+            configurations,
+            config_values.size + 1
         )
 
         # Configure siminstances.
@@ -247,18 +252,15 @@ class HeuristicSimulationCoordinator:
         
         # Create SIM instances for dummy inet lans.
         sim_instances = [create_sim_inet_lans_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(num_sims)]
-
-        # print(f"Created sim instances {sim_instances[0].uid}")
-        # print(f"HEUR CONFIG VALUES: {config_values}")
-        # for config in configurations:
-        #     print(f"SIMULATION PARAMETER: {config}")
+        
+        print(f"Sim instances {sim_instances}")
         
         # Run the configured simulation model.
         self.manager.enqueue_tasks(sim_instances)
         evaluated_sim_instances = self.manager.evaluate_all()
 
         # TODO: Test sleep function in relation to occasional simulation run failures.
-        # sleep(5)
+        sleep(10)
 
         print(f"Evaluated sim instances {evaluated_sim_instances}")
 
@@ -272,10 +274,6 @@ class HeuristicSimulationCoordinator:
 
         fitness_config = self.conf.tryGet("fitness_config")
         fitness_value = fitfunc(fitness_config, simulation_metrics)        
-        
-        # fitness_value = self.fitness_evaluation(simulation_metrics)
-
-        print(f"Evaluated SIM instance {uid} | Fitness value: {fitness_value}")
 
         return fitness_value
     
@@ -292,10 +290,14 @@ class HeuristicSimulationCoordinator:
         return _ignore
     
     @staticmethod
-    def write_new_ini_file_new(old_file_path, new_file_path, configurations):
+    def write_new_ini_file_new(old_file_path, new_file_path, configurations, nr_of_backbone_switches):
         with open(old_file_path, 'r') as old_file, open(new_file_path, 'w') as new_file:
             for line in old_file:
-                new_file.write(line)
+                # Update the number of backbone switches accordingly
+                if line.startswith("LargeNet.n"):
+                    new_file.write(f"LargeNet.n = {nr_of_backbone_switches}   # number of switches on backbone\n")
+                else:
+                    new_file.write(line)
 
             new_file.write("\n# Custom parameters\n")
 

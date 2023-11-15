@@ -1,2 +1,0 @@
-[ sim_cache  31-10-2023 23:12:19  INFO     ]  Reading in config file: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231031_231216/config.json
-[ sim_cache  31-10-2023 23:12:19  INFO     ]  Sims path: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims

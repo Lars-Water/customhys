@@ -1,10 +1,14 @@
 import os
 import numpy as np
+import datetime
+import time
 
 import tools.tools as tools
 import tools.coordinator as coordinator
 import models.model as model
 import visualization.visualization as visualization
+
+from data import collect_data
 
 # from external.CUSTOMHys.customhys import metaheuristic as mh
 # from external.CUSTOMHys.customhys import hyperheuristic as hh
@@ -12,42 +16,72 @@ import visualization.visualization as visualization
 from customhys import metaheuristic as mh
 # from customhys import hyperheuristic as hh
 
-def run_mh(heur_sim_coordinator, heuristics_collection, num_agents, num_iterations, verbose=False):
 
-    for run in [6]:
-        subnet_structure = dict()
+'''
+    Run the metaheuristic search operator.
+
+    Args:
+        heur_sim_coordinator (HeuristicSimulationCoordinator): The coordinator object for the heuristic simulation workflow.
+        heuristics_collection (list): The collection of heuristics to be used in the metaheuristic.
+        num_agents (int): The number of agents to be used in the metaheuristic.
+        num_iterations (int): The number of iterations to be used in the metaheuristic.
+        verbose (bool): The flag to indicate whether the metaheuristic should be verbose.
+'''
+def run_mh(heur_sim_coordinator, heuristics_collection, num_agents, num_iterations, verbose=False, heuristic="random_search"):
+
+    subnet_structure = dict()
+    
+    for run in [6, 10, 15, 25]:
+
+        # print(f"\n------------------------\nStarting mh run: {run}\n------------------------")
+
         subnet_structure["boundaries"] = {
                 f"cable_{i}": [0, 1] for i in range(1, run + 1)
             }
         subnet_structure["optimal_solution"] = [0.9] * run,
         subnet_structure["optimal_fitness"] = 30
 
-        cqn_instance = model.generate_instance(
+        # print(f"Subnet structure:\n{subnet_structure}\n------------------------")
+
+        problem_instance = model.generate_instance(
             run,
             subnet_structure,
             heur_sim_coordinator.simulation_run
         )
-        prob = cqn_instance.get_formatted_problem()
+        prob = problem_instance.get_formatted_problem()
+
+        # print(f"problem instance:\n{problem_instance}\n------------------------")
+        # print(f"formatted problem:\n{prob}\n------------------------")
 
         # Generate a metaheuristic search method for the CQN model.
         met = mh.Metaheuristic(prob, heuristics_collection, num_agents=num_agents, num_iterations=num_iterations)
         met.verbose = verbose
 
+        # print(f"metaheuristic:\n{met}\n------------------------")
+
         # Run the metaheuristic on the problem. The fitness value is calculated at
         # every iteration step by the run function in the SimulationModel class.
         met.run()
-
-        # # Save the best fitness value for every iteration in a plot.
-        # data_path = "data/processed/"
-        # visualization.save_simulation_fitness(
-        #     met.historical, 
-        #     os.path.join(base_path, data_path, "test_run_heuristic_simulation_workflow.png"), 
-        #     "Latency and cost evaluation of INET-LANS model",
-        #     f"inet_lans_lat_cost_{str(run)}"
-        # )
+        
+        # Save the heuristic run data.
+        collect_data.collect_mh_run(
+            met, 
+            f"/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/{heuristic}/",
+            run,
+            num_agents,
+            num_iterations
+        )
 
     return
 
+
+'''
+    Run the hyperheuristic search operator.
+
+    Args:
+        heur_sim_coordinator (HeuristicSimulationCoordinator): The coordinator object for the heuristic simulation workflow.
+        heuristics_collection (list): The collection of heuristics to be used in the hyperheuristic.
+'''
 def run_hh(heur_sim_coordinator, heuristics_collection):
     
     # Setup parameters for the hyperheuristic
@@ -119,6 +153,13 @@ def process_simulated_instance(heur_sim_coordinator, uid):
 
     return fitness_value
 
+
+'''
+    Run the heuristic simulation workflow.
+
+    Args:
+        base_path (str): The base path for the project.
+'''
 def main(base_path):
 
     heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator("/home/larry/hyper-heuristic-dse-2.0/config/coordinator.json") # noqa 501
@@ -141,7 +182,7 @@ def main(base_path):
     # ]
 
     # Run the metaheuristic search operator.
-    run_mh(heur_sim_coordinator, heuristics_collection, 2, 1, verbose=False)
+    run_mh(heur_sim_coordinator, heuristics_collection, 1, 1, verbose=False)
 
     # # Run the hyperheuristic search operator.
     # run_hh(heur_sim_coordinator, heuristics_collection)
