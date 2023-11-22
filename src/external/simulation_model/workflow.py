@@ -48,15 +48,16 @@ def main():
 
     config = workflow_config.conf()
 
-    num_sims = 1
+    num_sims = 10
 
     # sim_instances = [create_sim_pdes_comm(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
     # sim_instances = [create_tictoc(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
     # sim_instances = [create_sim_custom_dummy(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
-    sim_instances = [create_sim_inet_lans(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
 
     m = Manager(args.workflowConfigFile, args.workflowLogsFolder)
 
+    sim_instances = [create_sim_inet_lans(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
+    uids = [sim_instance.uid for sim_instance in sim_instances]
     m.enqueue_tasks(sim_instances)
     evaluated_sim_instances = m.evaluate_all()
     m.shutdown()

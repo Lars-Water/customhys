@@ -13,7 +13,7 @@ import time
         mh (Metaheuristic): The metaheuristic object.
         path (str): The path to the data file.
 '''
-def collect_mh_run(mh, path, run, num_agents, num_iterations):
+def collect_mh_run(mh, path, run, num_agents, num_iterations, heuristic_run_meta_data):
     
     heuristic_run = dict()
 
@@ -23,13 +23,9 @@ def collect_mh_run(mh, path, run, num_agents, num_iterations):
         "nr_of_iterations": num_iterations
     }
 
-    # Convert the current time to a Unix timestamp
-    unix_time = int(time.mktime(datetime.now().timetuple()))
-    file_name = f"{str(unix_time)}.json"
-
     # Convert the list of arrays into a single numpy array
     fitness_values = np.asarray(mh.historical["fitness"]).tolist()
-    configurations = np.array(mh.historical["position"]).tolist()
+    configurations = np.asarray([mh.pop.rescale_back(position) for position in mh.historical["position"]]).tolist()
 
     # Collect data from the historical data of the MH run.
     heuristic_run["historical_data"] = {
@@ -37,19 +33,25 @@ def collect_mh_run(mh, path, run, num_agents, num_iterations):
         "best_configuration_after_every_iteration": configurations
     }
 
-    # Find the optimal solution from the MH run.
+    # Determine the optimal solution from the MH run.
     optimal_fitness = min(fitness_values)
     optimal_configuration = fitness_values.index(optimal_fitness)
-
-    # Collect the optimal solution from the MH run.
     heuristic_run["optimal_found_solution"] = {
         "optimal_found_fitness": optimal_fitness,
         "optimal_found_configuration": configurations[optimal_configuration]
     }
 
-    # TODO: Collect the metadata of the MH run.
+    # Define the metadata from the mh run.
+    heuristic_run["metadata"] = {
+        "total_execution_time": heuristic_run_meta_data["total_execution_time"],
+        "heuristic_execution_time": heuristic_run_meta_data["heuristic_execution_time"],
+        "coordinator_execution_time": heuristic_run_meta_data["coordinator_execution_time"],
+        "simulation_execution_time": heuristic_run_meta_data["simulation_execution_time"]
+    }
 
-    # TODO Write the data to a file.
+    # Define the filename and write to file.
+    unix_time = int(time.mktime(datetime.now().timetuple()))
+    file_name = f"{str(unix_time)}.json"
     write_data(heuristic_run, path, file_name)
 
 
@@ -76,23 +78,3 @@ def write_data(data, path, file_name):
     os.makedirs(path, exist_ok=True)
     with open( os.path.join(path, file_name) , "w") as file:
         json.dump(data, file, indent=4)
-
-
-'''
-    Transform the positions from the heuristic run.
-
-    Args:
-        positions (list): The list of agent positions from the heuristic run.
-'''
-def transform_positions_to_configurations(positions):
-    
-    # Assuming mh.historical["position"] is your source of position data
-    positions_array = np.array(positions)
-
-    # Apply the transformation to the entire array
-    transformed_positions = (positions_array + 1) / 2
-
-    # If you need the result as a list of lists (optional)
-    configurations = transformed_positions.tolist()
-
-    return configurations

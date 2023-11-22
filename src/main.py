@@ -6,7 +6,7 @@ import time
 import tools.tools as tools
 import tools.coordinator as coordinator
 import models.model as model
-import visualization.visualization as visualization
+from visualization import visualization
 
 from data import collect_data
 
@@ -31,18 +31,19 @@ def run_mh(heur_sim_coordinator, heuristics_collection, num_agents, num_iteratio
 
     subnet_structure = dict()
     
-    for run in [6, 10, 15, 25]:
+    for run in [6]:
 
-        # print(f"\n------------------------\nStarting mh run: {run}\n------------------------")
+        # Start timer for the heuristic run.
+        start_time = time.time()
 
+        # Create a formulation of the problem instance.
         subnet_structure["boundaries"] = {
                 f"cable_{i}": [0, 1] for i in range(1, run + 1)
             }
         subnet_structure["optimal_solution"] = [0.9] * run,
         subnet_structure["optimal_fitness"] = 30
 
-        # print(f"Subnet structure:\n{subnet_structure}\n------------------------")
-
+        # Create a problem instance from the formulation.
         problem_instance = model.generate_instance(
             run,
             subnet_structure,
@@ -50,18 +51,33 @@ def run_mh(heur_sim_coordinator, heuristics_collection, num_agents, num_iteratio
         )
         prob = problem_instance.get_formatted_problem()
 
-        # print(f"problem instance:\n{problem_instance}\n------------------------")
-        # print(f"formatted problem:\n{prob}\n------------------------")
-
         # Generate a metaheuristic search method for the CQN model.
         met = mh.Metaheuristic(prob, heuristics_collection, num_agents=num_agents, num_iterations=num_iterations)
         met.verbose = verbose
 
-        # print(f"metaheuristic:\n{met}\n------------------------")
-
+        # Reset the execution times before starting the heuristic run.
+        heur_sim_coordinator.coordinator_execution_time = 0
+        heur_sim_coordinator.simulation_execution_time = 0
+        
         # Run the metaheuristic on the problem. The fitness value is calculated at
         # every iteration step by the run function in the SimulationModel class.
         met.run()
+        
+        # End timer for the heuristic run.
+        end_time = time.time()
+        
+        # Caculate the distinct execution times for the distinct components of the heuristic run.
+        total_execution_time = end_time - start_time
+        heuristic_execution_time = total_execution_time - heur_sim_coordinator.coordinator_execution_time
+        coordinator_execution_time = heur_sim_coordinator.coordinator_execution_time - heur_sim_coordinator.simulation_execution_time
+        simulation_execution_time = heur_sim_coordinator.simulation_execution_time
+        
+        heuristic_run_meta_data = {
+            "total_execution_time": total_execution_time,
+            "heuristic_execution_time": heuristic_execution_time,
+            "coordinator_execution_time": coordinator_execution_time,
+            "simulation_execution_time": simulation_execution_time
+        }
         
         # Save the heuristic run data.
         collect_data.collect_mh_run(
@@ -69,7 +85,8 @@ def run_mh(heur_sim_coordinator, heuristics_collection, num_agents, num_iteratio
             f"/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/{heuristic}/",
             run,
             num_agents,
-            num_iterations
+            num_iterations,
+            heuristic_run_meta_data
         )
 
     return
@@ -182,7 +199,7 @@ def main(base_path):
     # ]
 
     # Run the metaheuristic search operator.
-    run_mh(heur_sim_coordinator, heuristics_collection, 1, 1, verbose=False)
+    run_mh(heur_sim_coordinator, heuristics_collection, 1, 100, verbose=False)
 
     # # Run the hyperheuristic search operator.
     # run_hh(heur_sim_coordinator, heuristics_collection)
@@ -198,6 +215,12 @@ if __name__ == "__main__":
     # Codespaces
     # base_path = "/home/larry/hyper-heuristic-dse-2.0/"
     main(base_path)
+
+    # visualization.bar_execution_times(type="iterations")
+    # visualization.combined_pie_execution_times(type="iterations")
+    
+    # visualization.plot_best_fitness_per_file()
+    # visualization.plot_convergence_vs_components()
 
 
 

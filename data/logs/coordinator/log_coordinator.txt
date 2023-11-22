@@ -1,57 +1,35 @@
-[ coordinator  15-11-2023 13:24:11  INFO     ]  Setting up workflow configuration file...
-[ coordinator  15-11-2023 13:24:11  INFO     ]  Setting up the Manager...
-[ coordinator  15-11-2023 13:24:13  INFO     ]  Reading coordinator config file...
-[ coordinator  15-11-2023 13:24:13  DEBUG    ] [l.221 | simulation_run()]  Simulation run with config values: [0.53069118 0.69209167 0.32513024 0.80170214 0.36874039 0.41746252]
-[ coordinator  15-11-2023 13:24:13  INFO     ]  Setting up the simulation model parameters...
-[ coordinator  15-11-2023 13:24:30  INFO     ]  Adding omnetpp bin directory to PATH environment variables
-[ coordinator  15-11-2023 13:24:30  INFO     ]  Transforming scalar files to csv in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231115_132411/results/0e03423a5399b2a00593b1417900005a
-[ coordinator  15-11-2023 13:24:36  INFO     ]  Removing scalar files in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231115_132411/results/0e03423a5399b2a00593b1417900005a
-[ coordinator  15-11-2023 13:24:37  DEBUG    ] [l.221 | simulation_run()]  Simulation run with config values: [0.17293421 0.3228889  0.         1.         0.17084309 0.05909307]
-[ coordinator  15-11-2023 13:24:37  INFO     ]  Setting up the simulation model parameters...
-[ coordinator  15-11-2023 13:24:56  INFO     ]  Adding omnetpp bin directory to PATH environment variables
-[ coordinator  15-11-2023 13:24:56  INFO     ]  Transforming scalar files to csv in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231115_132411/results/6dc9aa9f9d974cffa29701988441a500
-[ coordinator  15-11-2023 13:25:03  INFO     ]  Removing scalar files in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231115_132411/results/6dc9aa9f9d974cffa29701988441a500
-[ coordinator  15-11-2023 13:25:03  DEBUG    ] [l.221 | simulation_run()]  Simulation run with config values: [0.529636   0.03698065 0.7586781  0.91409794 0.01362421 0.30076356
-[                                            ]   0.14416958 0.48909234 0.57132629 0.78954559]
-[ coordinator  15-11-2023 13:25:03  INFO     ]  Setting up the simulation model parameters...
-[ coordinator  15-11-2023 13:25:27  INFO     ]  Adding omnetpp bin directory to PATH environment variables
-[ coordinator  15-11-2023 13:25:27  INFO     ]  Transforming scalar files to csv in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231115_132411/results/a95abc61d3c644f706950cf81db06815
-[ coordinator  15-11-2023 13:25:39  INFO     ]  Removing scalar files in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231115_132411/results/a95abc61d3c644f706950cf81db06815
-[ coordinator  15-11-2023 13:25:40  DEBUG    ] [l.221 | simulation_run()]  Simulation run with config values: [0.15615224 0.         0.33004448 0.54957659 0.30120561 0.
-[                                            ]   0.13506889 0.79783685 0.55774999 1.        ]
-[ coordinator  15-11-2023 13:25:40  INFO     ]  Setting up the simulation model parameters...
-[ coordinator  15-11-2023 13:26:04  INFO     ]  Adding omnetpp bin directory to PATH environment variables
-[ coordinator  15-11-2023 13:26:04  INFO     ]  Transforming scalar files to csv in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231115_132411/results/4a5cbb3fb677a2e1a9305ebc4d19c52a
-[ coordinator  15-11-2023 13:26:14  INFO     ]  Removing scalar files in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231115_132411/results/4a5cbb3fb677a2e1a9305ebc4d19c52a
-[ coordinator  15-11-2023 13:26:15  DEBUG    ] [l.221 | simulation_run()]  Simulation run with config values: [0.54742446 0.59846685 0.24245964 0.09055663 0.25628714 0.53705232
-[                                            ]   0.24123853 0.44552446 0.97519013 0.70648476 0.04583454 0.17054281
-[                                            ]   0.63297213 0.93312375 0.1049921 ]
-[ coordinator  15-11-2023 13:26:15  INFO     ]  Setting up the simulation model parameters...
-[ coordinator  15-11-2023 13:26:44  INFO     ]  Adding omnetpp bin directory to PATH environment variables
-[ coordinator  15-11-2023 13:26:44  INFO     ]  Transforming scalar files to csv in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231115_132411/results/e20b91cbfb9f3fe5dff0531bb1e4fb47
-[ coordinator  15-11-2023 13:26:55  INFO     ]  Removing scalar files in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231115_132411/results/e20b91cbfb9f3fe5dff0531bb1e4fb47
-[ coordinator  15-11-2023 13:26:57  DEBUG    ] [l.221 | simulation_run()]  Simulation run with config values: [0.83853434 1.         0.1316067  0.26877715 0.50718482 0.40822274
-[                                            ]   0.22791857 0.17996791 1.         1.         0.         0.
-[                                            ]   0.58359868 0.99515767 0.224327  ]
-[ coordinator  15-11-2023 13:26:57  INFO     ]  Setting up the simulation model parameters...
-[ coordinator  15-11-2023 13:27:22  INFO     ]  Adding omnetpp bin directory to PATH environment variables
-[ coordinator  15-11-2023 13:27:22  INFO     ]  Transforming scalar files to csv in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231115_132411/results/f198a9a75c46dff053ce7d6afd1aafe7
-[ coordinator  15-11-2023 13:27:32  INFO     ]  Removing scalar files in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231115_132411/results/f198a9a75c46dff053ce7d6afd1aafe7
-[ coordinator  15-11-2023 13:27:34  DEBUG    ] [l.221 | simulation_run()]  Simulation run with config values: [0.21815267 0.44350627 0.08953438 0.88587569 0.59929204 0.32646974
-[                                            ]   0.93806599 0.62367052 0.08138636 0.61382017 0.47775286 0.47080385
-[                                            ]   0.44077295 0.73080416 0.44327301 0.8594987  0.40225049 0.99193224
-[                                            ]   0.18318156 0.51129349 0.74725251 0.83279606 0.99072299 0.10249756
-[                                            ]   0.41587189]
-[ coordinator  15-11-2023 13:27:34  INFO     ]  Setting up the simulation model parameters...
-[ coordinator  15-11-2023 13:28:11  INFO     ]  Adding omnetpp bin directory to PATH environment variables
-[ coordinator  15-11-2023 13:28:11  INFO     ]  Transforming scalar files to csv in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231115_132411/results/e3022ed5f80aefcacc3aa3e8bad63d2d
-[ coordinator  15-11-2023 13:28:26  INFO     ]  Removing scalar files in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231115_132411/results/e3022ed5f80aefcacc3aa3e8bad63d2d
-[ coordinator  15-11-2023 13:28:29  DEBUG    ] [l.221 | simulation_run()]  Simulation run with config values: [0.         0.62014776 0.45335512 0.58536534 0.24946439 0.5163376
-[                                            ]   1.         1.         0.         0.89873389 0.88927513 0.92067877
-[                                            ]   0.08765854 1.         0.34291113 1.         0.57063766 0.9714684
-[                                            ]   0.         0.09886205 0.73837389 0.47158731 1.         0.
-[                                            ]   0.        ]
-[ coordinator  15-11-2023 13:28:29  INFO     ]  Setting up the simulation model parameters...
-[ coordinator  15-11-2023 13:29:04  INFO     ]  Adding omnetpp bin directory to PATH environment variables
-[ coordinator  15-11-2023 13:29:04  INFO     ]  Transforming scalar files to csv in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231115_132411/results/8cb1fc231a386afa8eca23ba91329a58
-[ coordinator  15-11-2023 13:29:22  INFO     ]  Removing scalar files in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231115_132411/results/8cb1fc231a386afa8eca23ba91329a58
+[ coordinator  22-11-2023 12:48:00  INFO     ]  Setting up workflow configuration file...
+[ coordinator  22-11-2023 12:48:00  INFO     ]  Setting up the Manager...
+[ coordinator  22-11-2023 12:48:02  INFO     ]  Reading coordinator config file...
+[ coordinator  22-11-2023 12:48:02  DEBUG    ] [l.96 | simulation_run()]  Simulation run with config values: [0.57590137 0.71716599 0.41740961 0.75594687 0.44120079 0.36135024]
+[ coordinator  22-11-2023 12:48:02  INFO     ]  Setting up the simulation model parameters...
+[ coordinator  22-11-2023 12:48:12  INFO     ]  Adding omnetpp bin directory to PATH environment variables
+[ coordinator  22-11-2023 12:48:12  INFO     ]  Transforming scalar files to csv in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231122_124800/results/77db9203ff9d0bc85894876f5bf8210a
+[ coordinator  22-11-2023 12:48:16  INFO     ]  Removing scalar files in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231122_124800/results/77db9203ff9d0bc85894876f5bf8210a
+[ coordinator  22-11-2023 12:48:17  DEBUG    ] [l.96 | simulation_run()]  Simulation run with config values: [0.75869575 0.97382338 0.66541493 0.94269894 0.47114444 0.79958689]
+[ coordinator  22-11-2023 12:48:17  INFO     ]  Setting up the simulation model parameters...
+[ coordinator  22-11-2023 12:48:27  INFO     ]  Adding omnetpp bin directory to PATH environment variables
+[ coordinator  22-11-2023 12:48:27  INFO     ]  Transforming scalar files to csv in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231122_124800/results/4e4e92de2c2385592e446c7425803097
+[ coordinator  22-11-2023 12:48:29  INFO     ]  Removing scalar files in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231122_124800/results/4e4e92de2c2385592e446c7425803097
+[ coordinator  22-11-2023 12:48:30  DEBUG    ] [l.96 | simulation_run()]  Simulation run with config values: [0.60397838 0.52554508 0.15556808 0.86673466 0.55644264 0.31227456]
+[ coordinator  22-11-2023 12:48:30  INFO     ]  Setting up the simulation model parameters...
+[ coordinator  22-11-2023 12:48:40  INFO     ]  Adding omnetpp bin directory to PATH environment variables
+[ coordinator  22-11-2023 12:48:40  INFO     ]  Transforming scalar files to csv in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231122_124800/results/b8b1ccdf1ae7ce80c573f87466c9196d
+[ coordinator  22-11-2023 12:48:42  INFO     ]  Removing scalar files in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231122_124800/results/b8b1ccdf1ae7ce80c573f87466c9196d
+[ coordinator  22-11-2023 12:48:43  DEBUG    ] [l.96 | simulation_run()]  Simulation run with config values: [0.30627918 0.5724074  0.42530714 0.92922156 0.40797177 0.72422205]
+[ coordinator  22-11-2023 12:48:43  INFO     ]  Setting up the simulation model parameters...
+[ coordinator  22-11-2023 12:48:53  INFO     ]  Adding omnetpp bin directory to PATH environment variables
+[ coordinator  22-11-2023 12:48:53  INFO     ]  Transforming scalar files to csv in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231122_124800/results/f0e9f82d1f761b76bb585446a6aaf887
+[ coordinator  22-11-2023 12:48:55  INFO     ]  Removing scalar files in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231122_124800/results/f0e9f82d1f761b76bb585446a6aaf887
+[ coordinator  22-11-2023 12:48:56  DEBUG    ] [l.96 | simulation_run()]  Simulation run with config values: [0.30023678 0.24928082 0.47573893 1.         0.         1.        ]
+[ coordinator  22-11-2023 12:48:56  INFO     ]  Setting up the simulation model parameters...
+[ coordinator  22-11-2023 12:49:06  INFO     ]  Adding omnetpp bin directory to PATH environment variables
+[ coordinator  22-11-2023 12:49:06  INFO     ]  Transforming scalar files to csv in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231122_124800/results/2a58c91f9a8a902cd710ef175d07a421
+[ coordinator  22-11-2023 12:49:08  INFO     ]  Removing scalar files in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231122_124800/results/2a58c91f9a8a902cd710ef175d07a421
+[ coordinator  22-11-2023 12:49:09  DEBUG    ] [l.96 | simulation_run()]  Simulation run with config values: [0.         0.97651149 0.06799169 1.         0.89062497 1.        ]
+[ coordinator  22-11-2023 12:49:09  INFO     ]  Setting up the simulation model parameters...
+[ coordinator  22-11-2023 12:49:19  INFO     ]  Adding omnetpp bin directory to PATH environment variables
+[ coordinator  22-11-2023 12:49:19  INFO     ]  Transforming scalar files to csv in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231122_124800/results/01a6ff91a4970ab2c896a696e5c5b142
+[ coordinator  22-11-2023 12:49:22  INFO     ]  Removing scalar files in directory: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20231122_124800/results/01a6ff91a4970ab2c896a696e5c5b142
+[ coordinator  22-11-2023 12:49:23  DEBUG    ] [l.96 | simulation_run()]  Simulation run with config values: [0.15487093 0.59350619 0.17525068 0.60550215 0.71893142 0.81127676]
+[ coordinator  22-11-2023 12:49:23  INFO     ]  Setting up the simulation model parameters...

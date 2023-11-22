@@ -1,9 +1,217 @@
 import os
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import glob
-import subprocess
+
+from tools.config_reader import Config 
+from pathlib import Path
+import os
+
+import matplotlib.pyplot as plt
+plt.rcParams.update({'text.usetex': False})
+
+
+def bar_execution_times(type="components"):
+    path = "/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/random_search/"
+    
+    # Initialize lists to store execution times for all files
+    total_times = []
+    heuristic_times = []
+    coordinator_times = []
+    simulation_times = []
+    values_x_axis = []
+
+    # Iterate through all json files
+    files = glob.glob(f"{path}*.json")
+    files.sort()
+    for file in files:
+        # Get the path of the file
+        path = Path(file)
+
+        # Create a config object with the path of the file
+        os.makedirs(os.path.dirname("/home/larry/hyper-heuristic-dse-2.0/logs/vizualization"), exist_ok=True)
+        conf = Config(path, Path("/home/larry/hyper-heuristic-dse-2.0/logs/vizualization"), "execution_times")
+
+        # Get the execution times from the config object
+        value_x_axis = conf.tryGet("nr_of_components") if type == "components" else conf.tryGet("nr_of_iterations")
+        total_execution_time = round(conf.tryGet("metadata", "total_execution_time") / 60, 1)
+        heuristic_execution_time = round(conf.tryGet("metadata", "heuristic_execution_time") / 60, 1)
+        coordinator_execution_time = round(conf.tryGet("metadata", "coordinator_execution_time") / 60, 1)
+        simulation_execution_time = round(conf.tryGet("metadata", "simulation_execution_time") / 60, 1)
+
+        # Append the times to their respective lists
+        values_x_axis.append(f"{value_x_axis} {type}")
+        total_times.append(total_execution_time)
+        heuristic_times.append(heuristic_execution_time)
+        coordinator_times.append(coordinator_execution_time)
+        simulation_times.append(simulation_execution_time)
+
+    # Plotting
+    plt.figure(figsize=(10,6))
+
+    # Stacking each type of execution time (excluding total) on top of each other
+    plt.bar(values_x_axis, heuristic_times, label='Heuristic')
+    # Updating the bottom to stack the next layer
+    new_bottom_heuristic = [heuristic for heuristic in heuristic_times]
+    plt.bar(values_x_axis, coordinator_times, bottom=new_bottom_heuristic, label='Coordinator')
+    # Repeat for the next layer
+    new_bottom_coordinator = [heuristic + coordinator for heuristic, coordinator in zip(heuristic_times, coordinator_times)]
+    plt.bar(values_x_axis, simulation_times, bottom=new_bottom_coordinator, label='Simulation')
+
+    # Adding the total execution time as text above each bar
+    for i, total in enumerate(total_times):
+        plt.text(values_x_axis[i], total, str(total), ha='center', va='bottom')
+
+    # Get the heuristic information from the path.
+    dirs = Path(path).parts
+
+    heuristic_type = dirs[-3]
+    algorithm = dirs[-2]
+    
+    plt.title(f"Distinct execution times for {heuristic_type} - {algorithm} with increasing {type}.")
+    plt.ylabel("Time (minutes)")
+    plt.legend()
+
+    # Saving the plot
+    os.makedirs(os.path.dirname("/home/larry/hyper-heuristic-dse-2.0/data/processed/execution_times/"), exist_ok=True)
+    plt.savefig(f"/home/larry/hyper-heuristic-dse-2.0/data/processed/execution_times/bars_{type}.png")
+
+
+'''
+    Plot the execution times for each file as a pie chart.
+
+    The pie chart shows the relative execution times of the heuristic, coordinator and simulation.
+'''
+def combined_pie_execution_times(type="components"):
+    path = "/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/random_search/"
+    
+    # Get the list of files
+    files = glob.glob(f"{path}*.json")
+    files.sort()
+
+    # Determine the number of subplots needed (one for each file)
+    n = len(files)
+    _, axs = plt.subplots(1, n, figsize=(n * 6, 6))
+
+    for i, file in enumerate(files):
+        # Get the path of the file
+        path = Path(file)
+
+        # Create a config object with the path of the file
+        conf = Config(path, Path("/home/larry/hyper-heuristic-dse-2.0/logs/vizualization"), "execution_times")
+
+        # Get the execution times from the config object
+        total_execution_time = round(conf.tryGet("metadata", "total_execution_time") / 60, 4)
+        heuristic_execution_time = round(conf.tryGet("metadata", "heuristic_execution_time") / 60, 4)
+        coordinator_execution_time = round(conf.tryGet("metadata", "coordinator_execution_time") / 60, 4)
+        simulation_execution_time = round(conf.tryGet("metadata", "simulation_execution_time") / 60, 4)
+
+        if total_execution_time > 0:
+            # Calculate the relative times
+            heuristic_percentage = round((heuristic_execution_time / total_execution_time) * 100, 4)
+            coordinator_percentage = round((coordinator_execution_time / total_execution_time) * 100, 4)
+            simulation_percentage = round((simulation_execution_time / total_execution_time) * 100, 4)
+
+            # Labels and sizes for the pie chart
+            labels = 'Heuristic', 'Coordinator', 'Simulation'
+            sizes = [heuristic_percentage, coordinator_percentage, simulation_percentage]
+
+            # Plotting the pie chart in the subplot
+            axs[i].pie(sizes, labels=labels, autopct='%1.4f%%', startangle=140)
+            value_x_axis = conf.tryGet("nr_of_components") if type == "components" else conf.tryGet("nr_of_iterations")
+            axs[i].set_title(f"{value_x_axis} {type}")
+            axs[i].axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle.
+
+    # Adjust the layout
+    plt.tight_layout()
+
+    # Save the combined plot
+    os.makedirs(os.path.dirname("/home/larry/hyper-heuristic-dse-2.0/data/processed/execution_times/"), exist_ok=True)
+    plt.savefig(f"/home/larry/hyper-heuristic-dse-2.0/data/processed/execution_times/combined_pie_charts_{type}.png")
+
+
+def plot_best_fitness_per_file():
+    path = "/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/random_search/"
+    
+    # Ensure the directory for saving plots exists
+    os.makedirs(os.path.dirname("/home/larry/hyper-heuristic-dse-2.0/data/processed/execution_times/"), exist_ok=True)
+
+    # Iterate through all json files
+    files = glob.glob(f"{path}*.json")
+    files.sort()
+
+    for file in files:
+        # Get the path of the file
+        path = Path(file)
+
+        # Create a config object with the path of the file
+        conf = Config(path, Path("/home/larry/hyper-heuristic-dse-2.0/logs/vizualization"), "execution_times")
+        best_fitness_values = conf.tryGet("historical_data", "best_fitness_after_every_iteration")
+        nr_of_components = conf.tryGet("nr_of_components")
+
+        # Plotting for each file
+        plt.figure()
+        plt.plot(best_fitness_values)
+        plt.title(f"Best Fitness Value After Each Iteration - {nr_of_components} components")
+        plt.xlabel("Iteration")
+        plt.ylabel("Best Fitness Value")
+
+        # Make steps in y axis 10
+        plt.yticks(np.arange(0, 350, step=50))
+
+        # Save the plot for each file
+        plt.savefig(f"/home/larry/hyper-heuristic-dse-2.0/data/processed/execution_times/{nr_of_components}_best_fitness.png")
+        plt.close()
+
+
+def plot_convergence_vs_components():
+    path = "/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/random_search/"
+
+    # Lists to store convergence numbers and number of components
+    convergence_numbers = []
+    nr_of_components_list = []
+
+    # Iterate through all json files
+    files = glob.glob(f"{path}*.json")
+    files.sort()
+
+    for file in files:
+        # Get the path of the file
+        path = Path(file)
+
+        # Create a config object with the path of the file
+        conf = Config(path, Path("/home/larry/hyper-heuristic-dse-2.0/logs/vizualization"), "execution_times")
+
+        # Extract the best fitness values and the final most optimal solution's fitness
+        best_fitness_values = conf.tryGet("historical_data", "best_fitness_after_every_iteration")
+        optimal_fitness = conf.tryGet("optimal_found_solution", "optimal_found_fitness")
+
+        # Find the convergence number (iteration where the optimal fitness is first achieved)
+        convergence_number = next((i for i, fitness in enumerate(best_fitness_values) if fitness == optimal_fitness), None)
+
+        # Extract the number of components
+        nr_of_components = conf.tryGet("nr_of_components")
+
+        # Append to lists
+        convergence_numbers.append(convergence_number)
+        nr_of_components_list.append(nr_of_components)
+
+    # Plotting
+    plt.figure()
+    plt.scatter(nr_of_components_list, convergence_numbers)
+    plt.title("Convergence Number vs Number of Components")
+    plt.xlabel("Number of Components")
+    plt.ylabel("Convergence Number")
+
+    # Make steps in y axis 1 from 0 to 10.
+    plt.yticks(np.arange(0, 10, step=1))
+
+    plt.grid(True)
+
+    # Save the plot
+    os.makedirs(os.path.dirname("/home/larry/hyper-heuristic-dse-2.0/data/processed/execution_times/"), exist_ok=True)
+    plt.savefig(f"/home/larry/hyper-heuristic-dse-2.0/data/processed/execution_times/convergence_vs_components.png")
+
 
 '''
     Save the best fitness values at every iteration step as
@@ -12,8 +220,6 @@ import subprocess
     hist_values: Historicl values of run metaheuristic
     store_path:  Path to store the plot.
 '''
-
-
 def save_simulation_fitness(hist_values, store_path, title, filename):
 
     # Create directory if it doesn't exist
@@ -63,6 +269,7 @@ def save_hop_count():
         plt.boxplot([row['mean'], row['stddev'], row['min'], row['max']])
         plt.title(f'Hop count distribution - {row["module"]}')
         plt.savefig("/home/larry/hyper-heuristic-dse-2.0/data/processed/" + row['module'] + ".png")
+
 
 def save_average_response_time():
     # # Specify the directory to add to PATH
@@ -121,6 +328,4 @@ def save_average_response_time():
 
 
 if __name__ == "__main__":
-    save_average_response_time()
-    # save_hop_count()
-    # save_simulation_fitness()
+    pass
