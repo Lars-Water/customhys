@@ -41,6 +41,7 @@ def main():
     local_logs_path = "logs"
     local_out_path = "out"
     uid_scheme = "md5-files"
+    # uid_scheme = "uuid"
 
     workflow_config = WorkflowConfig(sims_path, local_config_path, local_sim_exec, local_results_path, local_logs_path, local_out_path,
                             args.workflowResultsFolder, args.workflowLogsFolder, args.workflowRuntimeFolder, design_queues, uid_scheme, cluster_config)
@@ -48,7 +49,7 @@ def main():
 
     config = workflow_config.conf()
 
-    num_sims = 10
+    num_sims = 1
 
     # sim_instances = [create_sim_pdes_comm(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
     # sim_instances = [create_tictoc(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
@@ -56,10 +57,15 @@ def main():
 
     m = Manager(args.workflowConfigFile, args.workflowLogsFolder)
 
-    sim_instances = [create_sim_inet_lans(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
-    uids = [sim_instance.uid for sim_instance in sim_instances]
-    m.enqueue_tasks(sim_instances)
-    evaluated_sim_instances = m.evaluate_all()
+    for i in range(5):
+        sim_instances = [create_sim_inet_lans(config, dummy_sim_path, id, inet_base) for id in range(num_sims)]
+        uids = [sim_instance.uid for sim_instance in sim_instances]
+        print(uids)
+        m.enqueue_tasks(sim_instances)
+        evaluated_sim_instances = m.evaluate_all()
+        uids = [sim_instance.uid for sim_instance in evaluated_sim_instances]
+        print(uids)
+    
     m.shutdown()
 
 

@@ -10,6 +10,8 @@ from src.utils.logger import logger
 from src.utils.hash import md5_dir
 from src.utils.stats import Stats
 
+import uuid
+
 
 class Siminstance:
     logger = None
@@ -65,6 +67,8 @@ class Siminstance:
     def calc_uid(sim_path, uid_scheme):
         if uid_scheme == "md5-files":
             return md5_dir(sim_path)
+        if uid_scheme == "uuid":
+            return str(uuid.uuid4())
         else:
             raise Exception("Received unknown uid scheme")
 

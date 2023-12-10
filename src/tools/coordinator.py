@@ -90,6 +90,8 @@ class HeuristicSimulationCoordinator:
     '''
     def simulation_run(self, fitfunc, config_values):
         
+        # START SIWTCH -> SWITCH SHOULD DO THE DIFFERENT ACTIONS POSSIBLE WITH EVALUATE THINGS.
+        
         # Start timer for simulation run.
         start_time = time.time()
         
@@ -118,7 +120,7 @@ class HeuristicSimulationCoordinator:
             configurations,
             config_values.size + 1
         )
-
+        
         # Run the simulation model.
         uid = self.run_single_simulation_configuration()
 
@@ -314,6 +316,7 @@ class HeuristicSimulationCoordinator:
         # Run the configured simulation model.
         self.manager.enqueue_tasks(sim_instances)
 
+        # TEMP: Check uid handling
         evaluated_sim_instances = self.manager.evaluate_all()
         uid = evaluated_sim_instances[0].uid
         

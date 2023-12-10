@@ -51,43 +51,43 @@ def run_mh(heur_sim_coordinator, heuristics_collection, num_agents, num_iteratio
         )
         prob = problem_instance.get_formatted_problem()
 
-        # Generate a metaheuristic search method for the CQN model.
-        met = mh.Metaheuristic(prob, heuristics_collection, num_agents=num_agents, num_iterations=num_iterations)
-        met.verbose = verbose
+        # # Generate a metaheuristic search method for the CQN model.
+        # met = mh.Metaheuristic(prob, heuristics_collection, num_agents=num_agents, num_iterations=num_iterations)
+        # met.verbose = verbose
 
-        # Reset the execution times before starting the heuristic run.
-        heur_sim_coordinator.coordinator_execution_time = 0
-        heur_sim_coordinator.simulation_execution_time = 0
+        # # Reset the execution times before starting the heuristic run.
+        # heur_sim_coordinator.coordinator_execution_time = 0
+        # heur_sim_coordinator.simulation_execution_time = 0
         
-        # Run the metaheuristic on the problem. The fitness value is calculated at
-        # every iteration step by the run function in the SimulationModel class.
-        met.run()
+        # # Run the metaheuristic on the problem. The fitness value is calculated at
+        # # every iteration step by the run function in the SimulationModel class.
+        # met.run()
         
-        # End timer for the heuristic run.
-        end_time = time.time()
+        # # End timer for the heuristic run.
+        # end_time = time.time()
         
-        # Caculate the distinct execution times for the distinct components of the heuristic run.
-        total_execution_time = end_time - start_time
-        heuristic_execution_time = total_execution_time - heur_sim_coordinator.coordinator_execution_time
-        coordinator_execution_time = heur_sim_coordinator.coordinator_execution_time - heur_sim_coordinator.simulation_execution_time
-        simulation_execution_time = heur_sim_coordinator.simulation_execution_time
+        # # Caculate the distinct execution times for the distinct components of the heuristic run.
+        # total_execution_time = end_time - start_time
+        # heuristic_execution_time = total_execution_time - heur_sim_coordinator.coordinator_execution_time
+        # coordinator_execution_time = heur_sim_coordinator.coordinator_execution_time - heur_sim_coordinator.simulation_execution_time
+        # simulation_execution_time = heur_sim_coordinator.simulation_execution_time
         
-        heuristic_run_meta_data = {
-            "total_execution_time": total_execution_time,
-            "heuristic_execution_time": heuristic_execution_time,
-            "coordinator_execution_time": coordinator_execution_time,
-            "simulation_execution_time": simulation_execution_time
-        }
+        # heuristic_run_meta_data = {
+        #     "total_execution_time": total_execution_time,
+        #     "heuristic_execution_time": heuristic_execution_time,
+        #     "coordinator_execution_time": coordinator_execution_time,
+        #     "simulation_execution_time": simulation_execution_time
+        # }
         
-        # Save the heuristic run data.
-        collect_data.collect_mh_run(
-            met, 
-            f"/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/{heuristic}/",
-            run,
-            num_agents,
-            num_iterations,
-            heuristic_run_meta_data
-        )
+        # # Save the heuristic run data.
+        # collect_data.collect_mh_run(
+        #     met, 
+        #     f"/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/{heuristic}/",
+        #     run,
+        #     num_agents,
+        #     num_iterations,
+        #     heuristic_run_meta_data
+        # )
 
     return
 
@@ -198,8 +198,10 @@ def main(base_path):
     #     ('gravitational_search', {'gravity': 1.0, 'alpha': 0.02}, 'all')
     # ]
 
-    # Run the metaheuristic search operator.
-    run_mh(heur_sim_coordinator, heuristics_collection, 1, 100, verbose=False)
+    # # Run the metaheuristic search operator.
+    # run_mh(heur_sim_coordinator, heuristics_collection, 1, 2, verbose=False)
+
+    print("TEST")
 
     # # Run the hyperheuristic search operator.
     # run_hh(heur_sim_coordinator, heuristics_collection)
@@ -222,22 +224,3 @@ if __name__ == "__main__":
     # visualization.plot_best_fitness_per_file()
     # visualization.plot_convergence_vs_components()
 
-
-
-# # Create CQN formulation from the config file.
-    # config = tools.load_config(base_path + '/config/config.json')
-    # cqn_instance = model.generate_instance(
-    #     3,
-    #     config['Simulation']['inet_lans'],
-    #     heur_sim_coordinator.simulation_run
-    # )
-    # prob = cqn_instance.get_formatted_problem()
-    
-    # # Create INET-LANS formulation from the config file.
-    # config = tools.load_config(base_path + '/config/config.json')
-    
-    # # cqn_instance = model.generate_instance(
-    # #     7,
-    # #     config['Simulation']['inet_lans'],
-    # #     heur_sim_coordinator.simulation_run
-    # # )
