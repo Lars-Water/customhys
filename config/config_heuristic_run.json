@@ -1,0 +1,25 @@
+{
+    "nr_of_agents": 1,
+    "nr_of_iterations": 1,
+    "runs_nr_of_backbones": [6],
+    "mh_run_file_name": "genetic_algorithm",
+    "metaheuristic": [
+        {
+            "name": "differential_mutation",
+            "params": {
+                "expression": "rand-to-best-and-current",
+                "num_rands": 1,
+                "factor": 1.0
+            },
+            "strategy": "greedy"
+        },
+        {
+            "name": "differential_crossover",
+            "params": {
+                "crossover_rate": 0.2,
+                "version": "binomial"
+            },
+            "strategy": "greedy"
+        }
+    ]
+}

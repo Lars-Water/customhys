@@ -10,10 +10,12 @@ import pandas as pd
 import numpy as np
 import subprocess
 import time
+import json
 
+# TODO: Change the hardcoded path to a way of reading the current path.
 sys.path.append('/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model')
 import experiments
-from experiments import create_sim_custom_dummy, create_sim_inet_lans_dummy
+from experiments import create_sim_custom_dummy, create_sim_inet_lans_dummy, create_sim_inet_lans_dummy_parallel
 import experiment_campaign
 from src.manager import Manager
 from src.utils.config_reader import Config
@@ -21,9 +23,13 @@ from src.utils.config_creator import WorkflowConfig
 
 
 class HeuristicSimulationCoordinator:
-    
-    def __init__(self, config_path):
 
+    def __init__(self, nr_of_agents):
+
+        self.nr_of_agents = nr_of_agents
+        self.nr_of_sims = nr_of_agents
+
+        # TODO: Change the hardcoded paths to a variable way.
         # Set up the logger.
         os.makedirs("/home/larry/hyper-heuristic-dse-2.0/data/logs/coordinator", exist_ok=True)
         self.logger = logger("coordinator", Path("/home/larry/hyper-heuristic-dse-2.0/data/logs/coordinator"))
@@ -34,10 +40,9 @@ class HeuristicSimulationCoordinator:
         model = "custom"
         num_nodes = 1
         num_workers = 1
-        num_sims = 1
         time_stamp = time.strftime("%Y%m%d_%H%M%S")
 
-        self.data_path = os.path.join(experiments_path, "data", "campaign_{}".format(model), "n{}_w{}_s{}".format(str(num_nodes), str(num_workers), str(num_sims)), time_stamp)
+        self.data_path = os.path.join(experiments_path, "data", "campaign_{}".format(model), "n{}_w{}_s{}".format(str(num_nodes), str(num_workers), str(self.nr_of_sims)), time_stamp)
 
         sims_path = "/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims"
 
@@ -56,7 +61,7 @@ class HeuristicSimulationCoordinator:
         # Set up workflow configuration file.
         self.logger.info("Setting up workflow configuration file...")
         self.workflow_config = WorkflowConfig(sims_path, "config", "run_sim", "results", "logs", "out",
-                            workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, design_queues, "md5-files", cluster_config)
+                            workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, design_queues, "uuid", cluster_config)
         self.config = self.workflow_config.conf()
         self.workflow_config.write_conf(workflow_config_file)
 
@@ -64,6 +69,7 @@ class HeuristicSimulationCoordinator:
         self.logger.info("Setting up the Manager...")
         self.manager = Manager(workflow_config_file, workflow_logs_folder)
 
+        # TODO: Change the hardcoded parameter defintions to a variable way of reading the config file.
         # Read the config file.
         self.logger.info("Reading coordinator config file...")
         coordinator_path = "/home/larry/hyper-heuristic-dse-2.0/coordinator"
@@ -73,7 +79,6 @@ class HeuristicSimulationCoordinator:
         # Predefine the parameters for the execution times.
         self.coordinator_execution_time = 0
         self.simulation_execution_time = 0
-
 
         self.uids = []
 
@@ -89,66 +94,117 @@ class HeuristicSimulationCoordinator:
             The fitness value of the simulation run.
     '''
     def simulation_run(self, fitfunc, config_values):
-        
-        # START SIWTCH -> SWITCH SHOULD DO THE DIFFERENT ACTIONS POSSIBLE WITH EVALUATE THINGS.
-        
+        self.logger.info(f"Simulation run with config values: {config_values}")
+
         # Start timer for simulation run.
         start_time = time.time()
-        
-        self.logger.debug(f"Simulation run with config values: {config_values}")
-        
-        # Set the values of the parameters in the simulation model.
-        configurations = self.set_param_values(config_values)
-        
-        src_dir = self.conf.tryGet("dummy_sim_src_dir")
-        dest_dir = self.conf.tryGet("dummy_sim_dest_dir")
-        
-        # TODO: Change the hardcoded ini filename to a variable in the configuration file.
-        # Duplicate the preferred dummy_sim directory to the custom directory.
-        self.duplicate_directory(src_dir, dest_dir, "largeNet.ini")
+        # TODO: Merge the following two if statements into one. -> CUSTOMHys should be able to handle both situations?
+        if self.nr_of_agents > 1:
+            # Set the values of the parameters in the simulation model.
+            configurations = self.set_agents_param_values(config_values)
+            for id, agent_configuration in enumerate(configurations):
+                src_dir = self.conf.tryGet("simulation_model_paths", "simulation_model_template_path")
+                dest_dir = self.conf.tryGet("simulation_model_paths", "simulation_model_generated_path") + f"_{id}"
 
-        # TODO: Change the hardcoded ini filename to a variable in the configuration file.
-        # Write an updated version of the ignored param value file from the directory that was just duplicated.
-        old_ini_file_path = os.path.join(src_dir, "largeNet.ini")
-        new_ini_file_path = os.path.join(dest_dir, "largeNet.ini")
-        
-        # TODO: Change the hardcoded number of backbone switches to a variable.
-        # Write a new ini file with the parameter configurations.
-        self.write_new_ini_file_new(
-            old_ini_file_path,
-            new_ini_file_path,
-            configurations,
-            config_values.size + 1
-        )
-        
-        # Run the simulation model.
-        uid = self.run_single_simulation_configuration()
+                # TODO: Change the hardcoded ini filename to a variable in the configuration file.
+                # Duplicate the preferred dummy_sim directory to the custom directory.
+                self.duplicate_directory(src_dir, dest_dir, "largeNet.ini")
 
-        # Transform the outputted scalar files into csv format.
-        self.transform_scalar_files(uid)
+                # TODO: Change the hardcoded ini filename to a variable in the configuration file.
+                # Write an updated version of the ignored param value file from the directory that was just duplicated.
+                old_ini_file_path = os.path.join(src_dir, "largeNet.ini")
+                new_ini_file_path = os.path.join(dest_dir, "largeNet.ini")
 
-        # Collect the simulation stats from the simulation run.
-        simulation_metrics = self.obtain_simulation_stats(uid)
+                # TODO: Change the hardcoded number of backbone switches to a variable.
+                # Write a new ini file with the parameter configurations.
+                self.write_new_ini_file_new(
+                    old_ini_file_path,
+                    new_ini_file_path,
+                    agent_configuration,
+                    config_values.shape[1] + 1
+                )
 
-        fitness_config = self.conf.tryGet("fitness_config")
-        fitness_value = fitfunc(fitness_config, simulation_metrics)        
+            # Run the simulation model.
+            uids = self.run_multiple_simulation_configuration()
 
-        # End timer for simulation run.
-        end_time = time.time()
+            # Transform the outputted scalar files into csv format.
+            self.transform_scalar_files(uids)
 
-        # Add simulation run time to total coordinator time.
-        self.coordinator_execution_time += end_time - start_time
-        
-        return fitness_value
+            # Collect the simulation stats from the simulation run.
+            simulation_metrics = self.obtain_simulation_stats(uids)
 
-    
+            fitness_config = self.conf.tryGet("fitness_config")
+            fitness_values = fitfunc(fitness_config, simulation_metrics)
+
+            # TODO: Find a cleaner way to solve fitness value return as this is now not possible.
+            # Write fitness values to a json file. Remove the file if it already exists first.
+            fitness_values_file_path = os.path.join("/home/larry/hyper-heuristic-dse-2.0/data/raw/agents_fitness", "fitness_values.json")
+            if os.path.exists(fitness_values_file_path):
+                os.remove(fitness_values_file_path)
+            with open(fitness_values_file_path, 'w') as f:
+                json.dump(fitness_values, f)
+
+            # End timer for simulation run.
+            end_time = time.time()
+
+            # Add simulation run time to total coordinator time.
+            self.coordinator_execution_time += end_time - start_time
+
+            return 0
+
+        else:
+            # Set the values of the parameters in the simulation model.
+            configurations = self.set_param_values(config_values)
+
+            src_dir = self.conf.tryGet("simulation_model_paths", "simulation_model_template_path")
+            dest_dir = self.conf.tryGet("simulation_model_paths", "simulation_model_generated_path")
+
+            # TODO: Change the hardcoded ini filename to a variable in the configuration file.
+            # Duplicate the preferred dummy_sim directory to the custom directory.
+            self.duplicate_directory(src_dir, dest_dir, "largeNet.ini")
+
+            # TODO: Change the hardcoded ini filename to a variable in the configuration file.
+            # Write an updated version of the ignored param value file from the directory that was just duplicated.
+            old_ini_file_path = os.path.join(src_dir, "largeNet.ini")
+            new_ini_file_path = os.path.join(dest_dir, "largeNet.ini")
+
+            # TODO: Change the hardcoded number of backbone switches to a variable.
+            # Write a new ini file with the parameter configurations.
+            self.write_new_ini_file_new(
+                old_ini_file_path,
+                new_ini_file_path,
+                configurations,
+                config_values.size + 1
+            )
+
+            # Run the simulation model.
+            uid = self.run_single_simulation_configuration()
+
+            # Transform the outputted scalar files into csv format.
+            self.transform_scalar_files(uid)
+
+            # Collect the simulation stats from the simulation run.
+            simulation_metrics = self.obtain_simulation_stats(uid)
+
+            fitness_config = self.conf.tryGet("fitness_config")
+            fitness_value = fitfunc(fitness_config, simulation_metrics)
+
+            # End timer for simulation run.
+            end_time = time.time()
+
+            # Add simulation run time to total coordinator time.
+            self.coordinator_execution_time += end_time - start_time
+
+            return fitness_value[0]
+
+
     '''
         Shutdown the Manager.
     '''
     def shutdown_manager(self):
         self.manager.shutdown()
-    
-    
+
+
     '''
     Set the values of the parameters in the simulation model.
 
@@ -157,8 +213,8 @@ class HeuristicSimulationCoordinator:
     '''
     def set_param_values(self, config_values):
         self.logger.info("Setting up the simulation model parameters...")
-        params = self.conf.tryGet("simulation_model", "params")
-        
+        params = self.conf.tryGet("simulation_model_params")
+
         # Transform input values into configuration parameters.
         configurations = []
 
@@ -180,7 +236,7 @@ class HeuristicSimulationCoordinator:
                 # Conditional handling for the switch gates where the first switch is handled differently.
                 first_switch_gate_index = "1" if switch_idx > 0 else "0"
                 second_switch_gate_index = "0"
-                
+
                 # Replace placeholders in the configuration pattern are replaced with the corresponding indices.
                 current_param_pattern = config_pattern.replace("__switch_index", str(switch_idx))
                 current_param_pattern = current_param_pattern.replace("__gate_index", first_switch_gate_index)
@@ -199,42 +255,95 @@ class HeuristicSimulationCoordinator:
                     "config_pattern": current_param_pattern,
                     "value": selected_param_value
                 })
-        
+
         return configurations
-    
+
+    '''
+    Set the values of the parameters of multiple agents in the simulation model.
+
+    Args:
+        config_values: A list of values for the parameters in the simulation model.
+    '''
+    def set_agents_param_values(self, agents_config_values):
+        self.logger.info(f"Setting up the simulation model parameters of {agents_config_values[0].shape} agents")
+
+        params = self.conf.tryGet("simulation_model_params")
+        configurations = []
+
+        for agent_config_values in agents_config_values:
+            agent_configuration = []
+
+            for param in params:
+                config_pattern = param["configuration_pattern"]
+                param_values = param["values"]
+
+                # Determine the param value index by segment indexing the config values from CUSTOMHys.
+                num_segments = len(param_values)
+                value_indices = np.floor(agent_config_values * num_segments).astype(int)
+                value_indices[agent_config_values == 1.0] = num_segments - 1
+
+                # TODO: Optimize this operations as it now parses and has duplicate code.
+                # Create a configuration for each parameter.
+                for switch_idx, value_idx in enumerate(value_indices):
+                    selected_param_value = param_values[value_idx]
+
+                    # Conditional handling for the switch gates where the first switch is handled differently.
+                    first_switch_gate_index = "1" if switch_idx > 0 else "0"
+                    second_switch_gate_index = "0"
+
+                    # Replace placeholders in the configuration pattern are replaced with the corresponding indices.
+                    current_param_pattern = config_pattern.replace("__switch_index", str(switch_idx))
+                    current_param_pattern = current_param_pattern.replace("__gate_index", first_switch_gate_index)
+
+                    # Create a configuration for the current parameter.
+                    agent_configuration.append({
+                        "config_pattern": current_param_pattern,
+                        "value": selected_param_value
+                    })
+
+                    # Replace placeholders in the configuration pattern are replaced with the corresponding indices.
+                    current_param_pattern = config_pattern.replace("__switch_index", str(switch_idx+1))
+                    current_param_pattern = current_param_pattern.replace("__gate_index", second_switch_gate_index)
+
+                    agent_configuration.append({
+                        "config_pattern": current_param_pattern,
+                        "value": selected_param_value
+                    })
+            configurations.append(agent_configuration)
+
+        return configurations
+
 
     '''
         Transform the scalar files generated by the simulation model into a csv format.
     '''
-    def transform_scalar_files(self, uid):
-        
+    def transform_scalar_files(self, uids):
+
         # Add the omnetpp bin directory to PATH environment variables.
         self.logger.info("Adding omnetpp bin directory to PATH environment variables")
-        new_path = os.path.join(self.conf.tryGet("omnetpp_base"), "bin")
+        new_path = os.path.join(self.conf.tryGet("simulation_model_paths", "omnetpp_base"), "bin")
         current_path = os.environ.get('PATH', '')
         if new_path not in current_path:
             os.environ['PATH'] = new_path + os.pathsep + current_path
-        
-        # # Automated workflow.
-        sim_results_directory = os.path.join(self.data_path, "results", uid)
-        # # Manual operation from running local workflow.
-        # sim_results_directory = os.path.join("/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow", "results", uid)
-        
-        scavetool_command = "opp_scavetool export -F CSV-R -o x.csv *.sca"
 
-        # Attempt to transform the scalar files in the given results directory.
-        self.logger.info(f"Transforming scalar files to csv in directory: {sim_results_directory}")
-        try:
-            subprocess.run(scavetool_command, shell=True, cwd=sim_results_directory, check=True)
-        except subprocess.CalledProcessError as e:
-            self.logger.error(f"Error executing the command: {e}")
+        for sim_uid in uids.keys():
+            sim_results_directory = os.path.join(self.data_path, "results", sim_uid)
 
-        # Remove the scalar files in the given results directory.
-        self.logger.info(f"Removing scalar files in directory: {sim_results_directory}")
-        for file in os.listdir(sim_results_directory):
-            if file.endswith(".sca"):
-                os.remove(os.path.join(sim_results_directory, file))
-    
+            scavetool_command = "opp_scavetool export -F CSV-R -o x.csv *.sca"
+
+            # Attempt to transform the scalar files in the given results directory.
+            self.logger.info(f"Transforming scalar files to csv in directory: {sim_results_directory}")
+            try:
+                subprocess.run(scavetool_command, shell=True, cwd=sim_results_directory, check=True)
+            except subprocess.CalledProcessError as e:
+                self.logger.error(f"Error executing the command: {e}")
+
+            # Remove the scalar files in the given results directory.
+            self.logger.info(f"Removing scalar files in directory: {sim_results_directory}")
+            for file in os.listdir(sim_results_directory):
+                if file.endswith(".sca"):
+                    os.remove(os.path.join(sim_results_directory, file))
+
 
     '''
         Collect the simulation stats from the simulation run.
@@ -242,38 +351,41 @@ class HeuristicSimulationCoordinator:
         Args:
             uid: The unique identifier of the simulation run.
     '''
-    def obtain_simulation_stats(self, uid):
+    def obtain_simulation_stats(self, uids):
 
         # Load the transformed outputted data from the simulation run.
+        fitness_values = []
 
-        # # Automated workflow.
-        csv_file_path = os.path.join(self.data_path, "results", uid, "x.csv")
-        # # Manual operation from running local workflow.
-        # csv_file_path = os.path.join("/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow", "results", uid, "x.csv")
+        for sim_uid, agent_id in uids.items():
+            csv_file_path = os.path.join(self.data_path, "results", sim_uid, "x.csv")
 
-        df = pd.read_csv(csv_file_path)
+            df = pd.read_csv(csv_file_path)
 
-        # # Filter rows with 'type' column equal to 'statistic' and drop unnecessary columns
-        # df = df[df['type'] == 'statistic'].drop(columns=['underflows', 'overflows', 'binedges', 'binvalues'])
-        
-        # Get the end-to-end delay statistics that are gathered by default in INET LANS simulation runs.
-        latency_df = df[df["type"] == "histogram"]
-        latency_df = latency_df[latency_df["module"].str.endswith(".cli")]
-        latency_df = latency_df[latency_df["name"].str.startswith("endToEndDelay")]
+            # # Filter rows with 'type' column equal to 'statistic' and drop unnecessary columns
+            # df = df[df['type'] == 'statistic'].drop(columns=['underflows', 'overflows', 'binedges', 'binvalues'])
 
-        # Get the cost of all components with a cost paramater in the simulation model.
-        cost_df = df[df['type'] == "param"]
-        cost_df = cost_df[cost_df["name"] == "cost"]
+            # Get the end-to-end delay statistics that are gathered by default in INET LANS simulation runs.
+            latency_df = df[df["type"] == "histogram"]
+            latency_df = latency_df[latency_df["module"].str.endswith(".cli")]
+            latency_df = latency_df[latency_df["name"].str.startswith("endToEndDelay")]
 
-        # Remove the csv file.
-        os.remove(csv_file_path)
+            # Get the cost of all components with a cost paramater in the simulation model.
+            cost_df = df[df['type'] == "param"]
+            cost_df = cost_df[cost_df["name"] == "cost"]
+
+            # Remove the csv file.
+            os.remove(csv_file_path)
+
+            fitness_values.append({
+                agent_id: {
+                    "latency": latency_df['mean'].mean(),
+                    "network_cost": cost_df['value'].astype(float).sum()
+                }
+            })
 
         # return the average of the column 'mean' in the dataframe.
-        return {
-            "latency": latency_df['mean'].mean(), 
-            "network_cost": cost_df['value'].astype(float).sum()
-        }
-    
+        return fitness_values
+
 
     '''
         Evaluate the fitness value of the simulation run.
@@ -281,36 +393,35 @@ class HeuristicSimulationCoordinator:
         Args:
             simulation_metrics: The simulation metrics obtained from the simulation run.
     '''
-    def fitness_evaluation(self, simulation_metrics):        
+    def fitness_evaluation(self, simulation_metrics):
         fitness_config = self.conf.tryGet("fitness_config")
         fitness_function = fitness_config["fitness_function"]
-        
+
         # Fitness value evaluates the objectives for latency and network cost.
         if fitness_function == "latency_cost":
             weight_latency = fitness_config["weight_latency"]
             weight_cost = fitness_config["weight_cost"]
             fitness_value = (weight_latency * (1 / simulation_metrics["latency"])) + (weight_cost * simulation_metrics["network_cost"])
             return fitness_value
-        
+
         # TODO: Add other fitness functions here.
         else:
             return 0
-    
-    
+
+
     def run_single_simulation_configuration(self):
         # Configure siminstances.
-        num_sims = self.conf.tryGet("num_sims")
-        inet_path = self.conf.tryGet("inet_path")
-        dummy_sim_path = self.conf.tryGet("dummy_path")
+        inet_path = self.conf.tryGet("simulation_model_paths", "inet_path")
+        dummy_sim_path = self.conf.tryGet("simulation_model_paths", "dummy_path")
 
         start_time = time.time()
-        # sim_instances = [create_sim_custom_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(num_sims)] # Dummy omnet.
-        sim_instances = [create_sim_inet_lans_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(num_sims)] # Dummy inet lans
+        # sim_instances = [create_sim_custom_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(self.nr_of_sims)] # Dummy omnet.
+        sim_instances = [create_sim_inet_lans_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(self.nr_of_sims)] # Dummy inet lans
 
         uid = sim_instances[0].uid
         if uid in self.uids:
             print(f"UID {uid} already exists in {self.uids}")
-        else:            
+        else:
             self.uids.append(uid)
 
         # Run the configured simulation model.
@@ -319,16 +430,6 @@ class HeuristicSimulationCoordinator:
         # TEMP: Check uid handling
         evaluated_sim_instances = self.manager.evaluate_all()
         uid = evaluated_sim_instances[0].uid
-        
-        # # Keep trying to retrieve the unique identifier of the simulation run until it succeeds.
-        # uid = None
-        # while uid is None:
-        #     try:
-        #         evaluated_sim_instances = self.manager.evaluate_all()
-        #         uid = evaluated_sim_instances[0].uid
-        #     except:
-        #         print("Could not find sim_instance uid.")
-        #         time.sleep(1)
 
         end_time = time.time()
 
@@ -336,9 +437,26 @@ class HeuristicSimulationCoordinator:
         # Aggregate simulation time to a variable of total simulation time.
         self.simulation_execution_time += end_time - start_time
 
-        return uid
+        return {uid: 0}
 
-    
+
+    def run_multiple_simulation_configuration(self):
+
+        # Configure siminstances.
+        inet_path = self.conf.tryGet("simulation_model_paths", "inet_path")
+        dummy_sim_path = self.conf.tryGet("simulation_model_paths", "dummy_path")
+        sim_instances = [create_sim_inet_lans_dummy_parallel(self.config, dummy_sim_path, id, inet_path) for id in range(self.nr_of_agents)] # Dummy inet lans
+        uids = {sim_instance.uid: id for id, sim_instance in enumerate(sim_instances)}
+
+        # Run the configured simulation model.
+        self.manager.enqueue_tasks(sim_instances)
+
+        # TEMP: Check uid handling
+        self.manager.evaluate_all()
+
+        return uids
+
+
     @staticmethod
     def process_simulation_output(sim_runtime_csv_file_path, column_name):
         df = pd.read_csv(sim_runtime_csv_file_path)
@@ -350,7 +468,7 @@ class HeuristicSimulationCoordinator:
         def _ignore(_, filenames):
             return [name for name in filenames if name == file_name]
         return _ignore
-    
+
     @staticmethod
     def write_new_ini_file_new(old_file_path, new_file_path, configurations, nr_of_backbone_switches):
         with open(old_file_path, 'r') as old_file, open(new_file_path, 'w') as new_file:
@@ -367,7 +485,7 @@ class HeuristicSimulationCoordinator:
                 config_pattern = configuration["config_pattern"]
                 value = configuration["value"]
                 new_file.write(f"{config_pattern} = {value}\n")
-    
+
     @staticmethod
     def write_new_ini_file(old_file_path, new_file_path, param_dict):
         with open(old_file_path, 'r') as old_file, open(new_file_path, 'w') as new_file:
@@ -398,15 +516,15 @@ class HeuristicSimulationCoordinator:
             print("File not found.")
         except Exception as e:
             print("An error occurred:", e)
-    
+
     @staticmethod
     def duplicate_directory(src_dir, dest_dir, file_to_ignore):
         # Delete destination directory if it exists
         if os.path.exists(dest_dir):
             shutil.rmtree(dest_dir)
         # Duplicate a new custom dummy sim directory and ignore the given filename.
-        shutil.copytree(src_dir, 
-                        dest_dir, 
+        shutil.copytree(src_dir,
+                        dest_dir,
                         ignore=HeuristicSimulationCoordinator.ignore_file(file_to_ignore)
         )
 
@@ -419,12 +537,12 @@ class HeuristicSimulationCoordinator:
 
         # define flag values for the experiment campaign.
         data_path = os.path.join(experiments_path, "data", "campaign_{}".format(model), "n{}_w{}_s{}".format(num_nodes, num_workers, num_sims), time_stamp)
-        
+
         # Temporarily replace command-line arguments for experiment_campaign.py
         sys.argv = [
-            'experiment_campaign.py', 
+            'experiment_campaign.py',
             '--data_path=' + data_path,
-            '--inet_path=/home/larry/omnetpp-6.0.1/inet4.5/', 
+            '--inet_path=/home/larry/omnetpp-6.0.1/inet4.5/',
             '--sims_path=/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
             '--dummy_path=/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims/',
             '--platform=local',
@@ -455,7 +573,7 @@ class HeuristicSimulationCoordinator:
 
         # Temporarily replace command-line arguments for experiments.campaign_run_collect()
         sys.argv = [
-            'experiments.py', 
+            'experiments.py',
             f'--experiments_path={experiments_path}'
         ]
 

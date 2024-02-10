@@ -3,17 +3,17 @@ import numpy as np
 import pandas as pd
 import glob
 
-from tools.config_reader import Config 
+from tools.config_reader import Config
 from pathlib import Path
-import os
 
 import matplotlib.pyplot as plt
 plt.rcParams.update({'text.usetex': False})
 
 
 def bar_execution_times(type="components"):
-    path = "/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/random_search/"
-    
+    base_path = Path(os.getcwd()).parent
+    path = os.path.join(base_path, "/data/raw/results/metaheuristic/random_search/")
+
     # Initialize lists to store execution times for all files
     total_times = []
     heuristic_times = []
@@ -67,7 +67,7 @@ def bar_execution_times(type="components"):
 
     heuristic_type = dirs[-3]
     algorithm = dirs[-2]
-    
+
     plt.title(f"Distinct execution times for {heuristic_type} - {algorithm} with increasing {type}.")
     plt.ylabel("Time (minutes)")
     plt.legend()
@@ -84,7 +84,7 @@ def bar_execution_times(type="components"):
 '''
 def combined_pie_execution_times(type="components"):
     path = "/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/random_search/"
-    
+
     # Get the list of files
     files = glob.glob(f"{path}*.json")
     files.sort()
@@ -132,7 +132,7 @@ def combined_pie_execution_times(type="components"):
 
 def plot_best_fitness_per_file():
     path = "/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/random_search/"
-    
+
     # Ensure the directory for saving plots exists
     os.makedirs(os.path.dirname("/home/larry/hyper-heuristic-dse-2.0/data/processed/execution_times/"), exist_ok=True)
 
@@ -225,7 +225,7 @@ def save_simulation_fitness(hist_values, store_path, title, filename):
     # Create directory if it doesn't exist
     if not os.path.exists(os.path.dirname(store_path)):
         os.makedirs(os.path.dirname(store_path))
-    
+
     # # From local machine, but I do not really know why anymore. CHECK Notebook if I have
     # # local machine again!
     # # Invert the historical values as the fitness values are the inverse.
@@ -250,19 +250,19 @@ def save_simulation_fitness(hist_values, store_path, title, filename):
 
     # Add a title to your plot
     plt.title(title)
-    
+
     plt.savefig(f"/home/larry/hyper-heuristic-dse-2.0/data/processed/{filename}.png")
 
 
 '''
-    Read the csv file in path /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/results/ab5f71b5e22b1928ce6aeae0ae2aaadb/tictoc.csv to a dataframe. 
-    
+    Read the csv file in path /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/results/ab5f71b5e22b1928ce6aeae0ae2aaadb/tictoc.csv to a dataframe.
+
     Define the dataframe such that it contains all rows with column 'type' having value 'statistic'. Skip on columns 'underflows,overflows,binedges,binvalues'.
 '''
 def save_hop_count():
     df = pd.read_csv("/home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/results/ab5f71b5e22b1928ce6aeae0ae2aaadb/tictoc.csv")
     df = df[df.type == 'statistic'].drop(columns=['underflows','overflows','binedges','binvalues'])
-    
+
     # For every row, make a box plot with the values 'mean, stddev, min, max'. The plot title should be the value of column 'module'
     for index, row in df.iterrows():
         plt.figure()
@@ -302,14 +302,14 @@ def save_average_response_time():
 
     # Drop rows with 'NA' values
     df = df.dropna()
-    
+
     # For every row in the filtered DataFrame, create a box plot
     for index, row in df.iterrows():
         plt.figure()
         data = [row['mean'], row['stddev'], row['min'], row['max']]
         plt.boxplot(data)
         plt.title(f'Average response time - {row["run"]}')
-        
+
         # Save the plot as an image with the module name as the filename
         image_path = f"/home/larry/hyper-heuristic-dse-2.0/data/processed/{row['run']}.png"
         plt.savefig(image_path)

@@ -55,19 +55,23 @@ class instance(BP):
         Args:
             simulation_metrics: The simulation metrics obtained from the simulation run.
     '''
-    def fitfunc(self, fitness_config, simulation_metrics):
+    def fitfunc(self, fitness_config, simulations_metrics):
         fitness_function = fitness_config["fitness_function"]
 
-        # Fitness value evaluates the objectives for latency and network cost.
-        if fitness_function == "latency_cost":
-            weight_latency = fitness_config["weight_latency"]
-            weight_cost = fitness_config["weight_cost"]
-            fitness_value = (weight_latency * (1 / simulation_metrics["latency"])) + (weight_cost * simulation_metrics["network_cost"])
-            return fitness_value
+        fitness_values = {}
+        for simulation_metrics in simulations_metrics:
+            (agent_id, metrics), = simulation_metrics.items()
+            # Fitness value evaluates the objectives for latency and network cost.
+            if fitness_function == "latency_cost":
+                weight_latency = fitness_config["weight_latency"]
+                weight_cost = fitness_config["weight_cost"]
+                fitness_value = (weight_latency * (1 / metrics["latency"])) + (weight_cost * metrics["network_cost"])
+                fitness_values[agent_id] = fitness_value
 
-        # TODO: Add other fitness functions here.
-        else:
-            return 0
+            # TODO: Add other fitness functions here.
+            else:
+                return 0
+        return fitness_values
 
 
 '''
