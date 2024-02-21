@@ -105,3 +105,6 @@ bin/
 
 # exclude omnet_directory from source control
 /omnetpp-6.0.1
+
+# exclude configuration file settings from source control
+/config
