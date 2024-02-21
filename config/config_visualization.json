@@ -1,0 +1,12 @@
+{
+    "data_path": "/path/to/data/raw/results/metaheuristic/random_search",
+    "visualization_path": "/home/larry/hyper-heuristic-dse-2.0/logs/vizualization",
+    "output_path_base": "/home/larry/hyper-heuristic-dse-2.0/data/processed/execution_times",
+    "model_save_path": "/path/to/model/save/location",
+    "usages": {
+      "heuristic_config": {
+        "x_axis_type": "components",
+        "default_json_keys": ["nr_of_components", "nr_of_iterations", "metadata"]
+      }
+    }
+  }
