@@ -1,13 +1,13 @@
 {
     "simulation_model_paths": {
-        "omnetpp_base": "/home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1",
-        "inet_path": "/home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5",
-        "results_base": "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/workflow/results",
-        "experiments_path": "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/experiments",
-        "dummy_path": "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims",
-        "sims_path": "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims",
-        "simulation_model_template_path": "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/dummy_sim_lans",
-        "simulation_model_generated_path": "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/custom_dummy"
+        "omnetpp_base": "/var/scratch/lvdwater/omnetpp-6.0.1",
+        "inet_path": "/var/scratch/lvdwater//inet4.5",
+        "results_base": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/workflow/results",
+        "experiments_path": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/experiments",
+        "dummy_path": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims",
+        "sims_path": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims",
+        "simulation_model_template_path": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/dummy_sim_lans",
+        "simulation_model_generated_path": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/custom_dummy"
     },
     "simulation_model_configuration": {
         "model": "custom",

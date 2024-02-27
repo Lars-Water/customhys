@@ -211,7 +211,7 @@ class HeuristicSimulationCoordinator:
         config_values: A list of values for the parameters in the simulation model.
     '''
     def set_param_values(self, config_values):
-        self.logger.info("Setting up the simulation model parameters...")
+        self.logger.info("Setting up the simulation model parameters")
         params = self.conf.tryGet("simulation_model_params")
 
         # Transform input values into configuration parameters.
@@ -530,4 +530,4 @@ class HeuristicSimulationCoordinator:
 
 if __name__ == "__main__":
 
-    coordinator = HeuristicSimulationCoordinator("/home/larry/hyper-heuristic-dse-2.0/config/coordinator.json")
+    coordinator = HeuristicSimulationCoordinator("/home/lvdwater/hyper-heuristic-dse-2.0/config/coordinator.json")

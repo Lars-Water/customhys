@@ -230,11 +230,11 @@ if __name__ == "__main__":
     # Example usage
     base_path = Path.cwd()
     data_path = base_path / "data/raw/results/metaheuristic/genetic_algorithm"
-    visualization_path = Path("/home/larry/hyper-heuristic-dse-2.0/logs/vizualization")
-    output_path_bars = Path("/home/larry/hyper-heuristic-dse-2.0/data/processed/execution_times/bars_components.png")
-    output_path_pies = Path("/home/larry/hyper-heuristic-dse-2.0/data/processed/execution_times/pies_components.png")
-    plot_output_base = Path("/home/larry/hyper-heuristic-dse-2.0/data/processed/execution_times/fitness_plots")
-    output_path_convergence = Path("/home/larry/hyper-heuristic-dse-2.0/data/processed/execution_times/convergence_vs_components.png")
+    visualization_path = Path("/home/lvdwater/hyper-heuristic-dse-2.0/logs/vizualization")
+    output_path_bars = Path("/home/lvdwater/hyper-heuristic-dse-2.0/data/processed/execution_times/bars_components.png")
+    output_path_pies = Path("/home/lvdwater/hyper-heuristic-dse-2.0/data/processed/execution_times/pies_components.png")
+    plot_output_base = Path("/home/lvdwater/hyper-heuristic-dse-2.0/data/processed/execution_times/fitness_plots")
+    output_path_convergence = Path("/home/lvdwater/hyper-heuristic-dse-2.0/data/processed/execution_times/convergence_vs_components.png")
 
     bar_execution_times(data_path, visualization_path, output_path_bars)
     combined_pie_execution_times(data_path, visualization_path, output_path_pies)

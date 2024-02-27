@@ -1,0 +1,35 @@
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Path to simulation instance source: /home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/0
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  UID of sim instance: f8cb8877-2c72-4130-aefd-7b9c8a5630a5
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Local logs path: logs
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Local results path: /home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/0/results
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Local executable name: run_sim
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Local config path: /home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/0/config.json
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Local out path: /home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/0/out
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Reading in config file: /home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/0/config.json
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Omnet config data present in config file
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  opp_makemake will use run_sim as executable filename
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Omnet config has specification for make
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Omnet config has specification for opp_makemake
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  opp_makemake will force overwrite of makefile
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  opp_makemake will output executable folder /home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/0/out
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Running opp_makemake command
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Opp_makemake execution return code: 0
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Opp_makemake execution was successfull
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Omnet config has specification for make
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Make output will be verbose
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Running make command
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Make execution return code: 0
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Make execution was successfull
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Compilation took 0.2129 seconds
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Omnet config data present in config file
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Omnet config has specification for simulation execution
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Omnet execution will not make use of param_sweep (i.e., it will be sequential)
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Omnet executable is: run_sim
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Omnet environment is: Cmdenv
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Omnet result output path is: /home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/0/results
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Omnet execution will not make use of pdes (i.e., it will be sequential)
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Omnet config is: LargeNet
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:44  INFO     ]  Running simulation command: ['./run_sim', '-u', 'Cmdenv', '--result-dir', '/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/0/results', '-n', '/var/scratch/lvdwater//inet4.5/src; /var/scratch/lvdwater//inet4.5/examples; /var/scratch/lvdwater//inet4.5/showcases; /var/scratch/lvdwater//inet4.5/tests/validation; /var/scratch/lvdwater//inet4.5/tests/networks; /var/scratch/lvdwater//inet4.5/tutorials; /home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/0', '-l', '/var/scratch/lvdwater//inet4.5/src/INET', '-c', 'LargeNet', '/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/0/largeNet.ini']
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:50  INFO     ]  Simulation execution return code: 0
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:50  INFO     ]  Simulation execution was successfull
+[ siminstance_f8cb8877-2c72-4130-aefd-7b9c8a5630a5  27-02-2024 23:38:50  INFO     ]  Simulation took 6.403 seconds

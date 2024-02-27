@@ -1,11 +1,11 @@
 {
     "manager": {
-        "workflowLogsFolder": "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/workflow/logs",
-        "workflowConfigFile": "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/workflow/config/workflow_local.json"
+        "workflowLogsFolder": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/workflow/logs",
+        "workflowConfigFile": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/workflow/config/workflow_local.json"
     },
     "dp": {
-        "workflowConfigFile": "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/workflow/config/workflow_local.json",
-        "dummy_sim_path": "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims",
+        "workflowConfigFile": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/workflow/config/workflow_local.json",
+        "dummy_sim_path": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims",
         "inet_base": "/home/larry/omnetpp-6.0.1/inet4.5"
     }
 }

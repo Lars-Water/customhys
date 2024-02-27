@@ -1,7 +1,7 @@
 {
     "data_path": "/path/to/data/raw/results/metaheuristic/random_search",
-    "visualization_path": "/home/larry/hyper-heuristic-dse-2.0/logs/vizualization",
-    "output_path_base": "/home/larry/hyper-heuristic-dse-2.0/data/processed/execution_times",
+    "visualization_path": "/home/lvdwater/hyper-heuristic-dse-2.0/logs/vizualization",
+    "output_path_base": "/home/lvdwater/hyper-heuristic-dse-2.0/data/processed/execution_times",
     "model_save_path": "/path/to/model/save/location",
     "usages": {
       "heuristic_config": {
