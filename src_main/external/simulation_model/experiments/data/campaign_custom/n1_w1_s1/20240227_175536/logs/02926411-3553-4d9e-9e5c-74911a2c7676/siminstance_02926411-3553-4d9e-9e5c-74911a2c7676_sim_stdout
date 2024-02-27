@@ -1,0 +1,38 @@
+OMNeT++ Discrete Event Simulation  (C) 1992-2022 Andras Varga, OpenSim Ltd.
+Version: 6.0.1, build: 220831-e4f07d04b8, edition: Academic Public License -- NOT FOR COMMERCIAL USE
+See the license for distribution terms and warranty disclaimer
+
+Setting up Cmdenv...
+
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/src:  1187
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/examples:  185
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/showcases:  76
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tests/validation:  5
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tests/networks:  6
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tutorials:  20
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/0:  3
+
+Preparing for running configuration LargeNet, run #0...
+Assigned runID=LargeNet-0-20240227-17:55:44-8722
+Setting up network "LargeNet"...
+Initializing...
+
+Running simulation...
+** Event #0   t=0   Elapsed: 2.3e-05s (0m 00s)  0% completed  (0% total)
+     Speed:     ev/sec=0   simsec/sec=0   ev/simsec=0
+     Messages:  created: 9930   present: 9930   in FES: 841
+** Event #235776   t=0.687984386732   Elapsed: 2.00122s (0m 02s)  34% completed  (34% total)
+     Speed:     ev/sec=117818   simsec/sec=0.343786   ev/simsec=342707
+     Messages:  created: 158977   present: 9542   in FES: 446
+** Event #467968   t=1.454133372051   Elapsed: 4.00208s (0m 04s)  72% completed  (72% total)
+     Speed:     ev/sec=116046   simsec/sec=0.38291   ev/simsec=303064
+     Messages:  created: 304175   present: 9611   in FES: 491
+** Event #638879   t=2   Elapsed: 5.68026s (0m 05s)  100% completed  (100% total)
+     Speed:     ev/sec=101842   simsec/sec=0.324923   ev/simsec=313436
+     Messages:  created: 411312   present: 9508   in FES: 418
+
+<!> Simulation time limit reached -- at t=2s, event #638879
+
+Calling finish() at end of Run #0...
+
+End.

@@ -1,0 +1,11 @@
+{
+    "general": {
+        "environment_start": 1709052936.833498,
+        "num_dp": 1,
+        "num_dp_unique": 1,
+        "num_eval_rc": 1,
+        "num_dp_finished": 1,
+        "environment_end": 1709053005.907569,
+        "environment_time": 69.07407093048096
+    }
+}

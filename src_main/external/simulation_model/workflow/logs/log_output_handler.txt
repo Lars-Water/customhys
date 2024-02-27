@@ -1,0 +1,5 @@
+[ output_handler  27-02-2024 17:27:00  INFO     ]  Reading in config file: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/config/workflow_local.json
+[ output_handler  27-02-2024 17:27:00  INFO     ]  Sims path: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/sims
+[ output_handler  27-02-2024 17:27:00  INFO     ]  Global results path: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/results
+[ output_handler  27-02-2024 17:27:00  INFO     ]  Global logs path: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/logs
+[ output_handler  27-02-2024 17:27:00  INFO     ]  Global runtime path: /home/larry/hyper-heuristic-dse-2.0/src/external/simulation_model/workflow/runtime

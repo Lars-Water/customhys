@@ -1,0 +1,27 @@
+[ config_siminstance_a679c1e7-1a1c-40c6-888c-9c7b450c31a3  27-02-2024 17:56:27  INFO     ]  Default config file: /home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/src/utils/default.cfg
+[ config_siminstance_a679c1e7-1a1c-40c6-888c-9c7b450c31a3  27-02-2024 17:56:27  INFO     ]  Using config file: /home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/0/config.json
+[ config_siminstance_a679c1e7-1a1c-40c6-888c-9c7b450c31a3  27-02-2024 17:56:27  INFO     ]  Loading config file: /home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/0/config.json
+[ config_siminstance_a679c1e7-1a1c-40c6-888c-9c7b450c31a3  27-02-2024 17:56:27  WARNING  ]  Could not get: ('omnet', 'simulation', 'pdes')
+[ config_siminstance_a679c1e7-1a1c-40c6-888c-9c7b450c31a3  27-02-2024 17:56:27  ERROR    ]  'pdes'
+[                                                                                        ]  Traceback (most recent call last):
+[                                                                                        ]    File "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/src/utils/config_reader.py", line 49, in tryGet
+[                                                                                        ]      conf = conf[arg]
+[                                                                                        ]  KeyError: 'pdes'
+[ config_siminstance_a679c1e7-1a1c-40c6-888c-9c7b450c31a3  27-02-2024 17:56:28  WARNING  ]  Could not get: ('omnet', 'simulation', 'param_sweep', 'active')
+[ config_siminstance_a679c1e7-1a1c-40c6-888c-9c7b450c31a3  27-02-2024 17:56:28  ERROR    ]  'param_sweep'
+[                                                                                        ]  Traceback (most recent call last):
+[                                                                                        ]    File "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/src/utils/config_reader.py", line 49, in tryGet
+[                                                                                        ]      conf = conf[arg]
+[                                                                                        ]  KeyError: 'param_sweep'
+[ config_siminstance_a679c1e7-1a1c-40c6-888c-9c7b450c31a3  27-02-2024 17:56:28  WARNING  ]  Could not get: ('omnet', 'simulation', 'time_limit')
+[ config_siminstance_a679c1e7-1a1c-40c6-888c-9c7b450c31a3  27-02-2024 17:56:28  ERROR    ]  'time_limit'
+[                                                                                        ]  Traceback (most recent call last):
+[                                                                                        ]    File "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/src/utils/config_reader.py", line 49, in tryGet
+[                                                                                        ]      conf = conf[arg]
+[                                                                                        ]  KeyError: 'time_limit'
+[ config_siminstance_a679c1e7-1a1c-40c6-888c-9c7b450c31a3  27-02-2024 17:56:28  WARNING  ]  Could not get: ('omnet', 'simulation', 'pdes')
+[ config_siminstance_a679c1e7-1a1c-40c6-888c-9c7b450c31a3  27-02-2024 17:56:28  ERROR    ]  'pdes'
+[                                                                                        ]  Traceback (most recent call last):
+[                                                                                        ]    File "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/src/utils/config_reader.py", line 49, in tryGet
+[                                                                                        ]      conf = conf[arg]
+[                                                                                        ]  KeyError: 'pdes'

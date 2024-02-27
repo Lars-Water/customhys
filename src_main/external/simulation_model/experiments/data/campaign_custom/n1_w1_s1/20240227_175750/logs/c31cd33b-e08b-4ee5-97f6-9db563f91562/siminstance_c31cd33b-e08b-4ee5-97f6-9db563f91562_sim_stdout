@@ -1,0 +1,42 @@
+OMNeT++ Discrete Event Simulation  (C) 1992-2022 Andras Varga, OpenSim Ltd.
+Version: 6.0.1, build: 220831-e4f07d04b8, edition: Academic Public License -- NOT FOR COMMERCIAL USE
+See the license for distribution terms and warranty disclaimer
+
+Setting up Cmdenv...
+
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/src:  1187
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/examples:  185
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/showcases:  76
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tests/validation:  5
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tests/networks:  6
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tutorials:  20
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/0:  3
+
+Preparing for running configuration LargeNet, run #0...
+Assigned runID=LargeNet-0-20240227-17:58:31-10135
+Setting up network "LargeNet"...
+Initializing...
+
+Running simulation...
+** Event #0   t=0   Elapsed: 1.9e-05s (0m 00s)  0% completed  (0% total)
+     Speed:     ev/sec=0   simsec/sec=0   ev/simsec=0
+     Messages:  created: 9930   present: 9930   in FES: 841
+** Event #255488   t=0.725671464994   Elapsed: 2.00086s (0m 02s)  36% completed  (36% total)
+     Speed:     ev/sec=127691   simsec/sec=0.362683   ev/simsec=352073
+     Messages:  created: 172363   present: 9546   in FES: 444
+** Event #489472   t=1.480365144929   Elapsed: 4.00115s (0m 04s)  74% completed  (74% total)
+     Speed:     ev/sec=116975   simsec/sec=0.377291   ev/simsec=310038
+     Messages:  created: 318960   present: 9559   in FES: 455
+** Event #658490   t=2   Elapsed: 5.94301s (0m 05s)  100% completed  (100% total)
+     Speed:     ev/sec=87038.9   simsec/sec=0.267538   ev/simsec=325333
+     Messages:  created: 425502   present: 9528   in FES: 433
+
+<!> Simulation time limit reached -- at t=2s, event #658490
+
+Calling finish() at end of Run #0...
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-5235-4-resp-6 (1518 B) (inet::SequenceChunk) length = 1518 B
+[INFO]	Pulling packet, [1mpacket[0m = [2m(Packet)[0m[3mreq-5235-4-resp-7[0m (1482 B) [[2mEthernetMacHeader[0m, [1mtypeOrLength[0m = 1464 | [2mIeee8022LlcHeader[0m, [1mdsap[0m = 240, [1mssap[0m = 241, [1mcontrol[0m = 3 | [2mEtherAppResp[0m, [1mrequestId[0m = 4, [1mnumFrames[0m = 0 | [2mEthernetFcs[0m, [1mfcs[0m = 0, [1mfcsMode[0m = 1 (FCS_DECLARED_CORRECT)].
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-5235-4-resp-7 (1482 B) (inet::SequenceChunk) length = 1482 B
+[DETAIL]	Interface is not connected, dropping packet (inet::Packet)req-5235-4-resp-5 (1518 B) (inet::SequenceChunk) length = 1518 B
+
+End.

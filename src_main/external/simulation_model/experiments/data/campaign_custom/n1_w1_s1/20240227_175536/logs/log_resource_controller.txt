@@ -1,0 +1,18 @@
+[ resource_controller  27-02-2024 17:55:36  INFO     ]  Reading in config file: /home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20240227_175536/config.json
+[ resource_controller  27-02-2024 17:55:36  INFO     ]  Resource controller config provided
+[ resource_controller  27-02-2024 17:55:36  INFO     ]  Resource controller config specifies supported cluster local
+[ resource_controller  27-02-2024 17:55:39  INFO     ]  Sending all tasks (1) in queue to worker cluster
+[ resource_controller  27-02-2024 17:55:39  INFO     ]  Sending sim instance 02926411-3553-4d9e-9e5c-74911a2c7676 to worker cluster
+[ resource_controller  27-02-2024 17:55:39  INFO     ]  Retrieving DASK futures for given tasks
+[ resource_controller  27-02-2024 17:55:39  INFO     ]  Waiting for all tasks to complete
+[ resource_controller  27-02-2024 17:55:55  INFO     ]  All tasks have completed
+[ resource_controller  27-02-2024 17:56:04  INFO     ]  Sending all tasks (1) in queue to worker cluster
+[ resource_controller  27-02-2024 17:56:04  INFO     ]  Sending sim instance 5283b16d-b778-494c-8fbb-ea86aaa68e6e to worker cluster
+[ resource_controller  27-02-2024 17:56:04  INFO     ]  Retrieving DASK futures for given tasks
+[ resource_controller  27-02-2024 17:56:04  INFO     ]  Waiting for all tasks to complete
+[ resource_controller  27-02-2024 17:56:20  INFO     ]  All tasks have completed
+[ resource_controller  27-02-2024 17:56:27  INFO     ]  Sending all tasks (1) in queue to worker cluster
+[ resource_controller  27-02-2024 17:56:27  INFO     ]  Sending sim instance a679c1e7-1a1c-40c6-888c-9c7b450c31a3 to worker cluster
+[ resource_controller  27-02-2024 17:56:27  INFO     ]  Retrieving DASK futures for given tasks
+[ resource_controller  27-02-2024 17:56:27  INFO     ]  Waiting for all tasks to complete
+[ resource_controller  27-02-2024 17:56:40  INFO     ]  All tasks have completed

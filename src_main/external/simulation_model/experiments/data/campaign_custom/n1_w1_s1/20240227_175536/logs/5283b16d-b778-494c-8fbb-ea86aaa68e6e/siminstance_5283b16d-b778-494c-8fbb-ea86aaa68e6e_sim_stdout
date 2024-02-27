@@ -1,0 +1,41 @@
+OMNeT++ Discrete Event Simulation  (C) 1992-2022 Andras Varga, OpenSim Ltd.
+Version: 6.0.1, build: 220831-e4f07d04b8, edition: Academic Public License -- NOT FOR COMMERCIAL USE
+See the license for distribution terms and warranty disclaimer
+
+Setting up Cmdenv...
+
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/src:  1187
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/examples:  185
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/showcases:  76
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tests/validation:  5
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tests/networks:  6
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5/tutorials:  20
+Loading NED files from /home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/0:  3
+
+Preparing for running configuration LargeNet, run #0...
+Assigned runID=LargeNet-0-20240227-17:56:06-9458
+Setting up network "LargeNet"...
+Initializing...
+
+Running simulation...
+** Event #0   t=0   Elapsed: 2.2e-05s (0m 00s)  0% completed  (0% total)
+     Speed:     ev/sec=0   simsec/sec=0   ev/simsec=0
+     Messages:  created: 9930   present: 9930   in FES: 841
+** Event #230144   t=0.669139450579   Elapsed: 2.0007s (0m 02s)  33% completed  (33% total)
+     Speed:     ev/sec=115033   simsec/sec=0.334455   ev/simsec=343942
+     Messages:  created: 155296   present: 9555   in FES: 452
+** Event #473344   t=1.464250047421   Elapsed: 4.0019s (0m 04s)  73% completed  (73% total)
+     Speed:     ev/sec=121527   simsec/sec=0.397317   ev/simsec=305869
+     Messages:  created: 307549   present: 9578   in FES: 461
+** Event #634112   t=1.977410268767   Elapsed: 6.00249s (0m 06s)  98% completed  (98% total)
+     Speed:     ev/sec=80362.3   simsec/sec=0.256511   ev/simsec=313290
+     Messages:  created: 408387   present: 9534   in FES: 437
+** Event #638879   t=2   Elapsed: 6.07841s (0m 06s)  100% completed  (100% total)
+     Speed:     ev/sec=62742.7   simsec/sec=0.289653   ev/simsec=216614
+     Messages:  created: 411312   present: 9508   in FES: 418
+
+<!> Simulation time limit reached -- at t=2s, event #638879
+
+Calling finish() at end of Run #0...
+
+End.

@@ -1,3 +1,0 @@
-[ heuristic_run_config_manager  09-02-2024 16:40:51  INFO     ]  Default config file: /home/larry/hyper-heuristic-dse-2.0/src/tools/default.cfg
-[ heuristic_run_config_manager  09-02-2024 16:40:51  INFO     ]  Using config file: /home/larry/hyper-heuristic-dse-2.0/config/config_heuristic_run.json
-[ heuristic_run_config_manager  09-02-2024 16:40:51  INFO     ]  Loading config file: /home/larry/hyper-heuristic-dse-2.0/config/config_heuristic_run.json
