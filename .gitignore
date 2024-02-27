@@ -108,3 +108,4 @@ bin/
 
 # exclude configuration file settings from source control
 config/config_coordinator.json
+config/config_visualization.json
