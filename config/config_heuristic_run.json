@@ -2,7 +2,7 @@
     "nr_of_agents": 1,
     "nr_of_iterations": 1,
     "runs_nr_of_backbones": [6],
-    "mh_run_file_name": "genetic_algorithm",
+    "mh_save_run_path_mh_name": "genetic_algorithm/",
     "metaheuristic": [
         {
             "name": "differential_mutation",

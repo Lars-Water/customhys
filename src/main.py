@@ -1,14 +1,13 @@
 import os
-import numpy as np
-import datetime
 import time
 from pathlib import Path
+import argparse
 
 from tools.config_reader import Config
 import tools.tools as tools
 import tools.coordinator as coordinator
 import models.model as model
-from visualization import visualization
+# from visualization import visualization
 
 from data import collect_data
 
@@ -28,9 +27,10 @@ from customhys import metaheuristic as mh
         heuristics_collection (list): The collection of heuristics to be used in the metaheuristic.
         num_agents (int): The number of agents in the metaheuristic.
         num_iterations (int): The number of iterations for the metaheuristic.
+        base_path (string): Root of the project.
         verbose (bool): The flag to indicate if the metaheuristic should run in verbose mode.
 '''
-def run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, num_agents, num_iterations, verbose=False):
+def run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, num_agents, num_iterations, base_path, verbose=False):
 
     # Run the metaheuristic for every specified number of backbones.
     runs_nr_of_backbones = heuristic_run_config.tryGet("runs_nr_of_backbones")
@@ -59,15 +59,8 @@ def run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nu
         heuristic_run_meta_data = calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator)
 
         # Save the heuristic run data.
-        # TODO: Make the following variable configurable.
-        collect_data.collect_mh_run(
-            met,
-            f"/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/{heuristic_run_config.tryGet('mh_run_file_name')}/",
-            run,
-            num_agents,
-            num_iterations,
-            heuristic_run_meta_data
-        )
+        save_run_path = os.path.join(base_path, "data/raw/results/metaheuristic/", heuristic_run_config.tryGet('mh_save_run_path_mh_name'))
+        collect_data.collect_mh_run(met,save_run_path,run,num_agents,num_iterations,heuristic_run_meta_data)
 
     return
 
@@ -229,8 +222,10 @@ def create_mh_instance(run, heur_sim_coordinator):
 
     Args:
         base_path (str): The base path for the project.
+        heur_run_config_path (str):
+        coordinator_config_path (str):
 '''
-def main(base_path):
+def main(base_path, heur_run_config_path, coordinator_config_path):
 
     # Set up the general heuristic run configuration.
     # TODO: Make the following two variables configurable.
@@ -249,7 +244,7 @@ def main(base_path):
     # Define the heuristic operators to be used.
     heuristics_collection = define_heuristic_operators(heuristic_run_config)
 
-    run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, verbose=False)
+    run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
 
     # run_hh(heur_sim_coordinator, heuristics_collection)
 
@@ -259,8 +254,25 @@ def main(base_path):
 
 
 if __name__ == "__main__":
-    base_path = Path(os.getcwd()).parent
-    main(base_path)
+    parser = argparse.ArgumentParser(description="Parses the paths for the config files of this framework.")
+    parser.add_argument("--heur_run_config", type=str, required=True, help="Path to the heuristic run configuration file.")
+    parser.add_argument("--coordinator_config", type=str, required=True, help="Path to the coordinator configuration file.")
+    args = parser.parse_args()
+
+    # Convert the arguments to Path objects.
+    heur_run_config_path = Path(args.heur_run_config)
+    coordinator_config_path = Path(args.coordinator_config)
+
+    # Check if the heuristic run configuration file exists
+    if not heur_run_config_path.exists():
+        raise FileNotFoundError(f"The heuristic run configuration file {heur_run_config_path} does not exist.")
+
+    # Check if the coordinator configuration file exists
+    if not coordinator_config_path.exists():
+        raise FileNotFoundError(f"The coordinator configuration file {coordinator_config_path} does not exist.")
+
+    base_path = Path(os.getcwd())
+    main(base_path, heur_run_config_path, coordinator_config_path)
 
     # visualization.bar_execution_times(type="iterations")
     # visualization.combined_pie_execution_times(type="iterations")

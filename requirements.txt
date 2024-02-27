@@ -1,9 +1,8 @@
+customhys
+dask
+dask_jobqueue
 matplotlib
 numpy
-optproblems
 pandas
-scikit_learn
-scipy
-setuptools
-tensorflow
-tqdm
+plotly
+type_enforced
