@@ -71,6 +71,7 @@ class instance(BP):
             # TODO: Add other fitness functions here.
             else:
                 return 0
+        print("fitfunc fitness_values:"+str(fitness_values))
         return fitness_values
 
 

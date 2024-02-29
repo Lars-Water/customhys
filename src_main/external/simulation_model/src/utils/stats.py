@@ -82,7 +82,7 @@ class Stats:
         self.add_stat(1, *args)
 
     def add_stat(self, val, *args):
-        old_val = self.get_stat()
+        old_val = self.get_stat(*args)
         new_val = val
 
         if old_val:

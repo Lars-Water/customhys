@@ -15,8 +15,13 @@ from src.manager import Manager
 from src.utils.config_reader import Config
 from src.utils.config_creator import WorkflowConfig
 
+import uuid
+
 
 class HeuristicSimulationCoordinator:
+
+    def __del__(self):
+        self.manager.shutdown()
 
     '''
         Initialize the HeuristicSimulationCoordinator.
@@ -79,21 +84,6 @@ class HeuristicSimulationCoordinator:
 
         self.uids = []
 
-
-    '''
-        Run the simulation model with the given configuration values.
-
-        Args:
-            fitfunc: The fitness function to evaluate the simulation run.
-            config_values: A list of values for the parameters in the simulation model.
-
-        Returns:
-            The fitness value of the simulation run.
-    '''
-    def simulation_run(self, fitfunc, config_values):
-
-        # NOTE: Test location for setting up the workflow config and manager for every iteration.
-        # Set up the logger.
         coordinator_log_path = os.path.join(self.base_path, "data/logs/coordinator")
         os.makedirs(coordinator_log_path, exist_ok=True)
         self.logger = logger("coordinator", coordinator_log_path)
@@ -131,6 +121,23 @@ class HeuristicSimulationCoordinator:
         self.logger.info("Setting up the Manager...")
         self.manager = Manager(workflow_config_file, workflow_logs_folder)
 
+
+    '''
+        Run the simulation model with the given configuration values.
+
+        Args:
+            fitfunc: The fitness function to evaluate the simulation run.
+            config_values: A list of values for the parameters in the simulation model.
+
+        Returns:
+            The fitness value of the simulation run.
+    '''
+    def simulation_run(self, fitfunc, config_values):
+
+        # NOTE: Test location for setting up the workflow config and manager for every iteration.
+        # Set up the logger.
+        
+
         # NOTE: Original start below this comment.
 
         self.logger.info(f"Simulation run with config values: {config_values}")
@@ -167,7 +174,7 @@ class HeuristicSimulationCoordinator:
             uids = self.run_multiple_simulation_configuration()
 
             # NOTE: Added shutdown to this place for new manager at every simulation run.
-            self.manager.shutdown()
+            # self.manager.shutdown()
 
             # Transform the outputted scalar files into csv format.
             self.transform_scalar_files(uids)
@@ -224,9 +231,10 @@ class HeuristicSimulationCoordinator:
 
             # Run the simulation model.
             uid = self.run_single_simulation_configuration()
+            self.logger.warn(uid)
 
             # NOTE: Added shutdown to this place for new manager at every simulation run.
-            self.manager.shutdown()
+            # self.manager.shutdown()
 
             # Transform the outputted scalar files into csv format.
             self.transform_scalar_files(uid)
@@ -237,16 +245,18 @@ class HeuristicSimulationCoordinator:
             fitness_config = self.conf.tryGet("fitness_config")
             fitness_value = fitfunc(fitness_config, simulation_metrics)
 
+
             # End timer for simulation run.
             end_time = time.time()
 
             # Add simulation run time to total coordinator time.
             self.coordinator_execution_time += end_time - start_time
 
+            self.logger.info("Fitness value: {}".format(fitness_value))
             return fitness_value[0]
 
 
-    '''
+    '''run_single_simulation_configuration
         Shutdown the Manager.
     '''
     def shutdown_manager(self):
@@ -334,8 +344,7 @@ class HeuristicSimulationCoordinator:
                 # Create a configuration for each parameter.
                 for switch_idx, value_idx in enumerate(value_indices):
                     selected_param_value = param_values[value_idx]
-
-                    # Conditional handling for the switch gates where the first switch is handled differently.
+                    # run_single_simulation_configurationates where the first switch is handled differently.
                     first_switch_gate_index = "1" if switch_idx > 0 else "0"
                     second_switch_gate_index = "0"
 
@@ -354,7 +363,7 @@ class HeuristicSimulationCoordinator:
                     current_param_pattern = current_param_pattern.replace("__gate_index", second_switch_gate_index)
 
                     agent_configuration.append({
-                        "config_pattern": current_param_pattern,
+                        "config_pattern": current_param_parun_single_simulation_configurationttern,
                         "value": selected_param_value
                     })
             configurations.append(agent_configuration)
@@ -464,11 +473,11 @@ class HeuristicSimulationCoordinator:
 
         start_time = time.time()
         # sim_instances = [create_sim_custom_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(self.nr_of_sims)] # Dummy omnet.
-        sim_instances = [create_sim_inet_lans_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(self.nr_of_sims)] # Dummy inet lans
+        sim_instances = [create_sim_inet_lans_dummy(self.config, dummy_sim_path, uuid.uuid4(), inet_path) for id in range(self.nr_of_sims)] # Dummy inet lans
 
         uid = sim_instances[0].uid
         if uid in self.uids:
-            print(f"UID {uid} already exists in {self.uids}")
+            self.logger.warn(f"UID {uid} already exists in {self.uids}")
         else:
             self.uids.append(uid)
 
@@ -493,8 +502,12 @@ class HeuristicSimulationCoordinator:
         # Configure siminstances.
         inet_path = self.conf.tryGet("simulation_model_paths", "inet_path")
         dummy_sim_path = self.conf.tryGet("simulation_model_paths", "dummy_path")
-        sim_instances = [create_sim_inet_lans_dummy_parallel(self.config, dummy_sim_path, id, inet_path) for id in range(self.nr_of_agents)] # Dummy inet lans
+        sim_instances = [create_sim_inet_lans_dummy_parallel(self.config, dummy_sim_path, uuid.uuid4(), inet_path) for id in range(self.nr_of_agents)] # Dummy inet lans
+        self.logger.warn(sim_instances)
         uids = {sim_instance.uid: id for id, sim_instance in enumerate(sim_instances)}
+
+        self.logger.debug(uids)
+        self.logger.debug(sim_instances)
 
         # Run the configured simulation model.
         self.manager.enqueue_tasks(sim_instances)

@@ -257,7 +257,7 @@ class Siminstance:
             self.record_total_time_stat(("compilation", "make_build_time"), ("compilation", "make_build_start"), ("compilation", "make_build_end"))
 
 
-            self.logger.info("Running make command")
+            self.logger.info("Running make command: {}".format(make_command))
 
             self.stats.record_time_stat("compilation", "make_exec_start")
             make_output = subprocess.run(make_command, cwd=self.path, capture_output=True)
