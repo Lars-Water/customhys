@@ -2,17 +2,22 @@
     "simulation_model_paths": {
         "omnetpp_base": "/var/scratch/lvdwater/omnetpp-6.0.1",
         "inet_path": "/var/scratch/lvdwater//inet4.5",
-        "results_base": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/workflow/results",
-        "experiments_path": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/experiments",
+        "experiments_path": "/var/scratch/lvdwater/experiments",
+        "sims_path": "/var/scratch/lvdwater/sims",
         "dummy_path": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims",
-        "sims_path": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims",
         "simulation_model_template_path": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/dummy_sim_lans",
         "simulation_model_generated_path": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/custom_dummy"
     },
     "simulation_model_configuration": {
-        "model": "custom",
+        "sim_model": "custom",
+        "platform": "DAS",
+        "jobs": 1,
+        "job_cores": 16,
+        "job_processes": 1,
+        "job_memory": "64GB",
         "num_nodes": 1,
-        "num_workers": 1
+        "num_workers": 1,
+        "threads_per_worker": 8
     },
     "simulation_model_params": [
         {

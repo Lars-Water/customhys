@@ -28,49 +28,50 @@ class HeuristicSimulationCoordinator:
     '''
     def __init__(self, base_path, coordinator_config_file_path, nr_of_agents):
 
+        self.coordinator_config_file_path = coordinator_config_file_path
+
         self.base_path = base_path
         self.nr_of_agents = nr_of_agents
         self.nr_of_sims = nr_of_agents
 
-        # Set up the logger.
-        coordinator_log_path = os.path.join(self.base_path, "data/logs/coordinator")
-        os.makedirs(coordinator_log_path, exist_ok=True)
-        self.logger = logger("coordinator", coordinator_log_path)
+        # NOTE: Original location of setting up the workflow config and manager.
+        # # Set up the logger.
+        # coordinator_log_path = os.path.join(self.base_path, "data/logs/coordinator")
+        # os.makedirs(coordinator_log_path, exist_ok=True)
+        # self.logger = logger("coordinator", coordinator_log_path)
 
-        # Read the config file.
-        self.logger.info("Reading coordinator config file...")
-        self.conf = Config(coordinator_config_file_path, Path(coordinator_log_path), "coordinator_config_manager")
+        # # Read the config file.
+        # self.logger.info("Reading coordinator config file...")
+        # self.conf = Config(self.coordinator_config_file_path, Path(coordinator_log_path), "coordinator_config_manager")
 
-        # Define params to set up the Manager.
-        experiments_path = self.conf.tryGet("simulation_model_paths", "experiments_path")
-        model = self.conf.tryGet("simulation_model_configuration", "model")
-        num_nodes = self.conf.tryGet("simulation_model_configuration", "num_nodes")
-        num_workers = self.conf.tryGet("simulation_model_configuration", "num_workers")
-        time_stamp = time.strftime("%Y%m%d_%H%M%S")
-        self.data_path = os.path.join(experiments_path, "data", f"campaign_{model}", f"n{str(num_nodes)}_w{str(num_workers)}_s{str(self.nr_of_sims)}", time_stamp)
+        # # Define params to set up the Manager.
+        # experiments_path = self.conf.tryGet("simulation_model_paths", "experiments_path")
+        # sim_model = self.conf.tryGet("simulation_model_configuration", "sim_model")
+        # num_nodes = self.conf.tryGet("simulation_model_configuration", "num_nodes")
+        # num_workers = self.conf.tryGet("simulation_model_configuration", "num_workers")
+        # threads_per_worker = self.conf.tryGet("simulation_model_configuration", "threads_per_worker")
+        # time_stamp = time.strftime("%Y%m%d_%H%M%S")
+        # self.data_path = os.path.join(experiments_path, "data", f"campaign_{sim_model}", f"n{str(num_nodes)}_w{str(num_workers)}_s{str(self.nr_of_sims)}", time_stamp)
 
-        # TODO: Don't actually remember why this is 6 / number of workers. Look into this.
-        num_threads_per_worker = int(6 / num_workers)
+        # # Define params for configuration file creation.
+        # workflow_config_file = os.path.join(self.data_path, "config.json")
+        # workflow_results_folder = os.path.join(self.data_path, "results")
+        # workflow_logs_folder = os.path.join(self.data_path, "logs")
+        # workflow_runtime_folder = os.path.join(self.data_path, "runtime")
 
-        # Define params for configuration file creation.
-        workflow_config_file = os.path.join(self.data_path, "config.json")
-        workflow_results_folder = os.path.join(self.data_path, "results")
-        workflow_logs_folder = os.path.join(self.data_path, "logs")
-        workflow_runtime_folder = os.path.join(self.data_path, "runtime")
+        # # Set up workflow configuration file.
+        # self.logger.info("Setting up workflow configuration file.")
+        # sims_path = self.conf.tryGet("simulation_model_paths", "sims_path")
+        # design_queues = [WorkflowConfig.create_design_point_queue_config("base", 0, "FIFO")]
+        # cluster_config = self.create_relevant_cluster_config()
+        # self.workflow_config = WorkflowConfig(sims_path, "config", "run_sim", "results", "logs", "out",
+        #                     workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, design_queues, "uuid", cluster_config)
+        # self.config = self.workflow_config.conf()
+        # self.workflow_config.write_conf(workflow_config_file)
 
-        # Set up workflow configuration file.
-        self.logger.info("Setting up workflow configuration file...")
-        sims_path = self.conf.tryGet("simulation_model_paths", "sims_path")
-        design_queues = [WorkflowConfig.create_design_point_queue_config("base", 0, "FIFO")]
-        cluster_config = WorkflowConfig.create_local_cluster_config(num_workers, num_threads_per_worker)
-        self.workflow_config = WorkflowConfig(sims_path, "config", "run_sim", "results", "logs", "out",
-                            workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, design_queues, "uuid", cluster_config)
-        self.config = self.workflow_config.conf()
-        self.workflow_config.write_conf(workflow_config_file)
-
-        # Set up the Manager.
-        self.logger.info("Setting up the Manager...")
-        self.manager = Manager(workflow_config_file, workflow_logs_folder)
+        # # Set up the Manager.
+        # self.logger.info("Setting up the Manager...")
+        # self.manager = Manager(workflow_config_file, workflow_logs_folder)
 
         # Predefine the parameters for the execution times.
         self.coordinator_execution_time = 0
@@ -90,6 +91,48 @@ class HeuristicSimulationCoordinator:
             The fitness value of the simulation run.
     '''
     def simulation_run(self, fitfunc, config_values):
+
+        # NOTE: Test location for setting up the workflow config and manager for every iteration.
+        # Set up the logger.
+        coordinator_log_path = os.path.join(self.base_path, "data/logs/coordinator")
+        os.makedirs(coordinator_log_path, exist_ok=True)
+        self.logger = logger("coordinator", coordinator_log_path)
+
+        # Read the config file.
+        self.logger.info("Reading coordinator config file...")
+        self.conf = Config(self.coordinator_config_file_path, Path(coordinator_log_path), "coordinator_config_manager")
+
+        # Define params to set up the Manager.
+        experiments_path = self.conf.tryGet("simulation_model_paths", "experiments_path")
+        sim_model = self.conf.tryGet("simulation_model_configuration", "sim_model")
+        num_nodes = self.conf.tryGet("simulation_model_configuration", "num_nodes")
+        num_workers = self.conf.tryGet("simulation_model_configuration", "num_workers")
+        threads_per_worker = self.conf.tryGet("simulation_model_configuration", "threads_per_worker")
+        time_stamp = time.strftime("%Y%m%d_%H%M%S")
+        self.data_path = os.path.join(experiments_path, "data", f"campaign_{sim_model}", f"n{str(num_nodes)}_w{str(num_workers)}_s{str(self.nr_of_sims)}", time_stamp)
+
+        # Define params for configuration file creation.
+        workflow_config_file = os.path.join(self.data_path, "config.json")
+        workflow_results_folder = os.path.join(self.data_path, "results")
+        workflow_logs_folder = os.path.join(self.data_path, "logs")
+        workflow_runtime_folder = os.path.join(self.data_path, "runtime")
+
+        # Set up workflow configuration file.
+        self.logger.info("Setting up workflow configuration file.")
+        sims_path = self.conf.tryGet("simulation_model_paths", "sims_path")
+        design_queues = [WorkflowConfig.create_design_point_queue_config("base", 0, "FIFO")]
+        cluster_config = self.create_relevant_cluster_config()
+        self.workflow_config = WorkflowConfig(sims_path, "config", "run_sim", "results", "logs", "out",
+                            workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, design_queues, "uuid", cluster_config)
+        self.config = self.workflow_config.conf()
+        self.workflow_config.write_conf(workflow_config_file)
+
+        # Set up the Manager.
+        self.logger.info("Setting up the Manager...")
+        self.manager = Manager(workflow_config_file, workflow_logs_folder)
+
+        # NOTE: Original start below this comment.
+
         self.logger.info(f"Simulation run with config values: {config_values}")
 
         # Start timer for simulation run.
@@ -122,6 +165,9 @@ class HeuristicSimulationCoordinator:
 
             # Run the simulation model.
             uids = self.run_multiple_simulation_configuration()
+
+            # NOTE: Added shutdown to this place for new manager at every simulation run.
+            self.manager.shutdown()
 
             # Transform the outputted scalar files into csv format.
             self.transform_scalar_files(uids)
@@ -178,6 +224,9 @@ class HeuristicSimulationCoordinator:
 
             # Run the simulation model.
             uid = self.run_single_simulation_configuration()
+
+            # NOTE: Added shutdown to this place for new manager at every simulation run.
+            self.manager.shutdown()
 
             # Transform the outputted scalar files into csv format.
             self.transform_scalar_files(uid)
@@ -454,6 +503,26 @@ class HeuristicSimulationCoordinator:
         self.manager.evaluate_all()
 
         return uids
+
+
+    def create_relevant_cluster_config(self):
+        platform = self.conf.tryGet("simulation_model_configuration", "platform")
+        if platform == "DAS":
+            self.logger.info("Setting up DAS cluster configuration.")
+            return WorkflowConfig.create_slurm_cluster_config(
+                self.conf.tryGet("simulation_model_configuration", "jobs"),
+                self.conf.tryGet("simulation_model_configuration", "job_cores"),
+                self.conf.tryGet("simulation_model_configuration", "job_processes"),
+                self.conf.tryGet("simulation_model_configuration", "job_memory")
+            )
+        elif platform == "local":
+            self.logger.info("Setting up local cluster configuration.")
+            return WorkflowConfig.create_local_cluster_config(
+                self.conf.tryGet("simulation_model_configuration", "num_workers"),
+                self.conf.tryGet("simulation_model_configuration", "threads_per_worker")
+            )
+        else:
+            raise ValueError(f"Unknown platform value {platform} provided in coordinator config.")
 
 
     @staticmethod

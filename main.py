@@ -240,7 +240,8 @@ def main(base_path, heur_run_config_file_path, coordinator_config_file_path):
 
     # run_hh(heur_sim_coordinator, heuristics_collection)
 
-    heur_sim_coordinator.shutdown_manager()
+    # TODO: Determine what to do with the manager, one at init, or a new one for every iteration?
+    # heur_sim_coordinator.shutdown_manager()
 
     return
 

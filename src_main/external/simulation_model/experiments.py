@@ -289,15 +289,10 @@ def main():
 
     args = arg_parser.parse_args()
 
-    # num_sims_list = [1]
-    # num_nodes_list = [1, 2, 3, 4]
-    # num_workers_list = [1]
-    # repetitions = 5
-
     num_sims_list = [1]
-    num_nodes_list = [1]
+    num_nodes_list = [1, 2, 3, 4]
     num_workers_list = [1]
-    repetitions = 1
+    repetitions = 2
 
     campaign(args, "seq_comm", num_nodes_list, num_workers_list, num_sims_list, repetitions)
     # campaign(args, "tictoc", num_nodes_list, num_workers_list, num_sims_list, repetitions)
