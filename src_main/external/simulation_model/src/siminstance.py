@@ -63,6 +63,8 @@ class Siminstance:
         self.logger.info("Reading in config file: " + str(self.local_config_path))
         self.cnf = Config(Path(self.local_config_path), Path(self.local_logs_path), "config_siminstance_" + str(self.uid))
 
+        self.transform_scalar_output = None
+
     @staticmethod
     def calc_uid(sim_path, uid_scheme):
         if uid_scheme == "md5-files":
@@ -191,6 +193,7 @@ class Siminstance:
             simulation_command += [os.path.join(self.path, ini)]
 
         return simulation_command
+
 
     def record_total_time_stat(self, args_total, args_start, args_end):
         self.stats.record_time_stat(*args_end)
@@ -337,3 +340,11 @@ class Siminstance:
 
         self.record_total_time_stat(("simulation", "simulation_time"), ("simulation", "simulation_start"), ("simulation", "simulation_end"))
         self.logger.info("Simulation took {:.4} seconds".format(self.stats.get_stat("simulation", "simulation_time")))
+
+        self.logger.debug(os.path.join(self.workflow_config["global_sim_results"], self.uid))
+
+        if self.transform_scalar_output:
+            scavetool_command = ["opp_scavetool", "export", "-F", "CSV-R", "-o", "x.csv", "*.sca"]
+            conversion_output = subprocess.run(scavetool_command, cwd=None, capture_output=True)
+            self.string_to_file(conversion_output.stdout.decode("utf-8"), self.local_logs_path, "siminstance_{}_output_converion_stdout".format(self.uid))
+            self.string_to_file(conversion_output.stderr.decode("utf-8"), self.local_logs_path, "siminstance_{}_output_converion_stderr".format(self.uid))

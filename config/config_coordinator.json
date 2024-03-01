@@ -10,7 +10,7 @@
     },
     "simulation_model_configuration": {
         "sim_model": "custom",
-        "platform": "DAS",
+        "platform": "local",
         "jobs": 1,
         "job_cores": 16,
         "job_processes": 1,
