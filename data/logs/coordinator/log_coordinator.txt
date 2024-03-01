@@ -1,25 +1,149 @@
-[ coordinator  29-02-2024 13:06:31  INFO     ]  Reading coordinator config file...
-[ coordinator  29-02-2024 13:06:31  INFO     ]  Setting up workflow configuration file.
-[ coordinator  29-02-2024 13:06:31  INFO     ]  Setting up DAS cluster configuration.
-[ coordinator  29-02-2024 13:06:31  INFO     ]  Setting up the Manager...
-[ coordinator  29-02-2024 13:06:33  INFO     ]  Simulation run with config values: [0.89344389 0.63262138 0.69328301 0.69502259 0.7265855  0.44489583]
-[ coordinator  29-02-2024 13:06:33  INFO     ]  Setting up the simulation model parameters
-[ coordinator  29-02-2024 13:06:40  WARNING  ]  {'838ff934-1947-4ef9-9a8a-a3acc877bb5b': 0}
-[ coordinator  29-02-2024 13:06:40  INFO     ]  Adding omnetpp bin directory to PATH environment variables
-[ coordinator  29-02-2024 13:06:40  INFO     ]  Transforming scalar files to csv in directory: /var/scratch/mherget/experiments/data/campaign_custom/n1_w1_s1/20240229_130631/results/838ff934-1947-4ef9-9a8a-a3acc877bb5b
-[ coordinator  29-02-2024 13:06:43  INFO     ]  Removing scalar files in directory: /var/scratch/mherget/experiments/data/campaign_custom/n1_w1_s1/20240229_130631/results/838ff934-1947-4ef9-9a8a-a3acc877bb5b
-[ coordinator  29-02-2024 13:06:44  INFO     ]  Fitness values: {0: 275.25357300546113}
-[ coordinator  29-02-2024 13:06:44  INFO     ]  Simulation run with config values: [0.89344389 0.63262138 0.69328301 0.69502259 0.7265855  0.44489583]
-[ coordinator  29-02-2024 13:06:44  INFO     ]  Setting up the simulation model parameters
-[ coordinator  29-02-2024 13:06:50  WARNING  ]  {'75719280-80d8-43fc-a105-c2d2358d5a77': 0}
-[ coordinator  29-02-2024 13:06:50  INFO     ]  Adding omnetpp bin directory to PATH environment variables
-[ coordinator  29-02-2024 13:06:50  INFO     ]  Transforming scalar files to csv in directory: /var/scratch/mherget/experiments/data/campaign_custom/n1_w1_s1/20240229_130631/results/75719280-80d8-43fc-a105-c2d2358d5a77
-[ coordinator  29-02-2024 13:06:54  INFO     ]  Removing scalar files in directory: /var/scratch/mherget/experiments/data/campaign_custom/n1_w1_s1/20240229_130631/results/75719280-80d8-43fc-a105-c2d2358d5a77
-[ coordinator  29-02-2024 13:06:55  INFO     ]  Fitness values: {0: 275.25357300546113}
-[ coordinator  29-02-2024 13:06:55  INFO     ]  Simulation run with config values: [0.89344389 0.63262138 0.69328301 0.69502259 0.7265855  0.44489583]
-[ coordinator  29-02-2024 13:06:55  INFO     ]  Setting up the simulation model parameters
-[ coordinator  29-02-2024 13:07:01  WARNING  ]  {'23e6cb30-aca7-4f6e-b3a3-266ea1ca4f95': 0}
-[ coordinator  29-02-2024 13:07:01  INFO     ]  Adding omnetpp bin directory to PATH environment variables
-[ coordinator  29-02-2024 13:07:01  INFO     ]  Transforming scalar files to csv in directory: /var/scratch/mherget/experiments/data/campaign_custom/n1_w1_s1/20240229_130631/results/23e6cb30-aca7-4f6e-b3a3-266ea1ca4f95
-[ coordinator  29-02-2024 13:07:04  INFO     ]  Removing scalar files in directory: /var/scratch/mherget/experiments/data/campaign_custom/n1_w1_s1/20240229_130631/results/23e6cb30-aca7-4f6e-b3a3-266ea1ca4f95
-[ coordinator  29-02-2024 13:07:05  INFO     ]  Fitness values: {0: 275.25357300546113}
+[ coordinator  01-03-2024 09:23:36  INFO     ]  Reading coordinator config file...
+[ coordinator  01-03-2024 09:23:36  INFO     ]  Setting up workflow configuration file.
+[ coordinator  01-03-2024 09:23:36  INFO     ]  Setting up DAS cluster configuration.
+[ coordinator  01-03-2024 09:23:36  INFO     ]  Setting up the Manager...
+[ coordinator  01-03-2024 09:23:39  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:24:44  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/bdea8655-be07-4717-9da9-a9504c5c9825
+[ coordinator  01-03-2024 09:24:44  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/b4cb7e10-84b9-41ae-8c1f-b592d01d129b
+[ coordinator  01-03-2024 09:24:44  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/d3524722-161f-4034-b95d-beb5f1b5e1c2
+[ coordinator  01-03-2024 09:24:45  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/1eed7b34-4e51-4e39-8513-638412712723
+[ coordinator  01-03-2024 09:24:57  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:24:57  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:25:58  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/bb217b67-c152-475a-8ba1-82649d61b74e
+[ coordinator  01-03-2024 09:25:59  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/6dddfefb-2f5d-4796-a3a1-26f1327f81dc
+[ coordinator  01-03-2024 09:25:59  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/97577e6f-c08a-4eb1-86b2-b6f3c53ca2d0
+[ coordinator  01-03-2024 09:26:00  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/98866e9a-74df-4652-a32f-27917a04146b
+[ coordinator  01-03-2024 09:26:12  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:26:12  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:27:13  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/4b4fc23d-d487-4b1a-9a8e-3e0559047637
+[ coordinator  01-03-2024 09:27:13  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/354e3e29-d74e-4afd-93d8-21d0d1dbd5b4
+[ coordinator  01-03-2024 09:27:14  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/0e13d57c-e984-4cc5-afc2-463252014d71
+[ coordinator  01-03-2024 09:27:16  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/7f6c6bd0-6330-4974-8551-271ae7d69a76
+[ coordinator  01-03-2024 09:27:28  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:27:28  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:28:28  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/383732ef-15cb-4a84-a57e-d5a33b44a52d
+[ coordinator  01-03-2024 09:28:29  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/45d645a4-05e8-46fa-86b1-9a4a4d3143a6
+[ coordinator  01-03-2024 09:28:30  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/ec126e9c-bba6-4992-88cb-5477d1639cad
+[ coordinator  01-03-2024 09:28:30  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/3f409bc9-f5b7-4696-894a-56e3634ca1f6
+[ coordinator  01-03-2024 09:28:41  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:28:41  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:29:43  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/b7bd95a6-f63a-4043-80d3-e670ef6ca12f
+[ coordinator  01-03-2024 09:29:43  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/b4045f51-4d67-46c1-a042-5767e6806893
+[ coordinator  01-03-2024 09:29:43  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/285f15c1-45de-4c52-9c04-5c013cc83097
+[ coordinator  01-03-2024 09:29:44  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/4cf81f0d-9ff3-437b-8287-dc8327d80c9e
+[ coordinator  01-03-2024 09:29:59  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:29:59  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:30:59  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/f2883d14-f24d-45b1-b165-bac7bba7ad6c
+[ coordinator  01-03-2024 09:31:00  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/ac4b5187-2a48-4a12-9d42-4a2c10e0ebce
+[ coordinator  01-03-2024 09:31:00  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/a8d771e3-bd53-461a-83d0-e6bb8c66d7d2
+[ coordinator  01-03-2024 09:31:01  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/c0c14cdf-ed9c-4380-8a12-b6392e3da853
+[ coordinator  01-03-2024 09:31:11  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:31:11  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:32:14  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/2c8b5d8e-76f1-4e2d-b027-da1b025ac2e8
+[ coordinator  01-03-2024 09:32:14  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/206dafa4-85a1-4405-9449-bbe3d2d4175c
+[ coordinator  01-03-2024 09:32:15  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/42c16e0c-e9c2-4a49-82d9-331ea0284caa
+[ coordinator  01-03-2024 09:32:16  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/0d447dbc-9172-45cd-82e1-5470d2d0aa65
+[ coordinator  01-03-2024 09:32:27  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:32:27  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:33:29  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/ecbc947b-eb71-4cac-9b70-467230f1a86b
+[ coordinator  01-03-2024 09:33:29  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/fcb96362-5007-42d1-aff3-041148a11890
+[ coordinator  01-03-2024 09:33:29  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/e6c08324-5f27-4fb2-b5df-f9becfa7af16
+[ coordinator  01-03-2024 09:33:29  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/8bd6ec2e-826e-49a2-a1b0-0761426ac1bb
+[ coordinator  01-03-2024 09:33:41  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:33:41  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:34:45  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/e5f9474f-5ca9-4fae-85a6-b185d4bfc486
+[ coordinator  01-03-2024 09:34:45  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/e00bdf7f-ae73-476b-a8ac-c3dd76b19c0f
+[ coordinator  01-03-2024 09:34:46  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/9699f7c8-18fa-4fe0-9ff1-9fbd2daf2081
+[ coordinator  01-03-2024 09:34:46  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/8af8adcf-7670-4aea-9e28-92e95fa21841
+[ coordinator  01-03-2024 09:34:58  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:34:58  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:36:00  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/4954dc00-5e49-4032-ba4a-c9e199ac6ce3
+[ coordinator  01-03-2024 09:36:01  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/ea4220c2-93ff-4a01-9379-2d0ad515b131
+[ coordinator  01-03-2024 09:36:01  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/6f2d1dd1-34b0-4abc-866e-e7f012f96b64
+[ coordinator  01-03-2024 09:36:01  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/f3ba4eae-22b4-41b7-b00c-983d0520c8b3
+[ coordinator  01-03-2024 09:36:11  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:36:11  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:37:14  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/c95cbcb1-1e09-43e8-987a-85f3459587ca
+[ coordinator  01-03-2024 09:37:14  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/e3ddeb0d-7a73-4a75-a2d7-ea368917bf6c
+[ coordinator  01-03-2024 09:37:15  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/4ec408bd-da2d-45c2-bd1a-48988b311d07
+[ coordinator  01-03-2024 09:37:15  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/fee57146-5501-4448-bab7-7aad6bf3f003
+[ coordinator  01-03-2024 09:37:26  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:37:26  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:38:29  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/a3890a05-711a-41b8-88db-1d98791599da
+[ coordinator  01-03-2024 09:38:30  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/1410329b-8528-4d14-8b71-e7763160bbc2
+[ coordinator  01-03-2024 09:38:30  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/221c6fd6-daa7-43c6-92d0-7cbf5828578d
+[ coordinator  01-03-2024 09:38:30  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/4de7645b-1250-4af2-85cd-c5bf7959e7e9
+[ coordinator  01-03-2024 09:38:42  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:38:42  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:39:44  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/3aa874f1-45f9-429d-b506-10886b3d44f2
+[ coordinator  01-03-2024 09:39:44  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/e70357a5-f556-4858-a3e5-14e2c956d52a
+[ coordinator  01-03-2024 09:39:44  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/ff9365ab-b729-4d72-8555-1ebe4d95e6ed
+[ coordinator  01-03-2024 09:39:46  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/07c1e1dc-85e0-417e-8774-11d2176c6e85
+[ coordinator  01-03-2024 09:39:58  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:39:58  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:41:02  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/937498b1-8ed6-46e2-a0ae-6d9e4db378e0
+[ coordinator  01-03-2024 09:41:02  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/d1cd1e38-c70f-4a0f-b063-571106c890cd
+[ coordinator  01-03-2024 09:41:02  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/00d245e3-7303-4a08-971b-6a51fe3d6cb5
+[ coordinator  01-03-2024 09:41:03  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/cfe769dd-a164-470e-8ec7-56e0b8dbc008
+[ coordinator  01-03-2024 09:41:13  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:41:13  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:42:19  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/5ede2647-a49f-4984-b2e8-9ad51352cc21
+[ coordinator  01-03-2024 09:42:19  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/eb44af96-50ef-4332-95d8-139f88725a41
+[ coordinator  01-03-2024 09:42:19  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/0b9156d8-4f34-485a-992e-e71ee7050c21
+[ coordinator  01-03-2024 09:42:21  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/65759384-1f56-4976-b904-99ff46bb3cbf
+[ coordinator  01-03-2024 09:42:31  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:42:31  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:43:35  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/58c1c454-5397-4f48-8bdd-edcc7e2da87b
+[ coordinator  01-03-2024 09:43:35  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/047b0025-a9fe-4f5f-883a-08fa3a3b0b93
+[ coordinator  01-03-2024 09:43:36  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/6a8359fb-4862-412d-8ead-8bc1911af610
+[ coordinator  01-03-2024 09:43:38  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/c97eea98-6a19-4731-88f4-09f5ccfa1ddb
+[ coordinator  01-03-2024 09:43:47  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:43:47  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:44:50  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/b4d902ad-b242-4aa0-9472-0fb0537f965d
+[ coordinator  01-03-2024 09:44:50  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/2555bc98-7124-4c62-89cb-45fd315f2042
+[ coordinator  01-03-2024 09:44:50  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/bd82f65b-3991-4111-b96a-d2049a9a88c1
+[ coordinator  01-03-2024 09:44:50  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/f5a9bd79-3a71-4285-b9ab-619010892d39
+[ coordinator  01-03-2024 09:45:00  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:45:00  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:46:03  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/306f8187-fcc4-4f01-9c3c-c05e448a51a8
+[ coordinator  01-03-2024 09:46:03  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/c15c806e-023e-4740-bbd9-a573e3e4dffb
+[ coordinator  01-03-2024 09:46:04  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/2d2374c5-a761-44cf-8f0d-582ace079213
+[ coordinator  01-03-2024 09:46:04  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/f7bbb5ed-f196-4174-8bd7-b661c4fe3ecb
+[ coordinator  01-03-2024 09:46:14  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:46:14  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:47:17  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/1eb94cbb-8ff8-484b-9ec0-bd55b84743e1
+[ coordinator  01-03-2024 09:47:17  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/35ecb0c6-11d8-400a-b1a8-b2b19d2a9a13
+[ coordinator  01-03-2024 09:47:17  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/6c082b12-8537-4bc4-9e26-ecb06a06826e
+[ coordinator  01-03-2024 09:47:17  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/d39e2de4-a635-493c-b174-8955ec1cf53a
+[ coordinator  01-03-2024 09:47:27  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:47:27  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:48:32  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/4ba6ed59-8aeb-4970-bbc6-c378bc478414
+[ coordinator  01-03-2024 09:48:32  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/be38e453-f2ec-4527-8ede-bec66e2381c3
+[ coordinator  01-03-2024 09:48:33  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/637f35a1-260e-43bf-8bb9-723359d9f6f9
+[ coordinator  01-03-2024 09:48:34  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/7f86fcd2-c857-42f4-b820-0f17812f95af
+[ coordinator  01-03-2024 09:48:44  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:48:44  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:49:47  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/6408a907-de00-42fa-9cc7-b7f7fd7c95c6
+[ coordinator  01-03-2024 09:49:47  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/10c35cf7-54eb-479c-81d7-b28368b768d9
+[ coordinator  01-03-2024 09:49:48  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/6262bf0f-a684-424d-a1b6-bf20b1b4aa72
+[ coordinator  01-03-2024 09:49:48  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/c64283ae-b5a2-40cd-9595-f10487594743
+[ coordinator  01-03-2024 09:49:58  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:49:58  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:51:02  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/69dace7d-222c-40fe-b91a-389f3e31e96b
+[ coordinator  01-03-2024 09:51:02  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/272dfe92-8071-4d27-9a15-c2532762f7ca
+[ coordinator  01-03-2024 09:51:03  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/563b98bb-097c-4228-929f-05a4cd2923f2
+[ coordinator  01-03-2024 09:51:05  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/c70886dc-810b-476e-ae91-811778983b6d
+[ coordinator  01-03-2024 09:51:14  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:51:14  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:52:17  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/304a0e12-c9cd-40fa-a575-0b6ea604544e
+[ coordinator  01-03-2024 09:52:17  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/40906f40-d64d-4eb0-8cbe-7a82770de4b9
+[ coordinator  01-03-2024 09:52:18  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/b62741f8-e49d-4a3b-a896-871ade99d602
+[ coordinator  01-03-2024 09:52:19  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/b9533e7e-81c9-4aab-b425-22af4437f3c2
+[ coordinator  01-03-2024 09:52:28  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:52:28  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-03-2024 09:53:32  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/35416474-2c29-407d-ba64-8257d791ff8f
+[ coordinator  01-03-2024 09:53:33  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/77576f0a-3e39-43fa-99c1-9fd822b97389
+[ coordinator  01-03-2024 09:53:33  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/ae328470-4cea-4e81-a5f2-b95d699a696e
+[ coordinator  01-03-2024 09:53:33  INFO     ]  Transformed scalar files to CSV in directory: /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s4/20240301_092336/results/dbd3dfbe-c9af-4f2b-9978-a90fd7d02ad2
+[ coordinator  01-03-2024 09:53:42  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-03-2024 09:53:42  INFO     ]  Determining the simulation model parameters for the configuration values...

@@ -2,13 +2,15 @@ from src_main.tools.logger import logger
 
 import os
 import shutil
-import sys
 import pandas as pd
 import numpy as np
 import subprocess
 import time
 import json
 from pathlib import Path
+import glob
+
+from concurrent.futures import ThreadPoolExecutor
 
 from experiments import create_sim_custom_dummy, create_sim_inet_lans_dummy, create_sim_inet_lans_dummy_parallel
 from src.manager import Manager
@@ -32,51 +34,9 @@ class HeuristicSimulationCoordinator:
             nr_of_agents: The number of agents to run the simulation model with.
     '''
     def __init__(self, base_path, coordinator_config_file_path, nr_of_agents):
-
-        self.coordinator_config_file_path = coordinator_config_file_path
-
         self.base_path = base_path
         self.nr_of_agents = nr_of_agents
         self.nr_of_sims = nr_of_agents
-
-        # NOTE: Original location of setting up the workflow config and manager.
-        # # Set up the logger.
-        # coordinator_log_path = os.path.join(self.base_path, "data/logs/coordinator")
-        # os.makedirs(coordinator_log_path, exist_ok=True)
-        # self.logger = logger("coordinator", coordinator_log_path)
-
-        # # Read the config file.
-        # self.logger.info("Reading coordinator config file...")
-        # self.conf = Config(self.coordinator_config_file_path, Path(coordinator_log_path), "coordinator_config_manager")
-
-        # # Define params to set up the Manager.
-        # experiments_path = self.conf.tryGet("simulation_model_paths", "experiments_path")
-        # sim_model = self.conf.tryGet("simulation_model_configuration", "sim_model")
-        # num_nodes = self.conf.tryGet("simulation_model_configuration", "num_nodes")
-        # num_workers = self.conf.tryGet("simulation_model_configuration", "num_workers")
-        # threads_per_worker = self.conf.tryGet("simulation_model_configuration", "threads_per_worker")
-        # time_stamp = time.strftime("%Y%m%d_%H%M%S")
-        # self.data_path = os.path.join(experiments_path, "data", f"campaign_{sim_model}", f"n{str(num_nodes)}_w{str(num_workers)}_s{str(self.nr_of_sims)}", time_stamp)
-
-        # # Define params for configuration file creation.
-        # workflow_config_file = os.path.join(self.data_path, "config.json")
-        # workflow_results_folder = os.path.join(self.data_path, "results")
-        # workflow_logs_folder = os.path.join(self.data_path, "logs")
-        # workflow_runtime_folder = os.path.join(self.data_path, "runtime")
-
-        # # Set up workflow configuration file.
-        # self.logger.info("Setting up workflow configuration file.")
-        # sims_path = self.conf.tryGet("simulation_model_paths", "sims_path")
-        # design_queues = [WorkflowConfig.create_design_point_queue_config("base", 0, "FIFO")]
-        # cluster_config = self.create_relevant_cluster_config()
-        # self.workflow_config = WorkflowConfig(sims_path, "config", "run_sim", "results", "logs", "out",
-        #                     workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, design_queues, "uuid", cluster_config)
-        # self.config = self.workflow_config.conf()
-        # self.workflow_config.write_conf(workflow_config_file)
-
-        # # Set up the Manager.
-        # self.logger.info("Setting up the Manager...")
-        # self.manager = Manager(workflow_config_file, workflow_logs_folder)
 
         # Predefine the parameters for the execution times.
         self.coordinator_execution_time = 0
@@ -84,13 +44,14 @@ class HeuristicSimulationCoordinator:
 
         self.uids = []
 
+        # # Set up the logger.
         coordinator_log_path = os.path.join(self.base_path, "data/logs/coordinator")
         os.makedirs(coordinator_log_path, exist_ok=True)
         self.logger = logger("coordinator", coordinator_log_path)
 
         # Read the config file.
         self.logger.info("Reading coordinator config file...")
-        self.conf = Config(self.coordinator_config_file_path, Path(coordinator_log_path), "coordinator_config_manager")
+        self.conf = Config(coordinator_config_file_path, Path(coordinator_log_path), "coordinator_config_manager")
 
         # Define params to set up the Manager.
         experiments_path = self.conf.tryGet("simulation_model_paths", "experiments_path")
@@ -133,14 +94,7 @@ class HeuristicSimulationCoordinator:
             The fitness value of the simulation run.
     '''
     def simulation_run(self, fitfunc, config_values):
-
-        # NOTE: Test location for setting up the workflow config and manager for every iteration.
-        # Set up the logger.
-        
-
-        # NOTE: Original start below this comment.
-
-        self.logger.info(f"Simulation run with config values: {config_values}")
+        # self.logger.info(f"Simulation run with config values:\n{config_values}")
 
         # Start timer for simulation run.
         start_time = time.time()
@@ -148,9 +102,12 @@ class HeuristicSimulationCoordinator:
         if self.nr_of_agents > 1:
             # Set the values of the parameters in the simulation model.
             configurations = self.set_agents_param_values(config_values)
-            for id, agent_configuration in enumerate(configurations):
+            self.sim_ids = []
+            for agent_configuration in configurations:
+                sim_id = uuid.uuid4()
+                self.sim_ids.append(sim_id)
                 src_dir = self.conf.tryGet("simulation_model_paths", "simulation_model_template_path")
-                dest_dir = self.conf.tryGet("simulation_model_paths", "simulation_model_generated_path") + f"_{id}"
+                dest_dir = self.conf.tryGet("simulation_model_paths", "simulation_model_generated_path") + f"_{sim_id}"
 
                 # TODO: Change the hardcoded ini filename to a variable in the configuration file.
                 # Duplicate the preferred dummy_sim directory to the custom directory.
@@ -172,9 +129,6 @@ class HeuristicSimulationCoordinator:
 
             # Run the simulation model.
             uids = self.run_multiple_simulation_configuration()
-
-            # NOTE: Added shutdown to this place for new manager at every simulation run.
-            # self.manager.shutdown()
 
             # Transform the outputted scalar files into csv format.
             self.transform_scalar_files(uids)
@@ -201,6 +155,15 @@ class HeuristicSimulationCoordinator:
 
             # Add simulation run time to total coordinator time.
             self.coordinator_execution_time += end_time - start_time
+
+            # # TODO: Change agent fitness structure to the structure below. OR write agent fitness to csv.
+            # result = [(config_values[index].tolist(), key, value) for index, (key, value) in enumerate(fitness_values.items())]
+            # formatted_result = "Result of simulation run:\n"
+            # formatted_result += "\n".join([f"Agent: {key}, Config Values: {values}, Fitness: {fitness}" for values, key, fitness in result])
+            # self.logger.debug(formatted_result)
+
+            self.sim_ids.clear()
+            self.remove_simulation_run_dirs()
 
             return 0
 
@@ -233,9 +196,6 @@ class HeuristicSimulationCoordinator:
             uid = self.run_single_simulation_configuration()
             self.logger.warn(uid)
 
-            # NOTE: Added shutdown to this place for new manager at every simulation run.
-            # self.manager.shutdown()
-
             # Transform the outputted scalar files into csv format.
             self.transform_scalar_files(uid)
 
@@ -245,18 +205,17 @@ class HeuristicSimulationCoordinator:
             fitness_config = self.conf.tryGet("fitness_config")
             fitness_value = fitfunc(fitness_config, simulation_metrics)
 
-
             # End timer for simulation run.
             end_time = time.time()
 
             # Add simulation run time to total coordinator time.
             self.coordinator_execution_time += end_time - start_time
 
-            self.logger.info("Fitness value: {}".format(fitness_value))
+            # self.logger.info("Fitness value: {}".format(fitness_value))
             return fitness_value[0]
 
 
-    '''run_single_simulation_configuration
+    '''
         Shutdown the Manager.
     '''
     def shutdown_manager(self):
@@ -270,7 +229,7 @@ class HeuristicSimulationCoordinator:
         config_values: A list of values for the parameters in the simulation model.
     '''
     def set_param_values(self, config_values):
-        self.logger.info("Setting up the simulation model parameters")
+        self.logger.info("Setting up the simulation model parameters...")
         params = self.conf.tryGet("simulation_model_params")
 
         # Transform input values into configuration parameters.
@@ -322,13 +281,13 @@ class HeuristicSimulationCoordinator:
     Args:
         config_values: A list of values for the parameters in the simulation model.
     '''
-    def set_agents_param_values(self, agents_config_values):
-        self.logger.info(f"Setting up the simulation model parameters of {agents_config_values[0].shape} agents")
+    def set_agents_param_values(self, config_values_agents):
+        self.logger.info(f"Determining the simulation model parameters for the configuration values...")
 
         params = self.conf.tryGet("simulation_model_params")
         configurations = []
 
-        for agent_config_values in agents_config_values:
+        for config_values_agent in config_values_agents:
             agent_configuration = []
 
             for param in params:
@@ -337,14 +296,14 @@ class HeuristicSimulationCoordinator:
 
                 # Determine the param value index by segment indexing the config values from CUSTOMHys.
                 num_segments = len(param_values)
-                value_indices = np.floor(agent_config_values * num_segments).astype(int)
-                value_indices[agent_config_values == 1.0] = num_segments - 1
+                value_indices = np.floor(config_values_agent * num_segments).astype(int)
+                value_indices[config_values_agent == 1.0] = num_segments - 1
 
                 # TODO: Optimize this operations as it now parses and has duplicate code.
                 # Create a configuration for each parameter.
                 for switch_idx, value_idx in enumerate(value_indices):
                     selected_param_value = param_values[value_idx]
-                    # run_single_simulation_configurationates where the first switch is handled differently.
+                    # Conditional handling for the switch gates where the first switch is handled differently.
                     first_switch_gate_index = "1" if switch_idx > 0 else "0"
                     second_switch_gate_index = "0"
 
@@ -363,7 +322,7 @@ class HeuristicSimulationCoordinator:
                     current_param_pattern = current_param_pattern.replace("__gate_index", second_switch_gate_index)
 
                     agent_configuration.append({
-                        "config_pattern": current_param_parun_single_simulation_configurationttern,
+                        "config_pattern": current_param_pattern,
                         "value": selected_param_value
                     })
             configurations.append(agent_configuration)
@@ -372,34 +331,52 @@ class HeuristicSimulationCoordinator:
 
 
     '''
-        Transform the scalar files generated by the simulation model into a csv format.
+    Transform the scalar files generated by the simulation model into a csv format in parallel.
     '''
     def transform_scalar_files(self, uids):
+        scavetool_command = "opp_scavetool export -F CSV-R -o x.csv *.sca"
 
-        # Add the omnetpp bin directory to PATH environment variables.
-        self.logger.info("Adding omnetpp bin directory to PATH environment variables")
-        new_path = os.path.join(self.conf.tryGet("simulation_model_paths", "omnetpp_base"), "bin")
-        current_path = os.environ.get('PATH', '')
-        if new_path not in current_path:
-            os.environ['PATH'] = new_path + os.pathsep + current_path
-
-        for sim_uid in uids.keys():
-            sim_results_directory = os.path.join(self.data_path, "results", sim_uid)
-
-            scavetool_command = "opp_scavetool export -F CSV-R -o x.csv *.sca"
-
-            # Attempt to transform the scalar files in the given results directory.
-            self.logger.info(f"Transforming scalar files to csv in directory: {sim_results_directory}")
+        def run_scavetool_and_cleanup(sim_results_directory):
             try:
                 subprocess.run(scavetool_command, shell=True, cwd=sim_results_directory, check=True)
+                self.logger.info(f"Transformed scalar files to CSV in directory: {sim_results_directory}")
+
+                # Remove the scalar files in the given results directory.
+                for file in os.listdir(sim_results_directory):
+                    if file.endswith(".sca"):
+                        os.remove(os.path.join(sim_results_directory, file))
+
             except subprocess.CalledProcessError as e:
                 self.logger.error(f"Error executing the command: {e}")
 
-            # Remove the scalar files in the given results directory.
-            self.logger.info(f"Removing scalar files in directory: {sim_results_directory}")
-            for file in os.listdir(sim_results_directory):
-                if file.endswith(".sca"):
-                    os.remove(os.path.join(sim_results_directory, file))
+        # Prepare a list of directories to process
+        directories = [os.path.join(self.data_path, "results", sim_uid) for sim_uid in uids.keys()]
+
+        # Using ThreadPoolExecutor to run tasks in parallel
+        with ThreadPoolExecutor(max_workers=min(len(directories), os.cpu_count())) as executor:
+            executor.map(run_scavetool_and_cleanup, directories)
+
+
+    # '''
+    #     Transform the scalar files generated by the simulation model into a csv format.
+    # '''
+    # def transform_scalar_files(self, uids):
+    #     for sim_uid in uids.keys():
+    #         sim_results_directory = os.path.join(self.data_path, "results", sim_uid)
+
+    #         scavetool_command = "opp_scavetool export -F CSV-R -o x.csv *.sca"
+
+    #         # Attempt to transform the scalar files in the given results directory.
+    #         # self.logger.info(f"Replacing scalar files by csv through transformation and removal in directory: {sim_results_directory}")
+    #         try:
+    #             subprocess.run(scavetool_command, shell=True, cwd=sim_results_directory, check=True)
+    #         except subprocess.CalledProcessError as e:
+    #             self.logger.error(f"Error executing the command: {e}")
+
+    #         # Remove the scalar files in the given results directory.
+    #         for file in os.listdir(sim_results_directory):
+    #             if file.endswith(".sca"):
+    #                 os.remove(os.path.join(sim_results_directory, file))
 
 
     '''
@@ -473,7 +450,7 @@ class HeuristicSimulationCoordinator:
 
         start_time = time.time()
         # sim_instances = [create_sim_custom_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(self.nr_of_sims)] # Dummy omnet.
-        sim_instances = [create_sim_inet_lans_dummy(self.config, dummy_sim_path, uuid.uuid4(), inet_path) for id in range(self.nr_of_sims)] # Dummy inet lans
+        sim_instances = [create_sim_inet_lans_dummy(self.config, dummy_sim_path, uuid.uuid4(), inet_path) for _ in range(self.nr_of_sims)] # Dummy inet lans
 
         uid = sim_instances[0].uid
         if uid in self.uids:
@@ -502,12 +479,8 @@ class HeuristicSimulationCoordinator:
         # Configure siminstances.
         inet_path = self.conf.tryGet("simulation_model_paths", "inet_path")
         dummy_sim_path = self.conf.tryGet("simulation_model_paths", "dummy_path")
-        sim_instances = [create_sim_inet_lans_dummy_parallel(self.config, dummy_sim_path, uuid.uuid4(), inet_path) for id in range(self.nr_of_agents)] # Dummy inet lans
-        self.logger.warn(sim_instances)
+        sim_instances = [create_sim_inet_lans_dummy_parallel(self.config, dummy_sim_path, sim_id, inet_path) for sim_id in self.sim_ids]
         uids = {sim_instance.uid: id for id, sim_instance in enumerate(sim_instances)}
-
-        self.logger.debug(uids)
-        self.logger.debug(sim_instances)
 
         # Run the configured simulation model.
         self.manager.enqueue_tasks(sim_instances)
@@ -536,6 +509,16 @@ class HeuristicSimulationCoordinator:
             )
         else:
             raise ValueError(f"Unknown platform value {platform} provided in coordinator config.")
+
+
+    def remove_simulation_run_dirs(self):
+        self.logger.info("Removing simulation run templates in dummy path.")
+        sim_dummy_directory = self.conf.tryGet("simulation_model_paths", "dummy_path")
+        pattern = "custom_dummy_*"
+        simulation_run_dir_pattern = os.path.join(sim_dummy_directory, pattern)
+        matching_sim_dummy_dir = [path for path in glob.glob(simulation_run_dir_pattern) if os.path.isdir(path)]
+        for directory in matching_sim_dummy_dir:
+            shutil.rmtree(directory)
 
 
     @staticmethod

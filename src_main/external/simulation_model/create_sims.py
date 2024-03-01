@@ -124,7 +124,7 @@ def create_sim_inet_lans_dummy(workflow_config, dummy_sim_path, id, inet_base):
     return create_sim(workflow_config, id, dummy_sim_path, dummy_sim, config, time_limit=None, ini=ini, libraries=libraries, ned_paths=ned_paths)
 
 def create_sim_inet_lans_dummy_parallel(workflow_config, dummy_sim_path, id, inet_base):
-    dummy_sim = "custom_dummy" + f"_{id}"
+    dummy_sim = "custom_dummy" + f"_{str(id)}"
     config = "LargeNet"
     ini = "largeNet.ini"
 

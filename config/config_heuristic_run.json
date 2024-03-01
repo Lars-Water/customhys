@@ -1,25 +1,13 @@
 {
-    "nr_of_agents": 1,
-    "nr_of_iterations": 1,
+    "nr_of_agents": 16,
+    "nr_of_iterations": 10,
     "runs_nr_of_backbones": [6],
-    "mh_save_run_path_mh_name": "genetic_algorithm/",
+    "mh_save_run_path_mh_name": "random_sample/",
     "metaheuristic": [
         {
-            "name": "differential_mutation",
-            "params": {
-                "expression": "rand-to-best-and-current",
-                "num_rands": 1,
-                "factor": 1.0
-            },
-            "strategy": "greedy"
-        },
-        {
-            "name": "differential_crossover",
-            "params": {
-                "crossover_rate": 0.2,
-                "version": "binomial"
-            },
-            "strategy": "greedy"
+            "name": "random_sample",
+            "params": {},
+            "strategy": "all"
         }
     ]
 }
