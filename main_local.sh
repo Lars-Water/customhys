@@ -5,7 +5,7 @@ BASE_PATH="/home/larry/hyper-heuristic-dse-2.0"
 # Specify the path to the heuristic run configuration file here
 CONFIG_PATH_HEUR_RUN="${BASE_PATH}/config/config_heuristic_run.json"
 # Specify the path to the coordinator configuration file here
-CONFIG_PATH_COORDINATOR="${BASE_PATH}/config/config_coordinator.json"
+CONFIG_PATH_COORDINATOR="${BASE_PATH}/config/config_coordinator_local.json"
 
 export PYTHONPATH="${PYTHONPATH}:${BASE_PATH}/src_main/external/simulation_model"
 

@@ -104,7 +104,6 @@ class OutputHandler:
 
     def __retrieve_results_data(self, sim_instance):
         os.makedirs(self.sim_global_results_path(sim_instance), exist_ok=True)
-
         sim_local_results_path = sim_instance.local_results_path
         sim_global_results_path = self.sim_global_results_path(sim_instance)
 
@@ -112,6 +111,9 @@ class OutputHandler:
             self.__remove_folder(sim_local_results_path, "results", sim_instance.uid)
         else:
             self.__move_folder(sim_local_results_path, sim_global_results_path, "results", sim_instance.uid)
+
+        # NOTE: Custom code by Lars.
+        sim_instance.transform_scalar_output()
 
         return sim_instance
 

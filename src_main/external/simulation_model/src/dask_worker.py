@@ -13,5 +13,6 @@ def dask_worker(sim_instance):
     sim_instance.run()
     sim_instance.record_total_time_stat(("general", "dask_worker_time"), ("general", "dask_worker_start"), ("general", "dask_worker_end"))
 
-    return sim_instance
+    # sim_instance.transform_scalar_output()
 
+    return sim_instance

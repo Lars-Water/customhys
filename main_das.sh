@@ -6,7 +6,7 @@ eval "$(/home/lvdwater/miniconda3/bin/conda shell.bash hook)"
 # Specify the path to the base directory of the hyper-heuristic DSE here.
 BASE_PATH="/home/lvdwater/hyper-heuristic-dse-2.0"
 # Specify the path to the coordinator configuration file here
-CONFIG_PATH_COORDINATOR="${BASE_PATH}/config/config_coordinator.json"
+CONFIG_PATH_COORDINATOR="${BASE_PATH}/config/config_coordinator_das.json"
 
 # Define PYTHONPATH to Herman's framework.
 export PYTHONPATH="${PYTHONPATH}:${BASE_PATH}/src_main/external/simulation_model"

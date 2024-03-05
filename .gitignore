@@ -107,5 +107,5 @@ bin/
 /omnetpp-6.0.1
 
 # exclude configuration file settings from source control
-config/config_coordinator.json
-config/config_visualization.json
+/config/config_coordinator.json
+/config/config_visualization.json
