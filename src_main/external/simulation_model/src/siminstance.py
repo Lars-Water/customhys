@@ -350,7 +350,6 @@ class Siminstance:
 
     # NOTE: Custom code by Lars. This is a temporary solution to the problem of the output being in a non-standard format.
     def transform_scalar_output(self):
-        print("Transforming files")
         output_files_path = os.path.join(self.workflow_config["global_sim_results"], self.uid)
 
         # Print the directory contents of path self.workflow_config["global_sim_results"].
@@ -369,5 +368,3 @@ class Siminstance:
         for file in os.listdir(output_files_path):
             if file.endswith(".sca"):
                 os.remove(os.path.join(output_files_path, file))
-
-        print("Files transformed")

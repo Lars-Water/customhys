@@ -1,14 +1,76 @@
-[ coordinator  01-03-2024 18:11:36  INFO     ]  Reading coordinator config file...
-[ coordinator  01-03-2024 18:11:36  INFO     ]  Setting up workflow configuration file.
-[ coordinator  01-03-2024 18:11:36  INFO     ]  Setting up local cluster configuration.
-[ coordinator  01-03-2024 18:11:36  INFO     ]  Setting up the Manager...
-[ coordinator  01-03-2024 18:11:38  INFO     ]  Determining the simulation model parameters for the configuration values...
-[ coordinator  01-03-2024 18:11:44  DEBUG    ] [l.365 | transform_scalar_files()]  scavetool_command: opp_scavetool export -F CSV-R -o x.csv /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s2/20240301_181136/results/7f016397-ef59-42a9-827f-7807ed2c5aa4/*.sca /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s2/20240301_181136/results/a77cdf0d-1267-41c1-83b1-137e1ffaa7c7/*.sca
-[ coordinator  01-03-2024 18:11:53  WARNING  ]  CSV file not being removed
-[ coordinator  01-03-2024 18:11:53  WARNING  ]  CSV file not being removed
-[ coordinator  01-03-2024 18:11:53  INFO     ]  Removing simulation run templates in dummy path.
-[ coordinator  01-03-2024 18:11:53  INFO     ]  Determining the simulation model parameters for the configuration values...
-[ coordinator  01-03-2024 18:11:59  DEBUG    ] [l.365 | transform_scalar_files()]  scavetool_command: opp_scavetool export -F CSV-R -o x.csv /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s2/20240301_181136/results/ddac30e1-4d7b-43b0-b028-21ba546f9b19/*.sca /var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s2/20240301_181136/results/443be182-029f-49f5-b8fe-95944346c261/*.sca
-[ coordinator  01-03-2024 18:12:09  WARNING  ]  CSV file not being removed
-[ coordinator  01-03-2024 18:12:10  WARNING  ]  CSV file not being removed
-[ coordinator  01-03-2024 18:12:10  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  05-03-2024 15:43:45  INFO     ]  Reading coordinator config file...
+[ coordinator  05-03-2024 15:43:45  INFO     ]  Setting up workflow configuration file.
+[ coordinator  05-03-2024 15:43:45  INFO     ]  Setting up DAS cluster configuration.
+[ coordinator  05-03-2024 15:43:45  INFO     ]  Setting up the Manager...
+[ coordinator  05-03-2024 15:43:48  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  05-03-2024 15:44:39  INFO     ]  Read time: 0.895899772644043
+[ coordinator  05-03-2024 15:44:40  INFO     ]  Read time: 0.935652494430542
+[ coordinator  05-03-2024 15:44:41  INFO     ]  Read time: 0.8275730609893799
+[ coordinator  05-03-2024 15:44:42  INFO     ]  Read time: 0.5637054443359375
+[ coordinator  05-03-2024 15:44:42  INFO     ]  Read time: 0.4509916305541992
+[ coordinator  05-03-2024 15:44:43  INFO     ]  Read time: 0.37904906272888184
+[ coordinator  05-03-2024 15:44:43  INFO     ]  Read time: 0.3518190383911133
+[ coordinator  05-03-2024 15:44:43  INFO     ]  Read time: 0.3400142192840576
+[ coordinator  05-03-2024 15:44:44  INFO     ]  Read time: 0.36096715927124023
+[ coordinator  05-03-2024 15:44:44  INFO     ]  Read time: 0.3442387580871582
+[ coordinator  05-03-2024 15:44:44  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  05-03-2024 15:44:44  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  05-03-2024 15:45:21  INFO     ]  Read time: 0.5543231964111328
+[ coordinator  05-03-2024 15:45:22  INFO     ]  Read time: 0.6218624114990234
+[ coordinator  05-03-2024 15:45:23  INFO     ]  Read time: 0.5424559116363525
+[ coordinator  05-03-2024 15:45:23  INFO     ]  Read time: 0.4172389507293701
+[ coordinator  05-03-2024 15:45:23  INFO     ]  Read time: 0.34120655059814453
+[ coordinator  05-03-2024 15:45:24  INFO     ]  Read time: 0.35478854179382324
+[ coordinator  05-03-2024 15:45:24  INFO     ]  Read time: 0.34223127365112305
+[ coordinator  05-03-2024 15:45:25  INFO     ]  Read time: 0.3586130142211914
+[ coordinator  05-03-2024 15:45:25  INFO     ]  Read time: 0.34730100631713867
+[ coordinator  05-03-2024 15:45:26  INFO     ]  Read time: 0.39077138900756836
+[ coordinator  05-03-2024 15:45:26  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  05-03-2024 15:45:26  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  05-03-2024 15:46:05  INFO     ]  Read time: 0.5742244720458984
+[ coordinator  05-03-2024 15:46:05  INFO     ]  Read time: 0.5714519023895264
+[ coordinator  05-03-2024 15:46:06  INFO     ]  Read time: 0.5458364486694336
+[ coordinator  05-03-2024 15:46:06  INFO     ]  Read time: 0.46518826484680176
+[ coordinator  05-03-2024 15:46:07  INFO     ]  Read time: 0.34314537048339844
+[ coordinator  05-03-2024 15:46:07  INFO     ]  Read time: 0.3537454605102539
+[ coordinator  05-03-2024 15:46:08  INFO     ]  Read time: 0.3444075584411621
+[ coordinator  05-03-2024 15:46:08  INFO     ]  Read time: 0.3621950149536133
+[ coordinator  05-03-2024 15:46:08  INFO     ]  Read time: 0.34595298767089844
+[ coordinator  05-03-2024 15:46:09  INFO     ]  Read time: 0.3548870086669922
+[ coordinator  05-03-2024 15:46:09  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  05-03-2024 15:46:09  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  05-03-2024 15:46:46  INFO     ]  Read time: 0.598966121673584
+[ coordinator  05-03-2024 15:46:47  INFO     ]  Read time: 0.5956284999847412
+[ coordinator  05-03-2024 15:46:48  INFO     ]  Read time: 0.6122100353240967
+[ coordinator  05-03-2024 15:46:48  INFO     ]  Read time: 0.5042874813079834
+[ coordinator  05-03-2024 15:46:49  INFO     ]  Read time: 0.3806908130645752
+[ coordinator  05-03-2024 15:46:49  INFO     ]  Read time: 0.3740851879119873
+[ coordinator  05-03-2024 15:46:50  INFO     ]  Read time: 0.3547854423522949
+[ coordinator  05-03-2024 15:46:50  INFO     ]  Read time: 0.3622865676879883
+[ coordinator  05-03-2024 15:46:51  INFO     ]  Read time: 0.36170268058776855
+[ coordinator  05-03-2024 15:46:51  INFO     ]  Read time: 0.3942239284515381
+[ coordinator  05-03-2024 15:46:51  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  05-03-2024 15:46:51  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  05-03-2024 15:47:29  INFO     ]  Read time: 0.5692477226257324
+[ coordinator  05-03-2024 15:47:30  INFO     ]  Read time: 0.6210856437683105
+[ coordinator  05-03-2024 15:47:30  INFO     ]  Read time: 0.5583059787750244
+[ coordinator  05-03-2024 15:47:31  INFO     ]  Read time: 0.4409351348876953
+[ coordinator  05-03-2024 15:47:31  INFO     ]  Read time: 0.3524503707885742
+[ coordinator  05-03-2024 15:47:31  INFO     ]  Read time: 0.3506019115447998
+[ coordinator  05-03-2024 15:47:32  INFO     ]  Read time: 0.3521089553833008
+[ coordinator  05-03-2024 15:47:32  INFO     ]  Read time: 0.36003994941711426
+[ coordinator  05-03-2024 15:47:33  INFO     ]  Read time: 0.38817715644836426
+[ coordinator  05-03-2024 15:47:33  INFO     ]  Read time: 0.3559434413909912
+[ coordinator  05-03-2024 15:47:33  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  05-03-2024 15:47:33  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  05-03-2024 15:48:10  INFO     ]  Read time: 0.6699893474578857
+[ coordinator  05-03-2024 15:48:11  INFO     ]  Read time: 0.656958818435669
+[ coordinator  05-03-2024 15:48:12  INFO     ]  Read time: 0.5928475856781006
+[ coordinator  05-03-2024 15:48:12  INFO     ]  Read time: 0.4947240352630615
+[ coordinator  05-03-2024 15:48:13  INFO     ]  Read time: 0.39952683448791504
+[ coordinator  05-03-2024 15:48:13  INFO     ]  Read time: 0.3611910343170166
+[ coordinator  05-03-2024 15:48:14  INFO     ]  Read time: 0.36037635803222656
+[ coordinator  05-03-2024 15:48:14  INFO     ]  Read time: 0.4004957675933838
+[ coordinator  05-03-2024 15:48:15  INFO     ]  Read time: 0.3689229488372803
+[ coordinator  05-03-2024 15:48:15  INFO     ]  Read time: 0.37255096435546875
+[ coordinator  05-03-2024 15:48:15  INFO     ]  Removing simulation run templates in dummy path.
