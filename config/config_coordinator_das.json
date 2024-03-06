@@ -10,7 +10,7 @@
     },
     "simulation_model_configuration": {
         "sim_model": "custom",
-        "platform": "DAS",
+        "platform": "local",
         "jobs": 1,
         "job_cores": 16,
         "job_processes": 1,
@@ -50,5 +50,6 @@
     },
     "heuristic_run_paths": {
         "agents_fitness_values_relative_path": "data/raw/agents_fitness"
-    }
+    },
+    "remove_sim_instance_output": false
 }

@@ -383,7 +383,9 @@ class HeuristicSimulationCoordinator:
             cost_df = cost_df[cost_df["name"] == "cost"]
 
             # Remove the csv file.
-            os.remove(csv_file_path)
+            if self.conf.tryGet("remove_sim_instance_output"):
+                self.logger.info(f"Removing the output file for simistance {sim_uid}")
+                os.remove(csv_file_path)
 
             fitness_values.append({
                 agent_id: {
