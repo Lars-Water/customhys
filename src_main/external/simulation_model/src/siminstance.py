@@ -65,7 +65,7 @@ class Siminstance:
 
         # TODO: Change this to a configuration option.
         # NOTE: Code added by Lars. This is a temporary solution to the problem of the output being in a non-standard format.
-        # self.transform_scalar_output = False
+        self.transform_scalar_output = True
 
     @staticmethod
     def calc_uid(sim_path, uid_scheme):
@@ -343,28 +343,16 @@ class Siminstance:
         self.record_total_time_stat(("simulation", "simulation_time"), ("simulation", "simulation_start"), ("simulation", "simulation_end"))
         self.logger.info("Simulation took {:.4} seconds".format(self.stats.get_stat("simulation", "simulation_time")))
 
-        # # NOTE: Custom code by Lars. This is a temporary solution to the problem of the output being in a non-standard format.
-        # if self.transform_scalar_output:
-        #     pass
+        # NOTE: Custom code by Lars. This is a temporary solution to the problem of the output being in a non-standard format.
+        if self.transform_scalar_output:
+            self.logger.info("Transforming scalar output to CSV-R format")
 
+            scavetool_command = ["opp_scavetool", "export", "-F", "CSV-R", "-o", "x.csv", "*.sca"]
+            conversion_output = subprocess.run(scavetool_command, cwd=self.local_results_path, capture_output=True)
+            self.string_to_file(conversion_output.stdout.decode("utf-8"), self.local_logs_path, "siminstance_{}_output_converion_stdout".format(self.uid))
+            self.string_to_file(conversion_output.stderr.decode("utf-8"), self.local_logs_path, "siminstance_{}_output_converion_stderr".format(self.uid))
 
-    # NOTE: Custom code by Lars. This is a temporary solution to the problem of the output being in a non-standard format.
-    def transform_scalar_output(self):
-        output_files_path = os.path.join(self.workflow_config["global_sim_results"], self.uid)
-
-        # Print the directory contents of path self.workflow_config["global_sim_results"].
-        self.logger.info(f"Directory contents of {self.workflow_config['global_sim_results']}: {os.listdir(self.workflow_config['global_sim_results'])}")
-
-        # Print the directory contents of path output_files_path.
-        self.logger.info(f"Directory contents of {output_files_path}: {os.listdir(output_files_path)}")
-
-        self.logger.info(f"Transforming scalar output to CSV-R format in {output_files_path}")
-        scavetool_command = ["opp_scavetool", "export", "-F", "CSV-R", "-o", "x.csv", "*.sca"]
-        conversion_output = subprocess.run(scavetool_command, cwd=output_files_path, capture_output=True)
-        self.string_to_file(conversion_output.stdout.decode("utf-8"), self.local_logs_path, "siminstance_{}_output_converion_stdout".format(self.uid))
-        self.string_to_file(conversion_output.stderr.decode("utf-8"), self.local_logs_path, "siminstance_{}_output_converion_stderr".format(self.uid))
-
-        # Remove all .sca files in the output_files_path.
-        for file in os.listdir(output_files_path):
-            if file.endswith(".sca"):
-                os.remove(os.path.join(output_files_path, file))
+            # Remove all .sca files in the local results path.
+            for file in os.listdir(self.local_results_path):
+                if file.endswith(".sca"):
+                    os.remove(os.path.join(self.local_results_path, file))

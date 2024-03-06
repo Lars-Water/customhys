@@ -112,9 +112,6 @@ class OutputHandler:
         else:
             self.__move_folder(sim_local_results_path, sim_global_results_path, "results", sim_instance.uid)
 
-        # NOTE: Custom code by Lars.
-        sim_instance.transform_scalar_output()
-
         return sim_instance
 
 
