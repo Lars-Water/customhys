@@ -51,5 +51,5 @@
     "heuristic_run_paths": {
         "agents_fitness_values_relative_path": "data/raw/agents_fitness"
     },
-    "remove_sim_instance_output": true
+    "remove_sim_instance_output": false
 }
