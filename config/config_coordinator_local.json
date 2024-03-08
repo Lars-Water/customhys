@@ -1,55 +1,61 @@
 {
-    "simulation_model_paths": {
-        "omnetpp_base": "/home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1",
-        "inet_path": "/home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5",
-        "experiments_path": "/home/larry/hyper-heuristic-dse-2.0/data/raw/experiments",
-        "sims_path": "/home/larry/hyper-heuristic-dse-2.0/data/sims",
-        "dummy_path": "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims",
-        "simulation_model_template_path": "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/dummy_sim_lans",
-        "simulation_model_generated_path": "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/custom_dummy"
+    "coordinator_functionalities": {
+        "remove_sim_instance_output": true,
+        "store_design_points_metrics_values": true
     },
-    "simulation_model_configuration": {
-        "sim_model": "custom",
-        "platform": "local",
-        "jobs": 1,
-        "job_cores": 16,
-        "job_processes": 1,
-        "job_memory": "64GB",
-        "num_nodes": 1,
-        "num_workers": 1,
-        "threads_per_worker": 8
+    "output_paths": {
+        "agents_fitness_values_relative_path": "data/raw/agents_fitness",
+        "design_points_metrics_output": "/home/larry/hyper-heuristic-dse-2.0/data/raw/design_points"
     },
-    "simulation_model_params": [
-        {
-            "param_name": "cable_rate",
-            "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate",
-            "number_of_configs": 7,
-            "values": [
-                "10Mbps",
-                "100Mbps",
-                "1Gbps",
-                "10Gbps"
-            ]
-        },
-        {
-            "param_name": "cable_cost",
-            "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost",
-            "number_of_configs": 7,
-            "values": [
-                1,
-                2,
-                5,
-                10
-            ]
-        }
-    ],
     "fitness_config": {
         "fitness_function": "latency_cost",
         "weight_latency": 0.5,
         "weight_cost": 0.5
     },
-    "heuristic_run_paths": {
-        "agents_fitness_values_relative_path": "data/raw/agents_fitness"
-    },
-    "remove_sim_instance_output": false
+    "simulation_model": {
+        "simulation_model_paths": {
+            "omnetpp_base": "/home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1",
+            "inet_path": "/home/larry/hyper-heuristic-dse-2.0/omnetpp-6.0.1/inet4.5",
+            "experiments_path": "/home/larry/hyper-heuristic-dse-2.0/data/raw/experiments",
+            "sims_path": "/home/larry/hyper-heuristic-dse-2.0/data/sims",
+            "dummy_path": "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims",
+            "simulation_model_template_path": "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/dummy_sim_lans",
+            "simulation_model_generated_path": "/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/custom_dummy"
+        },
+        "simulation_model_configuration": {
+            "sim_model": "custom",
+            "platform": "local",
+            "jobs": 1,
+            "job_cores": 16,
+            "job_processes": 1,
+            "job_memory": "64GB",
+            "num_nodes": 1,
+            "num_workers": 1,
+            "threads_per_worker": 8
+        },
+        "simulation_model_params": [
+            {
+                "param_name": "cable_rate",
+                "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate",
+                "number_of_configs": 7,
+                "values": [
+                    "10Mbps",
+                    "100Mbps",
+                    "1Gbps",
+                    "10Gbps"
+                ]
+            },
+            {
+                "param_name": "cable_cost",
+                "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost",
+                "number_of_configs": 7,
+                "values": [
+                    1,
+                    2,
+                    5,
+                    10
+                ]
+            }
+        ]
+    }
 }

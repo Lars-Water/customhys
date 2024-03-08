@@ -1,7 +1,7 @@
 {
     "nr_of_agents": 1,
-    "nr_of_iterations": 0,
-    "runs_nr_of_backbones": [100],
+    "nr_of_iterations": 2,
+    "runs_nr_of_backbones": [6],
     "mh_save_run_path_mh_name": "random_sample/",
     "metaheuristic": [
         {

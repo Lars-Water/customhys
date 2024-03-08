@@ -1,5 +1,5 @@
 {
-    "nr_of_agents": 4,
+    "nr_of_agents": 16,
     "nr_of_iterations": 50,
     "runs_nr_of_backbones": [50, 100, 200],
     "mh_save_run_path_mh_name": "ga/",
