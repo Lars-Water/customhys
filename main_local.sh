@@ -15,4 +15,5 @@ cd inet4.5/
 source setenv
 
 cd ../../
-python3 main.py --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN" --coordinator_config "$CONFIG_PATH_COORDINATOR"
+python3 main.py --base_path "$BASE_PATH" --coordinator_config "$CONFIG_PATH_COORDINATOR" --param_tune
+# python3 main.py --base_path "$BASE_PATH" --coordinator_config "$CONFIG_PATH_COORDINATOR" --heur_run_config "$CONFIG_PATH_HEUR_RUN"

@@ -1,76 +1,165 @@
-[ coordinator  05-03-2024 15:43:45  INFO     ]  Reading coordinator config file...
-[ coordinator  05-03-2024 15:43:45  INFO     ]  Setting up workflow configuration file.
-[ coordinator  05-03-2024 15:43:45  INFO     ]  Setting up DAS cluster configuration.
-[ coordinator  05-03-2024 15:43:45  INFO     ]  Setting up the Manager...
-[ coordinator  05-03-2024 15:43:48  INFO     ]  Determining the simulation model parameters for the configuration values...
-[ coordinator  05-03-2024 15:44:39  INFO     ]  Read time: 0.895899772644043
-[ coordinator  05-03-2024 15:44:40  INFO     ]  Read time: 0.935652494430542
-[ coordinator  05-03-2024 15:44:41  INFO     ]  Read time: 0.8275730609893799
-[ coordinator  05-03-2024 15:44:42  INFO     ]  Read time: 0.5637054443359375
-[ coordinator  05-03-2024 15:44:42  INFO     ]  Read time: 0.4509916305541992
-[ coordinator  05-03-2024 15:44:43  INFO     ]  Read time: 0.37904906272888184
-[ coordinator  05-03-2024 15:44:43  INFO     ]  Read time: 0.3518190383911133
-[ coordinator  05-03-2024 15:44:43  INFO     ]  Read time: 0.3400142192840576
-[ coordinator  05-03-2024 15:44:44  INFO     ]  Read time: 0.36096715927124023
-[ coordinator  05-03-2024 15:44:44  INFO     ]  Read time: 0.3442387580871582
-[ coordinator  05-03-2024 15:44:44  INFO     ]  Removing simulation run templates in dummy path.
-[ coordinator  05-03-2024 15:44:44  INFO     ]  Determining the simulation model parameters for the configuration values...
-[ coordinator  05-03-2024 15:45:21  INFO     ]  Read time: 0.5543231964111328
-[ coordinator  05-03-2024 15:45:22  INFO     ]  Read time: 0.6218624114990234
-[ coordinator  05-03-2024 15:45:23  INFO     ]  Read time: 0.5424559116363525
-[ coordinator  05-03-2024 15:45:23  INFO     ]  Read time: 0.4172389507293701
-[ coordinator  05-03-2024 15:45:23  INFO     ]  Read time: 0.34120655059814453
-[ coordinator  05-03-2024 15:45:24  INFO     ]  Read time: 0.35478854179382324
-[ coordinator  05-03-2024 15:45:24  INFO     ]  Read time: 0.34223127365112305
-[ coordinator  05-03-2024 15:45:25  INFO     ]  Read time: 0.3586130142211914
-[ coordinator  05-03-2024 15:45:25  INFO     ]  Read time: 0.34730100631713867
-[ coordinator  05-03-2024 15:45:26  INFO     ]  Read time: 0.39077138900756836
-[ coordinator  05-03-2024 15:45:26  INFO     ]  Removing simulation run templates in dummy path.
-[ coordinator  05-03-2024 15:45:26  INFO     ]  Determining the simulation model parameters for the configuration values...
-[ coordinator  05-03-2024 15:46:05  INFO     ]  Read time: 0.5742244720458984
-[ coordinator  05-03-2024 15:46:05  INFO     ]  Read time: 0.5714519023895264
-[ coordinator  05-03-2024 15:46:06  INFO     ]  Read time: 0.5458364486694336
-[ coordinator  05-03-2024 15:46:06  INFO     ]  Read time: 0.46518826484680176
-[ coordinator  05-03-2024 15:46:07  INFO     ]  Read time: 0.34314537048339844
-[ coordinator  05-03-2024 15:46:07  INFO     ]  Read time: 0.3537454605102539
-[ coordinator  05-03-2024 15:46:08  INFO     ]  Read time: 0.3444075584411621
-[ coordinator  05-03-2024 15:46:08  INFO     ]  Read time: 0.3621950149536133
-[ coordinator  05-03-2024 15:46:08  INFO     ]  Read time: 0.34595298767089844
-[ coordinator  05-03-2024 15:46:09  INFO     ]  Read time: 0.3548870086669922
-[ coordinator  05-03-2024 15:46:09  INFO     ]  Removing simulation run templates in dummy path.
-[ coordinator  05-03-2024 15:46:09  INFO     ]  Determining the simulation model parameters for the configuration values...
-[ coordinator  05-03-2024 15:46:46  INFO     ]  Read time: 0.598966121673584
-[ coordinator  05-03-2024 15:46:47  INFO     ]  Read time: 0.5956284999847412
-[ coordinator  05-03-2024 15:46:48  INFO     ]  Read time: 0.6122100353240967
-[ coordinator  05-03-2024 15:46:48  INFO     ]  Read time: 0.5042874813079834
-[ coordinator  05-03-2024 15:46:49  INFO     ]  Read time: 0.3806908130645752
-[ coordinator  05-03-2024 15:46:49  INFO     ]  Read time: 0.3740851879119873
-[ coordinator  05-03-2024 15:46:50  INFO     ]  Read time: 0.3547854423522949
-[ coordinator  05-03-2024 15:46:50  INFO     ]  Read time: 0.3622865676879883
-[ coordinator  05-03-2024 15:46:51  INFO     ]  Read time: 0.36170268058776855
-[ coordinator  05-03-2024 15:46:51  INFO     ]  Read time: 0.3942239284515381
-[ coordinator  05-03-2024 15:46:51  INFO     ]  Removing simulation run templates in dummy path.
-[ coordinator  05-03-2024 15:46:51  INFO     ]  Determining the simulation model parameters for the configuration values...
-[ coordinator  05-03-2024 15:47:29  INFO     ]  Read time: 0.5692477226257324
-[ coordinator  05-03-2024 15:47:30  INFO     ]  Read time: 0.6210856437683105
-[ coordinator  05-03-2024 15:47:30  INFO     ]  Read time: 0.5583059787750244
-[ coordinator  05-03-2024 15:47:31  INFO     ]  Read time: 0.4409351348876953
-[ coordinator  05-03-2024 15:47:31  INFO     ]  Read time: 0.3524503707885742
-[ coordinator  05-03-2024 15:47:31  INFO     ]  Read time: 0.3506019115447998
-[ coordinator  05-03-2024 15:47:32  INFO     ]  Read time: 0.3521089553833008
-[ coordinator  05-03-2024 15:47:32  INFO     ]  Read time: 0.36003994941711426
-[ coordinator  05-03-2024 15:47:33  INFO     ]  Read time: 0.38817715644836426
-[ coordinator  05-03-2024 15:47:33  INFO     ]  Read time: 0.3559434413909912
-[ coordinator  05-03-2024 15:47:33  INFO     ]  Removing simulation run templates in dummy path.
-[ coordinator  05-03-2024 15:47:33  INFO     ]  Determining the simulation model parameters for the configuration values...
-[ coordinator  05-03-2024 15:48:10  INFO     ]  Read time: 0.6699893474578857
-[ coordinator  05-03-2024 15:48:11  INFO     ]  Read time: 0.656958818435669
-[ coordinator  05-03-2024 15:48:12  INFO     ]  Read time: 0.5928475856781006
-[ coordinator  05-03-2024 15:48:12  INFO     ]  Read time: 0.4947240352630615
-[ coordinator  05-03-2024 15:48:13  INFO     ]  Read time: 0.39952683448791504
-[ coordinator  05-03-2024 15:48:13  INFO     ]  Read time: 0.3611910343170166
-[ coordinator  05-03-2024 15:48:14  INFO     ]  Read time: 0.36037635803222656
-[ coordinator  05-03-2024 15:48:14  INFO     ]  Read time: 0.4004957675933838
-[ coordinator  05-03-2024 15:48:15  INFO     ]  Read time: 0.3689229488372803
-[ coordinator  05-03-2024 15:48:15  INFO     ]  Read time: 0.37255096435546875
-[ coordinator  05-03-2024 15:48:15  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  10-03-2024 19:35:47  INFO     ]  Reading coordinator config file.
+[ coordinator  10-03-2024 19:35:47  INFO     ]  Setting up workflow configuration file.
+[ coordinator  10-03-2024 19:35:47  INFO     ]  Setting up local cluster configuration.
+[ coordinator  10-03-2024 19:35:47  INFO     ]  Setting up the Manager.
+[ coordinator  10-03-2024 19:35:51  INFO     ]  Determining the paths for the simulation model.
+[ coordinator  10-03-2024 19:35:51  INFO     ]  Determine flags for coordinator functionalities.
+[ coordinator  10-03-2024 19:35:51  INFO     ]  Determine the paths for the simulation model results.
+[ coordinator  10-03-2024 19:35:51  INFO     ]  Performing the parameter tuning workflow.
+[ coordinator  10-03-2024 19:35:51  INFO     ]  Tuning parameter sim-time-limit within range ['2s', '4s', '6s', '8s', '10s'].
+[ coordinator  10-03-2024 19:35:56  INFO     ]  Determining the parameter tuning results for siminstance d2bd0240-f284-4c23-8dc9-88c5324d20b4.
+[ coordinator  10-03-2024 19:35:56  DEBUG    ] [l.537 | determine_sim_instance_parameter_tuning_results()]  CLI dataframe head:
+[                                            ]                                      run       type                          module                             name           attrname                           attrvalue  ...  count  sumweights  mean  stddev  min  max
+[                                            ]  36   LargeNet-0-20240310-19:35:52-85920     scalar  LargeNet.llanBB[0].host[0].cli             packetReceived:count                NaN                                 NaN  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  37   LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count  interpolationmode                                none  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  38   LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count      recordingmode                               count  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  39   LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count             source                      packetReceived  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  40   LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count              title             packets received, count  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  41   LargeNet-0-20240310-19:35:52-85920     scalar  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)                NaN                                 NaN  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  42   LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)  interpolationmode                                none  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  43   LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)      recordingmode                    sum(packetBytes)  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  44   LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)             source                      packetReceived  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  45   LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)              title  packets received, sum(packetBytes)  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  46   LargeNet-0-20240310-19:35:52-85920     scalar  LargeNet.llanBB[0].host[0].cli                 packetSent:count                NaN                                 NaN  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  47   LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count  interpolationmode                                none  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  48   LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count      recordingmode                               count  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  49   LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count             source                          packetSent  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  50   LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count              title                 packets sent, count  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  51   LargeNet-0-20240310-19:35:52-85920     scalar  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)                NaN                                 NaN  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  52   LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)  interpolationmode                                none  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  53   LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)      recordingmode                    sum(packetBytes)  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  54   LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)             source                          packetSent  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  55   LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)              title      packets sent, sum(packetBytes)  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  930  LargeNet-0-20240310-19:35:52-85920  statistic  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram                NaN                                 NaN  ...    0.0         0.0   NaN     NaN  NaN  NaN
+[                                            ]  931  LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram  interpolationmode                                none  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  932  LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram      recordingmode                           histogram  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  933  LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram             source             dataAge(packetReceived)  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  934  LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram              title                    end-to-end delay  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  935  LargeNet-0-20240310-19:35:52-85920       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram               unit                                   s  ...    NaN         NaN   NaN     NaN  NaN  NaN
+[                                            ]  
+[                                            ]  [26 rows x 13 columns]
+[ coordinator  10-03-2024 19:35:56  INFO     ]  Determining the parameter tuning results for siminstance f8247a43-e1e8-4314-bb96-cd5239aefc63.
+[ coordinator  10-03-2024 19:35:56  DEBUG    ] [l.537 | determine_sim_instance_parameter_tuning_results()]  CLI dataframe head:
+[                                            ]                                      run       type                          module                             name           attrname  ... sumweights      mean    stddev      min       max
+[                                            ]  36   LargeNet-0-20240310-19:35:52-85923     scalar  LargeNet.llanBB[0].host[0].cli             packetReceived:count                NaN  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  37   LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count  interpolationmode  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  38   LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count      recordingmode  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  39   LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count             source  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  40   LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count              title  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  41   LargeNet-0-20240310-19:35:52-85923     scalar  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)                NaN  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  42   LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)  interpolationmode  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  43   LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)      recordingmode  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  44   LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)             source  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  45   LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)              title  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  46   LargeNet-0-20240310-19:35:52-85923     scalar  LargeNet.llanBB[0].host[0].cli                 packetSent:count                NaN  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  47   LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count  interpolationmode  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  48   LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count      recordingmode  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  49   LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count             source  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  50   LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count              title  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  51   LargeNet-0-20240310-19:35:52-85923     scalar  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)                NaN  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  52   LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)  interpolationmode  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  53   LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)      recordingmode  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  54   LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)             source  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  55   LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)              title  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  930  LargeNet-0-20240310-19:35:52-85923  statistic  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram                NaN  ...       16.0  0.001001  0.000329  0.00055  0.001576
+[                                            ]  931  LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram  interpolationmode  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  932  LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram      recordingmode  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  933  LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram             source  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  934  LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram              title  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  935  LargeNet-0-20240310-19:35:52-85923       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram               unit  ...        NaN       NaN       NaN      NaN       NaN
+[                                            ]  
+[                                            ]  [26 rows x 13 columns]
+[ coordinator  10-03-2024 19:35:56  INFO     ]  Determining the parameter tuning results for siminstance 85a35d2e-d871-403c-8537-c9c1c20e8897.
+[ coordinator  10-03-2024 19:35:56  DEBUG    ] [l.537 | determine_sim_instance_parameter_tuning_results()]  CLI dataframe head:
+[                                            ]                                      run       type                          module                             name           attrname  ... sumweights      mean    stddev       min       max
+[                                            ]  36   LargeNet-0-20240310-19:35:52-85921     scalar  LargeNet.llanBB[0].host[0].cli             packetReceived:count                NaN  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  37   LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count  interpolationmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  38   LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count      recordingmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  39   LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count             source  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  40   LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count              title  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  41   LargeNet-0-20240310-19:35:52-85921     scalar  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)                NaN  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  42   LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)  interpolationmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  43   LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)      recordingmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  44   LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)             source  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  45   LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)              title  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  46   LargeNet-0-20240310-19:35:52-85921     scalar  LargeNet.llanBB[0].host[0].cli                 packetSent:count                NaN  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  47   LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count  interpolationmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  48   LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count      recordingmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  49   LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count             source  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  50   LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count              title  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  51   LargeNet-0-20240310-19:35:52-85921     scalar  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)                NaN  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  52   LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)  interpolationmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  53   LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)      recordingmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  54   LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)             source  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  55   LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)              title  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  930  LargeNet-0-20240310-19:35:52-85921  statistic  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram                NaN  ...       27.0  0.000874  0.000332  0.000228  0.001576
+[                                            ]  931  LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram  interpolationmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  932  LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram      recordingmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  933  LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram             source  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  934  LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram              title  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  935  LargeNet-0-20240310-19:35:52-85921       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram               unit  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  
+[                                            ]  [26 rows x 13 columns]
+[ coordinator  10-03-2024 19:35:56  INFO     ]  Determining the parameter tuning results for siminstance 4191ca8a-c581-4041-9ab6-5af1a5b545c7.
+[ coordinator  10-03-2024 19:35:56  DEBUG    ] [l.537 | determine_sim_instance_parameter_tuning_results()]  CLI dataframe head:
+[                                            ]                                      run       type                          module                             name           attrname  ... sumweights      mean    stddev       min       max
+[                                            ]  36   LargeNet-0-20240310-19:35:52-85922     scalar  LargeNet.llanBB[0].host[0].cli             packetReceived:count                NaN  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  37   LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count  interpolationmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  38   LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count      recordingmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  39   LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count             source  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  40   LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count              title  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  41   LargeNet-0-20240310-19:35:52-85922     scalar  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)                NaN  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  42   LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)  interpolationmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  43   LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)      recordingmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  44   LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)             source  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  45   LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)              title  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  46   LargeNet-0-20240310-19:35:52-85922     scalar  LargeNet.llanBB[0].host[0].cli                 packetSent:count                NaN  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  47   LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count  interpolationmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  48   LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count      recordingmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  49   LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count             source  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  50   LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count              title  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  51   LargeNet-0-20240310-19:35:52-85922     scalar  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)                NaN  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  52   LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)  interpolationmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  53   LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)      recordingmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  54   LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)             source  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  55   LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)              title  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  930  LargeNet-0-20240310-19:35:52-85922  statistic  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram                NaN  ...       45.0  0.000828  0.000279  0.000228  0.001576
+[                                            ]  931  LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram  interpolationmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  932  LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram      recordingmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  933  LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram             source  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  934  LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram              title  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  935  LargeNet-0-20240310-19:35:52-85922       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram               unit  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  
+[                                            ]  [26 rows x 13 columns]
+[ coordinator  10-03-2024 19:35:57  INFO     ]  Determining the parameter tuning results for siminstance 27668001-0c10-443c-add0-4ae5e868430a.
+[ coordinator  10-03-2024 19:35:57  DEBUG    ] [l.537 | determine_sim_instance_parameter_tuning_results()]  CLI dataframe head:
+[                                            ]                                      run       type                          module                             name           attrname  ... sumweights      mean    stddev       min       max
+[                                            ]  36   LargeNet-0-20240310-19:35:52-85926     scalar  LargeNet.llanBB[0].host[0].cli             packetReceived:count                NaN  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  37   LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count  interpolationmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  38   LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count      recordingmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  39   LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count             source  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  40   LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli             packetReceived:count              title  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  41   LargeNet-0-20240310-19:35:52-85926     scalar  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)                NaN  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  42   LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)  interpolationmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  43   LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)      recordingmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  44   LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)             source  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  45   LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli  packetReceived:sum(packetBytes)              title  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  46   LargeNet-0-20240310-19:35:52-85926     scalar  LargeNet.llanBB[0].host[0].cli                 packetSent:count                NaN  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  47   LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count  interpolationmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  48   LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count      recordingmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  49   LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count             source  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  50   LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli                 packetSent:count              title  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  51   LargeNet-0-20240310-19:35:52-85926     scalar  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)                NaN  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  52   LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)  interpolationmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  53   LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)      recordingmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  54   LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)             source  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  55   LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli      packetSent:sum(packetBytes)              title  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  930  LargeNet-0-20240310-19:35:52-85926  statistic  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram                NaN  ...       66.0  0.000836  0.000268  0.000228  0.001576
+[                                            ]  931  LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram  interpolationmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  932  LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram      recordingmode  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  933  LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram             source  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  934  LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram              title  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  935  LargeNet-0-20240310-19:35:52-85926       attr  LargeNet.llanBB[0].host[0].cli          endToEndDelay:histogram               unit  ...        NaN       NaN       NaN       NaN       NaN
+[                                            ]  
+[                                            ]  [26 rows x 13 columns]
+[ coordinator  10-03-2024 19:35:57  INFO     ]  Removing simulation run templates in dummy path.

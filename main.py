@@ -216,32 +216,34 @@ def create_mh_instance(run, heur_sim_coordinator):
 
     Args:
         base_path (str): The base path for the project.
-        heur_run_config_file_path (Path): The path to the heuristic run configuration file.
         coordinator_config_file_path (Path): The path to the coordinator configuration file.
+        heur_run_config_file_path (Path): The path to the heuristic run configuration file.
+        parameter_tuning (bool): The flag to indicate if parameter tuning is enabled.
 '''
-def main(base_path, heur_run_config_file_path, coordinator_config_file_path):
+def main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning):
 
     # Set up the general heuristic run configuration.
-    heuristic_run_log_path = os.path.join(base_path, "data/logs/heuristic_run/")
-    os.makedirs(heuristic_run_log_path, exist_ok=True)
-    heuristic_run_config = Config(heur_run_config_file_path, Path(heuristic_run_log_path), "heuristic_run_config_manager")
+    if heur_run_config_file_path:
+        heuristic_run_log_path = os.path.join(base_path, "data/logs/heuristic_run/")
+        os.makedirs(heuristic_run_log_path, exist_ok=True)
+        heuristic_run_config = Config(heur_run_config_file_path, Path(heuristic_run_log_path), "heuristic_run_config_manager")
 
-    # Obtain the configuration parameters for the heuristic run.
-    nr_of_agents = heuristic_run_config.tryGet("nr_of_agents")
-    nr_of_iterations = heuristic_run_config.tryGet("nr_of_iterations")
+        # Obtain the configuration parameters for the heuristic run.
+        nr_of_agents = heuristic_run_config.tryGet("nr_of_agents")
+        nr_of_iterations = heuristic_run_config.tryGet("nr_of_iterations")
 
-    # Create the coordinator for the heuristic simulation workflow.
-    heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents) # noqa 501
+        # Define the heuristic operators to be used.
+        heuristics_collection = define_heuristic_operators(heuristic_run_config)
 
-    # Define the heuristic operators to be used.
-    heuristics_collection = define_heuristic_operators(heuristic_run_config)
+        # Create the coordinator for the heuristic simulation workflow.
+        heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents) # noqa 501
 
-    run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
-
-    # run_hh(heur_sim_coordinator, heuristics_collection)
-
-    # TODO: Determine what to do with the manager, one at init, or a new one for every iteration?
-    # heur_sim_coordinator.shutdown_manager()
+        run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
+        # run_hh(heur_sim_coordinator, heuristics_collection)
+    else:
+        nr_of_agents = None
+        parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, True) # noqa 501
+        parameter_tuning_coordinator.parameter_tuning_workflow()
 
     return
 
@@ -249,28 +251,32 @@ def main(base_path, heur_run_config_file_path, coordinator_config_file_path):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the heuristic simulation workflow.")
     parser.add_argument("--base_path", type=str, required=True, help="Root of the project.")
-    parser.add_argument("--heur_run_config", type=str, required=True, help="Path to the heuristic run configuration file.")
     parser.add_argument("--coordinator_config", type=str, required=True, help="Path to the coordinator configuration file.")
+    parser.add_argument("--heur_run_config", type=str, required=False, help="Path to the heuristic run configuration file.")
+    parser.add_argument("--param_tune", action="store_true", required=False, help="Flag that enables parameter tuning.")
     args = parser.parse_args()
 
     # Convert the arguments to Path objects.
     base_path = Path(args.base_path)
-    heur_run_config_file_path = Path(args.heur_run_config)
     coordinator_config_file_path = Path(args.coordinator_config)
+    heur_run_config_file_path = Path(args.heur_run_config) if args.heur_run_config else None
+    parameter_tuning = args.param_tune
 
-    #Check if the base path exists.
+    # Check if the base path exists.
     if not base_path.exists():
         raise FileNotFoundError(f"The base path {base_path} does not exist.")
-
-    # Check if the heuristic run configuration file exists
-    if not heur_run_config_file_path.exists():
-        raise FileNotFoundError(f"The heuristic run configuration file {heur_run_config_file_path} does not exist.")
 
     # Check if the coordinator configuration file exists
     if not coordinator_config_file_path.exists():
         raise FileNotFoundError(f"The coordinator configuration file {coordinator_config_file_path} does not exist.")
 
-    main(base_path, heur_run_config_file_path, coordinator_config_file_path)
+    # Check if the heuristic run configuration file exists
+    if not parameter_tuning and not heur_run_config_file_path.exists():
+        raise FileNotFoundError(f"The heuristic run configuration file {heur_run_config_file_path} does not exist.")
+    elif not parameter_tuning:
+        raise ValueError("No functionality called for experiment. Either provide a heuristic run config or enable parameter tuning.")
+
+    main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning)
 
     # visualization.bar_execution_times(type="iterations")
     # visualization.combined_pie_execution_times(type="iterations")

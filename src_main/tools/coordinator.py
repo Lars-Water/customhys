@@ -32,16 +32,12 @@ class HeuristicSimulationCoordinator:
             base_path: The base path of the project.
             coordinator_config_file_path: The path to the configuration file of the coordinator.
             nr_of_agents: The number of agents to run the simulation model with.
+            parameter_tuning: A flag to indicate whether the coordinator should perform parameter tuning or not.
     '''
-    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents):
+    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, parameter_tuning=False):
         self.base_path = base_path
         self.nr_of_agents = nr_of_agents
         self.nr_of_sims = nr_of_agents
-
-
-        # Determine flags for coordinator functionalities.
-        self.store_design_points_metrics_values = self.conf.tryGet("coordinator_functionalities", "store_design_points_metrics_values")
-        self.remove_sim_instance_output = self.conf.tryGet("coordinator_functionalities", "remove_sim_instance_output")
 
         # Predefine the parameters for the execution times.
         self.coordinator_execution_time = 0
@@ -54,8 +50,7 @@ class HeuristicSimulationCoordinator:
         os.makedirs(coordinator_log_path, exist_ok=True)
         self.logger = logger("coordinator", coordinator_log_path)
 
-        # Read the config file.
-        self.logger.info("Reading coordinator config file...")
+        self.logger.info("Reading coordinator config file.")
         self.conf = Config(coordinator_config_file_path, Path(coordinator_log_path), "coordinator_config_manager")
 
         # Define params to set up the Manager.
@@ -73,7 +68,6 @@ class HeuristicSimulationCoordinator:
         workflow_logs_folder = os.path.join(self.data_path, "logs")
         workflow_runtime_folder = os.path.join(self.data_path, "runtime")
 
-        # Set up workflow configuration file.
         self.logger.info("Setting up workflow configuration file.")
         sims_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "sims_path")
         design_queues = [WorkflowConfig.create_design_point_queue_config("base", 0, "FIFO")]
@@ -83,9 +77,27 @@ class HeuristicSimulationCoordinator:
         self.config = self.workflow_config.conf()
         self.workflow_config.write_conf(workflow_config_file)
 
-        # Set up the Manager.
-        self.logger.info("Setting up the Manager...")
+        self.logger.info("Setting up the Manager.")
         self.manager = Manager(workflow_config_file, workflow_logs_folder)
+
+        # Define variables for coordinator functionalities.
+
+        self.logger.info("Determining the paths for the simulation model.")
+        self.simulation_model_template_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "simulation_model_template_path")
+        self.ini_file_template_path = os.path.join(self.simulation_model_template_path, "largeNet.ini")
+        self.generated_simulation_model_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "simulation_model_generated_path")
+
+        self.logger.info("Determine flags for coordinator functionalities.")
+        self.store_design_points_metrics_values = self.conf.tryGet("coordinator_functionalities", "store_design_points_metrics_values")
+        self.remove_sim_instance_output = self.conf.tryGet("coordinator_functionalities", "remove_sim_instance_output")
+
+        self.logger.info("Determine the paths for the simulation model results.")
+        self.results_path = self.conf.tryGet("results_path")
+        if parameter_tuning:
+            # TODO: Change the hardcoded filename to a variable in the configuration file.
+            parameter_tuning_path = os.path.join(self.results_path, "parameter_tuning")
+            os.makedirs(parameter_tuning_path, exist_ok=True)
+            self.parameter_tuning_file = os.path.join(parameter_tuning_path, "parameter_tuning_results.csv")
 
 
     '''
@@ -107,10 +119,10 @@ class HeuristicSimulationCoordinator:
         if self.nr_of_agents > 1:
             # Set the values of the parameters in the simulation model.
             configurations = self.set_agents_param_values(config_values)
-            self.sim_ids = []
+            sim_ids = []
             for agent_configuration in configurations:
                 sim_id = uuid.uuid4()
-                self.sim_ids.append(sim_id)
+                sim_ids.append(sim_id)
                 src_dir = self.conf.tryGet("simulation_model", "simulation_model_paths", "simulation_model_template_path")
                 dest_dir = self.conf.tryGet("simulation_model", "simulation_model_paths", "simulation_model_generated_path") + f"_{sim_id}"
 
@@ -133,10 +145,7 @@ class HeuristicSimulationCoordinator:
                 )
 
             # Run the simulation model.
-            uids = self.run_multiple_simulation_configuration()
-
-            # # Transform the outputted scalar files into csv format.
-            # self.transform_scalar_files(uids)
+            uids = self.run_multiple_simulation_configuration(sim_ids)
 
             # Collect the simulation stats from the simulation run.
             simulation_metrics = self.obtain_simulation_stats(uids)
@@ -162,13 +171,7 @@ class HeuristicSimulationCoordinator:
             # Add simulation run time to total coordinator time.
             self.coordinator_execution_time += end_time - start_time
 
-            # # TODO: Change agent fitness structure to the structure below. OR write agent fitness to csv.
-            # result = [(config_values[index].tolist(), key, value) for index, (key, value) in enumerate(fitness_values.items())]
-            # formatted_result = "Result of simulation run:\n"
-            # formatted_result += "\n".join([f"Agent: {key}, Config Values: {values}, Fitness: {fitness}" for values, key, fitness in result])
-            # self.logger.debug(formatted_result)
-
-            self.sim_ids.clear()
+            sim_ids.clear()
             self.remove_simulation_run_dirs()
 
             return 0
@@ -200,10 +203,6 @@ class HeuristicSimulationCoordinator:
 
             # Run the simulation model.
             uid = self.run_single_simulation_configuration()
-            self.logger.warn(uid)
-
-            # # Transform the outputted scalar files into csv format.
-            # self.transform_scalar_files(uid)
 
             # Collect the simulation stats from the simulation run.
             simulation_metrics = self.obtain_simulation_stats(uid)
@@ -336,26 +335,27 @@ class HeuristicSimulationCoordinator:
         return configurations
 
 
-    '''
-        Transform the scalar files generated by the simulation model into a csv format.
-    '''
-    def transform_scalar_files(self, uids):
-        scavetool_command = "opp_scavetool export -F CSV-R -o x.csv *.sca"
+    # TODO: Remove this function? -> Moved to siminstance.py
+    # '''
+    #     Transform the scalar files generated by the simulation model into a csv format.
+    # '''
+    # def transform_scalar_files(self, uids):
+    #     scavetool_command = "opp_scavetool export -F CSV-R -o x.csv *.sca"
 
-        for sim_uid in uids.keys():
-            sim_results_directory = os.path.join(self.data_path, "results", sim_uid)
+    #     for sim_uid in uids.keys():
+    #         sim_results_directory = os.path.join(self.data_path, "results", sim_uid)
 
-            # Attempt to transform the scalar files in the given results directory.
-            self.logger.info(f"Replacing scalar files by csv through transformation and removal in directory: {sim_results_directory}")
-            try:
-                subprocess.run(scavetool_command, shell=True, cwd=sim_results_directory, check=True)
-            except subprocess.CalledProcessError as e:
-                self.logger.error(f"Error executing the command: {e}")
+    #         # Attempt to transform the scalar files in the given results directory.
+    #         self.logger.info(f"Replacing scalar files by csv through transformation and removal in directory: {sim_results_directory}")
+    #         try:
+    #             subprocess.run(scavetool_command, shell=True, cwd=sim_results_directory, check=True)
+    #         except subprocess.CalledProcessError as e:
+    #             self.logger.error(f"Error executing the command: {e}")
 
-            # Remove the scalar files in the given results directory.
-            for file in os.listdir(sim_results_directory):
-                if file.endswith(".sca"):
-                    os.remove(os.path.join(sim_results_directory, file))
+    #         # Remove the scalar files in the given results directory.
+    #         for file in os.listdir(sim_results_directory):
+    #             if file.endswith(".sca"):
+    #                 os.remove(os.path.join(sim_results_directory, file))
 
 
     '''
@@ -366,20 +366,18 @@ class HeuristicSimulationCoordinator:
     '''
     def obtain_simulation_stats(self, uids):
 
-        # TODO: Should rename fitness values accross the board to something else, because this is not the correct term.
+        # TODO: Should rename fitness_values variable accross the board to something else, because this is not the correct term.
         # Load the transformed outputted data from the simulation run.
         fitness_values = []
 
         for sim_uid, agent_id in uids.items():
-            self.logger.info(f"Determining fitness parameters values for siminstance {sim_uid}.")
+            self.logger.info(f"Determining simulation statistics for siminstance {sim_uid}.")
 
             # TODO: Change scavetool output filename to something more descriptive.
             csv_file_path = os.path.join(self.data_path, "results", sim_uid, "x.csv")
             df = pd.read_csv(csv_file_path)
 
             # Determine end-to-end delay statistics.
-            # NOTE: Commented out old way of statistics gathering.
-            # latency_df = df[df["type"] == "histogram"]
             latency_df = df[df["type"] == "statistic"]
             latency_df = latency_df[latency_df["module"].str.endswith(".cli")]
             latency_df = latency_df[latency_df["name"].str.startswith("endToEndDelay")]
@@ -462,23 +460,20 @@ class HeuristicSimulationCoordinator:
         return {uid: 0}
 
 
-    def run_multiple_simulation_configuration(self):
+    def run_multiple_simulation_configuration(self, sim_ids):
 
         # Configure siminstances.
         inet_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "inet_path")
         dummy_sim_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "dummy_path")
-        sim_instances = [create_sim_inet_lans_dummy_parallel(self.config, dummy_sim_path, sim_id, inet_path) for sim_id in self.sim_ids]
+        sim_instances = [create_sim_inet_lans_dummy_parallel(self.config, dummy_sim_path, sim_id, inet_path) for sim_id in sim_ids]
 
         uids = {sim_instance.uid: id for id, sim_instance in enumerate(sim_instances)}
 
         # Run the configured simulation model.
         self.manager.enqueue_tasks(sim_instances)
-
-        # TEMP: Check uid handling
         self.manager.evaluate_all()
 
         return uids
-        # return sim_instances
 
 
     def create_relevant_cluster_config(self):
@@ -517,7 +512,7 @@ class HeuristicSimulationCoordinator:
         # TODO: Make file name sim_instance dependent such that correct storage location is configured and data is stored with other results.
         # Define the file output path.
         dir_design_points_metrics_output = self.conf.tryGet("output_paths", "design_points_metrics_output")
-        os.makedirs(dir_design_points_metrics_output, exist_ok=False)
+        os.makedirs(dir_design_points_metrics_output, exist_ok=True)
         append_design_points_metric_output_file = os.path.join(dir_design_points_metrics_output, "design_point_metrics.csv")
 
         # Determine weighted metric values.
@@ -528,6 +523,99 @@ class HeuristicSimulationCoordinator:
         append_df = pd.DataFrame([[sim_uid, adjusted_latency, adjusted_network_cost]],
                                 columns=['SimulationID', 'AdjustedLatency', 'AdjustedNetworkCost'])
         append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
+
+
+    '''
+        Perform the parameter tuning workflow.
+    '''
+    def parameter_tuning_workflow(self):
+        self.logger.info("Performing the parameter tuning workflow.")
+        parameter_names = self.conf.tryGet("parameter_tuning", "parameter_names")
+        parameter_ranges = self.conf.tryGet("parameter_tuning", "parameter_ranges")
+
+        sim_ids = []
+        for idx, parameter_name in enumerate(parameter_names):
+            parameter_range = parameter_ranges[idx]
+            self.logger.info(f"Tuning parameter {parameter_name} within range {parameter_range}.")
+            for parameter_value in parameter_range:
+                sim_id = uuid.uuid4()
+                sim_ids.append(sim_id)
+                sim_instance_path = self.generated_simulation_model_path + f"_{sim_id}"
+
+                # Duplicate the preferred dummy_sim directory to the sim_instance directory.
+                self.duplicate_directory(self.simulation_model_template_path, sim_instance_path, file_to_ignore="largeNet.ini")
+                # Define the path to the sim_instance ini file.
+                sim_instance_ini_file_path = os.path.join(sim_instance_path, "largeNet.ini")
+
+                # Write the sim_instance ini file with the provided parameter configurations.
+                self.write_sim_instance_ini_file(
+                    self.ini_file_template_path,
+                    sim_instance_ini_file_path,
+                    {parameter_name: parameter_value}
+                )
+
+        # Run the simulation model.
+        uids = self.run_multiple_simulation_configuration(sim_ids)
+
+        for sim_uid in uids.keys():
+            self.determine_sim_instance_parameter_tuning_results(sim_uid)
+
+        sim_ids.clear()
+        self.remove_simulation_run_dirs()
+
+
+    '''
+        Determine the parameter tuning results for the simulation run.
+
+        Args:
+            sim_uid: The unique identifier of the simulation run.
+    '''
+    def determine_sim_instance_parameter_tuning_results(self, sim_uid):
+        self.logger.info(f"Determining the parameter tuning results for siminstance {sim_uid}.")
+
+        # TODO: Change scavetool output filename to something more descriptive.
+        csv_file_path = os.path.join(self.data_path, "results", sim_uid, "x.csv")
+        df = pd.read_csv(csv_file_path)
+
+        # TODO: Make the following code more generic and less hardcoded.
+        cli_df = df[df["module"].fillna("").str.endswith(".cli")]
+        self.logger.debug(f"CLI dataframe head:\n{cli_df.head(40)}")
+        latency_df = cli_df[(cli_df["type"] == "statistic") & (cli_df["name"].str.startswith("endToEndDelay"))]
+        packet_df = cli_df[(cli_df['type'] == "scalar") & (cli_df['name'].str.startswith("packet"))]
+
+        # Remove the csv file.
+        if self.remove_sim_instance_output:
+            self.logger.info(f"Removing the output file for simistance {sim_uid}")
+            os.remove(csv_file_path)
+
+        self.save_parameter_tuning_results(latency_df, packet_df, sim_uid)
+
+
+    '''
+        Save the parameter tuning results from the simulation run.
+
+        Args:
+            latency_df: The dataframe containing the latency statistics of the simulation run.
+            packet_df: The dataframe containing the packet statistics of the simulation run.
+            sim_uid: The unique identifier of the simulation run.
+    '''
+    # TODO: Move to data module.
+    def save_parameter_tuning_results(self, latency_df, packet_df, sim_uid):
+
+        # Determine the parameter tuning results.
+        count_packets_sent = packet_df[(packet_df['name'] == "packetSent:count")]['value'].values.sum()
+        packets_sent_sum = packet_df[(packet_df['name'] == "packetSent:sum(packetBytes)")]['value'].values.sum()
+        count_packets_received = packet_df[(packet_df['name'] == "packetReceived:count")]['value'].values.sum()
+        packets_received_sum = packet_df[(packet_df['name'] == "packetReceived:sum(packetBytes)")]['value'].values.sum()
+        mean_end_to_end_delay = latency_df['mean'].values.mean()
+        stddev_end_to_end_delay = latency_df['stddev'].values.mean()
+        min_end_to_end_delay = latency_df['min'].values.mean()
+        max_end_to_end_delay = latency_df['max'].values.mean()
+
+        # Append the parameter tuning results to the parameter tuning storage.
+        append_df = pd.DataFrame([[sim_uid, count_packets_sent, packets_sent_sum, count_packets_received, packets_received_sum, mean_end_to_end_delay, stddev_end_to_end_delay, min_end_to_end_delay, max_end_to_end_delay]],
+                                columns=['SimulationID', 'CountPacketsSent', 'PacketsSentSum', 'CountPacketsReceived', 'PacketsReceivedSum', 'MeanEndToEndDelay', 'StddevEndToEndDelay', 'MinEndToEndDelay', 'MaxEndToEndDelay'])
+        append_df.to_csv(self.parameter_tuning_file, mode='a', header=not os.path.exists(self.parameter_tuning_file), index=False)
 
 
     @staticmethod
@@ -558,6 +646,21 @@ class HeuristicSimulationCoordinator:
                 config_pattern = configuration["config_pattern"]
                 value = configuration["value"]
                 new_file.write(f"{config_pattern} = {value}\n")
+
+    @staticmethod
+    def write_sim_instance_ini_file(template_ini_file_path, sim_instance_ini_file_path, configurations):
+        configuration_patterns = configurations.keys()
+        with open(template_ini_file_path, 'r') as template_ini_file, open(sim_instance_ini_file_path, 'w') as sim_instance_ini_file:
+            for line in template_ini_file:
+                line_written = False
+                for configuration_pattern in configuration_patterns:
+                    if line.startswith(configuration_pattern):
+                        configuration_value = configurations[configuration_pattern]
+                        sim_instance_ini_file.write(f"{configuration_pattern} = {configuration_value}\n")
+                        line_written = True
+                        break
+                if not line_written:
+                    sim_instance_ini_file.write(line)
 
     @staticmethod
     def write_new_ini_file(old_file_path, new_file_path, param_dict):
