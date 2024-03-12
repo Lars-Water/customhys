@@ -1,14 +1,15 @@
 {
     "parameter_tuning": {
         "parameter_names": [
-            "sim-time-limit"
+            "cable_rate"
         ],
         "parameter_ranges": [
-            ["2s", "4s", "6s", "8s", "10s"]
+            ["100Mbps", "1Gbps", "10Gbps"]
         ]
     },
     "coordinator_functionalities": {
-        "remove_sim_instance_output": false,
+        "remove_sim_instance_configurations": true,
+        "remove_sim_instance_output": true,
         "store_design_points_metrics_values": false
     },
     "results_path": "/home/larry/hyper-heuristic-dse-2.0/data/raw",
@@ -46,7 +47,6 @@
             {
                 "param_name": "cable_rate",
                 "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate",
-                "number_of_configs": 7,
                 "values": [
                     "10Mbps",
                     "100Mbps",
@@ -57,7 +57,6 @@
             {
                 "param_name": "cable_cost",
                 "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost",
-                "number_of_configs": 7,
                 "values": [
                     1,
                     2,

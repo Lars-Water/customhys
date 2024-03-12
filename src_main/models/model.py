@@ -47,7 +47,7 @@ class instance(BP):
     '''
     def get_func_val(self, variables, *args):
         return self.sim_run(self.fitfunc, variables)
-    
+
 
     '''
         Evaluate the fitness value of the simulation run.

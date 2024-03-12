@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import pandas as pd
-import glob
 
 from src_main.tools.config_reader import Config
 from pathlib import Path
@@ -41,15 +40,6 @@ def get_convergence_data(config_path, visualization_path):
     convergence_number = next((i for i, fitness in enumerate(best_fitness_values) if fitness == optimal_fitness), None)
 
     return convergence_number, nr_of_components
-
-
-'''
-    Deprecated: Please use new_function instead.
-'''
-def prepare_fitness_data(hist_values):
-    # Direct extraction of 'fitness' values
-    fitness_values = hist_values['fitness']
-    return fitness_values
 
 
 # Plotting functions
@@ -120,27 +110,6 @@ def plot_convergence(convergence_numbers, nr_of_components_list, output_path):
     plt.close()
 
 
-'''
-    Deprecated: Please use new_function instead.
-'''
-def plot_fitness_over_iterations(fitness_values, store_path, title, formula_text):
-    plt.figure()
-    plt.plot(fitness_values, lw=2)
-    plt.xlabel('Iteration')
-    plt.ylabel('Fitness Evaluation')
-    plt.xlim(0, len(fitness_values) - 1)
-    plt.ylim(0, max(fitness_values) + 1)
-    plt.xticks(np.arange(0, len(fitness_values), step=1))
-    plt.grid()
-
-    # Add the formula as text annotation in the top right corner
-    plt.text(0.5, 0.9, formula_text, fontsize=12, color='red', transform=plt.gca().transAxes, bbox=dict(boxstyle='round', facecolor='white', edgecolor='red'))
-
-    plt.title(title)
-    plt.savefig(store_path)
-    plt.close()
-
-
 # Main functions
 
 
@@ -205,38 +174,44 @@ def main_plot_convergence_vs_components(data_path, visualization_path, output_pa
     plot_convergence(convergence_numbers, nr_of_components_list, output_path)
 
 
-'''
-    Deprecated: Please use new_function instead.
-'''
-def save_simulation_fitness(hist_values, store_path, title, filename):
+def main_plot_design_space(temp_design_points_data_file, visualization_path, output_path_design_space):
     # Ensure the directory exists
-    output_path = Path(store_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    os.makedirs(os.path.dirname(output_path_design_space), exist_ok=True)
 
-    # Prepare data
-    fitness_values = prepare_fitness_data(hist_values)
+    # Read the design space data from the csv file
+    design_space_data = pd.read_csv(temp_design_points_data_file)
 
-    # Define formula text for annotation
-    formula_text = "(0.5 * (1 / end_to_end delay)) + (0.5 * network_cost)"
-
-    # Complete output path including filename
-    complete_store_path = output_path / f"{filename}.png"
-
-    # Plot and save the figure
-    plot_fitness_over_iterations(fitness_values, complete_store_path, title, formula_text)
+    # Plot the design space data
+    plt.figure()
+    x_coordinates = design_space_data['AdjustedLatency']
+    y_coordinates = design_space_data['AdjustedNetworkCost']
+    plt.scatter(x_coordinates, y_coordinates)
+    plt.title("Design Points in the Design Space")
+    plt.xlabel("Weighted Latency")
+    plt.ylabel("Weighted Network Cost")
+    plt.savefig(output_path_design_space)
+    plt.close()
 
 
 if __name__ == "__main__":
-    # Example usage
-    base_path = Path.cwd()
-    data_path = base_path / "data/raw/results/metaheuristic/genetic_algorithm"
+    # # Example usage
+    # base_path = Path.cwd()
+    # data_path = base_path / "data/raw/results/metaheuristic/genetic_algorithm"
     visualization_path = Path("/home/lvdwater/hyper-heuristic-dse-2.0/logs/vizualization")
-    output_path_bars = Path("/home/lvdwater/hyper-heuristic-dse-2.0/data/processed/execution_times/bars_components.png")
-    output_path_pies = Path("/home/lvdwater/hyper-heuristic-dse-2.0/data/processed/execution_times/pies_components.png")
-    plot_output_base = Path("/home/lvdwater/hyper-heuristic-dse-2.0/data/processed/execution_times/fitness_plots")
-    output_path_convergence = Path("/home/lvdwater/hyper-heuristic-dse-2.0/data/processed/execution_times/convergence_vs_components.png")
+    # output_path_bars = Path("/home/lvdwater/hyper-heuristic-dse-2.0/data/processed/execution_times/bars_components.png")
+    # output_path_pies = Path("/home/lvdwater/hyper-heuristic-dse-2.0/data/processed/execution_times/pies_components.png")
+    # plot_output_base = Path("/home/lvdwater/hyper-heuristic-dse-2.0/data/processed/execution_times/fitness_plots")
+    # output_path_convergence = Path("/home/lvdwater/hyper-heuristic-dse-2.0/data/processed/execution_times/convergence_vs_components.png")
 
-    bar_execution_times(data_path, visualization_path, output_path_bars)
-    combined_pie_execution_times(data_path, visualization_path, output_path_pies)
-    main_plot_fitness_across_files(data_path, visualization_path, plot_output_base)
-    main_plot_convergence_vs_components(data_path, visualization_path, output_path_convergence)
+    # bar_execution_times(data_path, visualization_path, output_path_bars)
+    # combined_pie_execution_times(data_path, visualization_path, output_path_pies)
+    # main_plot_fitness_across_files(data_path, visualization_path, plot_output_base)
+    # main_plot_convergence_vs_components(data_path, visualization_path, output_path_convergence)
+
+    # TODO: Implement design space visualisation.
+    # 1. Get the design space data from the json files
+    # 2. Plot the design space data
+    # 3. Save the plot to the output path
+    temp_design_points_data_file = Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/design_points/design_point_metrics.csv")
+    output_path_design_space = Path("/home/larry/hyper-heuristic-dse-2.0/data/processed/design_space/design_space.png")
+    main_plot_design_space(temp_design_points_data_file, visualization_path, output_path_design_space)

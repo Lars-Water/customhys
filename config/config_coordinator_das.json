@@ -1,5 +1,6 @@
 {
     "coordinator_functionalities": {
+        "remove_sim_instance_configurations": false,
         "remove_sim_instance_output": true,
         "store_design_points_metrics_values": false
     },
@@ -38,7 +39,6 @@
             {
                 "param_name": "cable_rate",
                 "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate",
-                "number_of_configs": 7,
                 "values": [
                     "10Mbps",
                     "100Mbps",
@@ -49,7 +49,6 @@
             {
                 "param_name": "cable_cost",
                 "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost",
-                "number_of_configs": 7,
                 "values": [
                     1,
                     2,

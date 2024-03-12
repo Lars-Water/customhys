@@ -220,7 +220,7 @@ def create_mh_instance(run, heur_sim_coordinator):
         heur_run_config_file_path (Path): The path to the heuristic run configuration file.
         parameter_tuning (bool): The flag to indicate if parameter tuning is enabled.
 '''
-def main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning):
+def main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning, nr_of_backbone_switches):
 
     # Set up the general heuristic run configuration.
     if heur_run_config_file_path:
@@ -236,13 +236,13 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, par
         heuristics_collection = define_heuristic_operators(heuristic_run_config)
 
         # Create the coordinator for the heuristic simulation workflow.
-        heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents) # noqa 501
+        heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, nr_of_backbone_switches) # noqa 501
 
         run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
         # run_hh(heur_sim_coordinator, heuristics_collection)
-    else:
+    elif parameter_tuning:
         nr_of_agents = None
-        parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, True) # noqa 501
+        parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, nr_of_backbone_switches) # noqa 501
         parameter_tuning_coordinator.parameter_tuning_workflow()
 
     return
@@ -250,6 +250,7 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, par
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the heuristic simulation workflow.")
+    parser.add_argument("--nr_sw", type=int, required=False, help="The number of backbone switches.")
     parser.add_argument("--base_path", type=str, required=True, help="Root of the project.")
     parser.add_argument("--coordinator_config", type=str, required=True, help="Path to the coordinator configuration file.")
     parser.add_argument("--heur_run_config", type=str, required=False, help="Path to the heuristic run configuration file.")
@@ -257,6 +258,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Convert the arguments to Path objects.
+    nr_of_backbone_switches = args.nr_sw
     base_path = Path(args.base_path)
     coordinator_config_file_path = Path(args.coordinator_config)
     heur_run_config_file_path = Path(args.heur_run_config) if args.heur_run_config else None
@@ -270,13 +272,19 @@ if __name__ == "__main__":
     if not coordinator_config_file_path.exists():
         raise FileNotFoundError(f"The coordinator configuration file {coordinator_config_file_path} does not exist.")
 
-    # Check if the heuristic run configuration file exists
-    if not parameter_tuning and not heur_run_config_file_path.exists():
+    # Check if no heuristic config file path is provided nor parameter tuning is enabled.
+    if not heur_run_config_file_path and not parameter_tuning:
+        raise ValueError("Please provide a heuristic run configuration file or enable parameter tuning.")
+    # Check if both heuristic config file path is provided and parameter tuning is enabled.
+    elif heur_run_config_file_path and parameter_tuning:
+        raise ValueError("Please provide a heuristic run configuration file or enable parameter tuning, not both.")
+    # Check if the heuristic config file path exists.
+    elif heur_run_config_file_path and not heur_run_config_file_path.exists():
         raise FileNotFoundError(f"The heuristic run configuration file {heur_run_config_file_path} does not exist.")
-    elif not parameter_tuning:
-        raise ValueError("No functionality called for experiment. Either provide a heuristic run config or enable parameter tuning.")
+    # TODO: Check if parameter tuning configurations are provided if parameter tuning is enabled.
+    pass
 
-    main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning)
+    main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning, nr_of_backbone_switches)
 
     # visualization.bar_execution_times(type="iterations")
     # visualization.combined_pie_execution_times(type="iterations")

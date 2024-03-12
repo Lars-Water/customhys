@@ -32,12 +32,12 @@ class HeuristicSimulationCoordinator:
             base_path: The base path of the project.
             coordinator_config_file_path: The path to the configuration file of the coordinator.
             nr_of_agents: The number of agents to run the simulation model with.
-            parameter_tuning: A flag to indicate whether the coordinator should perform parameter tuning or not.
     '''
-    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, parameter_tuning=False):
+    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, nr_of_backbone_switches=6):
         self.base_path = base_path
         self.nr_of_agents = nr_of_agents
         self.nr_of_sims = nr_of_agents
+        self.nr_of_backbone_switches = nr_of_backbone_switches
 
         # Predefine the parameters for the execution times.
         self.coordinator_execution_time = 0
@@ -69,10 +69,10 @@ class HeuristicSimulationCoordinator:
         workflow_runtime_folder = os.path.join(self.data_path, "runtime")
 
         self.logger.info("Setting up workflow configuration file.")
-        sims_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "sims_path")
+        self.sims_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "sims_path")
         design_queues = [WorkflowConfig.create_design_point_queue_config("base", 0, "FIFO")]
         cluster_config = self.create_relevant_cluster_config()
-        self.workflow_config = WorkflowConfig(sims_path, "config", "run_sim", "results", "logs", "out",
+        self.workflow_config = WorkflowConfig(self.sims_path, "config", "run_sim", "results", "logs", "out",
                             workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, design_queues, "uuid", cluster_config)
         self.config = self.workflow_config.conf()
         self.workflow_config.write_conf(workflow_config_file)
@@ -90,14 +90,10 @@ class HeuristicSimulationCoordinator:
         self.logger.info("Determine flags for coordinator functionalities.")
         self.store_design_points_metrics_values = self.conf.tryGet("coordinator_functionalities", "store_design_points_metrics_values")
         self.remove_sim_instance_output = self.conf.tryGet("coordinator_functionalities", "remove_sim_instance_output")
+        self.remove_sim_instance_configurations = self.conf.tryGet("coordinator_functionalities", "remove_sim_instance_configurations")
 
         self.logger.info("Determine the paths for the simulation model results.")
         self.results_path = self.conf.tryGet("results_path")
-        if parameter_tuning:
-            # TODO: Change the hardcoded filename to a variable in the configuration file.
-            parameter_tuning_path = os.path.join(self.results_path, "parameter_tuning")
-            os.makedirs(parameter_tuning_path, exist_ok=True)
-            self.parameter_tuning_file = os.path.join(parameter_tuning_path, "parameter_tuning_results.csv")
 
 
     '''
@@ -137,7 +133,7 @@ class HeuristicSimulationCoordinator:
 
                 # TODO: Change the hardcoded number of backbone switches to a variable.
                 # Write a new ini file with the parameter configurations.
-                self.write_new_ini_file_new(
+                self.write_new_ini_file(
                     old_ini_file_path,
                     new_ini_file_path,
                     agent_configuration,
@@ -172,7 +168,8 @@ class HeuristicSimulationCoordinator:
             self.coordinator_execution_time += end_time - start_time
 
             sim_ids.clear()
-            self.remove_simulation_run_dirs()
+            if self.remove_sim_instance_configurations:
+                self.remove_simulation_instance_configurations()
 
             return 0
 
@@ -194,7 +191,7 @@ class HeuristicSimulationCoordinator:
 
             # TODO: Change the hardcoded number of backbone switches to a variable.
             # Write a new ini file with the parameter configurations.
-            self.write_new_ini_file_new(
+            self.write_new_ini_file(
                 old_ini_file_path,
                 new_ini_file_path,
                 configurations,
@@ -216,15 +213,11 @@ class HeuristicSimulationCoordinator:
             # Add simulation run time to total coordinator time.
             self.coordinator_execution_time += end_time - start_time
 
+            if self.remove_sim_instance_configurations:
+                self.remove_simulation_instance_configurations()
+
             # self.logger.info("Fitness value: {}".format(fitness_value))
             return fitness_value[0]
-
-
-    '''
-        Shutdown the Manager.
-    '''
-    def shutdown_manager(self):
-        self.manager.shutdown()
 
 
     '''
@@ -242,7 +235,6 @@ class HeuristicSimulationCoordinator:
 
         for param in params:
             config_pattern = param["configuration_pattern"]
-            num_configs = param["number_of_configs"]
             param_values = param["values"]
 
             # Determine the param value index by segment indexing the config values from CUSTOMHys.
@@ -496,7 +488,20 @@ class HeuristicSimulationCoordinator:
             raise ValueError(f"Unknown platform value {platform} provided in coordinator config.")
 
 
-    def remove_simulation_run_dirs(self):
+    def remove_simulation_instance_configurations(self):
+        """
+        Removes simulation run templates from the dummy path and sims path.
+
+        This method removes all the simulation run templates that match the pattern
+        "custom_dummy_*" from the dummy path and also removes the entire sims path.
+        After removing the templates and sims path, it recreates the sims path.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         self.logger.info("Removing simulation run templates in dummy path.")
         sim_dummy_directory = self.conf.tryGet("simulation_model", "simulation_model_paths", "dummy_path")
         pattern = "custom_dummy_*"
@@ -504,6 +509,9 @@ class HeuristicSimulationCoordinator:
         matching_sim_dummy_dir = [path for path in glob.glob(simulation_run_dir_pattern) if os.path.isdir(path)]
         for directory in matching_sim_dummy_dir:
             shutil.rmtree(directory)
+        self.logger.info("Removing simulation run templates in sims path.")
+        shutil.rmtree(self.sims_path)
+        os.makedirs(self.sims_path)
 
 
     # TODO: Move to data module.
@@ -529,9 +537,11 @@ class HeuristicSimulationCoordinator:
         Perform the parameter tuning workflow.
     '''
     def parameter_tuning_workflow(self):
-        self.logger.info("Performing the parameter tuning workflow.")
+        self.logger.info("Configuring parameter tuning workflow..")
         parameter_names = self.conf.tryGet("parameter_tuning", "parameter_names")
         parameter_ranges = self.conf.tryGet("parameter_tuning", "parameter_ranges")
+        parameter_tuning_path = os.path.join(self.results_path, "parameter_tuning")
+        os.makedirs(parameter_tuning_path, exist_ok=True)
 
         sim_ids = []
         for idx, parameter_name in enumerate(parameter_names):
@@ -551,17 +561,20 @@ class HeuristicSimulationCoordinator:
                 self.write_sim_instance_ini_file(
                     self.ini_file_template_path,
                     sim_instance_ini_file_path,
-                    {parameter_name: parameter_value}
+                    {parameter_name: parameter_value},
+                    self.nr_of_backbone_switches
                 )
 
-        # Run the simulation model.
+        self.logger.info("Evaluating the generated simulation instances.")
         uids = self.run_multiple_simulation_configuration(sim_ids)
 
+        self.logger.info("Saving the parameter tuning results for the simulation instances.")
         for sim_uid in uids.keys():
-            self.determine_sim_instance_parameter_tuning_results(sim_uid)
+            self.determine_sim_instance_parameter_tuning_results(sim_uid, parameter_names)
 
         sim_ids.clear()
-        self.remove_simulation_run_dirs()
+        if self.remove_sim_instance_configurations:
+            self.remove_simulation_instance_configurations()
 
 
     '''
@@ -569,17 +582,15 @@ class HeuristicSimulationCoordinator:
 
         Args:
             sim_uid: The unique identifier of the simulation run.
+            parameter_names: The names of the parameters tuned in the simulation model.
     '''
-    def determine_sim_instance_parameter_tuning_results(self, sim_uid):
-        self.logger.info(f"Determining the parameter tuning results for siminstance {sim_uid}.")
-
+    def determine_sim_instance_parameter_tuning_results(self, sim_uid, parameter_names):
         # TODO: Change scavetool output filename to something more descriptive.
         csv_file_path = os.path.join(self.data_path, "results", sim_uid, "x.csv")
         df = pd.read_csv(csv_file_path)
 
         # TODO: Make the following code more generic and less hardcoded.
         cli_df = df[df["module"].fillna("").str.endswith(".cli")]
-        self.logger.debug(f"CLI dataframe head:\n{cli_df.head(40)}")
         latency_df = cli_df[(cli_df["type"] == "statistic") & (cli_df["name"].str.startswith("endToEndDelay"))]
         packet_df = cli_df[(cli_df['type'] == "scalar") & (cli_df['name'].str.startswith("packet"))]
 
@@ -588,7 +599,7 @@ class HeuristicSimulationCoordinator:
             self.logger.info(f"Removing the output file for simistance {sim_uid}")
             os.remove(csv_file_path)
 
-        self.save_parameter_tuning_results(latency_df, packet_df, sim_uid)
+        self.save_parameter_tuning_results(latency_df, packet_df, sim_uid, parameter_names)
 
 
     '''
@@ -598,9 +609,10 @@ class HeuristicSimulationCoordinator:
             latency_df: The dataframe containing the latency statistics of the simulation run.
             packet_df: The dataframe containing the packet statistics of the simulation run.
             sim_uid: The unique identifier of the simulation run.
+            parameter_names: The names of the parameters tuned in the simulation model.
     '''
     # TODO: Move to data module.
-    def save_parameter_tuning_results(self, latency_df, packet_df, sim_uid):
+    def save_parameter_tuning_results(self, latency_df, packet_df, sim_uid, parameter_names):
 
         # Determine the parameter tuning results.
         count_packets_sent = packet_df[(packet_df['name'] == "packetSent:count")]['value'].values.sum()
@@ -613,9 +625,10 @@ class HeuristicSimulationCoordinator:
         max_end_to_end_delay = latency_df['max'].values.mean()
 
         # Append the parameter tuning results to the parameter tuning storage.
+        parameter_tune_run_file_name = os.path.join(self.results_path, "parameter_tuning", "_".join(parameter_names) + ".csv")
         append_df = pd.DataFrame([[sim_uid, count_packets_sent, packets_sent_sum, count_packets_received, packets_received_sum, mean_end_to_end_delay, stddev_end_to_end_delay, min_end_to_end_delay, max_end_to_end_delay]],
                                 columns=['SimulationID', 'CountPacketsSent', 'PacketsSentSum', 'CountPacketsReceived', 'PacketsReceivedSum', 'MeanEndToEndDelay', 'StddevEndToEndDelay', 'MinEndToEndDelay', 'MaxEndToEndDelay'])
-        append_df.to_csv(self.parameter_tuning_file, mode='a', header=not os.path.exists(self.parameter_tuning_file), index=False)
+        append_df.to_csv(parameter_tune_run_file_name, mode='a', header=not os.path.exists(parameter_tune_run_file_name), index=False)
 
 
     @staticmethod
@@ -631,7 +644,7 @@ class HeuristicSimulationCoordinator:
         return _ignore
 
     @staticmethod
-    def write_new_ini_file_new(old_file_path, new_file_path, configurations, nr_of_backbone_switches):
+    def write_new_ini_file(old_file_path, new_file_path, configurations, nr_of_backbone_switches):
         with open(old_file_path, 'r') as old_file, open(new_file_path, 'w') as new_file:
             for line in old_file:
                 # Update the number of backbone switches accordingly
@@ -648,7 +661,7 @@ class HeuristicSimulationCoordinator:
                 new_file.write(f"{config_pattern} = {value}\n")
 
     @staticmethod
-    def write_sim_instance_ini_file(template_ini_file_path, sim_instance_ini_file_path, configurations):
+    def write_sim_instance_ini_file(template_ini_file_path, sim_instance_ini_file_path, configurations, nr_of_backbone_switches):
         configuration_patterns = configurations.keys()
         with open(template_ini_file_path, 'r') as template_ini_file, open(sim_instance_ini_file_path, 'w') as sim_instance_ini_file:
             for line in template_ini_file:
@@ -659,18 +672,20 @@ class HeuristicSimulationCoordinator:
                         sim_instance_ini_file.write(f"{configuration_pattern} = {configuration_value}\n")
                         line_written = True
                         break
+                    elif line.startswith("LargeNet.n =") and configuration_pattern == "cable_rate":
+                        sim_instance_ini_file.write(f"LargeNet.n = {nr_of_backbone_switches}   # number of switches on backbone")
+                        line_written = True
+                        break
+                    elif line.startswith("# Parameter tuning for cable rate patterns below this line.") and configuration_pattern == "cable_rate":
+                        sim_instance_ini_file.write(line)
+                        sim_instance_ini_file.write(f"**.switchBB[0].ethg$o[0].channel.datarate = {configurations[configuration_pattern]}\n")
+                        sim_instance_ini_file.write(f"**.switchBB[1..{nr_of_backbone_switches-2}].ethg$o[0..1].channel.datarate = {configurations[configuration_pattern]}\n")
+                        sim_instance_ini_file.write(f"**.switchBB[{nr_of_backbone_switches-1}].ethg$o[0].channel.datarate = {configurations[configuration_pattern]}\n")
+                        line_written = True
+                        break
                 if not line_written:
                     sim_instance_ini_file.write(line)
 
-    @staticmethod
-    def write_new_ini_file(old_file_path, new_file_path, param_dict):
-        with open(old_file_path, 'r') as old_file, open(new_file_path, 'w') as new_file:
-            for line in old_file:
-                updated_line = line
-                for param, value in param_dict.items():
-                    if line.startswith(param):
-                        updated_line = f"{param} = {value}\n"
-                new_file.write(updated_line)
 
     @staticmethod
     def update_file_params(filepath, new_params):
