@@ -4,13 +4,11 @@ import os
 import shutil
 import pandas as pd
 import numpy as np
-import subprocess
 import time
 import json
 from pathlib import Path
 import glob
-
-from concurrent.futures import ThreadPoolExecutor
+import itertools
 
 from experiments import create_sim_custom_dummy, create_sim_inet_lans_dummy, create_sim_inet_lans_dummy_parallel
 from src.manager import Manager
@@ -107,8 +105,6 @@ class HeuristicSimulationCoordinator:
             The fitness value of the simulation run.
     '''
     def simulation_run(self, fitfunc, config_values):
-        # self.logger.info(f"Simulation run with config values:\n{config_values}")
-
         # Start timer for simulation run.
         start_time = time.time()
         # TODO: Merge the following two if statements into one. -> CUSTOMHys should be able to handle both situations?
@@ -629,6 +625,78 @@ class HeuristicSimulationCoordinator:
         append_df = pd.DataFrame([[sim_uid, count_packets_sent, packets_sent_sum, count_packets_received, packets_received_sum, mean_end_to_end_delay, stddev_end_to_end_delay, min_end_to_end_delay, max_end_to_end_delay]],
                                 columns=['SimulationID', 'CountPacketsSent', 'PacketsSentSum', 'CountPacketsReceived', 'PacketsReceivedSum', 'MeanEndToEndDelay', 'StddevEndToEndDelay', 'MinEndToEndDelay', 'MaxEndToEndDelay'])
         append_df.to_csv(parameter_tune_run_file_name, mode='a', header=not os.path.exists(parameter_tune_run_file_name), index=False)
+
+
+    # TODO: Implement this functionality.
+    def determine_design_space(self):
+        self.logger.info("Determining the design space for the simulation model.")
+        cable_options = self.conf.tryGet("cable_options")
+        sim_ids = []
+        for permutation in itertools.product(cable_options, repeat=self.nr_of_backbone_switches):
+            sim_id = uuid.uuid4()
+            sim_ids.append(sim_id)
+            sim_instance_path = self.generated_simulation_model_path + f"_{sim_id}"
+
+            # Duplicate the preferred dummy_sim directory to the sim_instance directory.
+            self.duplicate_directory(self.simulation_model_template_path, sim_instance_path, file_to_ignore="largeNet.ini")
+            # Define the path to the sim_instance ini file.
+            sim_instance_ini_file_path = os.path.join(sim_instance_path, "largeNet.ini")
+
+            # Write the sim_instance ini file with the provided cable options permutation.
+            self.write_permutation_ini_file(
+                self.ini_file_template_path,
+                sim_instance_ini_file_path,
+                permutation
+            )
+
+        self.logger.info("Evaluating every possible design point.")
+        uids = self.run_multiple_simulation_configuration(sim_ids)
+
+        # TODO: Make seperate function.
+        for sim_uid in uids.keys():
+            # TODO: Change scavetool output filename to something more descriptive.
+            csv_file_path = os.path.join(self.data_path, "results", sim_uid, "x.csv")
+            df = pd.read_csv(csv_file_path)
+
+            # Determine end-to-end delay statistics.
+            latency_df = df[df["type"] == "statistic"]
+            latency_df = latency_df[latency_df["module"].str.endswith(".cli")]
+            latency_df = latency_df[latency_df["name"].str.startswith("endToEndDelay")]
+
+            # Get the cost of all components with a cost paramater in the simulation model.
+            cost_df = df[df['type'] == "param"]
+            cost_df = cost_df[cost_df["name"] == "cost"]
+
+            # Store design point metrics output.
+            if self.store_design_points_metrics_values:
+                self.logger.info(f"Storing metrics output values for siminstance {sim_uid}.")
+                self.store_design_point_metrics(latency_df, cost_df, sim_uid)
+
+        sim_ids.clear()
+        if self.remove_sim_instance_configurations:
+            self.remove_simulation_instance_configurations()
+
+
+    @staticmethod
+    def write_permutation_ini_file(ini_file_template_path, design_point_ini_file_path, permutation):
+        # Step 1: Read the contents of the template INI file
+        with open(ini_file_template_path, 'r') as template_file:
+            template_contents = template_file.read()
+
+        # Step 2: Open the design point INI file for writing
+        with open(design_point_ini_file_path, 'w') as design_file:
+            # Write the template contents to the design point INI file
+            design_file.write(template_contents)
+
+            # Step 3: Write additional information for each permutation
+            for switch_idx, cable_option in enumerate(permutation):
+                if switch_idx == 0:
+                    design_file.write(f"**.switchBB[0].ethg$o[0].channel.datarate = {cable_option['cable_rate']}\n")
+                    design_file.write(f"**.switchBB[1].ethg$o[0].channel.datarate = {cable_option['cable_rate']}\n")
+                else:
+                    design_file.write(f"**.switchBB[{switch_idx}].ethg$o[1].channel.datarate = {cable_option['cable_rate']}\n")
+                    design_file.write(f"**.switchBB[{switch_idx+1}].ethg$o[0].channel.datarate = {cable_option['cable_rate']}\n")
+                design_file.write(f"**.switchBB[{switch_idx+1}].ethg$o[0].channel.cost = {cable_option['cable_cost']}\n")
 
 
     @staticmethod

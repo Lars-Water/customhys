@@ -219,8 +219,10 @@ def create_mh_instance(run, heur_sim_coordinator):
         coordinator_config_file_path (Path): The path to the coordinator configuration file.
         heur_run_config_file_path (Path): The path to the heuristic run configuration file.
         parameter_tuning (bool): The flag to indicate if parameter tuning is enabled.
+        design_space_plot (bool): The flag to indicate if design space determination is enabled.
+        nr_of_backbone_switches (int): The number of backbone switches for the INET model.
 '''
-def main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning, nr_of_backbone_switches):
+def main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning, design_space_plot, nr_of_backbone_switches):
 
     # Set up the general heuristic run configuration.
     if heur_run_config_file_path:
@@ -241,9 +243,11 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, par
         run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
         # run_hh(heur_sim_coordinator, heuristics_collection)
     elif parameter_tuning:
-        nr_of_agents = None
-        parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, nr_of_backbone_switches) # noqa 501
+        parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
         parameter_tuning_coordinator.parameter_tuning_workflow()
+    elif design_space_plot:
+        design_space_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
+        design_space_coordinator.determine_design_space()
 
     return
 
@@ -255,6 +259,7 @@ if __name__ == "__main__":
     parser.add_argument("--coordinator_config", type=str, required=True, help="Path to the coordinator configuration file.")
     parser.add_argument("--heur_run_config", type=str, required=False, help="Path to the heuristic run configuration file.")
     parser.add_argument("--param_tune", action="store_true", required=False, help="Flag that enables parameter tuning.")
+    parser.add_argument("--design_space_plot", action="store_true", required=False, help="Flag that enables determining the design space.")
     args = parser.parse_args()
 
     # Convert the arguments to Path objects.
@@ -263,6 +268,7 @@ if __name__ == "__main__":
     coordinator_config_file_path = Path(args.coordinator_config)
     heur_run_config_file_path = Path(args.heur_run_config) if args.heur_run_config else None
     parameter_tuning = args.param_tune
+    design_space_plot = args.design_space_plot
 
     # Check if the base path exists.
     if not base_path.exists():
@@ -273,21 +279,17 @@ if __name__ == "__main__":
         raise FileNotFoundError(f"The coordinator configuration file {coordinator_config_file_path} does not exist.")
 
     # Check if no heuristic config file path is provided nor parameter tuning is enabled.
-    if not heur_run_config_file_path and not parameter_tuning:
-        raise ValueError("Please provide a heuristic run configuration file or enable parameter tuning.")
+    if not heur_run_config_file_path and not parameter_tuning and not design_space_plot:
+        raise ValueError("Please provide a heuristic run configuration file or enable parameter tuning or design space determination.")
     # Check if both heuristic config file path is provided and parameter tuning is enabled.
-    elif heur_run_config_file_path and parameter_tuning:
-        raise ValueError("Please provide a heuristic run configuration file or enable parameter tuning, not both.")
+    elif heur_run_config_file_path and parameter_tuning or heur_run_config_file_path and design_space_plot or parameter_tuning and design_space_plot:
+        raise ValueError("Multiple functionalities enabled; Please provide only a heuristic run configuration file, or only enable parameter tuning or design space configuration.")
     # Check if the heuristic config file path exists.
     elif heur_run_config_file_path and not heur_run_config_file_path.exists():
         raise FileNotFoundError(f"The heuristic run configuration file {heur_run_config_file_path} does not exist.")
     # TODO: Check if parameter tuning configurations are provided if parameter tuning is enabled.
     pass
+    # TODO: Check if design space configurations are provided if design space is enabled.
+    pass
 
-    main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning, nr_of_backbone_switches)
-
-    # visualization.bar_execution_times(type="iterations")
-    # visualization.combined_pie_execution_times(type="iterations")
-
-    # visualization.plot_best_fitness_per_file()
-    # visualization.plot_convergence_vs_components()
+    main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning, design_space_plot, nr_of_backbone_switches)
