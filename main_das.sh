@@ -22,8 +22,11 @@ cd ../inet4.5
 source setenv
 cd ~/hyper-heuristic-dse-2.0
 
-CONFIG_PATH_HEUR_RUN="${BASE_PATH}/config/config_heuristic_run.json"
-python3 main.py --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN" --coordinator_config "$CONFIG_PATH_COORDINATOR"
+# PARAMETER TUNING.
+python3 main.py --nr_sw 10 --base_path "$BASE_PATH" --coordinator_config "$CONFIG_PATH_COORDINATOR" --param_tune
+
+# CONFIG_PATH_HEUR_RUN="${BASE_PATH}/config/config_heuristic_run.json"
+# python3 main.py --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN" --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
 # CONFIG_PATH_HEUR_RUN_GA="${BASE_PATH}/config/config_heuristic_run_ga.json"
 # python3 main.py --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN_GA" --coordinator_config "$CONFIG_PATH_COORDINATOR"

@@ -7,10 +7,10 @@
     ],
     "parameter_tuning": {
         "parameter_names": [
-            "cable_rate"
+            "LargeNet.**.cli.reqLength"
         ],
         "parameter_ranges": [
-            ["100Mbps", "1Gbps", "10Gbps"]
+            ["intuniform(50,1400)*1B", "64B", "256B", "512B", "1024B", "1400B"]
         ]
     },
     "coordinator_functionalities": {
