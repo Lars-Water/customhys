@@ -208,10 +208,6 @@ if __name__ == "__main__":
     # main_plot_fitness_across_files(data_path, visualization_path, plot_output_base)
     # main_plot_convergence_vs_components(data_path, visualization_path, output_path_convergence)
 
-    # TODO: Implement design space visualisation.
-    # 1. Get the design space data from the json files
-    # 2. Plot the design space data
-    # 3. Save the plot to the output path
-    temp_design_points_data_file = Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/design_points/design_point_metrics.csv")
-    output_path_design_space = Path("/home/larry/hyper-heuristic-dse-2.0/data/processed/design_space/design_space.png")
+    temp_design_points_data_file = Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/design_points/design_point_metrics_3_bb_switches.csv")
+    output_path_design_space = Path("/home/larry/hyper-heuristic-dse-2.0/data/processed/design_space/design_space_3_bb_switches.png")
     main_plot_design_space(temp_design_points_data_file, visualization_path, output_path_design_space)

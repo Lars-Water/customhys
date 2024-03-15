@@ -56,7 +56,6 @@ class HeuristicSimulationCoordinator:
         sim_model = self.conf.tryGet("simulation_model", "simulation_model_configuration", "sim_model")
         num_nodes = self.conf.tryGet("simulation_model", "simulation_model_configuration", "num_nodes")
         num_workers = self.conf.tryGet("simulation_model", "simulation_model_configuration", "num_workers")
-        threads_per_worker = self.conf.tryGet("simulation_model", "simulation_model_configuration", "threads_per_worker")
         time_stamp = time.strftime("%Y%m%d_%H%M%S")
         self.data_path = os.path.join(experiments_path, "data", f"campaign_{sim_model}", f"n{str(num_nodes)}_w{str(num_workers)}_s{str(self.nr_of_sims)}", time_stamp)
 
@@ -627,8 +626,17 @@ class HeuristicSimulationCoordinator:
         append_df.to_csv(parameter_tune_run_file_name, mode='a', header=not os.path.exists(parameter_tune_run_file_name), index=False)
 
 
-    # TODO: Implement this functionality.
     def determine_design_space(self):
+        """
+        Determines the design space for the simulation model.
+
+        This method generates all possible combinations of cable options and evaluates each design point
+        by running multiple simulation configurations. It then determines the design point metrics based on
+        the simulation results.
+
+        Returns:
+            None
+        """
         self.logger.info("Determining the design space for the simulation model.")
         cable_options = self.conf.tryGet("cable_options")
         sim_ids = []
@@ -652,7 +660,24 @@ class HeuristicSimulationCoordinator:
         self.logger.info("Evaluating every possible design point.")
         uids = self.run_multiple_simulation_configuration(sim_ids)
 
-        # TODO: Make seperate function.
+        self.determine_design_point_metrics(uids)
+
+        sim_ids.clear()
+        if self.remove_sim_instance_configurations:
+            self.remove_simulation_instance_configurations()
+
+
+    def determine_design_point_metrics(self, uids):
+        """
+        Determines the design point metrics for every evaluated design point.
+
+        Args:
+            uids (dict): A dictionary containing the unique identifiers for each design point.
+
+        Returns:
+            None
+        """
+        self.logger.info("Determining the design point metrics for every evaluated design point.")
         for sim_uid in uids.keys():
             # TODO: Change scavetool output filename to something more descriptive.
             csv_file_path = os.path.join(self.data_path, "results", sim_uid, "x.csv")
@@ -663,18 +688,12 @@ class HeuristicSimulationCoordinator:
             latency_df = latency_df[latency_df["module"].str.endswith(".cli")]
             latency_df = latency_df[latency_df["name"].str.startswith("endToEndDelay")]
 
-            # Get the cost of all components with a cost paramater in the simulation model.
+            # Get the cost of all components with a cost parameter in the simulation model.
             cost_df = df[df['type'] == "param"]
             cost_df = cost_df[cost_df["name"] == "cost"]
 
             # Store design point metrics output.
-            if self.store_design_points_metrics_values:
-                self.logger.info(f"Storing metrics output values for siminstance {sim_uid}.")
-                self.store_design_point_metrics(latency_df, cost_df, sim_uid)
-
-        sim_ids.clear()
-        if self.remove_sim_instance_configurations:
-            self.remove_simulation_instance_configurations()
+            self.store_design_point_metrics(latency_df, cost_df, sim_uid)
 
 
     @staticmethod
@@ -705,11 +724,13 @@ class HeuristicSimulationCoordinator:
         sim_exec_time = df.loc[0, column_name]
         return sim_exec_time
 
+
     @staticmethod
     def ignore_file(file_name):
         def _ignore(_, filenames):
             return [name for name in filenames if name == file_name]
         return _ignore
+
 
     @staticmethod
     def write_new_ini_file(old_file_path, new_file_path, configurations, nr_of_backbone_switches):
@@ -727,6 +748,7 @@ class HeuristicSimulationCoordinator:
                 config_pattern = configuration["config_pattern"]
                 value = configuration["value"]
                 new_file.write(f"{config_pattern} = {value}\n")
+
 
     @staticmethod
     def write_sim_instance_ini_file(template_ini_file_path, sim_instance_ini_file_path, configurations, nr_of_backbone_switches):
@@ -775,6 +797,7 @@ class HeuristicSimulationCoordinator:
             print("File not found.")
         except Exception as e:
             print("An error occurred:", e)
+
 
     @staticmethod
     def duplicate_directory(src_dir, dest_dir, file_to_ignore):
