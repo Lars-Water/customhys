@@ -174,7 +174,7 @@ def main_plot_convergence_vs_components(data_path, visualization_path, output_pa
     plot_convergence(convergence_numbers, nr_of_components_list, output_path)
 
 
-def main_plot_design_space(temp_design_points_data_file, visualization_path, output_path_design_space):
+def main_plot_design_space(temp_design_points_data_file, output_path_design_space):
     # Ensure the directory exists
     os.makedirs(os.path.dirname(output_path_design_space), exist_ok=True)
 
@@ -185,10 +185,21 @@ def main_plot_design_space(temp_design_points_data_file, visualization_path, out
     plt.figure()
     x_coordinates = design_space_data['AdjustedLatency']
     y_coordinates = design_space_data['AdjustedNetworkCost']
-    plt.scatter(x_coordinates, y_coordinates)
+    plt.scatter(x_coordinates, y_coordinates, alpha=0.5)
     plt.title("Design Points in the Design Space")
-    plt.xlabel("Weighted Latency")
-    plt.ylabel("Weighted Network Cost")
+    plt.xlabel("Latency * 0.5")
+    plt.ylabel("Network Cost * 0.5")
+
+    # Set the limits of x and y axes
+    x_min = min(x_coordinates)
+    x_max = max(x_coordinates)
+    y_min = min(y_coordinates)
+    y_max = max(y_coordinates)
+    x_margin = (x_max - x_min) * 0.1
+    y_margin = (y_max - y_min) * 0.1
+    plt.xlim(x_min - x_margin, x_max + x_margin)
+    plt.ylim(y_min - y_margin, y_max + y_margin)
+
     plt.savefig(output_path_design_space)
     plt.close()
 
@@ -197,7 +208,7 @@ if __name__ == "__main__":
     # # Example usage
     # base_path = Path.cwd()
     # data_path = base_path / "data/raw/results/metaheuristic/genetic_algorithm"
-    visualization_path = Path("/home/lvdwater/hyper-heuristic-dse-2.0/logs/vizualization")
+    # visualization_path = Path("/home/lvdwater/hyper-heuristic-dse-2.0/logs/vizualization")
     # output_path_bars = Path("/home/lvdwater/hyper-heuristic-dse-2.0/data/processed/execution_times/bars_components.png")
     # output_path_pies = Path("/home/lvdwater/hyper-heuristic-dse-2.0/data/processed/execution_times/pies_components.png")
     # plot_output_base = Path("/home/lvdwater/hyper-heuristic-dse-2.0/data/processed/execution_times/fitness_plots")
@@ -210,4 +221,4 @@ if __name__ == "__main__":
 
     temp_design_points_data_file = Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/design_points/design_point_metrics_3_bb_switches.csv")
     output_path_design_space = Path("/home/larry/hyper-heuristic-dse-2.0/data/processed/design_space/design_space_3_bb_switches.png")
-    main_plot_design_space(temp_design_points_data_file, visualization_path, output_path_design_space)
+    main_plot_design_space(temp_design_points_data_file, output_path_design_space)
