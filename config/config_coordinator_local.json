@@ -1,21 +1,21 @@
 {
     "cable_options": [
-        {"cable_rate": "10Mbps","cable_cost": 1},
-        {"cable_rate": "100Mbps","cable_cost": 2},
-        {"cable_rate": "1Gbps","cable_cost": 5},
-        {"cable_rate": "10Gbps","cable_cost": 10}
+        {"cable_rate": "10Mbps","cable_cost": 1, "cable_colour": "red"},
+        {"cable_rate": "100Mbps","cable_cost": 2, "cable_colour": "blue"},
+        {"cable_rate": "1Gbps","cable_cost": 5, "cable_colour": "green"},
+        {"cable_rate": "10Gbps","cable_cost": 10, "cable_colour": "yellow"}
     ],
     "parameter_tuning": {
         "parameter_names": [
-            "cable_rate"
+            "LargeNet.**.cli.sendInterval"
         ],
         "parameter_ranges": [
-            ["10Mbps", "100Mbps", "1Gbps", "10Gbps"]
+            ["exponential(0.1s)", "exponential(0.3s)", "exponential(0.5s)", "exponential(0.7s)", "exponential(1s)"]
         ]
     },
     "coordinator_functionalities": {
-        "remove_sim_instance_configurations": false,
-        "remove_sim_instance_output": false,
+        "remove_sim_instance_configurations": true,
+        "remove_sim_instance_output": true,
         "store_design_points_metrics_values": false
     },
     "results_path": "/home/larry/hyper-heuristic-dse-2.0/data/raw",
@@ -68,6 +68,16 @@
                     2,
                     5,
                     10
+                ]
+            },
+            {
+                "param_name": "cable_colour",
+                "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string",
+                "values": [
+                    "ls=red,3,s;",
+                    "ls=blue,3,s;",
+                    "ls=green,3,s;",
+                    "ls=yellow,3,s;"
                 ]
             }
         ]

@@ -709,12 +709,18 @@ class HeuristicSimulationCoordinator:
 
             # Step 3: Write additional information for each permutation
             for switch_idx, cable_option in enumerate(permutation):
+                cable_option_rate = cable_option['cable_rate']
+                cable_option_colour = cable_option['cable_colour']
                 if switch_idx == 0:
-                    design_file.write(f"**.switchBB[0].ethg$o[0].channel.datarate = {cable_option['cable_rate']}\n")
-                    design_file.write(f"**.switchBB[1].ethg$o[0].channel.datarate = {cable_option['cable_rate']}\n")
+                    design_file.write(f"**.switchBB[0].ethg$o[0].channel.datarate = {cable_option_rate}\n")
+                    design_file.write(f"**.switchBB[1].ethg$o[0].channel.datarate = {cable_option_rate}\n")
+                    design_file.write(f"**.switchBB[0].ethg$o[0].channel.display-string = ls={cable_option_colour},3,s;\n")
+                    design_file.write(f"**.switchBB[1].ethg$o[0].channel.display-string = ls={cable_option_colour},3,s;\n")
                 else:
-                    design_file.write(f"**.switchBB[{switch_idx}].ethg$o[1].channel.datarate = {cable_option['cable_rate']}\n")
-                    design_file.write(f"**.switchBB[{switch_idx+1}].ethg$o[0].channel.datarate = {cable_option['cable_rate']}\n")
+                    design_file.write(f"**.switchBB[{switch_idx}].ethg$o[1].channel.datarate = {cable_option_rate}\n")
+                    design_file.write(f"**.switchBB[{switch_idx+1}].ethg$o[0].channel.datarate = {cable_option_rate}\n")
+                    design_file.write(f"**.switchBB[{switch_idx}].ethg$o[1].channel.display-string = ls={cable_option_colour},3,s;\n")
+                    design_file.write(f"**.switchBB[{switch_idx+1}].ethg$o[0].channel.display-string = ls={cable_option_colour},3,s;\n")
                 design_file.write(f"**.switchBB[{switch_idx+1}].ethg$o[0].channel.cost = {cable_option['cable_cost']}\n")
 
 
@@ -752,25 +758,50 @@ class HeuristicSimulationCoordinator:
 
     @staticmethod
     def write_sim_instance_ini_file(template_ini_file_path, sim_instance_ini_file_path, configurations, nr_of_backbone_switches):
-        configuration_patterns = configurations.keys()
+        """
+        Write a simulation instance INI file based on a template INI file and given configurations.
+        Parameters:
+        - template_ini_file_path (str): The path to the template INI file.
+        - sim_instance_ini_file_path (str): The path to the simulation instance INI file to be created.
+        - configurations (dict): A dictionary containing the configuration patterns and their corresponding values.
+        - nr_of_backbone_switches (int): The number of switches on the backbone.
+        Returns:
+        None
+        """
+        configuration_parameters = configurations.keys()
         with open(template_ini_file_path, 'r') as template_ini_file, open(sim_instance_ini_file_path, 'w') as sim_instance_ini_file:
             for line in template_ini_file:
                 line_written = False
-                for configuration_pattern in configuration_patterns:
-                    if line.startswith(configuration_pattern):
-                        configuration_value = configurations[configuration_pattern]
-                        sim_instance_ini_file.write(f"{configuration_pattern} = {configuration_value}\n")
+                for configuration_parameter in configuration_parameters:
+
+                    # Update the default parameter values with the given configuration values.
+                    if line.startswith(configuration_parameter):
+                        configuration_value = configurations[configuration_parameter]
+                        sim_instance_ini_file.write(f"{configuration_parameter} = {configuration_value}\n")
                         line_written = True
                         break
-                    elif line.startswith("LargeNet.n =") and configuration_pattern == "cable_rate":
+
+                    # Update the number of backbone switches accordingly.
+                    elif line.startswith("LargeNet.n =") and configuration_parameter == "cable_rate":
                         sim_instance_ini_file.write(f"LargeNet.n = {nr_of_backbone_switches}   # number of switches on backbone")
                         line_written = True
                         break
-                    elif line.startswith("# Parameter tuning for cable rate patterns below this line.") and configuration_pattern == "cable_rate":
+
+                    # Update the cable rate parameter values with the given configuration values.
+                    elif line.startswith("# Parameter tuning for cable rate patterns below this line.") and configuration_parameter == "cable_rate":
                         sim_instance_ini_file.write(line)
-                        sim_instance_ini_file.write(f"**.switchBB[0].ethg$o[0].channel.datarate = {configurations[configuration_pattern]}\n")
-                        sim_instance_ini_file.write(f"**.switchBB[1..{nr_of_backbone_switches-2}].ethg$o[0..1].channel.datarate = {configurations[configuration_pattern]}\n")
-                        sim_instance_ini_file.write(f"**.switchBB[{nr_of_backbone_switches-1}].ethg$o[0].channel.datarate = {configurations[configuration_pattern]}\n")
+
+                        # Write the cable rate configurations for each backbone switch with the given configuration values.
+                        cable_rate = configurations[configuration_parameter]['rate']
+                        sim_instance_ini_file.write(f"**.switchBB[0].ethg$o[0].channel.datarate = {cable_rate}\n")
+                        sim_instance_ini_file.write(f"**.switchBB[1..{nr_of_backbone_switches-2}].ethg$o[0..1].channel.datarate = {cable_rate}\n")
+                        sim_instance_ini_file.write(f"**.switchBB[{nr_of_backbone_switches-1}].ethg$o[0].channel.datarate = {cable_rate}\n")
+
+                        # Write the cable colour configurations for each backbone switch with the given colour.
+                        cable_colour = configurations[configuration_parameter]['colour']
+                        sim_instance_ini_file.write(f"**.switchBB[0].ethg$o[0].channel.display-string = ls={cable_colour},3,s;\n")
+                        sim_instance_ini_file.write(f"**.switchBB[1..{nr_of_backbone_switches-2}].ethg$o[0..1].channel.display-string = ls={cable_colour},3,s;\n")
+                        sim_instance_ini_file.write(f"**.switchBB[{nr_of_backbone_switches-1}].ethg$o[0].channel.display-string = ls={cable_colour},3,s;\n")
                         line_written = True
                         break
                 if not line_written:

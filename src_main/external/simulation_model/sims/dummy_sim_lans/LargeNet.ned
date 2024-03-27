@@ -399,6 +399,5 @@ network LargeNet
         switchA.ethg++ <--> cable <--> switchB.ethg++;
         switchB.ethg++ <--> cable <--> switchC.ethg++;
         switchC.ethg++ <--> cable <--> switchD.ethg++;
-        switchB.ethg++ <--> cable <--> switchBB[4].ethg++;
+        switchB.ethg++ <--> cable <--> switchBB[n-1].ethg++;
 }
-
