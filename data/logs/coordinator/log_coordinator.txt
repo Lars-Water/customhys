@@ -1,18 +1,28 @@
-[ coordinator  27-03-2024 17:08:39  INFO     ]  Reading coordinator config file.
-[ coordinator  27-03-2024 17:08:39  INFO     ]  Setting up workflow configuration file.
-[ coordinator  27-03-2024 17:08:39  INFO     ]  Setting up local cluster configuration.
-[ coordinator  27-03-2024 17:08:39  INFO     ]  Setting up the Manager.
-[ coordinator  27-03-2024 17:08:41  INFO     ]  Determining the paths for the simulation model.
-[ coordinator  27-03-2024 17:08:41  INFO     ]  Determine flags for coordinator functionalities.
-[ coordinator  27-03-2024 17:08:41  INFO     ]  Determine the paths for the simulation model results.
-[ coordinator  27-03-2024 17:08:41  INFO     ]  Configuring parameter tuning workflow..
-[ coordinator  27-03-2024 17:08:41  INFO     ]  Tuning parameter LargeNet.**.cli.sendInterval within range ['exponential(0.1s)', 'exponential(0.3s)', 'exponential(0.5s)', 'exponential(0.7s)', 'exponential(1s)'].
-[ coordinator  27-03-2024 17:08:41  INFO     ]  Evaluating the generated simulation instances.
-[ coordinator  27-03-2024 17:09:48  INFO     ]  Saving the parameter tuning results for the simulation instances.
-[ coordinator  27-03-2024 17:09:48  INFO     ]  Removing the output file for simistance 9ec18e89-dc67-42dd-81c6-e7c12099e410
-[ coordinator  27-03-2024 17:09:48  INFO     ]  Removing the output file for simistance 8c3f92ae-2925-4a15-91a0-647184989f7b
-[ coordinator  27-03-2024 17:09:48  INFO     ]  Removing the output file for simistance 894a50e8-84fb-4d3f-a4dd-9c6f507a6ade
-[ coordinator  27-03-2024 17:09:48  INFO     ]  Removing the output file for simistance a8a60239-416e-4c84-b122-29ba28ea449c
-[ coordinator  27-03-2024 17:09:48  INFO     ]  Removing the output file for simistance 4a1628db-62dc-4422-bb78-96312e9bb4a6
-[ coordinator  27-03-2024 17:09:48  INFO     ]  Removing simulation run templates in dummy path.
-[ coordinator  27-03-2024 17:09:48  INFO     ]  Removing simulation run templates in sims path.
+[ coordinator  03-04-2024 12:27:16  INFO     ]  Reading coordinator config file.
+[ coordinator  03-04-2024 12:27:16  INFO     ]  Setting up workflow configuration file.
+[ coordinator  03-04-2024 12:27:16  INFO     ]  Setting up DAS cluster configuration.
+[ coordinator  03-04-2024 12:27:16  INFO     ]  Setting up the Manager.
+[ coordinator  03-04-2024 12:27:19  INFO     ]  Determining the paths for the simulation model.
+[ coordinator  03-04-2024 12:27:19  INFO     ]  Determine flags for coordinator functionalities.
+[ coordinator  03-04-2024 12:27:19  INFO     ]  Determine the paths for the simulation model results.
+[ coordinator  03-04-2024 12:27:19  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  03-04-2024 12:27:26  INFO     ]  Determining simulation statistics for siminstance 17761994-8eab-4c84-ae51-41dfd375b7c2.
+[ coordinator  03-04-2024 12:27:26  INFO     ]  Removing the output file for simistance 17761994-8eab-4c84-ae51-41dfd375b7c2
+[ coordinator  03-04-2024 12:27:26  INFO     ]  Determining simulation statistics for siminstance a04ffdbf-c5c3-4e62-81cd-1e66361af64e.
+[ coordinator  03-04-2024 12:27:26  INFO     ]  Removing the output file for simistance a04ffdbf-c5c3-4e62-81cd-1e66361af64e
+[ coordinator  03-04-2024 12:27:26  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  03-04-2024 12:27:26  INFO     ]  Removing simulation run templates in sims path.
+[ coordinator  03-04-2024 12:27:26  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  03-04-2024 12:27:33  INFO     ]  Determining simulation statistics for siminstance 7d261698-36ad-4e7b-afaa-97d875a95063.
+[ coordinator  03-04-2024 12:27:33  INFO     ]  Removing the output file for simistance 7d261698-36ad-4e7b-afaa-97d875a95063
+[ coordinator  03-04-2024 12:27:33  INFO     ]  Determining simulation statistics for siminstance eea9dbf7-9ec5-4983-a8c1-857c5f3ea34e.
+[ coordinator  03-04-2024 12:27:33  INFO     ]  Removing the output file for simistance eea9dbf7-9ec5-4983-a8c1-857c5f3ea34e
+[ coordinator  03-04-2024 12:27:33  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  03-04-2024 12:27:33  INFO     ]  Removing simulation run templates in sims path.
+[ coordinator  03-04-2024 12:27:33  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  03-04-2024 12:27:39  INFO     ]  Determining simulation statistics for siminstance bdd80c56-ec45-4898-b4b0-28c9dfb75b9a.
+[ coordinator  03-04-2024 12:27:39  INFO     ]  Removing the output file for simistance bdd80c56-ec45-4898-b4b0-28c9dfb75b9a
+[ coordinator  03-04-2024 12:27:39  INFO     ]  Determining simulation statistics for siminstance 1ee4896b-7bf5-43b3-b254-b007d4ed3682.
+[ coordinator  03-04-2024 12:27:39  INFO     ]  Removing the output file for simistance 1ee4896b-7bf5-43b3-b254-b007d4ed3682
+[ coordinator  03-04-2024 12:27:39  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  03-04-2024 12:27:39  INFO     ]  Removing simulation run templates in sims path.

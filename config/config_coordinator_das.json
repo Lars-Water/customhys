@@ -10,7 +10,7 @@
     "coordinator_functionalities": {
         "remove_sim_instance_configurations": true,
         "remove_sim_instance_output": true,
-        "store_design_points_metrics_values": true
+        "store_design_points_metrics_values": false
     },
     "results_path": "/home/lvdwater/hyper-heuristic-dse-2.0/data/raw",
     "output_paths": {
@@ -34,7 +34,7 @@
         },
         "simulation_model_configuration": {
             "sim_model": "custom",
-            "platform": "local",
+            "platform": "DAS",
             "jobs": 1,
             "job_cores": 16,
             "job_processes": 1,
@@ -62,6 +62,16 @@
                     2,
                     5,
                     10
+                ]
+            },
+            {
+                "param_name": "cable_colour",
+                "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string",
+                "values": [
+                    "ls=red,3,s;",
+                    "ls=blue,3,s;",
+                    "ls=green,3,s;",
+                    "ls=yellow,3,s;"
                 ]
             }
         ]
