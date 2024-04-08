@@ -504,9 +504,9 @@ class HeuristicSimulationCoordinator:
         matching_sim_dummy_dir = [path for path in glob.glob(simulation_run_dir_pattern) if os.path.isdir(path)]
         for directory in matching_sim_dummy_dir:
             shutil.rmtree(directory)
-        self.logger.info("Removing simulation run templates in sims path.")
-        shutil.rmtree(self.sims_path)
-        os.makedirs(self.sims_path)
+        # self.logger.info("Removing simulation run templates in sims path.")
+        # shutil.rmtree(self.sims_path)
+        # os.makedirs(self.sims_path)
 
 
     # TODO: Move to data module.
