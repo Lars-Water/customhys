@@ -32,6 +32,9 @@ class HeuristicSimulationCoordinator:
             nr_of_agents: The number of agents to run the simulation model with.
     '''
     def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, nr_of_backbone_switches=6):
+        # TODO: Remove temporary variable and usage in coordinator.
+        self.temp_iteration_counter = 0
+
         self.base_path = base_path
         self.nr_of_agents = nr_of_agents
         self.nr_of_sims = nr_of_agents
@@ -104,6 +107,9 @@ class HeuristicSimulationCoordinator:
             The fitness value of the simulation run.
     '''
     def simulation_run(self, fitfunc, config_values):
+        self.logger.debug(f"Starting Simulation Run: {self.temp_iteration_counter}")
+        self.temp_iteration_counter += 1
+
         # Start timer for simulation run.
         start_time = time.time()
         # TODO: Merge the following two if statements into one. -> CUSTOMHys should be able to handle both situations?
@@ -111,6 +117,7 @@ class HeuristicSimulationCoordinator:
             # Set the values of the parameters in the simulation model.
             configurations = self.set_agents_param_values(config_values)
             sim_ids = []
+            self.logger.info("Generate sim model configurations")
             for agent_configuration in configurations:
                 sim_id = uuid.uuid4()
                 sim_ids.append(sim_id)
@@ -119,6 +126,7 @@ class HeuristicSimulationCoordinator:
 
                 # TODO: Change the hardcoded ini filename to a variable in the configuration file.
                 # Duplicate the preferred dummy_sim directory to the custom directory.
+                self.logger.debug(f"Duplicate directory for {sim_id}")
                 self.duplicate_directory(src_dir, dest_dir, "largeNet.ini")
 
                 # TODO: Change the hardcoded ini filename to a variable in the configuration file.
@@ -128,6 +136,7 @@ class HeuristicSimulationCoordinator:
 
                 # TODO: Change the hardcoded number of backbone switches to a variable.
                 # Write a new ini file with the parameter configurations.
+                self.logger.debug(f"Write ini file for simulation instance")
                 self.write_new_ini_file(
                     old_ini_file_path,
                     new_ini_file_path,
@@ -136,9 +145,11 @@ class HeuristicSimulationCoordinator:
                 )
 
             # Run the simulation model.
+            self.logger.info("Run the generated simulation model configurations.")
             uids = self.run_multiple_simulation_configuration(sim_ids)
 
             # Collect the simulation stats from the simulation run.
+            self.logger.info("Collect the simulation stats from the simulation runs.")
             simulation_metrics = self.obtain_simulation_stats(uids)
 
             fitness_config = self.conf.tryGet("fitness_config")
@@ -147,6 +158,7 @@ class HeuristicSimulationCoordinator:
             # TODO: Make distinct function for writing fitness values to a json file.
             # Write fitness values to a json file. Remove the file if it already exists first.
             agents_fitness_dir_relative_path = self.conf.tryGet("output_paths", "agents_fitness_values_relative_path")
+            self.logger.info(f"Storing fitness values locally at {agents_fitness_dir_relative_path}")
             agents_fitness_dir = os.path.join(self.base_path, agents_fitness_dir_relative_path)
             os.makedirs(agents_fitness_dir, exist_ok=True)
             fitness_values_file_path = os.path.join(agents_fitness_dir, "fitness_values.json")
@@ -279,20 +291,26 @@ class HeuristicSimulationCoordinator:
         params = self.conf.tryGet("simulation_model", "simulation_model_params")
         configurations = []
 
+        self.logger.debug(f"Config values agents: {config_values_agents}")
+
         for config_values_agent in config_values_agents:
+            self.logger.debug(f"Configuring agent : {config_values_agent}")
             agent_configuration = []
 
             for param in params:
+                self.logger.debug(f"Configuring param : {param}")
                 config_pattern = param["configuration_pattern"]
                 param_values = param["values"]
 
                 # Determine the param value index by segment indexing the config values from CUSTOMHys.
+                self.logger.debug(f"Determine the param value index")
                 num_segments = len(param_values)
                 value_indices = np.floor(config_values_agent * num_segments).astype(int)
                 value_indices[config_values_agent == 1.0] = num_segments - 1
 
                 # TODO: Optimize this operations as it now parses and has duplicate code.
                 # Create a configuration for each parameter.
+                self.logger.debug(f"Define the correct gate and switch indices for the parameter.")
                 for switch_idx, value_idx in enumerate(value_indices):
                     selected_param_value = param_values[value_idx]
                     # Conditional handling for the switch gates where the first switch is handled differently.
@@ -317,6 +335,7 @@ class HeuristicSimulationCoordinator:
                         "config_pattern": current_param_pattern,
                         "value": selected_param_value
                     })
+            self.logger.debug(f"Append configurations")
             configurations.append(agent_configuration)
 
         return configurations
@@ -456,8 +475,13 @@ class HeuristicSimulationCoordinator:
 
         uids = {sim_instance.uid: id for id, sim_instance in enumerate(sim_instances)}
 
+        self.logger.debug(f"Enqueing sim instances.")
+
         # Run the configured simulation model.
         self.manager.enqueue_tasks(sim_instances)
+
+        self.logger.debug(f"Evaluating simulation instances: {uids} with sim ids: {sim_ids}")
+
         self.manager.evaluate_all()
 
         return uids
@@ -526,6 +550,45 @@ class HeuristicSimulationCoordinator:
         append_df = pd.DataFrame([[sim_uid, adjusted_latency, adjusted_network_cost]],
                                 columns=['SimulationID', 'AdjustedLatency', 'AdjustedNetworkCost'])
         append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
+
+
+    '''
+        Manually determine the min and max values for the objective parameters.
+    '''
+    def manual_normalization(self):
+        self.logger.info("Manually determine the min and max values for the objective parameters.")
+
+        boundaries = {
+            "cable_rate": {
+                "max": "10Mbps",
+                "min": "10Gbps"
+            },
+            "cable_cost": {
+                "max": 10,
+                "min": 1
+            }
+        }
+
+        sim_ids = []
+        # Write a simulation instance for max cable rate.
+        sim_id = uuid.uuid4()
+        sim_instance_path = self.generated_simulation_model_path + f"_{sim_id}"
+        # Duplicate the preferred dummy_sim directory to the sim_instance directory.
+        self.duplicate_directory(self.simulation_model_template_path, sim_instance_path, file_to_ignore="largeNet.ini")
+        # Define the path to the sim_instance ini file.
+        sim_instance_ini_file_path = os.path.join(sim_instance_path, "largeNet.ini")
+
+        # Write the sim_instance ini file with the provided parameter configurations.
+        self.write_sim_instance_ini_file(
+            self.ini_file_template_path,
+            sim_instance_ini_file_path,
+            {"cable_rate": boundaries['cable_rate']['max']},
+            self.nr_of_backbone_switches
+        )
+
+        # Write a simulation instance for min cable rate.
+        # Write a simulation instance for max cable cost.
+        # Write a simulation instance for max cable cost.
 
 
     '''
