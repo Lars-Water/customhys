@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# Activate upper bash command to set conda environment.
-eval "$(/home/lvdwater/miniconda3/bin/conda shell.bash hook)"
+# Activate upper bash command to set conda environment.onda activate base
+eval "$(/home/mherget/miniconda3/bin/conda shell.bash hook)"
+eval "$(conda activate base)"
 
 # Specify the path to the base directory of the hyper-heuristic DSE here.
-BASE_PATH="/home/lvdwater/hyper-heuristic-dse-2.0"
+BASE_PATH="/home/mherget/hyper-heuristic-dse-2.0"
 # Specify the path to the coordinator configuration file here
 CONFIG_PATH_COORDINATOR="${BASE_PATH}/config/config_coordinator_das.json"
 
@@ -12,8 +13,8 @@ CONFIG_PATH_COORDINATOR="${BASE_PATH}/config/config_coordinator_das.json"
 export PYTHONPATH="${PYTHONPATH}:${BASE_PATH}/src_main/external/simulation_model"
 
 # Define OMNET++ shared library to link loader.
-OMNET_BASE="/var/scratch/lvdwater/omnetpp-6.0.1"
-export PATH=$PATH:/var/scratch/lvdwater/omnetpp-6.0.1/bin/
+OMNET_BASE="/home/mherget/omnet/omnetpp-6.0.1"
+export PATH=$PATH:/home/mherget/omnet/omnetpp-6.0.1/bin/
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${OMNET_BASE}/lib/
 
 cd ${OMNET_BASE}
@@ -21,6 +22,8 @@ source setenv
 cd ../inet4.5
 source setenv
 cd ~/hyper-heuristic-dse-2.0
+eval "ulimit -n 50000"
+ulimit -n 50000
 
 # CONFIG_PATH_HEUR_RUN="${BASE_PATH}/config/config_heuristic_run.json"
 # python3 main.py --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN" --coordinator_config "$CONFIG_PATH_COORDINATOR"

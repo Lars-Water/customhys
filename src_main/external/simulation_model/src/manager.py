@@ -257,7 +257,7 @@ class Manager:
         sim_instances = self.__set_sim_instances_time_stat(sim_instances, "general", "output_handler_end")
         self.design_point_cache.set_sims_finished(sim_instances)
         self.stats.add_stat(len(sim_instances), "general", "num_dp_finished")
-        self.logger.warn("num_dp_finished+=" + str(len(sim_instances)))
+        self.logger.warn("num_dp_finished+=" + str(len(sim_instances))+" (total: "+str(self.stats.get_stat("general", "num_dp_finished"))+")")
 
         return sim_instances
 
