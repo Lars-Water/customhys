@@ -329,7 +329,7 @@ class HeuristicSimulationCoordinator:
 
                     # Replace placeholders in the configuration pattern are replaced with the corresponding indices.
                     current_param_pattern = config_pattern.replace("__switch_index", str(switch_idx))
-                    currWorkflowConfigent_param_pattern = current_param_pattern.replace("__gate_index", first_switch_gate_index)
+                    current_param_pattern = current_param_pattern.replace("__gate_index", first_switch_gate_index)
 
                     # Create a configuration for the current parameter.
                     agent_configuration.append({
