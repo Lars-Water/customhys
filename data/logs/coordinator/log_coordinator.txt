@@ -1,156 +1,718 @@
-[ coordinator  01-05-2024 16:36:03  INFO     ]  Reading coordinator config file.
-[ coordinator  01-05-2024 16:36:03  INFO     ]  Setting up workflow configuration file.
-[ coordinator  01-05-2024 16:36:03  INFO     ]  Setting up local cluster configuration.
-[ coordinator  01-05-2024 16:36:03  INFO     ]  Setting up the Manager.
-[ coordinator  01-05-2024 16:36:05  INFO     ]  Determining the paths for the simulation model.
-[ coordinator  01-05-2024 16:36:05  INFO     ]  Determine flags for coordinator functionalities.
-[ coordinator  01-05-2024 16:36:05  INFO     ]  Determine the paths for the simulation model results.
-[ coordinator  01-05-2024 16:36:05  INFO     ]  Manually determine the min and max values for the objective parameters.
-[ coordinator  01-05-2024 16:36:05  DEBUG    ] [l.607 | manual_normalization()]  Generating normalization sim instance for parameter: datarate - boundary: max - value: 10Gbps
-[ coordinator  01-05-2024 16:36:05  INFO     ]  Evaluating the generated simulation instances.
-[ coordinator  01-05-2024 16:36:05  DEBUG    ] [l.488 | run_multiple_simulation_configuration()]  Enqueing sim instances.
-[ coordinator  01-05-2024 16:36:05  DEBUG    ] [l.493 | run_multiple_simulation_configuration()]  Evaluating simulation instances: {'7e31cfb0-0931-4c8f-b372-df11532b03d0': 0} with sim ids: [UUID('727928b1-9efb-4dc3-a447-d5405d5cffcf')]
-[ coordinator  01-05-2024 16:36:10  INFO     ]  Determine the boundary value for the objective.
-[ coordinator  01-05-2024 16:36:10  DEBUG    ] [l.607 | manual_normalization()]  Generating normalization sim instance for parameter: datarate - boundary: min - value: 10Mbps
-[ coordinator  01-05-2024 16:36:10  INFO     ]  Evaluating the generated simulation instances.
-[ coordinator  01-05-2024 16:36:10  DEBUG    ] [l.488 | run_multiple_simulation_configuration()]  Enqueing sim instances.
-[ coordinator  01-05-2024 16:36:10  DEBUG    ] [l.493 | run_multiple_simulation_configuration()]  Evaluating simulation instances: {'296a2bdf-4f0c-4dc2-bb8c-fec51170f923': 0} with sim ids: [UUID('a593addc-0a63-4ef7-b8d1-081525eb5870')]
-[ coordinator  01-05-2024 16:36:16  INFO     ]  Determine the boundary value for the objective.
-[ coordinator  01-05-2024 16:36:16  DEBUG    ] [l.607 | manual_normalization()]  Generating normalization sim instance for parameter: cost - boundary: max - value: 10
-[ coordinator  01-05-2024 16:36:16  INFO     ]  Evaluating the generated simulation instances.
-[ coordinator  01-05-2024 16:36:16  DEBUG    ] [l.488 | run_multiple_simulation_configuration()]  Enqueing sim instances.
-[ coordinator  01-05-2024 16:36:16  DEBUG    ] [l.493 | run_multiple_simulation_configuration()]  Evaluating simulation instances: {'355d0cfc-577b-4456-87a0-15c072c0ebd8': 0} with sim ids: [UUID('7acc59ec-7056-4d3a-a2d3-0de3553d10a5')]
-[ coordinator  01-05-2024 16:36:22  INFO     ]  Determine the boundary value for the objective.
-[ coordinator  01-05-2024 16:36:22  DEBUG    ] [l.607 | manual_normalization()]  Generating normalization sim instance for parameter: cost - boundary: min - value: 1
-[ coordinator  01-05-2024 16:36:22  INFO     ]  Evaluating the generated simulation instances.
-[ coordinator  01-05-2024 16:36:22  DEBUG    ] [l.488 | run_multiple_simulation_configuration()]  Enqueing sim instances.
-[ coordinator  01-05-2024 16:36:22  DEBUG    ] [l.493 | run_multiple_simulation_configuration()]  Evaluating simulation instances: {'6bce072a-40b1-4683-b34c-eca910871e50': 0} with sim ids: [UUID('4dda78a9-6e9b-4c8f-b6ad-e5c09e1dde03')]
-[ coordinator  01-05-2024 16:36:29  INFO     ]  Determine the boundary value for the objective.
-[ coordinator  01-05-2024 16:36:29  INFO     ]  Removing simulation run templates in dummy path.
-[ coordinator  01-05-2024 16:36:29  INFO     ]  Maximum datarate is: 0.0009469971870374
-[ coordinator  01-05-2024 16:36:29  INFO     ]  Minimum datarate is: 1.0889183056431
-[ coordinator  01-05-2024 16:36:29  INFO     ]  Maximum cost is: 106.28
-[ coordinator  01-05-2024 16:36:29  INFO     ]  Minimum cost is: 16.279999999999998
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.120 | simulation_run()]  Starting Simulation Run: 0
-[ coordinator  01-05-2024 16:36:29  INFO     ]  Determining the simulation model parameters for the configuration values...
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.304 | set_agents_param_values()]  Config values agents: [[0.01496279 0.65052619 0.91047452 0.36200772 0.84216495 0.28890756]
-[                                            ]   [0.150142   0.21539913 0.68543672 0.83470075 0.92080293 0.28234593]]
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.01496279 0.65052619 0.91047452 0.36200772 0.84216495 0.28890756]
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.150142   0.21539913 0.68543672 0.83470075 0.92080293 0.28234593]
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
-[ coordinator  01-05-2024 16:36:29  INFO     ]  Generate sim model configurations
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 4cc4f91a-0f28-45ac-9cd4-6245b2390234
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for cfa2496f-22f1-46fa-83e2-2efb4918931e
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
-[ coordinator  01-05-2024 16:36:29  INFO     ]  Run the generated simulation model configurations.
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.488 | run_multiple_simulation_configuration()]  Enqueing sim instances.
-[ coordinator  01-05-2024 16:36:29  DEBUG    ] [l.493 | run_multiple_simulation_configuration()]  Evaluating simulation instances: {'4f9eaa4a-60d5-42f5-bcca-bd24620795e1': 0, '043a42be-1186-4105-b155-73521db72e29': 1} with sim ids: [UUID('4cc4f91a-0f28-45ac-9cd4-6245b2390234'), UUID('cfa2496f-22f1-46fa-83e2-2efb4918931e')]
-[ coordinator  01-05-2024 16:36:39  INFO     ]  Collect the simulation stats from the simulation runs.
-[ coordinator  01-05-2024 16:36:39  INFO     ]  Determining simulation statistics for siminstance 4f9eaa4a-60d5-42f5-bcca-bd24620795e1.
-[ coordinator  01-05-2024 16:36:39  INFO     ]  Removing the output file for simistance 4f9eaa4a-60d5-42f5-bcca-bd24620795e1
-[ coordinator  01-05-2024 16:36:39  INFO     ]  Determining simulation statistics for siminstance 043a42be-1186-4105-b155-73521db72e29.
-[ coordinator  01-05-2024 16:36:39  INFO     ]  Removing the output file for simistance 043a42be-1186-4105-b155-73521db72e29
-[ coordinator  01-05-2024 16:36:39  INFO     ]  Storing fitness values locally at data/raw/agents_fitness
-[ coordinator  01-05-2024 16:36:39  INFO     ]  Removing simulation run templates in dummy path.
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.120 | simulation_run()]  Starting Simulation Run: 1
-[ coordinator  01-05-2024 16:36:39  INFO     ]  Determining the simulation model parameters for the configuration values...
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.304 | set_agents_param_values()]  Config values agents: [[0.46882542 0.99604958 0.99987749 0.33578774 0.10246661 0.41666436]
-[                                            ]   [0.66912259 0.18215846 0.39714548 0.13168098 0.23969153 0.91372056]]
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.46882542 0.99604958 0.99987749 0.33578774 0.10246661 0.41666436]
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.66912259 0.18215846 0.39714548 0.13168098 0.23969153 0.91372056]
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
-[ coordinator  01-05-2024 16:36:39  INFO     ]  Generate sim model configurations
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for e1389dba-9772-4140-8829-d0dff62e95b4
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 4394a6d1-4321-47ef-97ca-00ce88de090f
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
-[ coordinator  01-05-2024 16:36:39  INFO     ]  Run the generated simulation model configurations.
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.488 | run_multiple_simulation_configuration()]  Enqueing sim instances.
-[ coordinator  01-05-2024 16:36:39  DEBUG    ] [l.493 | run_multiple_simulation_configuration()]  Evaluating simulation instances: {'ebc6fabb-a6d0-4270-ab61-f837f149fff8': 0, '813af38d-c7dd-4645-b126-6bdea3067804': 1} with sim ids: [UUID('e1389dba-9772-4140-8829-d0dff62e95b4'), UUID('4394a6d1-4321-47ef-97ca-00ce88de090f')]
-[ coordinator  01-05-2024 16:36:48  INFO     ]  Collect the simulation stats from the simulation runs.
-[ coordinator  01-05-2024 16:36:48  INFO     ]  Determining simulation statistics for siminstance ebc6fabb-a6d0-4270-ab61-f837f149fff8.
-[ coordinator  01-05-2024 16:36:48  INFO     ]  Removing the output file for simistance ebc6fabb-a6d0-4270-ab61-f837f149fff8
-[ coordinator  01-05-2024 16:36:48  INFO     ]  Determining simulation statistics for siminstance 813af38d-c7dd-4645-b126-6bdea3067804.
-[ coordinator  01-05-2024 16:36:48  INFO     ]  Removing the output file for simistance 813af38d-c7dd-4645-b126-6bdea3067804
-[ coordinator  01-05-2024 16:36:48  INFO     ]  Storing fitness values locally at data/raw/agents_fitness
-[ coordinator  01-05-2024 16:36:48  INFO     ]  Removing simulation run templates in dummy path.
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.120 | simulation_run()]  Starting Simulation Run: 2
-[ coordinator  01-05-2024 16:36:48  INFO     ]  Determining the simulation model parameters for the configuration values...
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.304 | set_agents_param_values()]  Config values agents: [[0.97980144 0.19155228 0.20096982 0.55399751 0.07588973 0.91307956]
-[                                            ]   [0.50701197 0.91509667 0.44917102 0.95729375 0.30148713 0.31982272]]
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.97980144 0.19155228 0.20096982 0.55399751 0.07588973 0.91307956]
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.50701197 0.91509667 0.44917102 0.95729375 0.30148713 0.31982272]
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
-[ coordinator  01-05-2024 16:36:48  INFO     ]  Generate sim model configurations
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 2e32149f-65f1-47bc-a630-1432ca40d63c
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for e8e63969-2629-4bbe-866a-7b8bafd5fd52
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
-[ coordinator  01-05-2024 16:36:48  INFO     ]  Run the generated simulation model configurations.
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.488 | run_multiple_simulation_configuration()]  Enqueing sim instances.
-[ coordinator  01-05-2024 16:36:48  DEBUG    ] [l.493 | run_multiple_simulation_configuration()]  Evaluating simulation instances: {'a6035837-fd2c-41cd-ae81-ad9ff8f2edb9': 0, '11df951d-65da-4822-a841-5eddbd525628': 1} with sim ids: [UUID('2e32149f-65f1-47bc-a630-1432ca40d63c'), UUID('e8e63969-2629-4bbe-866a-7b8bafd5fd52')]
-[ coordinator  01-05-2024 16:36:58  INFO     ]  Collect the simulation stats from the simulation runs.
-[ coordinator  01-05-2024 16:36:58  INFO     ]  Determining simulation statistics for siminstance a6035837-fd2c-41cd-ae81-ad9ff8f2edb9.
-[ coordinator  01-05-2024 16:36:58  INFO     ]  Removing the output file for simistance a6035837-fd2c-41cd-ae81-ad9ff8f2edb9
-[ coordinator  01-05-2024 16:36:58  INFO     ]  Determining simulation statistics for siminstance 11df951d-65da-4822-a841-5eddbd525628.
-[ coordinator  01-05-2024 16:36:58  INFO     ]  Removing the output file for simistance 11df951d-65da-4822-a841-5eddbd525628
-[ coordinator  01-05-2024 16:36:58  INFO     ]  Storing fitness values locally at data/raw/agents_fitness
-[ coordinator  01-05-2024 16:36:58  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-05-2024 16:52:28  INFO     ]  Reading coordinator config file.
+[ coordinator  01-05-2024 16:52:28  INFO     ]  Setting up workflow configuration file.
+[ coordinator  01-05-2024 16:52:28  INFO     ]  Setting up DAS cluster configuration.
+[ coordinator  01-05-2024 16:52:28  INFO     ]  Setting up the Manager.
+[ coordinator  01-05-2024 16:52:31  INFO     ]  Determining the paths for the simulation model.
+[ coordinator  01-05-2024 16:52:31  INFO     ]  Determine flags for coordinator functionalities.
+[ coordinator  01-05-2024 16:52:31  INFO     ]  Determine the paths for the simulation model results.
+[ coordinator  01-05-2024 16:52:31  INFO     ]  Manually determine the min and max values for the objective parameters.
+[ coordinator  01-05-2024 16:52:31  DEBUG    ] [l.607 | manual_normalization()]  Generating normalization sim instance for parameter: datarate - boundary: max - value: 10Gbps
+[ coordinator  01-05-2024 16:52:31  INFO     ]  Evaluating the generated simulation instances.
+[ coordinator  01-05-2024 16:52:31  DEBUG    ] [l.488 | run_multiple_simulation_configuration()]  Enqueing sim instances.
+[ coordinator  01-05-2024 16:52:31  DEBUG    ] [l.493 | run_multiple_simulation_configuration()]  Evaluating simulation instances: {'98612ba9-402d-498b-9815-ca9c5cab1f45': 0} with sim ids: [UUID('275cbf59-0acd-4839-ad87-90b2bc7ce2be')]
+[ coordinator  01-05-2024 16:53:20  INFO     ]  Determine the boundary value for the objective.
+[ coordinator  01-05-2024 16:53:20  DEBUG    ] [l.607 | manual_normalization()]  Generating normalization sim instance for parameter: datarate - boundary: min - value: 10Mbps
+[ coordinator  01-05-2024 16:53:20  INFO     ]  Evaluating the generated simulation instances.
+[ coordinator  01-05-2024 16:53:20  DEBUG    ] [l.488 | run_multiple_simulation_configuration()]  Enqueing sim instances.
+[ coordinator  01-05-2024 16:53:20  DEBUG    ] [l.493 | run_multiple_simulation_configuration()]  Evaluating simulation instances: {'4e951345-34e8-4f09-8296-dee72daefec0': 0} with sim ids: [UUID('0198aa52-35fa-4e79-ab76-6ea900d20a9e')]
+[ coordinator  01-05-2024 16:53:41  INFO     ]  Determine the boundary value for the objective.
+[ coordinator  01-05-2024 16:53:41  DEBUG    ] [l.607 | manual_normalization()]  Generating normalization sim instance for parameter: cost - boundary: max - value: 10
+[ coordinator  01-05-2024 16:53:41  INFO     ]  Evaluating the generated simulation instances.
+[ coordinator  01-05-2024 16:53:41  DEBUG    ] [l.488 | run_multiple_simulation_configuration()]  Enqueing sim instances.
+[ coordinator  01-05-2024 16:53:41  DEBUG    ] [l.493 | run_multiple_simulation_configuration()]  Evaluating simulation instances: {'1b0a49dd-444d-4278-8003-275a6979b966': 0} with sim ids: [UUID('6eb1b55a-b789-464b-a152-25a5755a29d4')]
+[ coordinator  01-05-2024 16:54:14  INFO     ]  Determine the boundary value for the objective.
+[ coordinator  01-05-2024 16:54:14  DEBUG    ] [l.607 | manual_normalization()]  Generating normalization sim instance for parameter: cost - boundary: min - value: 1
+[ coordinator  01-05-2024 16:54:14  INFO     ]  Evaluating the generated simulation instances.
+[ coordinator  01-05-2024 16:54:14  DEBUG    ] [l.488 | run_multiple_simulation_configuration()]  Enqueing sim instances.
+[ coordinator  01-05-2024 16:54:14  DEBUG    ] [l.493 | run_multiple_simulation_configuration()]  Evaluating simulation instances: {'6498e319-6768-4909-b440-d0874686f061': 0} with sim ids: [UUID('d29fb199-bc82-4620-bc29-b8e08344daf0')]
+[ coordinator  01-05-2024 16:54:47  INFO     ]  Determine the boundary value for the objective.
+[ coordinator  01-05-2024 16:54:47  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-05-2024 16:54:47  INFO     ]  Maximum datarate is: 0.0010244373576142
+[ coordinator  01-05-2024 16:54:47  INFO     ]  Minimum datarate is: 1.2006851978011
+[ coordinator  01-05-2024 16:54:47  INFO     ]  Maximum cost is: 1013.56
+[ coordinator  01-05-2024 16:54:47  INFO     ]  Minimum cost is: 131.56
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.120 | simulation_run()]  Starting Simulation Run: 0
+[ coordinator  01-05-2024 16:54:47  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.304 | set_agents_param_values()]  Config values agents: [[0.60570885 0.57118329 0.91383324 0.11560099 0.24955863 0.24349052
+[                                            ]    0.59643605 0.8994417  0.09176763 0.52289817 0.72866033 0.40608566
+[                                            ]    0.55608296 0.22993754 0.98654922 0.01994844 0.68256673 0.65081268
+[                                            ]    0.39360772 0.80757088 0.72672851 0.9295478  0.87292046 0.42698324
+[                                            ]    0.51737611 0.9803927  0.60468489 0.10341246 0.86106388 0.21294724
+[                                            ]    0.3153276  0.61826376 0.97825393 0.39549148 0.21048227 0.71600863
+[                                            ]    0.0137452  0.71627156 0.80491561 0.889672   0.24719796 0.97782789
+[                                            ]    0.96344599 0.20258071 0.92110565 0.94382574 0.76279928 0.83068845
+[                                            ]    0.14329342 0.80756398]
+[                                            ]   [0.75374771 0.89233596 0.6463452  0.07291421 0.77578887 0.2393573
+[                                            ]    0.52503279 0.80193008 0.26780089 0.12305335 0.26490155 0.84726651
+[                                            ]    0.79594393 0.5378963  0.63385357 0.45248819 0.66648626 0.23080349
+[                                            ]    0.73890405 0.53205549 0.66666985 0.68409514 0.09784137 0.45969732
+[                                            ]    0.11010026 0.82386591 0.58109952 0.79243964 0.40211892 0.66281868
+[                                            ]    0.29917381 0.25738087 0.143509   0.84926877 0.59630459 0.70348318
+[                                            ]    0.65313582 0.07154493 0.29644107 0.86109769 0.22496903 0.9015931
+[                                            ]    0.02652744 0.76930191 0.27690499 0.90057359 0.09328804 0.78519069
+[                                            ]    0.51048145 0.64678511]
+[                                            ]   [0.92909949 0.72573216 0.27942513 0.26693243 0.9354903  0.25909135
+[                                            ]    0.38208298 0.72993612 0.05888436 0.53915098 0.14159709 0.65522792
+[                                            ]    0.88834046 0.68780357 0.15288004 0.20051152 0.53862596 0.79648799
+[                                            ]    0.0832076  0.82709948 0.96185993 0.63209016 0.04456132 0.94981973
+[                                            ]    0.75009559 0.85310942 0.97621288 0.56217076 0.24359341 0.54440524
+[                                            ]    0.11353197 0.85659299 0.04534883 0.53396091 0.21544688 0.4339262
+[                                            ]    0.91883694 0.6964603  0.96530568 0.03987361 0.48179868 0.50650773
+[                                            ]    0.41708887 0.81425684 0.91625028 0.64373506 0.0470385  0.2041253
+[                                            ]    0.5881468  0.31048111]
+[                                            ]   [0.65542171 0.23423718 0.49306009 0.37359582 0.6931538  0.8844263
+[                                            ]    0.1314055  0.54273122 0.47959882 0.54512335 0.72476806 0.543008
+[                                            ]    0.96342201 0.67476777 0.84561762 0.71440151 0.63612212 0.78879294
+[                                            ]    0.99754165 0.54304905 0.84850846 0.71017307 0.13152943 0.71980655
+[                                            ]    0.83075542 0.11217586 0.67307064 0.73269576 0.47698918 0.44310433
+[                                            ]    0.35334142 0.06796646 0.88170822 0.20594212 0.71995569 0.19177974
+[                                            ]    0.16697841 0.96322189 0.2212953  0.98677704 0.78310755 0.72619545
+[                                            ]    0.1407192  0.58781226 0.65167143 0.39559089 0.21443444 0.87751505
+[                                            ]    0.80854374 0.6237635 ]]
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.60570885 0.57118329 0.91383324 0.11560099 0.24955863 0.24349052
+[                                            ]   0.59643605 0.8994417  0.09176763 0.52289817 0.72866033 0.40608566
+[                                            ]   0.55608296 0.22993754 0.98654922 0.01994844 0.68256673 0.65081268
+[                                            ]   0.39360772 0.80757088 0.72672851 0.9295478  0.87292046 0.42698324
+[                                            ]   0.51737611 0.9803927  0.60468489 0.10341246 0.86106388 0.21294724
+[                                            ]   0.3153276  0.61826376 0.97825393 0.39549148 0.21048227 0.71600863
+[                                            ]   0.0137452  0.71627156 0.80491561 0.889672   0.24719796 0.97782789
+[                                            ]   0.96344599 0.20258071 0.92110565 0.94382574 0.76279928 0.83068845
+[                                            ]   0.14329342 0.80756398]
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.75374771 0.89233596 0.6463452  0.07291421 0.77578887 0.2393573
+[                                            ]   0.52503279 0.80193008 0.26780089 0.12305335 0.26490155 0.84726651
+[                                            ]   0.79594393 0.5378963  0.63385357 0.45248819 0.66648626 0.23080349
+[                                            ]   0.73890405 0.53205549 0.66666985 0.68409514 0.09784137 0.45969732
+[                                            ]   0.11010026 0.82386591 0.58109952 0.79243964 0.40211892 0.66281868
+[                                            ]   0.29917381 0.25738087 0.143509   0.84926877 0.59630459 0.70348318
+[                                            ]   0.65313582 0.07154493 0.29644107 0.86109769 0.22496903 0.9015931
+[                                            ]   0.02652744 0.76930191 0.27690499 0.90057359 0.09328804 0.78519069
+[                                            ]   0.51048145 0.64678511]
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.92909949 0.72573216 0.27942513 0.26693243 0.9354903  0.25909135
+[                                            ]   0.38208298 0.72993612 0.05888436 0.53915098 0.14159709 0.65522792
+[                                            ]   0.88834046 0.68780357 0.15288004 0.20051152 0.53862596 0.79648799
+[                                            ]   0.0832076  0.82709948 0.96185993 0.63209016 0.04456132 0.94981973
+[                                            ]   0.75009559 0.85310942 0.97621288 0.56217076 0.24359341 0.54440524
+[                                            ]   0.11353197 0.85659299 0.04534883 0.53396091 0.21544688 0.4339262
+[                                            ]   0.91883694 0.6964603  0.96530568 0.03987361 0.48179868 0.50650773
+[                                            ]   0.41708887 0.81425684 0.91625028 0.64373506 0.0470385  0.2041253
+[                                            ]   0.5881468  0.31048111]
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.65542171 0.23423718 0.49306009 0.37359582 0.6931538  0.8844263
+[                                            ]   0.1314055  0.54273122 0.47959882 0.54512335 0.72476806 0.543008
+[                                            ]   0.96342201 0.67476777 0.84561762 0.71440151 0.63612212 0.78879294
+[                                            ]   0.99754165 0.54304905 0.84850846 0.71017307 0.13152943 0.71980655
+[                                            ]   0.83075542 0.11217586 0.67307064 0.73269576 0.47698918 0.44310433
+[                                            ]   0.35334142 0.06796646 0.88170822 0.20594212 0.71995569 0.19177974
+[                                            ]   0.16697841 0.96322189 0.2212953  0.98677704 0.78310755 0.72619545
+[                                            ]   0.1407192  0.58781226 0.65167143 0.39559089 0.21443444 0.87751505
+[                                            ]   0.80854374 0.6237635 ]
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:54:47  INFO     ]  Generate sim model configurations
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 97f557b7-3c35-4d4a-bd9d-683e78f503f8
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 22ccdfca-4683-4605-a146-ddf34ffe6e47
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for b793a8bf-b9c3-4c69-a5da-8ef76ee6d84c
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 2fafbe49-c601-4e6c-b5e5-dfe59d5e8c79
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:54:47  INFO     ]  Run the generated simulation model configurations.
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.488 | run_multiple_simulation_configuration()]  Enqueing sim instances.
+[ coordinator  01-05-2024 16:54:47  DEBUG    ] [l.493 | run_multiple_simulation_configuration()]  Evaluating simulation instances: {'6ab720e3-c5e8-4fa8-8424-c8da3fee4c35': 0, 'c4a5b965-989e-4da8-948c-704e54d91a5b': 1, '554b2e61-34d3-4955-a52d-c579419c85f7': 2, '64d7ef84-abbb-4f71-9111-abf3c3a71d00': 3} with sim ids: [UUID('97f557b7-3c35-4d4a-bd9d-683e78f503f8'), UUID('22ccdfca-4683-4605-a146-ddf34ffe6e47'), UUID('b793a8bf-b9c3-4c69-a5da-8ef76ee6d84c'), UUID('2fafbe49-c601-4e6c-b5e5-dfe59d5e8c79')]
+[ coordinator  01-05-2024 16:55:10  INFO     ]  Collect the simulation stats from the simulation runs.
+[ coordinator  01-05-2024 16:55:10  INFO     ]  Determining simulation statistics for siminstance 6ab720e3-c5e8-4fa8-8424-c8da3fee4c35.
+[ coordinator  01-05-2024 16:55:10  INFO     ]  Removing the output file for simistance 6ab720e3-c5e8-4fa8-8424-c8da3fee4c35
+[ coordinator  01-05-2024 16:55:10  INFO     ]  Determining simulation statistics for siminstance c4a5b965-989e-4da8-948c-704e54d91a5b.
+[ coordinator  01-05-2024 16:55:10  INFO     ]  Removing the output file for simistance c4a5b965-989e-4da8-948c-704e54d91a5b
+[ coordinator  01-05-2024 16:55:10  INFO     ]  Determining simulation statistics for siminstance 554b2e61-34d3-4955-a52d-c579419c85f7.
+[ coordinator  01-05-2024 16:55:10  INFO     ]  Removing the output file for simistance 554b2e61-34d3-4955-a52d-c579419c85f7
+[ coordinator  01-05-2024 16:55:10  INFO     ]  Determining simulation statistics for siminstance 64d7ef84-abbb-4f71-9111-abf3c3a71d00.
+[ coordinator  01-05-2024 16:55:10  INFO     ]  Removing the output file for simistance 64d7ef84-abbb-4f71-9111-abf3c3a71d00
+[ coordinator  01-05-2024 16:55:10  INFO     ]  Storing fitness values locally at data/raw/agents_fitness
+[ coordinator  01-05-2024 16:55:10  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.120 | simulation_run()]  Starting Simulation Run: 1
+[ coordinator  01-05-2024 16:55:10  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.304 | set_agents_param_values()]  Config values agents: [[0.75374771 0.57118329 0.91383324 0.11560099 0.77578887 0.24349052
+[                                            ]    0.59643605 0.80193008 0.26780089 0.12305335 0.26490155 0.40608566
+[                                            ]    0.79594393 0.22993754 0.63385357 0.01994844 0.68256673 0.23080349
+[                                            ]    0.39360772 0.53205549 0.72672851 0.68409514 0.87292046 0.42698324
+[                                            ]    0.11010026 0.9803927  0.58109952 0.10341246 0.86106388 0.21294724
+[                                            ]    0.29917381 0.61826376 0.143509   0.84926877 0.21048227 0.70348318
+[                                            ]    0.0137452  0.71627156 0.29644107 0.889672   0.22496903 0.97782789
+[                                            ]    0.96344599 0.20258071 0.27690499 0.90057359 0.09328804 0.78519069
+[                                            ]    0.51048145 0.64678511]
+[                                            ]   [0.75374771 0.89233596 0.6463452  0.07291421 0.77578887 0.2393573
+[                                            ]    0.52503279 0.80193008 0.26780089 0.12305335 0.26490155 0.84726651
+[                                            ]    0.79594393 0.5378963  0.63385357 0.45248819 0.66648626 0.23080349
+[                                            ]    0.73890405 0.53205549 0.66666985 0.68409514 0.09784137 0.45969732
+[                                            ]    0.11010026 0.82386591 0.58109952 0.79243964 0.40211892 0.66281868
+[                                            ]    0.29917381 0.25738087 0.143509   0.84926877 0.59630459 0.70348318
+[                                            ]    0.65313582 0.07154493 0.29644107 0.86109769 0.22496903 0.9015931
+[                                            ]    0.02652744 0.76930191 0.27690499 0.90057359 0.09328804 0.78519069
+[                                            ]    0.51048145 0.64678511]
+[                                            ]   [0.92909949 0.72573216 0.27942513 0.26693243 0.9354903  0.25909135
+[                                            ]    0.38208298 0.72993612 0.05888436 0.53915098 0.14159709 0.65522792
+[                                            ]    0.88834046 0.68780357 0.15288004 0.20051152 0.53862596 0.79648799
+[                                            ]    0.0832076  0.82709948 0.96185993 0.63209016 0.04456132 0.94981973
+[                                            ]    0.75009559 0.85310942 0.97621288 0.56217076 0.24359341 0.54440524
+[                                            ]    0.11353197 0.85659299 0.04534883 0.53396091 0.21544688 0.4339262
+[                                            ]    0.91883694 0.6964603  0.96530568 0.03987361 0.48179868 0.50650773
+[                                            ]    0.41708887 0.81425684 0.91625028 0.64373506 0.0470385  0.2041253
+[                                            ]    0.5881468  0.31048111]
+[                                            ]   [0.60570885 0.57118329 0.6463452  0.07291421 0.24955863 0.24349052
+[                                            ]    0.59643605 0.80193008 0.26780089 0.52289817 0.72866033 0.84726651
+[                                            ]    0.79594393 0.5378963  0.98654922 0.45248819 0.66648626 0.65081268
+[                                            ]    0.39360772 0.53205549 0.72672851 0.68409514 0.09784137 0.42698324
+[                                            ]    0.51737611 0.82386591 0.58109952 0.79243964 0.86106388 0.66281868
+[                                            ]    0.3153276  0.61826376 0.97825393 0.84926877 0.21048227 0.70348318
+[                                            ]    0.0137452  0.71627156 0.80491561 0.889672   0.24719796 0.97782789
+[                                            ]    0.96344599 0.76930191 0.27690499 0.94382574 0.76279928 0.83068845
+[                                            ]    0.14329342 0.80756398]]
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.75374771 0.57118329 0.91383324 0.11560099 0.77578887 0.24349052
+[                                            ]   0.59643605 0.80193008 0.26780089 0.12305335 0.26490155 0.40608566
+[                                            ]   0.79594393 0.22993754 0.63385357 0.01994844 0.68256673 0.23080349
+[                                            ]   0.39360772 0.53205549 0.72672851 0.68409514 0.87292046 0.42698324
+[                                            ]   0.11010026 0.9803927  0.58109952 0.10341246 0.86106388 0.21294724
+[                                            ]   0.29917381 0.61826376 0.143509   0.84926877 0.21048227 0.70348318
+[                                            ]   0.0137452  0.71627156 0.29644107 0.889672   0.22496903 0.97782789
+[                                            ]   0.96344599 0.20258071 0.27690499 0.90057359 0.09328804 0.78519069
+[                                            ]   0.51048145 0.64678511]
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.75374771 0.89233596 0.6463452  0.07291421 0.77578887 0.2393573
+[                                            ]   0.52503279 0.80193008 0.26780089 0.12305335 0.26490155 0.84726651
+[                                            ]   0.79594393 0.5378963  0.63385357 0.45248819 0.66648626 0.23080349
+[                                            ]   0.73890405 0.53205549 0.66666985 0.68409514 0.09784137 0.45969732
+[                                            ]   0.11010026 0.82386591 0.58109952 0.79243964 0.40211892 0.66281868
+[                                            ]   0.29917381 0.25738087 0.143509   0.84926877 0.59630459 0.70348318
+[                                            ]   0.65313582 0.07154493 0.29644107 0.86109769 0.22496903 0.9015931
+[                                            ]   0.02652744 0.76930191 0.27690499 0.90057359 0.09328804 0.78519069
+[                                            ]   0.51048145 0.64678511]
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.92909949 0.72573216 0.27942513 0.26693243 0.9354903  0.25909135
+[                                            ]   0.38208298 0.72993612 0.05888436 0.53915098 0.14159709 0.65522792
+[                                            ]   0.88834046 0.68780357 0.15288004 0.20051152 0.53862596 0.79648799
+[                                            ]   0.0832076  0.82709948 0.96185993 0.63209016 0.04456132 0.94981973
+[                                            ]   0.75009559 0.85310942 0.97621288 0.56217076 0.24359341 0.54440524
+[                                            ]   0.11353197 0.85659299 0.04534883 0.53396091 0.21544688 0.4339262
+[                                            ]   0.91883694 0.6964603  0.96530568 0.03987361 0.48179868 0.50650773
+[                                            ]   0.41708887 0.81425684 0.91625028 0.64373506 0.0470385  0.2041253
+[                                            ]   0.5881468  0.31048111]
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.60570885 0.57118329 0.6463452  0.07291421 0.24955863 0.24349052
+[                                            ]   0.59643605 0.80193008 0.26780089 0.52289817 0.72866033 0.84726651
+[                                            ]   0.79594393 0.5378963  0.98654922 0.45248819 0.66648626 0.65081268
+[                                            ]   0.39360772 0.53205549 0.72672851 0.68409514 0.09784137 0.42698324
+[                                            ]   0.51737611 0.82386591 0.58109952 0.79243964 0.86106388 0.66281868
+[                                            ]   0.3153276  0.61826376 0.97825393 0.84926877 0.21048227 0.70348318
+[                                            ]   0.0137452  0.71627156 0.80491561 0.889672   0.24719796 0.97782789
+[                                            ]   0.96344599 0.76930191 0.27690499 0.94382574 0.76279928 0.83068845
+[                                            ]   0.14329342 0.80756398]
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:55:10  INFO     ]  Generate sim model configurations
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for a797e26e-92f1-48f1-ad39-20b55966f9fb
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 876baeb5-b5c1-45b2-bf90-c70218fb6f82
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 0e878167-2b8a-4b6f-850a-69cfe7db6f03
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 1a287007-8038-47ec-9b1c-1a63edf378cf
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:55:10  INFO     ]  Run the generated simulation model configurations.
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.488 | run_multiple_simulation_configuration()]  Enqueing sim instances.
+[ coordinator  01-05-2024 16:55:10  DEBUG    ] [l.493 | run_multiple_simulation_configuration()]  Evaluating simulation instances: {'671fa2f6-dbf3-4287-90a0-f44f517f40ee': 0, 'd36609c0-95d7-4dfb-b65b-48e20e6ec39a': 1, '2a74c939-dd8f-467e-aaeb-2566996d8532': 2, 'f632992c-8fe7-4f60-8eba-45f159b5a99f': 3} with sim ids: [UUID('a797e26e-92f1-48f1-ad39-20b55966f9fb'), UUID('876baeb5-b5c1-45b2-bf90-c70218fb6f82'), UUID('0e878167-2b8a-4b6f-850a-69cfe7db6f03'), UUID('1a287007-8038-47ec-9b1c-1a63edf378cf')]
+[ coordinator  01-05-2024 16:55:32  INFO     ]  Collect the simulation stats from the simulation runs.
+[ coordinator  01-05-2024 16:55:32  INFO     ]  Determining simulation statistics for siminstance 671fa2f6-dbf3-4287-90a0-f44f517f40ee.
+[ coordinator  01-05-2024 16:55:32  INFO     ]  Removing the output file for simistance 671fa2f6-dbf3-4287-90a0-f44f517f40ee
+[ coordinator  01-05-2024 16:55:32  INFO     ]  Determining simulation statistics for siminstance d36609c0-95d7-4dfb-b65b-48e20e6ec39a.
+[ coordinator  01-05-2024 16:55:32  INFO     ]  Removing the output file for simistance d36609c0-95d7-4dfb-b65b-48e20e6ec39a
+[ coordinator  01-05-2024 16:55:32  INFO     ]  Determining simulation statistics for siminstance 2a74c939-dd8f-467e-aaeb-2566996d8532.
+[ coordinator  01-05-2024 16:55:32  INFO     ]  Removing the output file for simistance 2a74c939-dd8f-467e-aaeb-2566996d8532
+[ coordinator  01-05-2024 16:55:32  INFO     ]  Determining simulation statistics for siminstance f632992c-8fe7-4f60-8eba-45f159b5a99f.
+[ coordinator  01-05-2024 16:55:32  INFO     ]  Removing the output file for simistance f632992c-8fe7-4f60-8eba-45f159b5a99f
+[ coordinator  01-05-2024 16:55:32  INFO     ]  Storing fitness values locally at data/raw/agents_fitness
+[ coordinator  01-05-2024 16:55:32  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.120 | simulation_run()]  Starting Simulation Run: 2
+[ coordinator  01-05-2024 16:55:32  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.304 | set_agents_param_values()]  Config values agents: [[0.75374771 0.57118329 0.91383324 0.11560099 0.77578887 0.24349052
+[                                            ]    0.59643605 0.80193008 0.26780089 0.12305335 0.26490155 0.40608566
+[                                            ]    0.79594393 0.22993754 0.63385357 0.01994844 0.68256673 0.23080349
+[                                            ]    0.39360772 0.53205549 0.72672851 0.68409514 0.87292046 0.42698324
+[                                            ]    0.11010026 0.9803927  0.58109952 0.10341246 0.86106388 0.21294724
+[                                            ]    0.29917381 0.61826376 0.143509   0.84926877 0.21048227 0.70348318
+[                                            ]    0.0137452  0.71627156 0.29644107 0.889672   0.22496903 0.97782789
+[                                            ]    0.96344599 0.20258071 0.27690499 0.90057359 0.09328804 0.78519069
+[                                            ]    0.51048145 0.64678511]
+[                                            ]   [0.75374771 0.19550416 0.6463452  0.23544928 0.67091773 0.25302822
+[                                            ]    0.52503279 0.80193008 0.26780089 0.63943184 0.26490155 0.76121661
+[                                            ]    0.56509519 0.76042425 0.69410847 0.41530048 0.66648626 0.9681063
+[                                            ]    0.73890405 0.36474592 0.66666985 0.53826157 0.16496971 0.45969732
+[                                            ]    0.76421145 0.42527035 0.58109952 0.67060803 0.52888913 0.68376201
+[                                            ]    0.29917381 0.0261549  0.74793439 0.3462049  0.59630459 0.41998472
+[                                            ]    0.06208668 0.0426007  0.45725848 0.86109769 0.22496903 0.9015931
+[                                            ]    0.02652744 0.30724342 0.34427505 0.43653861 0.90178977 0.54361094
+[                                            ]    0.55399355 0.64678511]
+[                                            ]   [0.92909949 0.08318902 0.27942513 0.39329024 0.92350593 0.6038244
+[                                            ]    0.38208298 0.72993612 0.05888436 0.05261299 0.14159709 0.69878305
+[                                            ]    0.65467016 0.21310676 0.25605929 0.47431324 0.53862596 0.52061441
+[                                            ]    0.0832076  0.46837355 0.96185993 0.57167513 0.45502557 0.94981973
+[                                            ]    0.14824553 0.32360118 0.97621288 0.69389528 0.73470532 0.81630699
+[                                            ]    0.11353197 0.92978542 0.87684838 0.16284958 0.21544688 0.1903641
+[                                            ]    0.0337599  0.91801151 0.12974805 0.03987361 0.48179868 0.50650773
+[                                            ]    0.41708887 0.06194215 0.03783622 0.66211511 0.43883164 0.70568833
+[                                            ]    0.95860559 0.31048111]
+[                                            ]   [0.60570885 0.52414618 0.6463452  0.20944947 0.47646863 0.04170973
+[                                            ]    0.59643605 0.80193008 0.26780089 0.82169413 0.72866033 0.68180663
+[                                            ]    0.84030089 0.22484928 0.52362137 0.36962222 0.66648626 0.23235728
+[                                            ]    0.39360772 0.22976659 0.72672851 0.99446512 0.84776927 0.42698324
+[                                            ]    0.34073668 0.62216197 0.58109952 0.55402842 0.33863041 0.39309931
+[                                            ]    0.3153276  0.05386498 0.72301406 0.3230289  0.21048227 0.53875806
+[                                            ]    0.62225364 0.73193847 0.66043439 0.889672   0.24719796 0.97782789
+[                                            ]    0.96344599 0.61451695 0.43543273 0.47679147 0.2061288  0.60350813
+[                                            ]    0.46720057 0.80756398]]
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.75374771 0.57118329 0.91383324 0.11560099 0.77578887 0.24349052
+[                                            ]   0.59643605 0.80193008 0.26780089 0.12305335 0.26490155 0.40608566
+[                                            ]   0.79594393 0.22993754 0.63385357 0.01994844 0.68256673 0.23080349
+[                                            ]   0.39360772 0.53205549 0.72672851 0.68409514 0.87292046 0.42698324
+[                                            ]   0.11010026 0.9803927  0.58109952 0.10341246 0.86106388 0.21294724
+[                                            ]   0.29917381 0.61826376 0.143509   0.84926877 0.21048227 0.70348318
+[                                            ]   0.0137452  0.71627156 0.29644107 0.889672   0.22496903 0.97782789
+[                                            ]   0.96344599 0.20258071 0.27690499 0.90057359 0.09328804 0.78519069
+[                                            ]   0.51048145 0.64678511]
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.75374771 0.19550416 0.6463452  0.23544928 0.67091773 0.25302822
+[                                            ]   0.52503279 0.80193008 0.26780089 0.63943184 0.26490155 0.76121661
+[                                            ]   0.56509519 0.76042425 0.69410847 0.41530048 0.66648626 0.9681063
+[                                            ]   0.73890405 0.36474592 0.66666985 0.53826157 0.16496971 0.45969732
+[                                            ]   0.76421145 0.42527035 0.58109952 0.67060803 0.52888913 0.68376201
+[                                            ]   0.29917381 0.0261549  0.74793439 0.3462049  0.59630459 0.41998472
+[                                            ]   0.06208668 0.0426007  0.45725848 0.86109769 0.22496903 0.9015931
+[                                            ]   0.02652744 0.30724342 0.34427505 0.43653861 0.90178977 0.54361094
+[                                            ]   0.55399355 0.64678511]
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.92909949 0.08318902 0.27942513 0.39329024 0.92350593 0.6038244
+[                                            ]   0.38208298 0.72993612 0.05888436 0.05261299 0.14159709 0.69878305
+[                                            ]   0.65467016 0.21310676 0.25605929 0.47431324 0.53862596 0.52061441
+[                                            ]   0.0832076  0.46837355 0.96185993 0.57167513 0.45502557 0.94981973
+[                                            ]   0.14824553 0.32360118 0.97621288 0.69389528 0.73470532 0.81630699
+[                                            ]   0.11353197 0.92978542 0.87684838 0.16284958 0.21544688 0.1903641
+[                                            ]   0.0337599  0.91801151 0.12974805 0.03987361 0.48179868 0.50650773
+[                                            ]   0.41708887 0.06194215 0.03783622 0.66211511 0.43883164 0.70568833
+[                                            ]   0.95860559 0.31048111]
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.60570885 0.52414618 0.6463452  0.20944947 0.47646863 0.04170973
+[                                            ]   0.59643605 0.80193008 0.26780089 0.82169413 0.72866033 0.68180663
+[                                            ]   0.84030089 0.22484928 0.52362137 0.36962222 0.66648626 0.23235728
+[                                            ]   0.39360772 0.22976659 0.72672851 0.99446512 0.84776927 0.42698324
+[                                            ]   0.34073668 0.62216197 0.58109952 0.55402842 0.33863041 0.39309931
+[                                            ]   0.3153276  0.05386498 0.72301406 0.3230289  0.21048227 0.53875806
+[                                            ]   0.62225364 0.73193847 0.66043439 0.889672   0.24719796 0.97782789
+[                                            ]   0.96344599 0.61451695 0.43543273 0.47679147 0.2061288  0.60350813
+[                                            ]   0.46720057 0.80756398]
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:55:32  INFO     ]  Generate sim model configurations
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 5d678f62-c4d1-4a62-9b0b-5ed37b645d79
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 9e9b4d3b-3108-4c46-bfde-c729ae6e7a7a
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 10b45966-58da-40b1-a637-7a9fc139090d
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 1abf513c-3a2b-45b7-9329-404f8d0146a0
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:55:32  INFO     ]  Run the generated simulation model configurations.
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.488 | run_multiple_simulation_configuration()]  Enqueing sim instances.
+[ coordinator  01-05-2024 16:55:32  DEBUG    ] [l.493 | run_multiple_simulation_configuration()]  Evaluating simulation instances: {'eff9e51c-a375-4600-b7af-2928e920f444': 0, '8a6d03e7-bc39-42e0-8595-53c40f4bdf21': 1, '2cf2df75-188f-4020-899c-7fb58c9df41f': 2, '828b842a-6afd-4905-a820-a9780cdd5aab': 3} with sim ids: [UUID('5d678f62-c4d1-4a62-9b0b-5ed37b645d79'), UUID('9e9b4d3b-3108-4c46-bfde-c729ae6e7a7a'), UUID('10b45966-58da-40b1-a637-7a9fc139090d'), UUID('1abf513c-3a2b-45b7-9329-404f8d0146a0')]
+[ coordinator  01-05-2024 16:55:56  INFO     ]  Collect the simulation stats from the simulation runs.
+[ coordinator  01-05-2024 16:55:56  INFO     ]  Determining simulation statistics for siminstance eff9e51c-a375-4600-b7af-2928e920f444.
+[ coordinator  01-05-2024 16:55:56  INFO     ]  Removing the output file for simistance eff9e51c-a375-4600-b7af-2928e920f444
+[ coordinator  01-05-2024 16:55:56  INFO     ]  Determining simulation statistics for siminstance 8a6d03e7-bc39-42e0-8595-53c40f4bdf21.
+[ coordinator  01-05-2024 16:55:56  INFO     ]  Removing the output file for simistance 8a6d03e7-bc39-42e0-8595-53c40f4bdf21
+[ coordinator  01-05-2024 16:55:56  INFO     ]  Determining simulation statistics for siminstance 2cf2df75-188f-4020-899c-7fb58c9df41f.
+[ coordinator  01-05-2024 16:55:56  INFO     ]  Removing the output file for simistance 2cf2df75-188f-4020-899c-7fb58c9df41f
+[ coordinator  01-05-2024 16:55:56  INFO     ]  Determining simulation statistics for siminstance 828b842a-6afd-4905-a820-a9780cdd5aab.
+[ coordinator  01-05-2024 16:55:56  INFO     ]  Removing the output file for simistance 828b842a-6afd-4905-a820-a9780cdd5aab
+[ coordinator  01-05-2024 16:55:56  INFO     ]  Storing fitness values locally at data/raw/agents_fitness
+[ coordinator  01-05-2024 16:55:56  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.120 | simulation_run()]  Starting Simulation Run: 3
+[ coordinator  01-05-2024 16:55:56  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.304 | set_agents_param_values()]  Config values agents: [[0.75374771 0.57118329 0.91383324 0.11560099 0.77578887 0.24349052
+[                                            ]    0.59643605 0.80193008 0.26780089 0.12305335 0.26490155 0.40608566
+[                                            ]    0.79594393 0.22993754 0.63385357 0.01994844 0.68256673 0.23080349
+[                                            ]    0.39360772 0.53205549 0.72672851 0.68409514 0.87292046 0.42698324
+[                                            ]    0.11010026 0.9803927  0.58109952 0.10341246 0.86106388 0.21294724
+[                                            ]    0.29917381 0.61826376 0.143509   0.84926877 0.21048227 0.70348318
+[                                            ]    0.0137452  0.71627156 0.29644107 0.889672   0.22496903 0.97782789
+[                                            ]    0.96344599 0.20258071 0.27690499 0.90057359 0.09328804 0.78519069
+[                                            ]    0.51048145 0.64678511]
+[                                            ]   [0.75374771 0.19550416 0.6463452  0.23544928 0.67091773 0.25302822
+[                                            ]    0.52503279 0.80193008 0.26780089 0.63943184 0.26490155 0.76121661
+[                                            ]    0.56509519 0.76042425 0.69410847 0.41530048 0.66648626 0.9681063
+[                                            ]    0.73890405 0.36474592 0.66666985 0.53826157 0.16496971 0.45969732
+[                                            ]    0.76421145 0.42527035 0.58109952 0.67060803 0.52888913 0.68376201
+[                                            ]    0.29917381 0.0261549  0.74793439 0.3462049  0.59630459 0.41998472
+[                                            ]    0.06208668 0.0426007  0.45725848 0.86109769 0.22496903 0.9015931
+[                                            ]    0.02652744 0.30724342 0.34427505 0.43653861 0.90178977 0.54361094
+[                                            ]    0.55399355 0.64678511]
+[                                            ]   [0.92909949 0.08318902 0.27942513 0.39329024 0.92350593 0.6038244
+[                                            ]    0.38208298 0.72993612 0.05888436 0.05261299 0.14159709 0.69878305
+[                                            ]    0.65467016 0.21310676 0.25605929 0.47431324 0.53862596 0.52061441
+[                                            ]    0.0832076  0.46837355 0.96185993 0.57167513 0.45502557 0.94981973
+[                                            ]    0.14824553 0.32360118 0.97621288 0.69389528 0.73470532 0.81630699
+[                                            ]    0.11353197 0.92978542 0.87684838 0.16284958 0.21544688 0.1903641
+[                                            ]    0.0337599  0.91801151 0.12974805 0.03987361 0.48179868 0.50650773
+[                                            ]    0.41708887 0.06194215 0.03783622 0.66211511 0.43883164 0.70568833
+[                                            ]    0.95860559 0.31048111]
+[                                            ]   [0.75374771 0.57118329 0.91383324 0.11560099 0.77578887 0.24349052
+[                                            ]    0.59643605 0.80193008 0.26780089 0.12305335 0.26490155 0.40608566
+[                                            ]    0.79594393 0.22993754 0.63385357 0.01994844 0.68256673 0.23080349
+[                                            ]    0.39360772 0.53205549 0.72672851 0.68409514 0.87292046 0.42698324
+[                                            ]    0.11010026 0.9803927  0.58109952 0.10341246 0.86106388 0.21294724
+[                                            ]    0.29917381 0.61826376 0.143509   0.84926877 0.21048227 0.70348318
+[                                            ]    0.0137452  0.71627156 0.29644107 0.889672   0.22496903 0.97782789
+[                                            ]    0.96344599 0.20258071 0.27690499 0.90057359 0.09328804 0.78519069
+[                                            ]    0.51048145 0.64678511]]
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.75374771 0.57118329 0.91383324 0.11560099 0.77578887 0.24349052
+[                                            ]   0.59643605 0.80193008 0.26780089 0.12305335 0.26490155 0.40608566
+[                                            ]   0.79594393 0.22993754 0.63385357 0.01994844 0.68256673 0.23080349
+[                                            ]   0.39360772 0.53205549 0.72672851 0.68409514 0.87292046 0.42698324
+[                                            ]   0.11010026 0.9803927  0.58109952 0.10341246 0.86106388 0.21294724
+[                                            ]   0.29917381 0.61826376 0.143509   0.84926877 0.21048227 0.70348318
+[                                            ]   0.0137452  0.71627156 0.29644107 0.889672   0.22496903 0.97782789
+[                                            ]   0.96344599 0.20258071 0.27690499 0.90057359 0.09328804 0.78519069
+[                                            ]   0.51048145 0.64678511]
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.75374771 0.19550416 0.6463452  0.23544928 0.67091773 0.25302822
+[                                            ]   0.52503279 0.80193008 0.26780089 0.63943184 0.26490155 0.76121661
+[                                            ]   0.56509519 0.76042425 0.69410847 0.41530048 0.66648626 0.9681063
+[                                            ]   0.73890405 0.36474592 0.66666985 0.53826157 0.16496971 0.45969732
+[                                            ]   0.76421145 0.42527035 0.58109952 0.67060803 0.52888913 0.68376201
+[                                            ]   0.29917381 0.0261549  0.74793439 0.3462049  0.59630459 0.41998472
+[                                            ]   0.06208668 0.0426007  0.45725848 0.86109769 0.22496903 0.9015931
+[                                            ]   0.02652744 0.30724342 0.34427505 0.43653861 0.90178977 0.54361094
+[                                            ]   0.55399355 0.64678511]
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.92909949 0.08318902 0.27942513 0.39329024 0.92350593 0.6038244
+[                                            ]   0.38208298 0.72993612 0.05888436 0.05261299 0.14159709 0.69878305
+[                                            ]   0.65467016 0.21310676 0.25605929 0.47431324 0.53862596 0.52061441
+[                                            ]   0.0832076  0.46837355 0.96185993 0.57167513 0.45502557 0.94981973
+[                                            ]   0.14824553 0.32360118 0.97621288 0.69389528 0.73470532 0.81630699
+[                                            ]   0.11353197 0.92978542 0.87684838 0.16284958 0.21544688 0.1903641
+[                                            ]   0.0337599  0.91801151 0.12974805 0.03987361 0.48179868 0.50650773
+[                                            ]   0.41708887 0.06194215 0.03783622 0.66211511 0.43883164 0.70568833
+[                                            ]   0.95860559 0.31048111]
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.75374771 0.57118329 0.91383324 0.11560099 0.77578887 0.24349052
+[                                            ]   0.59643605 0.80193008 0.26780089 0.12305335 0.26490155 0.40608566
+[                                            ]   0.79594393 0.22993754 0.63385357 0.01994844 0.68256673 0.23080349
+[                                            ]   0.39360772 0.53205549 0.72672851 0.68409514 0.87292046 0.42698324
+[                                            ]   0.11010026 0.9803927  0.58109952 0.10341246 0.86106388 0.21294724
+[                                            ]   0.29917381 0.61826376 0.143509   0.84926877 0.21048227 0.70348318
+[                                            ]   0.0137452  0.71627156 0.29644107 0.889672   0.22496903 0.97782789
+[                                            ]   0.96344599 0.20258071 0.27690499 0.90057359 0.09328804 0.78519069
+[                                            ]   0.51048145 0.64678511]
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:55:56  INFO     ]  Generate sim model configurations
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 8736b853-f8a4-4fde-8725-541618b58a0f
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 0172dc68-c52a-48ee-a634-a852a96d2430
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 9704ab84-c5d7-4bb7-b6ce-998a4107f9be
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 9e8edd84-ec6b-4a3e-ba1f-2c9111899533
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:55:56  INFO     ]  Run the generated simulation model configurations.
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.488 | run_multiple_simulation_configuration()]  Enqueing sim instances.
+[ coordinator  01-05-2024 16:55:56  DEBUG    ] [l.493 | run_multiple_simulation_configuration()]  Evaluating simulation instances: {'ece612ef-7203-4bfa-a09f-a46c84d392ad': 0, '8919172a-aabd-4272-a117-e84f68420b0b': 1, '00dd884c-4472-4828-ba76-b771eb96eb44': 2, '75db8830-87bc-48e7-91b9-55ca3cdc4088': 3} with sim ids: [UUID('8736b853-f8a4-4fde-8725-541618b58a0f'), UUID('0172dc68-c52a-48ee-a634-a852a96d2430'), UUID('9704ab84-c5d7-4bb7-b6ce-998a4107f9be'), UUID('9e8edd84-ec6b-4a3e-ba1f-2c9111899533')]
+[ coordinator  01-05-2024 16:56:20  INFO     ]  Collect the simulation stats from the simulation runs.
+[ coordinator  01-05-2024 16:56:20  INFO     ]  Determining simulation statistics for siminstance ece612ef-7203-4bfa-a09f-a46c84d392ad.
+[ coordinator  01-05-2024 16:56:20  INFO     ]  Removing the output file for simistance ece612ef-7203-4bfa-a09f-a46c84d392ad
+[ coordinator  01-05-2024 16:56:20  INFO     ]  Determining simulation statistics for siminstance 8919172a-aabd-4272-a117-e84f68420b0b.
+[ coordinator  01-05-2024 16:56:20  INFO     ]  Removing the output file for simistance 8919172a-aabd-4272-a117-e84f68420b0b
+[ coordinator  01-05-2024 16:56:20  INFO     ]  Determining simulation statistics for siminstance 00dd884c-4472-4828-ba76-b771eb96eb44.
+[ coordinator  01-05-2024 16:56:20  INFO     ]  Removing the output file for simistance 00dd884c-4472-4828-ba76-b771eb96eb44
+[ coordinator  01-05-2024 16:56:20  INFO     ]  Determining simulation statistics for siminstance 75db8830-87bc-48e7-91b9-55ca3cdc4088.
+[ coordinator  01-05-2024 16:56:20  INFO     ]  Removing the output file for simistance 75db8830-87bc-48e7-91b9-55ca3cdc4088
+[ coordinator  01-05-2024 16:56:20  INFO     ]  Storing fitness values locally at data/raw/agents_fitness
+[ coordinator  01-05-2024 16:56:20  INFO     ]  Removing simulation run templates in dummy path.
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.120 | simulation_run()]  Starting Simulation Run: 4
+[ coordinator  01-05-2024 16:56:20  INFO     ]  Determining the simulation model parameters for the configuration values...
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.304 | set_agents_param_values()]  Config values agents: [[0.63384395 0.69912875 0.66374983 0.97427161 0.07049002 0.24349052
+[                                            ]    0.97634802 0.65300673 0.26780089 0.6097554  0.08959857 0.7726156
+[                                            ]    0.09378113 0.34799865 0.63385357 0.01994844 0.68256673 0.60356765
+[                                            ]    0.39360772 0.30615353 0.36261098 0.45275399 0.87292046 0.34405373
+[                                            ]    0.11010026 0.46777215 0.58109952 0.10341246 0.86106388 0.21294724
+[                                            ]    0.12644401 0.76430092 0.48813855 0.71070639 0.10136144 0.38886611
+[                                            ]    0.0137452  0.54599825 0.29644107 0.889672   0.22496903 0.97782789
+[                                            ]    0.99667476 0.49246296 0.27690499 0.90057359 0.81253237 0.78519069
+[                                            ]    0.62260662 0.64678511]
+[                                            ]   [0.93967254 0.03774974 0.00333068 0.45745826 0.77861759 0.25302822
+[                                            ]    0.22575768 0.67434966 0.26780089 0.52275501 0.53047101 0.40733808
+[                                            ]    0.09800049 0.60117014 0.69410847 0.41530048 0.66648626 0.12249762
+[                                            ]    0.73890405 0.20670436 0.86335347 0.35046153 0.16496971 0.36662124
+[                                            ]    0.76421145 0.68329924 0.58109952 0.67060803 0.52888913 0.68376201
+[                                            ]    0.5829199  0.83255954 0.1996613  0.13084539 0.80634807 0.82180909
+[                                            ]    0.06208668 0.87035712 0.45725848 0.86109769 0.22496903 0.9015931
+[                                            ]    0.78570349 0.76101623 0.34427505 0.43653861 0.42860624 0.54361094
+[                                            ]    0.60712151 0.64678511]
+[                                            ]   [0.92909949 0.08318902 0.27942513 0.39329024 0.92350593 0.6038244
+[                                            ]    0.38208298 0.72993612 0.05888436 0.05261299 0.14159709 0.69878305
+[                                            ]    0.65467016 0.21310676 0.25605929 0.47431324 0.53862596 0.52061441
+[                                            ]    0.0832076  0.46837355 0.96185993 0.57167513 0.45502557 0.94981973
+[                                            ]    0.14824553 0.32360118 0.97621288 0.69389528 0.73470532 0.81630699
+[                                            ]    0.11353197 0.92978542 0.87684838 0.16284958 0.21544688 0.1903641
+[                                            ]    0.0337599  0.91801151 0.12974805 0.03987361 0.48179868 0.50650773
+[                                            ]    0.41708887 0.06194215 0.03783622 0.66211511 0.43883164 0.70568833
+[                                            ]    0.95860559 0.31048111]
+[                                            ]   [0.09238424 0.86000318 0.1907429  0.9108756  0.06416352 0.24349052
+[                                            ]    0.40186096 0.78110017 0.26780089 0.65857532 0.91627069 0.68314028
+[                                            ]    0.47647875 0.52980216 0.63385357 0.01994844 0.68256673 0.58322325
+[                                            ]    0.39360772 0.08590558 0.40607728 0.72358254 0.87292046 0.48363346
+[                                            ]    0.11010026 0.29947135 0.58109952 0.10341246 0.86106388 0.21294724
+[                                            ]    0.05361175 0.66286771 0.2524633  0.41349131 0.18271491 0.25133341
+[                                            ]    0.0137452  0.39643622 0.29644107 0.889672   0.22496903 0.97782789
+[                                            ]    0.44671226 0.19638328 0.27690499 0.90057359 0.56983153 0.78519069
+[                                            ]    0.90621704 0.64678511]]
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.63384395 0.69912875 0.66374983 0.97427161 0.07049002 0.24349052
+[                                            ]   0.97634802 0.65300673 0.26780089 0.6097554  0.08959857 0.7726156
+[                                            ]   0.09378113 0.34799865 0.63385357 0.01994844 0.68256673 0.60356765
+[                                            ]   0.39360772 0.30615353 0.36261098 0.45275399 0.87292046 0.34405373
+[                                            ]   0.11010026 0.46777215 0.58109952 0.10341246 0.86106388 0.21294724
+[                                            ]   0.12644401 0.76430092 0.48813855 0.71070639 0.10136144 0.38886611
+[                                            ]   0.0137452  0.54599825 0.29644107 0.889672   0.22496903 0.97782789
+[                                            ]   0.99667476 0.49246296 0.27690499 0.90057359 0.81253237 0.78519069
+[                                            ]   0.62260662 0.64678511]
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.93967254 0.03774974 0.00333068 0.45745826 0.77861759 0.25302822
+[                                            ]   0.22575768 0.67434966 0.26780089 0.52275501 0.53047101 0.40733808
+[                                            ]   0.09800049 0.60117014 0.69410847 0.41530048 0.66648626 0.12249762
+[                                            ]   0.73890405 0.20670436 0.86335347 0.35046153 0.16496971 0.36662124
+[                                            ]   0.76421145 0.68329924 0.58109952 0.67060803 0.52888913 0.68376201
+[                                            ]   0.5829199  0.83255954 0.1996613  0.13084539 0.80634807 0.82180909
+[                                            ]   0.06208668 0.87035712 0.45725848 0.86109769 0.22496903 0.9015931
+[                                            ]   0.78570349 0.76101623 0.34427505 0.43653861 0.42860624 0.54361094
+[                                            ]   0.60712151 0.64678511]
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.92909949 0.08318902 0.27942513 0.39329024 0.92350593 0.6038244
+[                                            ]   0.38208298 0.72993612 0.05888436 0.05261299 0.14159709 0.69878305
+[                                            ]   0.65467016 0.21310676 0.25605929 0.47431324 0.53862596 0.52061441
+[                                            ]   0.0832076  0.46837355 0.96185993 0.57167513 0.45502557 0.94981973
+[                                            ]   0.14824553 0.32360118 0.97621288 0.69389528 0.73470532 0.81630699
+[                                            ]   0.11353197 0.92978542 0.87684838 0.16284958 0.21544688 0.1903641
+[                                            ]   0.0337599  0.91801151 0.12974805 0.03987361 0.48179868 0.50650773
+[                                            ]   0.41708887 0.06194215 0.03783622 0.66211511 0.43883164 0.70568833
+[                                            ]   0.95860559 0.31048111]
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.307 | set_agents_param_values()]  Configuring agent : [0.09238424 0.86000318 0.1907429  0.9108756  0.06416352 0.24349052
+[                                            ]   0.40186096 0.78110017 0.26780089 0.65857532 0.91627069 0.68314028
+[                                            ]   0.47647875 0.52980216 0.63385357 0.01994844 0.68256673 0.58322325
+[                                            ]   0.39360772 0.08590558 0.40607728 0.72358254 0.87292046 0.48363346
+[                                            ]   0.11010026 0.29947135 0.58109952 0.10341246 0.86106388 0.21294724
+[                                            ]   0.05361175 0.66286771 0.2524633  0.41349131 0.18271491 0.25133341
+[                                            ]   0.0137452  0.39643622 0.29644107 0.889672   0.22496903 0.97782789
+[                                            ]   0.44671226 0.19638328 0.27690499 0.90057359 0.56983153 0.78519069
+[                                            ]   0.90621704 0.64678511]
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'datarate', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate', 'values': ['10Mbps', '100Mbps', '1Gbps', '10Gbps']}
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cost', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost', 'values': [1, 2, 5, 10]}
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.311 | set_agents_param_values()]  Configuring param : {'param_name': 'cable_colour', 'configuration_pattern': '**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string', 'values': ['ls=red,3,s;', 'ls=blue,3,s;', 'ls=green,3,s;', 'ls=yellow,3,s;']}
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.316 | set_agents_param_values()]  Determine the param value index
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.323 | set_agents_param_values()]  Define the correct gate and switch indices for the parameter.
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.348 | set_agents_param_values()]  Append configurations
+[ coordinator  01-05-2024 16:56:20  INFO     ]  Generate sim model configurations
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for db9409d4-afb7-4bb1-9ea8-1072b9cf1b87
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for a9de097c-985f-41d5-91d2-4c7f7b94ee96
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for c564a3c1-ef11-45b3-9062-01dd45f23b5c
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.139 | simulation_run()]  Duplicate directory for 6beda2e7-ed14-4c5b-a005-1d757b80ae59
+[ coordinator  01-05-2024 16:56:20  DEBUG    ] [l.149 | simulation_run()]  Write ini file for simulation instance
+[ coordinator  01-05-2024 16:56:20  INFO     ]  Run the generated simulation model configurations.
+[ coordinator  01-05-2024 16:56:21  DEBUG    ] [l.488 | run_multiple_simulation_configuration()]  Enqueing sim instances.
+[ coordinator  01-05-2024 16:56:21  DEBUG    ] [l.493 | run_multiple_simulation_configuration()]  Evaluating simulation instances: {'a56f3d82-a8ea-413b-a7a0-72cafe3ff98f': 0, '12268b2a-6abf-4d17-9573-287365eab66a': 1, '4d3ac566-6769-4147-a5cc-f18551b6c813': 2, 'e434ea2b-248a-4e5d-b022-b8d0b267bfe9': 3} with sim ids: [UUID('db9409d4-afb7-4bb1-9ea8-1072b9cf1b87'), UUID('a9de097c-985f-41d5-91d2-4c7f7b94ee96'), UUID('c564a3c1-ef11-45b3-9062-01dd45f23b5c'), UUID('6beda2e7-ed14-4c5b-a005-1d757b80ae59')]
+[ coordinator  01-05-2024 16:56:44  INFO     ]  Collect the simulation stats from the simulation runs.
+[ coordinator  01-05-2024 16:56:44  INFO     ]  Determining simulation statistics for siminstance a56f3d82-a8ea-413b-a7a0-72cafe3ff98f.
+[ coordinator  01-05-2024 16:56:44  INFO     ]  Removing the output file for simistance a56f3d82-a8ea-413b-a7a0-72cafe3ff98f
+[ coordinator  01-05-2024 16:56:44  INFO     ]  Determining simulation statistics for siminstance 12268b2a-6abf-4d17-9573-287365eab66a.
+[ coordinator  01-05-2024 16:56:45  INFO     ]  Removing the output file for simistance 12268b2a-6abf-4d17-9573-287365eab66a
+[ coordinator  01-05-2024 16:56:45  INFO     ]  Determining simulation statistics for siminstance 4d3ac566-6769-4147-a5cc-f18551b6c813.
+[ coordinator  01-05-2024 16:56:45  INFO     ]  Removing the output file for simistance 4d3ac566-6769-4147-a5cc-f18551b6c813
+[ coordinator  01-05-2024 16:56:45  INFO     ]  Determining simulation statistics for siminstance e434ea2b-248a-4e5d-b022-b8d0b267bfe9.
+[ coordinator  01-05-2024 16:56:45  INFO     ]  Removing the output file for simistance e434ea2b-248a-4e5d-b022-b8d0b267bfe9
+[ coordinator  01-05-2024 16:56:45  INFO     ]  Storing fitness values locally at data/raw/agents_fitness
+[ coordinator  01-05-2024 16:56:45  INFO     ]  Removing simulation run templates in dummy path.

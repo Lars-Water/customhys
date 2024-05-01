@@ -44,7 +44,6 @@ class instance(BP):
 
         # Determine min and max values for objectives
         self.boundaries = boundaries
-        print(f"boundaries: {boundaries}")
 
 
     '''
