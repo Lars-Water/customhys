@@ -329,7 +329,7 @@ class HeuristicSimulationCoordinator:
 
                     # Replace placeholders in the configuration pattern are replaced with the corresponding indices.
                     current_param_pattern = config_pattern.replace("__switch_index", str(switch_idx))
-                    current_param_pattern = current_param_pattern.replace("__gate_index", first_switch_gate_index)
+                    currWorkflowConfigent_param_pattern = current_param_pattern.replace("__gate_index", first_switch_gate_index)
 
                     # Create a configuration for the current parameter.
                     agent_configuration.append({
@@ -505,7 +505,8 @@ class HeuristicSimulationCoordinator:
                 self.conf.tryGet("simulation_model", "simulation_model_configuration", "jobs"),
                 self.conf.tryGet("simulation_model", "simulation_model_configuration", "job_cores"),
                 self.conf.tryGet("simulation_model", "simulation_model_configuration", "job_processes"),
-                self.conf.tryGet("simulation_model", "simulation_model_configuration", "job_memory")
+                self.conf.tryGet("simulation_model", "simulation_model_configuration", "job_memory"),
+                self.conf.tryGet("simulation_model", "simulation_model_configuration", "walltime")
             )
         elif platform == "local":
             self.logger.info("Setting up local cluster configuration.")

@@ -50,10 +50,11 @@ class ResourceController:
                     job_cores = self.cnf.tryGet("resource_controller", "cluster", "job_cores")
                     job_processes = self.cnf.tryGet("resource_controller", "cluster", "job_processes")
                     job_memory = self.cnf.tryGet("resource_controller", "cluster", "job_memory")
+                    walltime =  self.cnf.tryGet("resource_controller", "cluster", "walltime")
 
                     num_workers = num_jobs * job_processes
 
-                    self.cluster = SLURMCluster(job_directives_skip=["--mem"], cores=job_cores, processes=job_processes, memory=job_memory, worker_extra_args=['--resources slots={}'.format(job_cores)], log_directory=self.logs_path)
+                    self.cluster = SLURMCluster(job_directives_skip=["--mem"], cores=job_cores, processes=job_processes, walltime=walltime, memory=job_memory, worker_extra_args=['--resources slots={}'.format(job_cores)], log_directory=self.logs_path)
                     self.cluster.scale(jobs=num_jobs)
                     # TODO: check if number of slots does not exceed num of cores per worker
                     # TODO: wait for all workers to arrive?
@@ -72,7 +73,7 @@ class ResourceController:
             self.logger.info("Assuming local dask cluster")
             self.cluster = LocalCluster(n_workers=1, threads_per_worker=6, resources={"slots": 6})
 
-        self.client = Client(self.cluster)
+        self.client = Client(self.cluster, timeout=6*60)
 
         while ((self.client.status == "running") and (len(self.client.scheduler_info()["workers"]) < num_workers)):
             time.sleep(0.1)

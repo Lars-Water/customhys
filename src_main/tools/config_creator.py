@@ -40,13 +40,14 @@ class WorkflowConfig:
         self.set_cluster_config(cluster_config)
 
     @staticmethod
-    def create_slurm_cluster_config(jobs, job_cores, job_processes, job_memory):
+    def create_slurm_cluster_config(jobs, job_cores, job_processes, job_memory, walltime="1:0:0"):
         cluster_config = {}
         cluster_config["interface"] = "SLURM"
         cluster_config["jobs"] = jobs
         cluster_config["job_cores"] = job_cores
         cluster_config["job_processes"] = job_processes
         cluster_config["job_memory"] = job_memory
+        cluster_config["walltime"] = walltime
         return cluster_config
 
     @staticmethod
