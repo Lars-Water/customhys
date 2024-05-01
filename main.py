@@ -99,10 +99,21 @@ def run_hh(heur_sim_coordinator, heuristics_collection):
         subnet_structure["optimal_solution"] = [0.9] * run,
         subnet_structure["optimal_fitness"] = 30
 
+        boundaries = {
+            "datarate": {
+                "max": heur_sim_coordinator.max_datarate,
+                "min": heur_sim_coordinator.min_datarate
+            },
+            "cost": {
+                "max": heur_sim_coordinator.max_cost,
+                "min": heur_sim_coordinator.min_cost
+            }
+        }
         cqn_instance = model.generate_instance(
             run,
             subnet_structure,
-            heur_sim_coordinator.simulation_run
+            heur_sim_coordinator.simulation_run,
+            boundaries
         )
         prob = cqn_instance.get_formatted_problem()
 
@@ -202,11 +213,23 @@ def create_mh_instance(run, heur_sim_coordinator):
     subnet_structure["optimal_solution"] = [0.9] * run,
     subnet_structure["optimal_fitness"] = 30
 
+    # TODO: Initialize model object from here instead of calling the generate_instance method.
     # Create a problem instance from the formulation.
+    boundaries = {
+        "datarate": {
+            "max": heur_sim_coordinator.max_datarate,
+            "min": heur_sim_coordinator.min_datarate
+        },
+        "cost": {
+            "max": heur_sim_coordinator.max_cost,
+            "min": heur_sim_coordinator.min_cost
+        }
+    }
     problem_instance = model.generate_instance(
         run,
         subnet_structure,
-        heur_sim_coordinator.simulation_run
+        heur_sim_coordinator.simulation_run,
+        boundaries
     )
     return problem_instance.get_formatted_problem()
 
@@ -241,7 +264,9 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, par
         heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, nr_of_backbone_switches) # noqa 501
 
         run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
-        # run_hh(heur_sim_coordinator, heuristics_collection)
+
+        # TODO: Implement the hyperheuristic run.
+
     elif parameter_tuning:
         parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
         parameter_tuning_coordinator.parameter_tuning_workflow()

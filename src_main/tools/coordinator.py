@@ -95,6 +95,16 @@ class HeuristicSimulationCoordinator:
         self.logger.info("Determine the paths for the simulation model results.")
         self.results_path = self.conf.tryGet("results_path")
 
+        # TODO: Implement normalisation correctly.
+        self.manual_normalization()
+
+        if hasattr(self, "max_datarate"):
+            self.logger.info(f"Maximum datarate is: {self.max_datarate}")
+            self.logger.info(f"Minimum datarate is: {self.min_datarate}")
+        if hasattr(self, "max_cost"):
+            self.logger.info(f"Maximum cost is: {self.max_cost}")
+            self.logger.info(f"Minimum cost is: {self.min_cost}")
+
 
     '''
         Run the simulation model with the given configuration values.
@@ -528,6 +538,8 @@ class HeuristicSimulationCoordinator:
         matching_sim_dummy_dir = [path for path in glob.glob(simulation_run_dir_pattern) if os.path.isdir(path)]
         for directory in matching_sim_dummy_dir:
             shutil.rmtree(directory)
+
+        # TODO: Should I make a distinct function of the removal from the sims path?
         # self.logger.info("Removing simulation run templates in sims path.")
         # shutil.rmtree(self.sims_path)
         # os.makedirs(self.sims_path)
@@ -552,43 +564,93 @@ class HeuristicSimulationCoordinator:
         append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
 
 
-    '''
-        Manually determine the min and max values for the objective parameters.
-    '''
     def manual_normalization(self):
+        """
+        Manually determines the min and max values for the objective parameters.
+
+        This method generates simulation instances with different parameter values
+        based on the specified boundaries. It creates a unique simulation instance
+        for each combination of parameter and value, and stores the generated simulation
+        IDs in a list.
+
+        Returns:
+            None
+        """
         self.logger.info("Manually determine the min and max values for the objective parameters.")
 
-        boundaries = {
-            "cable_rate": {
-                "max": "10Mbps",
-                "min": "10Gbps"
-            },
-            "cable_cost": {
-                "max": 10,
-                "min": 1
-            }
-        }
+        # Determine the minimal and maximal parameter values for the simulation model parameters.
+        simulation_model_params = self.conf.tryGet("simulation_model", "simulation_model_params")
+        boundaries = {}
+        for simulation_model_param in simulation_model_params:
+            parameter_name = simulation_model_param['param_name']
+            if parameter_name != "cable_colour":
+                boundaries[simulation_model_param['param_name']] = {
+                    "max": simulation_model_param['values'][-1],
+                    "min": simulation_model_param['values'][0]
+                }
 
+        # Generate simulation instances the min and max parameter value configurations.
         sim_ids = []
-        # Write a simulation instance for max cable rate.
-        sim_id = uuid.uuid4()
-        sim_instance_path = self.generated_simulation_model_path + f"_{sim_id}"
-        # Duplicate the preferred dummy_sim directory to the sim_instance directory.
-        self.duplicate_directory(self.simulation_model_template_path, sim_instance_path, file_to_ignore="largeNet.ini")
-        # Define the path to the sim_instance ini file.
-        sim_instance_ini_file_path = os.path.join(sim_instance_path, "largeNet.ini")
+        for parameter, boundaries in boundaries.items():
+            for boundary in boundaries:
+                value = boundaries[boundary]
+                sim_id = uuid.uuid4()
+                sim_instance_path = self.generated_simulation_model_path + f"_{sim_id}"
 
-        # Write the sim_instance ini file with the provided parameter configurations.
-        self.write_sim_instance_ini_file(
-            self.ini_file_template_path,
-            sim_instance_ini_file_path,
-            {"cable_rate": boundaries['cable_rate']['max']},
-            self.nr_of_backbone_switches
-        )
+                # Duplicate the dummy_sim directory to the sim_instance directory.
+                self.duplicate_directory(self.simulation_model_template_path, sim_instance_path, file_to_ignore="largeNet.ini")
 
-        # Write a simulation instance for min cable rate.
-        # Write a simulation instance for max cable cost.
-        # Write a simulation instance for max cable cost.
+                # Define the path to the sim_instance ini file.
+                sim_instance_ini_file_path = os.path.join(sim_instance_path, "largeNet.ini")
+
+                # Write the sim_instance ini file with the provided parameter configurations.
+                self.logger.debug(f"Generating normalization sim instance for parameter: {parameter} - boundary: {boundary} - value: {value}")
+                self.write_normalization_ini_files(
+                    self.ini_file_template_path,
+                    sim_instance_ini_file_path,
+                    parameter,
+                    value,
+                    self.nr_of_backbone_switches
+                )
+                sim_ids.append(sim_id)
+
+                self.logger.info("Evaluating the generated simulation instances.")
+                uids = self.run_multiple_simulation_configuration(sim_ids)
+
+                self.logger.info("Determine the boundary value for the objective.")
+                for sim_uid in uids.keys():
+                    self.determine_boundary_value(sim_uid, parameter, boundary)
+
+                sim_ids.clear()
+
+        if self.remove_sim_instance_configurations:
+            self.remove_simulation_instance_configurations()
+
+
+    def determine_boundary_value(self, sim_uid, parameter, boundary):
+        csv_file_path = os.path.join(self.data_path, "results", sim_uid, "x.csv")
+        df = pd.read_csv(csv_file_path)
+
+        # Determine boundary values for the datarate parameter.
+        if parameter == "datarate":
+            cli_df = df[df["module"].fillna("").str.endswith(".cli")]
+            latency_df = cli_df[(cli_df["type"] == "statistic") & (cli_df["name"].str.startswith("endToEndDelay"))]
+            mean_end_to_end_delay = latency_df['mean']
+            _ = latency_df['stddev']
+            _ = latency_df['min']
+            _ = latency_df['max']
+            if boundary == "min":
+                self.min_datarate = mean_end_to_end_delay.to_numpy()[0]
+            elif boundary == "max":
+                self.max_datarate = mean_end_to_end_delay.to_numpy()[0]
+        # Deterine boundary values for the cost parameter.
+        elif parameter == "cost":
+            cost_df = df[df['type'] == "param"]
+            cost_df = cost_df[cost_df["name"] == "cost"]
+            if boundary == "min":
+                self.min_cost = cost_df['value'].astype(float).sum()
+            elif boundary == "max":
+                self.max_cost = cost_df['value'].astype(float).sum()
 
 
     '''
@@ -772,7 +834,7 @@ class HeuristicSimulationCoordinator:
 
             # Step 3: Write additional information for each permutation
             for switch_idx, cable_option in enumerate(permutation):
-                cable_option_rate = cable_option['cable_rate']
+                cable_option_rate = cable_option['datarate']
                 cable_option_colour = cable_option['cable_colour']
                 if switch_idx == 0:
                     design_file.write(f"**.switchBB[0].ethg$o[0].channel.datarate = {cable_option_rate}\n")
@@ -784,7 +846,7 @@ class HeuristicSimulationCoordinator:
                     design_file.write(f"**.switchBB[{switch_idx+1}].ethg$o[0].channel.datarate = {cable_option_rate}\n")
                     design_file.write(f"**.switchBB[{switch_idx}].ethg$o[1].channel.display-string = ls={cable_option_colour},3,s;\n")
                     design_file.write(f"**.switchBB[{switch_idx+1}].ethg$o[0].channel.display-string = ls={cable_option_colour},3,s;\n")
-                design_file.write(f"**.switchBB[{switch_idx+1}].ethg$o[0].channel.cost = {cable_option['cable_cost']}\n")
+                design_file.write(f"**.switchBB[{switch_idx+1}].ethg$o[0].channel.cost = {cable_option['cost']}\n")
 
 
     @staticmethod
@@ -820,6 +882,27 @@ class HeuristicSimulationCoordinator:
 
 
     @staticmethod
+    def write_normalization_ini_files(template_ini_file_path, sim_instance_ini_file_path, objective_parameter, parameter_value, nr_of_backbone_switches):
+        with open(template_ini_file_path, 'r') as template_ini_file, open(sim_instance_ini_file_path, 'w') as sim_instance_ini_file:
+            for line in template_ini_file:
+                line_written = False
+                # Update the number of backbone switches accordingly.
+                if line.startswith("LargeNet.n ="):
+                    sim_instance_ini_file.write(f"LargeNet.n = {nr_of_backbone_switches}   # number of switches on backbone")
+                    line_written = True
+                # Set the boundary value for the objective parameter.
+                elif line.startswith("# Parameter tuning for cable rate patterns below this line."):
+                    sim_instance_ini_file.write(line)
+                    sim_instance_ini_file.write(f"**.switchBB[0].ethg$o[0].channel.{objective_parameter} = {parameter_value}\n")
+                    sim_instance_ini_file.write(f"**.switchBB[1..{nr_of_backbone_switches-2}].ethg$o[0..1].channel.{objective_parameter} = {parameter_value}\n")
+                    sim_instance_ini_file.write(f"**.switchBB[{nr_of_backbone_switches-1}].ethg$o[0].channel.{objective_parameter} = {parameter_value}\n")
+                    line_written = True
+                # Write the rest of the lines from the template file.
+                if not line_written:
+                    sim_instance_ini_file.write(line)
+
+
+    @staticmethod
     def write_sim_instance_ini_file(template_ini_file_path, sim_instance_ini_file_path, configurations, nr_of_backbone_switches):
         """
         Write a simulation instance INI file based on a template INI file and given configurations.
@@ -845,20 +928,20 @@ class HeuristicSimulationCoordinator:
                         break
 
                     # Update the number of backbone switches accordingly.
-                    elif line.startswith("LargeNet.n =") and configuration_parameter == "cable_rate":
+                    elif line.startswith("LargeNet.n =") and configuration_parameter == "datarate":
                         sim_instance_ini_file.write(f"LargeNet.n = {nr_of_backbone_switches}   # number of switches on backbone")
                         line_written = True
                         break
 
                     # Update the cable rate parameter values with the given configuration values.
-                    elif line.startswith("# Parameter tuning for cable rate patterns below this line.") and configuration_parameter == "cable_rate":
+                    elif line.startswith("# Parameter tuning for cable rate patterns below this line.") and configuration_parameter == "datarate":
                         sim_instance_ini_file.write(line)
 
                         # Write the cable rate configurations for each backbone switch with the given configuration values.
-                        cable_rate = configurations[configuration_parameter]['rate']
-                        sim_instance_ini_file.write(f"**.switchBB[0].ethg$o[0].channel.datarate = {cable_rate}\n")
-                        sim_instance_ini_file.write(f"**.switchBB[1..{nr_of_backbone_switches-2}].ethg$o[0..1].channel.datarate = {cable_rate}\n")
-                        sim_instance_ini_file.write(f"**.switchBB[{nr_of_backbone_switches-1}].ethg$o[0].channel.datarate = {cable_rate}\n")
+                        datarate = configurations[configuration_parameter]['rate']
+                        sim_instance_ini_file.write(f"**.switchBB[0].ethg$o[0].channel.datarate = {datarate}\n")
+                        sim_instance_ini_file.write(f"**.switchBB[1..{nr_of_backbone_switches-2}].ethg$o[0..1].channel.datarate = {datarate}\n")
+                        sim_instance_ini_file.write(f"**.switchBB[{nr_of_backbone_switches-1}].ethg$o[0].channel.datarate = {datarate}\n")
 
                         # Write the cable colour configurations for each backbone switch with the given colour.
                         cable_colour = configurations[configuration_parameter]['colour']

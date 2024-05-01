@@ -45,7 +45,7 @@
         },
         "simulation_model_params": [
             {
-                "param_name": "cable_rate",
+                "param_name": "datarate",
                 "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate",
                 "values": [
                     "10Mbps",
@@ -55,7 +55,7 @@
                 ]
             },
             {
-                "param_name": "cable_cost",
+                "param_name": "cost",
                 "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost",
                 "values": [
                     1,

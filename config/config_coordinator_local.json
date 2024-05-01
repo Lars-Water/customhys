@@ -1,9 +1,9 @@
 {
     "cable_options": [
-        {"cable_rate": "10Mbps","cable_cost": 1, "cable_colour": "red"},
-        {"cable_rate": "100Mbps","cable_cost": 2, "cable_colour": "blue"},
-        {"cable_rate": "1Gbps","cable_cost": 5, "cable_colour": "green"},
-        {"cable_rate": "10Gbps","cable_cost": 10, "cable_colour": "yellow"}
+        {"datarate": "10Mbps","cost": 1, "cable_colour": "red"},
+        {"datarate": "100Mbps","cost": 2, "cable_colour": "blue"},
+        {"datarate": "1Gbps","cost": 5, "cable_colour": "green"},
+        {"datarate": "10Gbps","cost": 10, "cable_colour": "yellow"}
     ],
     "parameter_tuning": {
         "parameter_names": [
@@ -51,7 +51,7 @@
         },
         "simulation_model_params": [
             {
-                "param_name": "cable_rate",
+                "param_name": "datarate",
                 "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate",
                 "values": [
                     "10Mbps",
@@ -61,7 +61,7 @@
                 ]
             },
             {
-                "param_name": "cable_cost",
+                "param_name": "cost",
                 "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost",
                 "values": [
                     1,

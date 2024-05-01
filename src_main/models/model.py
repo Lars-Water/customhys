@@ -20,13 +20,14 @@ BP = bf.BasicProblem
 
 class instance(BP):
     def __init__(self,
-                 variable_num,
-                 max_search_range,
-                 min_search_range,
-                 optimal_solution,
-                 global_optimum_solution,
-                 func_name,
-                 sim_run):
+                variable_num,
+                max_search_range,
+                min_search_range,
+                optimal_solution,
+                global_optimum_solution,
+                func_name,
+                sim_run,
+                boundaries):
         super().__init__(variable_num)
         self.max_search_range = max_search_range
         self.min_search_range = min_search_range
@@ -40,6 +41,10 @@ class instance(BP):
                          'Scalable': True,
                          'Unimodal': True,
                          'Convex': False}
+
+        # Determine min and max values for objectives
+        self.boundaries = boundaries
+        print(f"boundaries: {boundaries}")
 
 
     '''
@@ -63,9 +68,13 @@ class instance(BP):
             (agent_id, metrics), = simulation_metrics.items()
             # Fitness value evaluates the objectives for latency and network cost.
             if fitness_function == "latency_cost":
+                latency = metrics["latency"]
+                network_cost = metrics["network_cost"]
+                normalized_latency = (latency - self.boundaries['datarate']['min'])/(self.boundaries['datarate']['max'] - self.boundaries['datarate']['min'])
+                normalized_network_cost = (network_cost - self.boundaries['cost']['min'])/(self.boundaries['cost']['max'] - self.boundaries['cost']['min'])
                 weight_latency = fitness_config["weight_latency"]
                 weight_cost = fitness_config["weight_cost"]
-                fitness_value = (weight_latency * (1 / metrics["latency"])) + (weight_cost * metrics["network_cost"])
+                fitness_value = (1 - (weight_latency * normalized_latency)) + (weight_cost * normalized_network_cost)
                 fitness_values[agent_id] = fitness_value
 
             # TODO: Add other fitness functions here.
@@ -79,7 +88,7 @@ class instance(BP):
     Generate a basic problem instance from a given simulation model
     configuration and simulation run functionality.
 '''
-def generate_instance(variable_num, instance_config, sim_run):
+def generate_instance(variable_num, instance_config, sim_run, boundaries):
     min_range = np.array([instance_config['boundaries'][key][0]
                           for key in instance_config['boundaries']])
     max_range = np.array([instance_config['boundaries'][key][1]
@@ -91,4 +100,5 @@ def generate_instance(variable_num, instance_config, sim_run):
                     instance_config['optimal_solution'],
                     instance_config['optimal_fitness'],
                     'CQN',
-                    sim_run)
+                    sim_run,
+                    boundaries)
