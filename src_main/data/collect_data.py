@@ -7,6 +7,51 @@ from datetime import datetime
 import time
 
 
+class DataCollector:
+
+    def __init__(self, weight_latency, weight_cost, dir_design_points_metrics_output):
+        """
+        Initialize the CollectData object.
+
+        Args:
+            weight_latency (float): The weight for the latency metric.
+            weight_cost (float): The weight for the cost metric.
+            dir_design_points_metrics_output (str): The directory path for storing design points metrics output.
+
+        Returns:
+            None
+        """
+        self.weight_latency = weight_latency
+        self.weight_cost = weight_cost
+        self.dir_design_points_metrics_output = dir_design_points_metrics_output
+
+
+    def store_design_point_metrics(self, latency_df, cost_df, sim_uid):
+        """
+        Stores the design point metrics in a CSV file.
+
+        Args:
+            latency_df (pandas.DataFrame): DataFrame containing latency values.
+            cost_df (pandas.DataFrame): DataFrame containing cost values.
+            sim_uid (str): Unique identifier for the simulation.
+
+        Returns:
+            None
+        """
+        # Define the file output path.
+        os.makedirs(self.dir_design_points_metrics_output, exist_ok=True)
+        append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, "design_point_metrics.csv")
+
+        # Determine weighted metric values.
+        adjusted_latency = latency_df['mean'].mean() * self.weight_latency
+        adjusted_network_cost = cost_df['value'].astype(float).sum() * self.weight_cost
+
+        # Append the adjusted values to the design points metrics storage.
+        append_df = pd.DataFrame([[sim_uid, adjusted_latency, adjusted_network_cost]],
+                                columns=['SimulationID', 'AdjustedLatency', 'AdjustedNetworkCost'])
+        append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
+
+
 '''
     Collect the data from the metaheuristic run.
 

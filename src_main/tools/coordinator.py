@@ -1,4 +1,5 @@
 from src_main.tools.logger import logger
+from src_main.data.collect_data import DataCollector
 
 import os
 import shutil
@@ -32,9 +33,6 @@ class HeuristicSimulationCoordinator:
             nr_of_agents: The number of agents to run the simulation model with.
     '''
     def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, nr_of_backbone_switches=6):
-        # TODO: Remove temporary variable and usage in coordinator.
-        self.temp_iteration_counter = 0
-
         self.base_path = base_path
         self.nr_of_agents = nr_of_agents
         self.nr_of_sims = nr_of_agents
@@ -46,7 +44,7 @@ class HeuristicSimulationCoordinator:
 
         self.uids = []
 
-        # # Set up the logger.
+        # Set up the logger.
         coordinator_log_path = os.path.join(self.base_path, "data/logs/coordinator")
         os.makedirs(coordinator_log_path, exist_ok=True)
         self.logger = logger("coordinator", coordinator_log_path)
@@ -82,18 +80,31 @@ class HeuristicSimulationCoordinator:
 
         # Define variables for coordinator functionalities.
 
-        self.logger.info("Determining the paths for the simulation model.")
+        self.logger.info("Define the base paths for the simulation model instance generation functionalites.")
         self.simulation_model_template_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "simulation_model_template_path")
         self.ini_file_template_path = os.path.join(self.simulation_model_template_path, "largeNet.ini")
         self.generated_simulation_model_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "simulation_model_generated_path")
+        self.inet_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "inet_path")
+        self.dummy_sim_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "dummy_path")
 
         self.logger.info("Determine flags for coordinator functionalities.")
         self.store_design_points_metrics_values = self.conf.tryGet("coordinator_functionalities", "store_design_points_metrics_values")
         self.remove_sim_instance_output = self.conf.tryGet("coordinator_functionalities", "remove_sim_instance_output")
         self.remove_sim_instance_configurations = self.conf.tryGet("coordinator_functionalities", "remove_sim_instance_configurations")
 
-        self.logger.info("Determine the paths for the simulation model results.")
+        self.logger.info("Define the paths for the simulation model results.")
         self.results_path = self.conf.tryGet("results_path")
+
+        # TODO: Move more functionalities to data collector.
+        # TODO: Define config file with a distinct segment for data collector?
+        self.logger.info("Define the base paths and variables for simulation instance output functionalities.")
+        self.agents_fitness_dir_relative_path = self.conf.tryGet("output_paths", "agents_fitness_values_relative_path")
+        self.sim_dummy_directory = self.conf.tryGet("simulation_model", "simulation_model_paths", "dummy_path")
+        self.logger.info("Setting up the data collector.")
+        dir_design_points_metrics_output = self.conf.tryGet("output_paths", "design_points_metrics_output")
+        weight_latency = self.conf.tryGet("fitness_config", "weight_latency")
+        weight_cost = self.conf.tryGet("fitness_config", "weight_cost")
+        self.data_collector = DataCollector(weight_latency, weight_cost, dir_design_points_metrics_output)
 
         # TODO: Implement normalisation correctly.
         self.manual_normalization()
@@ -104,6 +115,88 @@ class HeuristicSimulationCoordinator:
         if hasattr(self, "max_cost"):
             self.logger.info(f"Maximum cost is: {self.max_cost}")
             self.logger.info(f"Minimum cost is: {self.min_cost}")
+
+
+    def create_relevant_cluster_config(self):
+        """
+        Creates a relevant cluster configuration based on the platform specified in the coordinator configuration.
+
+        Returns:
+            A cluster configuration object based on the platform specified in the coordinator configuration.
+
+        Raises:
+            ValueError: If an unknown platform value is provided in the coordinator configuration.
+        """
+        platform = self.conf.tryGet("simulation_model", "simulation_model_configuration", "platform")
+        if platform == "DAS":
+            self.logger.info("Setting up DAS cluster configuration.")
+            return WorkflowConfig.create_slurm_cluster_config(
+                self.conf.tryGet("simulation_model", "simulation_model_configuration", "jobs"),
+                self.conf.tryGet("simulation_model", "simulation_model_configuration", "job_cores"),
+                self.conf.tryGet("simulation_model", "simulation_model_configuration", "job_processes"),
+                self.conf.tryGet("simulation_model", "simulation_model_configuration", "job_memory"),
+                self.conf.tryGet("simulation_model", "simulation_model_configuration", "walltime")
+            )
+        elif platform == "local":
+            self.logger.info("Setting up local cluster configuration.")
+            return WorkflowConfig.create_local_cluster_config(
+                self.conf.tryGet("simulation_model", "simulation_model_configuration", "num_workers"),
+                self.conf.tryGet("simulation_model", "simulation_model_configuration", "threads_per_worker")
+            )
+        else:
+            raise ValueError(f"Unknown platform value {platform} provided in coordinator config.")
+
+
+    def generate_design_point(self, sim_id, agent_configuration):
+        """
+        Generates a simulation instance for a given design point.
+
+        Args:
+            sim_id (int): The ID of the design point.
+            agent_configuration (dict): The configuration of the agent.
+
+        Returns:
+            None
+        """
+        design_point_path = self.generated_simulation_model_path + f"_{sim_id}"
+
+        # TODO: Change the hardcoded ini filename to a variable in the configuration file.
+        # Duplicate the preferred dummy_sim directory to the custom directory.
+        self.duplicate_directory(self.simulation_model_template_path, design_point_path, "largeNet.ini")
+
+        # TODO: Change the hardcoded ini filename to a variable in the configuration file.
+        # Write an updated version of the ignored param value file from the directory that was just duplicated.
+        template_ini_file_path = os.path.join(self.simulation_model_template_path, "largeNet.ini")
+        design_point_ini_file_path = os.path.join(design_point_path, "largeNet.ini")
+
+        # TODO: Change the hardcoded number of backbone switches to a variable.
+        # Write a new ini file with the parameter configurations.
+        self.write_heur_run_ini_file(
+            template_ini_file_path,
+            design_point_ini_file_path,
+            agent_configuration,
+            self.nr_of_backbone_switches
+        )
+
+
+    def locally_store_agents_fitness_values(self, fitness_values):
+        """
+        Locally stores the fitness values of agents in a JSON file.
+
+        Args:
+            fitness_values (dict): A dictionary containing the fitness values of agents.
+
+        Returns:
+            None
+        """
+        self.logger.info(f"Storing fitness values locally at {self.agents_fitness_dir_relative_path}")
+        agents_fitness_dir = os.path.join(self.base_path, self.agents_fitness_dir_relative_path)
+        os.makedirs(agents_fitness_dir, exist_ok=True)
+        fitness_values_file_path = os.path.join(agents_fitness_dir, "fitness_values.json")
+        if os.path.exists(fitness_values_file_path):
+            os.remove(fitness_values_file_path)
+        with open(fitness_values_file_path, 'w') as f:
+            json.dump(fitness_values, f)
 
 
     '''
@@ -117,66 +210,31 @@ class HeuristicSimulationCoordinator:
             The fitness value of the simulation run.
     '''
     def simulation_run(self, fitfunc, config_values):
-        self.logger.debug(f"Starting Simulation Run: {self.temp_iteration_counter}")
-        self.temp_iteration_counter += 1
 
         # Start timer for simulation run.
         start_time = time.time()
         # TODO: Merge the following two if statements into one. -> CUSTOMHys should be able to handle both situations?
         if self.nr_of_agents > 1:
-            # Set the values of the parameters in the simulation model.
+            self.logger.info(f"Determining the simulation model parameters for the configuration values.")
             configurations = self.set_agents_param_values(config_values)
             sim_ids = []
-            self.logger.info("Generate sim model configurations")
+            self.logger.info("Generating sim instances for the agents.")
             for agent_configuration in configurations:
                 sim_id = uuid.uuid4()
                 sim_ids.append(sim_id)
-                src_dir = self.conf.tryGet("simulation_model", "simulation_model_paths", "simulation_model_template_path")
-                dest_dir = self.conf.tryGet("simulation_model", "simulation_model_paths", "simulation_model_generated_path") + f"_{sim_id}"
+                self.logger.debug(f"Generating simulation instance for design point: {sim_id}.")
+                self.generate_design_point(sim_id, agent_configuration)
 
-                # TODO: Change the hardcoded ini filename to a variable in the configuration file.
-                # Duplicate the preferred dummy_sim directory to the custom directory.
-                self.logger.debug(f"Duplicate directory for {sim_id}")
-                self.duplicate_directory(src_dir, dest_dir, "largeNet.ini")
-
-                # TODO: Change the hardcoded ini filename to a variable in the configuration file.
-                # Write an updated version of the ignored param value file from the directory that was just duplicated.
-                old_ini_file_path = os.path.join(src_dir, "largeNet.ini")
-                new_ini_file_path = os.path.join(dest_dir, "largeNet.ini")
-
-                # TODO: Change the hardcoded number of backbone switches to a variable.
-                # Write a new ini file with the parameter configurations.
-                self.logger.debug(f"Write ini file for simulation instance")
-                self.write_new_ini_file(
-                    old_ini_file_path,
-                    new_ini_file_path,
-                    agent_configuration,
-                    config_values.shape[1] + 1
-                )
-
-            # Run the simulation model.
-            self.logger.info("Run the generated simulation model configurations.")
+            self.logger.info("Run the generated simulation instances.")
             uids = self.run_multiple_simulation_configuration(sim_ids)
 
-            # Collect the simulation stats from the simulation run.
-            self.logger.info("Collect the simulation stats from the simulation runs.")
+            self.logger.info("Collect the simulation stats from the simulation instances runs.")
             simulation_metrics = self.obtain_simulation_stats(uids)
 
+            self.logger.info("Locally storing the agents fitness values.")
             fitness_config = self.conf.tryGet("fitness_config")
             fitness_values = fitfunc(fitness_config, simulation_metrics)
-
-            # TODO: Make distinct function for writing fitness values to a json file.
-            # Write fitness values to a json file. Remove the file if it already exists first.
-            agents_fitness_dir_relative_path = self.conf.tryGet("output_paths", "agents_fitness_values_relative_path")
-            self.logger.info(f"Storing fitness values locally at {agents_fitness_dir_relative_path}")
-            agents_fitness_dir = os.path.join(self.base_path, agents_fitness_dir_relative_path)
-            os.makedirs(agents_fitness_dir, exist_ok=True)
-            fitness_values_file_path = os.path.join(agents_fitness_dir, "fitness_values.json")
-            # Remove the file if it already exists.
-            if os.path.exists(fitness_values_file_path):
-                os.remove(fitness_values_file_path)
-            with open(fitness_values_file_path, 'w') as f:
-                json.dump(fitness_values, f)
+            self.locally_store_agents_fitness_values(fitness_values)
 
             # End timer for simulation run.
             end_time = time.time()
@@ -194,26 +252,8 @@ class HeuristicSimulationCoordinator:
             # Set the values of the parameters in the simulation model.
             configurations = self.set_param_values(config_values)
 
-            src_dir = self.conf.tryGet("simulation_model", "simulation_model_paths", "simulation_model_template_path")
-            dest_dir = self.conf.tryGet("simulation_model", "simulation_model_paths", "simulation_model_generated_path")
-
-            # TODO: Change the hardcoded ini filename to a variable in the configuration file.
-            # Duplicate the preferred dummy_sim directory to the custom directory.
-            self.duplicate_directory(src_dir, dest_dir, "largeNet.ini")
-
-            # TODO: Change the hardcoded ini filename to a variable in the configuration file.
-            # Write an updated version of the ignored param value file from the directory that was just duplicated.
-            old_ini_file_path = os.path.join(src_dir, "largeNet.ini")
-            new_ini_file_path = os.path.join(dest_dir, "largeNet.ini")
-
-            # TODO: Change the hardcoded number of backbone switches to a variable.
-            # Write a new ini file with the parameter configurations.
-            self.write_new_ini_file(
-                old_ini_file_path,
-                new_ini_file_path,
-                configurations,
-                config_values.size + 1
-            )
+            sim_id = uuid.uuid4()
+            self.generate_design_point(sim_id, configurations)
 
             # Run the simulation model.
             uid = self.run_single_simulation_configuration()
@@ -296,8 +336,6 @@ class HeuristicSimulationCoordinator:
         config_values: A list of values for the parameters in the simulation model.
     '''
     def set_agents_param_values(self, config_values_agents):
-        self.logger.info(f"Determining the simulation model parameters for the configuration values...")
-
         params = self.conf.tryGet("simulation_model", "simulation_model_params")
         configurations = []
 
@@ -320,7 +358,7 @@ class HeuristicSimulationCoordinator:
 
                 # TODO: Optimize this operations as it now parses and has duplicate code.
                 # Create a configuration for each parameter.
-                self.logger.debug(f"Define the correct gate and switch indices for the parameter.")
+                self.logger.debug(f"Define the correct gate and switch indices for the parameter: {value_indices}")
                 for switch_idx, value_idx in enumerate(value_indices):
                     selected_param_value = param_values[value_idx]
                     # Conditional handling for the switch gates where the first switch is handled differently.
@@ -345,33 +383,10 @@ class HeuristicSimulationCoordinator:
                         "config_pattern": current_param_pattern,
                         "value": selected_param_value
                     })
-            self.logger.debug(f"Append configurations")
+            self.logger.debug(f"Append agent configuration: {agent_configuration}")
             configurations.append(agent_configuration)
 
         return configurations
-
-
-    # TODO: Remove this function? -> Moved to siminstance.py
-    # '''
-    #     Transform the scalar files generated by the simulation model into a csv format.
-    # '''
-    # def transform_scalar_files(self, uids):
-    #     scavetool_command = "opp_scavetool export -F CSV-R -o x.csv *.sca"
-
-    #     for sim_uid in uids.keys():
-    #         sim_results_directory = os.path.join(self.data_path, "results", sim_uid)
-
-    #         # Attempt to transform the scalar files in the given results directory.
-    #         self.logger.info(f"Replacing scalar files by csv through transformation and removal in directory: {sim_results_directory}")
-    #         try:
-    #             subprocess.run(scavetool_command, shell=True, cwd=sim_results_directory, check=True)
-    #         except subprocess.CalledProcessError as e:
-    #             self.logger.error(f"Error executing the command: {e}")
-
-    #         # Remove the scalar files in the given results directory.
-    #         for file in os.listdir(sim_results_directory):
-    #             if file.endswith(".sca"):
-    #                 os.remove(os.path.join(sim_results_directory, file))
 
 
     '''
@@ -387,7 +402,6 @@ class HeuristicSimulationCoordinator:
         fitness_values = []
 
         for sim_uid, agent_id in uids.items():
-            self.logger.info(f"Determining simulation statistics for siminstance {sim_uid}.")
 
             # TODO: Change scavetool output filename to something more descriptive.
             csv_file_path = os.path.join(self.data_path, "results", sim_uid, "x.csv")
@@ -405,7 +419,7 @@ class HeuristicSimulationCoordinator:
             # Store design point metrics output.
             if self.store_design_points_metrics_values:
                 self.logger.info(f"Storing metrics output values for siminstance {sim_uid}.")
-                self.store_design_point_metrics(latency_df, cost_df, sim_uid)
+                self.data_collector.store_design_point_metrics(latency_df, cost_df, sim_uid)
 
             # Remove the csv file.
             if self.remove_sim_instance_output:
@@ -423,36 +437,18 @@ class HeuristicSimulationCoordinator:
         return fitness_values
 
 
-    '''
-        Evaluate the fitness value of the simulation run.
-
-        Args:
-            simulation_metrics: The simulation metrics obtained from the simulation run.
-    '''
-    def fitness_evaluation(self, simulation_metrics):
-        fitness_config = self.conf.tryGet("fitness_config")
-        fitness_function = fitness_config["fitness_function"]
-
-        # Fitness value evaluates the objectives for latency and network cost.
-        if fitness_function == "latency_cost":
-            weight_latency = fitness_config["weight_latency"]
-            weight_cost = fitness_config["weight_cost"]
-            fitness_value = (weight_latency * (1 / simulation_metrics["latency"])) + (weight_cost * simulation_metrics["network_cost"])
-            return fitness_value
-
-        # TODO: Add other fitness functions here.
-        else:
-            return 0
-
-
     def run_single_simulation_configuration(self):
-        # Configure siminstances.
-        inet_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "inet_path")
-        dummy_sim_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "dummy_path")
+        """
+        Runs a single simulation configuration.
 
+        This method creates simulation instances based on the provided configuration and runs the simulation model.
+        It also handles the unique identifier (UID) of each simulation instance and aggregates the simulation execution time.
+
+        Returns:
+            dict: A dictionary containing the UID of the evaluated simulation instance and its corresponding value.
+        """
         start_time = time.time()
-        # sim_instances = [create_sim_custom_dummy(self.config, dummy_sim_path, id, inet_path) for id in range(self.nr_of_sims)] # Dummy omnet.
-        sim_instances = [create_sim_inet_lans_dummy(self.config, dummy_sim_path, uuid.uuid4(), inet_path) for _ in range(self.nr_of_sims)] # Dummy inet lans
+        sim_instances = [create_sim_inet_lans_dummy(self.config, self.dummy_sim_path, uuid.uuid4(), self.inet_path) for _ in range(self.nr_of_sims)]
 
         uid = sim_instances[0].uid
         if uid in self.uids:
@@ -477,12 +473,19 @@ class HeuristicSimulationCoordinator:
 
 
     def run_multiple_simulation_configuration(self, sim_ids):
+        """
+        Run multiple simulation configurations.
 
-        # Configure siminstances.
-        inet_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "inet_path")
-        dummy_sim_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "dummy_path")
-        sim_instances = [create_sim_inet_lans_dummy_parallel(self.config, dummy_sim_path, sim_id, inet_path) for sim_id in sim_ids]
+        Args:
+            sim_ids (list): A list of simulation IDs.
 
+        Returns:
+            dict: A dictionary mapping Herman's simulation instance UIDs to their corresponding coordinator IDs.
+        """
+        start_time = time.time()
+
+        # Configuring siminstances.
+        sim_instances = [create_sim_inet_lans_dummy_parallel(self.config, self.dummy_sim_path, sim_id, self.inet_path) for sim_id in sim_ids]
         uids = {sim_instance.uid: id for id, sim_instance in enumerate(sim_instances)}
 
         self.logger.debug(f"Enqueing sim instances.")
@@ -494,28 +497,13 @@ class HeuristicSimulationCoordinator:
 
         self.manager.evaluate_all()
 
+        end_time = time.time()
+
+        # TODO: Change the determined execution time to obtaining it from the simulation model runtime folder.
+        # Aggregate simulation time to a variable of total simulation time.
+        self.simulation_execution_time += end_time - start_time
+
         return uids
-
-
-    def create_relevant_cluster_config(self):
-        platform = self.conf.tryGet("simulation_model", "simulation_model_configuration", "platform")
-        if platform == "DAS":
-            self.logger.info("Setting up DAS cluster configuration.")
-            return WorkflowConfig.create_slurm_cluster_config(
-                self.conf.tryGet("simulation_model", "simulation_model_configuration", "jobs"),
-                self.conf.tryGet("simulation_model", "simulation_model_configuration", "job_cores"),
-                self.conf.tryGet("simulation_model", "simulation_model_configuration", "job_processes"),
-                self.conf.tryGet("simulation_model", "simulation_model_configuration", "job_memory"),
-                self.conf.tryGet("simulation_model", "simulation_model_configuration", "walltime")
-            )
-        elif platform == "local":
-            self.logger.info("Setting up local cluster configuration.")
-            return WorkflowConfig.create_local_cluster_config(
-                self.conf.tryGet("simulation_model", "simulation_model_configuration", "num_workers"),
-                self.conf.tryGet("simulation_model", "simulation_model_configuration", "threads_per_worker")
-            )
-        else:
-            raise ValueError(f"Unknown platform value {platform} provided in coordinator config.")
 
 
     def remove_simulation_instance_configurations(self):
@@ -533,9 +521,8 @@ class HeuristicSimulationCoordinator:
             None
         """
         self.logger.info("Removing simulation run templates in dummy path.")
-        sim_dummy_directory = self.conf.tryGet("simulation_model", "simulation_model_paths", "dummy_path")
         pattern = "custom_dummy_*"
-        simulation_run_dir_pattern = os.path.join(sim_dummy_directory, pattern)
+        simulation_run_dir_pattern = os.path.join(self.sim_dummy_directory, pattern)
         matching_sim_dummy_dir = [path for path in glob.glob(simulation_run_dir_pattern) if os.path.isdir(path)]
         for directory in matching_sim_dummy_dir:
             shutil.rmtree(directory)
@@ -546,25 +533,7 @@ class HeuristicSimulationCoordinator:
         # os.makedirs(self.sims_path)
 
 
-    # TODO: Move to data module.
-    def store_design_point_metrics(self, latency_df, cost_df, sim_uid):
-
-        # TODO: Make file name sim_instance dependent such that correct storage location is configured and data is stored with other results.
-        # Define the file output path.
-        dir_design_points_metrics_output = self.conf.tryGet("output_paths", "design_points_metrics_output")
-        os.makedirs(dir_design_points_metrics_output, exist_ok=True)
-        append_design_points_metric_output_file = os.path.join(dir_design_points_metrics_output, "design_point_metrics.csv")
-
-        # Determine weighted metric values.
-        adjusted_latency = latency_df['mean'].mean() * self.conf.tryGet("fitness_config", "weight_latency")
-        adjusted_network_cost = cost_df['value'].astype(float).sum() * self.conf.tryGet("fitness_config", "weight_cost")
-
-        # Append the adjusted values to the design points metrics storage.
-        append_df = pd.DataFrame([[sim_uid, adjusted_latency, adjusted_network_cost]],
-                                columns=['SimulationID', 'AdjustedLatency', 'AdjustedNetworkCost'])
-        append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
-
-
+    # TODO: Remove redundancy of multiple ini file writing.
     def manual_normalization(self):
         """
         Manually determines the min and max values for the objective parameters.
@@ -579,6 +548,7 @@ class HeuristicSimulationCoordinator:
         """
         self.logger.info("Manually determine the min and max values for the objective parameters.")
 
+        # TODO: Remove hardcoded filter for ignoring cable colours? Depends on if I change the actualy configuration and parameter setting functionality.
         # Determine the minimal and maximal parameter values for the simulation model parameters.
         simulation_model_params = self.conf.tryGet("simulation_model", "simulation_model_params")
         boundaries = {}
@@ -595,24 +565,23 @@ class HeuristicSimulationCoordinator:
         for parameter, boundaries in boundaries.items():
             for boundary in boundaries:
                 value = boundaries[boundary]
-                sim_id = uuid.uuid4()
-                sim_instance_path = self.generated_simulation_model_path + f"_{sim_id}"
-
-                # Duplicate the dummy_sim directory to the sim_instance directory.
-                self.duplicate_directory(self.simulation_model_template_path, sim_instance_path, file_to_ignore="largeNet.ini")
-
-                # Define the path to the sim_instance ini file.
-                sim_instance_ini_file_path = os.path.join(sim_instance_path, "largeNet.ini")
-
-                # Write the sim_instance ini file with the provided parameter configurations.
                 self.logger.debug(f"Generating normalization sim instance for parameter: {parameter} - boundary: {boundary} - value: {value}")
-                self.write_normalization_ini_files(
-                    self.ini_file_template_path,
-                    sim_instance_ini_file_path,
-                    parameter,
-                    value,
-                    self.nr_of_backbone_switches
-                )
+                sim_id = uuid.uuid4()
+                configuration = [
+                    {
+                        "config_pattern": f"**.switchBB[0].ethg$o[0].channel.{parameter}",
+                        "value": value
+                    },
+                    {
+                        "config_pattern": f"**.switchBB[1..{self.nr_of_backbone_switches-2}].ethg$o[0..1].channel.{parameter}",
+                        "value": value
+                    },
+                    {
+                        "config_pattern": f"**.switchBB[{self.nr_of_backbone_switches-1}].ethg$o[0].channel.{parameter}",
+                        "value": value
+                    }
+                ]
+                self.generate_design_point(sim_id, configuration)
                 sim_ids.append(sim_id)
 
                 self.logger.info("Evaluating the generated simulation instances.")
@@ -819,7 +788,21 @@ class HeuristicSimulationCoordinator:
             cost_df = cost_df[cost_df["name"] == "cost"]
 
             # Store design point metrics output.
-            self.store_design_point_metrics(latency_df, cost_df, sim_uid)
+            self.data_collector.store_design_point_metrics(latency_df, cost_df, sim_uid)
+
+
+    @staticmethod
+    def process_simulation_output(sim_runtime_csv_file_path, column_name):
+        df = pd.read_csv(sim_runtime_csv_file_path)
+        sim_exec_time = df.loc[0, column_name]
+        return sim_exec_time
+
+
+    @staticmethod
+    def ignore_file(file_name):
+        def _ignore(_, filenames):
+            return [name for name in filenames if name == file_name]
+        return _ignore
 
 
     @staticmethod
@@ -851,24 +834,22 @@ class HeuristicSimulationCoordinator:
 
 
     @staticmethod
-    def process_simulation_output(sim_runtime_csv_file_path, column_name):
-        df = pd.read_csv(sim_runtime_csv_file_path)
-        sim_exec_time = df.loc[0, column_name]
-        return sim_exec_time
+    def write_heur_run_ini_file(template_ini_file_path, design_point_ini_file_path, configurations, nr_of_backbone_switches):
+        """
+        Write a new INI file based on an existing template file, with updated configurations and number of backbone switches.
 
+        Parameters:
+        template_ini_file_path (str): The path to the template INI file.
+        design_point_ini_file_path (str): The path to the new INI file to be created.
+        configurations (list): A list of dictionaries, where each dictionary contains a configuration pattern and its corresponding value.
+        nr_of_backbone_switches (int): The number of backbone switches to be set in the new INI file.
 
-    @staticmethod
-    def ignore_file(file_name):
-        def _ignore(_, filenames):
-            return [name for name in filenames if name == file_name]
-        return _ignore
-
-
-    @staticmethod
-    def write_new_ini_file(old_file_path, new_file_path, configurations, nr_of_backbone_switches):
-        with open(old_file_path, 'r') as old_file, open(new_file_path, 'w') as new_file:
-            for line in old_file:
-                # Update the number of backbone switches accordingly
+        Returns:
+        None
+        """
+        with open(template_ini_file_path, 'r') as template_file, open(design_point_ini_file_path, 'w') as new_file:
+            for line in template_file:
+                # Define the number of backbone switches.
                 if line.startswith("LargeNet.n"):
                     new_file.write(f"LargeNet.n = {nr_of_backbone_switches}   # number of switches on backbone\n")
                 else:
@@ -880,27 +861,6 @@ class HeuristicSimulationCoordinator:
                 config_pattern = configuration["config_pattern"]
                 value = configuration["value"]
                 new_file.write(f"{config_pattern} = {value}\n")
-
-
-    @staticmethod
-    def write_normalization_ini_files(template_ini_file_path, sim_instance_ini_file_path, objective_parameter, parameter_value, nr_of_backbone_switches):
-        with open(template_ini_file_path, 'r') as template_ini_file, open(sim_instance_ini_file_path, 'w') as sim_instance_ini_file:
-            for line in template_ini_file:
-                line_written = False
-                # Update the number of backbone switches accordingly.
-                if line.startswith("LargeNet.n ="):
-                    sim_instance_ini_file.write(f"LargeNet.n = {nr_of_backbone_switches}   # number of switches on backbone")
-                    line_written = True
-                # Set the boundary value for the objective parameter.
-                elif line.startswith("# Parameter tuning for cable rate patterns below this line."):
-                    sim_instance_ini_file.write(line)
-                    sim_instance_ini_file.write(f"**.switchBB[0].ethg$o[0].channel.{objective_parameter} = {parameter_value}\n")
-                    sim_instance_ini_file.write(f"**.switchBB[1..{nr_of_backbone_switches-2}].ethg$o[0..1].channel.{objective_parameter} = {parameter_value}\n")
-                    sim_instance_ini_file.write(f"**.switchBB[{nr_of_backbone_switches-1}].ethg$o[0].channel.{objective_parameter} = {parameter_value}\n")
-                    line_written = True
-                # Write the rest of the lines from the template file.
-                if not line_written:
-                    sim_instance_ini_file.write(line)
 
 
     @staticmethod
@@ -987,8 +947,3 @@ class HeuristicSimulationCoordinator:
                         dest_dir,
                         ignore=HeuristicSimulationCoordinator.ignore_file(file_to_ignore)
         )
-
-
-if __name__ == "__main__":
-
-    coordinator = HeuristicSimulationCoordinator("/home/lvdwater/hyper-heuristic-dse-2.0/config/coordinator.json")
