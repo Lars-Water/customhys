@@ -42,6 +42,25 @@ def get_convergence_data(config_path, visualization_path):
     return convergence_number, nr_of_components
 
 
+def find_non_dominated_points(df, x_col, y_col):
+    # Sort points by x descending (for latency maximization) and y ascending (for cost minimization)
+    sorted_points = df.sort_values(by=[x_col, y_col], ascending=[False, True])
+
+    # Initialize the list of non-dominated points
+    non_dominated = []
+
+    # Initialize the best known y-value (minimization)
+    best_y = float('inf')
+
+    # Traverse the points
+    for index, row in sorted_points.iterrows():
+        if row[y_col] < best_y:
+            non_dominated.append(index)
+            best_y = row[y_col]
+
+    return non_dominated
+
+
 # Plotting functions
 
 
@@ -110,6 +129,18 @@ def plot_convergence(convergence_numbers, nr_of_components_list, output_path):
     plt.close()
 
 
+def plot_convergence_against_iterations(best_fitness_after_every_iteration, output_path):
+    plt.figure()
+    plt.plot(best_fitness_after_every_iteration)
+    plt.title("Best Fitness Value After Each Iteration")
+    plt.xlabel("Iteration")
+    plt.ylabel("Best Fitness Value")
+    plt.yticks(np.arange(0, 1.5, step=0.1))
+    plt.grid(True)
+    plt.savefig(output_path)
+    plt.close()
+
+
 # Main functions
 
 
@@ -161,6 +192,12 @@ def main_plot_fitness_across_files(data_path, visualization_path, plot_output_ba
         plot_best_fitness(fitness_values, nr_of_components, plot_path)
 
 
+def main_plot_convergence_csv(convergence_data_path, output_path):
+    convergence_data = pd.read_csv(convergence_data_path)
+    best_fitness_after_every_iteration = convergence_data['best_fitness_value_untill_current_iteration'].values
+    plot_convergence_against_iterations(best_fitness_after_every_iteration, output_path)
+
+
 def main_plot_convergence_vs_components(data_path, visualization_path, output_path):
     convergence_numbers = []
     nr_of_components_list = []
@@ -181,11 +218,21 @@ def main_plot_design_space(temp_design_points_data_file, output_path_design_spac
     # Read the design space data from the csv file
     design_space_data = pd.read_csv(temp_design_points_data_file)
 
+    # Identify non-dominated points
+    non_dominated_indices = find_non_dominated_points(design_space_data, 'AdjustedLatency', 'AdjustedNetworkCost')
+
     # Plot the design space data
     plt.figure()
     x_coordinates = design_space_data['AdjustedLatency']
     y_coordinates = design_space_data['AdjustedNetworkCost']
-    plt.scatter(x_coordinates, y_coordinates, alpha=0.5)
+
+    # Plot the dominated solutions.
+    plt.scatter(x_coordinates, y_coordinates, alpha=0.5, label='Dominated Points')
+    # Highlight non-dominated points in red.
+    plt.scatter(x_coordinates[non_dominated_indices],
+                y_coordinates[non_dominated_indices],
+                color='red', label='Non-dominated Points')
+
     plt.title("Design Points in the Design Space")
     plt.xlabel("Latency * 0.5")
     plt.ylabel("Network Cost * 0.5")
@@ -199,6 +246,9 @@ def main_plot_design_space(temp_design_points_data_file, output_path_design_spac
     y_margin = (y_max - y_min) * 0.1
     plt.xlim(x_min - x_margin, x_max + x_margin)
     plt.ylim(y_min - y_margin, y_max + y_margin)
+
+    # Add a legend
+    plt.legend()
 
     plt.savefig(output_path_design_space)
     plt.close()
@@ -219,6 +269,7 @@ if __name__ == "__main__":
     # main_plot_fitness_across_files(data_path, visualization_path, plot_output_base)
     # main_plot_convergence_vs_components(data_path, visualization_path, output_path_convergence)
 
-    temp_design_points_data_file = Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/design_points/design_point_metrics_3_bb_switches.csv")
-    output_path_design_space = Path("/home/larry/hyper-heuristic-dse-2.0/data/processed/design_space/design_space_3_bb_switches.png")
-    main_plot_design_space(temp_design_points_data_file, output_path_design_space)
+    # temp_design_points_data_file = Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/design_points/design_point_metrics_3_bb_switches.csv")
+    # output_path_design_space = Path("/home/larry/hyper-heuristic-dse-2.0/data/processed/design_space/design_space_3_bb_switches.png")
+    # main_plot_design_space(temp_design_points_data_file, output_path_design_space)
+    pass

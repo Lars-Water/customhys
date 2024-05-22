@@ -114,7 +114,7 @@ def save_heur_iterations_data(fitness_values, configurations, unix_time, path):
     df.columns = column_names
 
     # Save the DataFrame to a CSV file
-    csv_file_name = f"{str(unix_time)}.csv"
+    csv_file_name = "convergence.csv"
     df.to_csv(os.path.join(path, csv_file_name), index=False)
 
     return csv_file_name
@@ -138,7 +138,7 @@ def save_config_and_meta_data(fitness_values, configurations, heuristic_run_meta
     }
 
     # Define the filename and write remaining data to JSON file.
-    json_file_name = f"{str(unix_time)}.json"
+    json_file_name = "general.json"
     remaining_data = {
         "nr_of_components": heuristic_run["nr_of_components"],
         "nr_of_agents": heuristic_run["nr_of_agents"],
