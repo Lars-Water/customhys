@@ -234,6 +234,37 @@ def create_mh_instance(run, heur_sim_coordinator):
     return problem_instance.get_formatted_problem()
 
 
+def vizualize_mh_runs(run_id):
+    metaheuristic_results_folder = os.path.join(os.getcwd(), "data/raw/results/metaheuristic")
+
+    similar_folders = []
+
+    # List all items in the metaheuristic_results_folder
+    try:
+        for item in os.listdir(metaheuristic_results_folder):
+            item_path = os.path.join(metaheuristic_results_folder, item)
+
+            # Check if the item is a directory
+            if os.path.isdir(item_path):
+                # Check for similarity (exact match in this case)
+                if run_id in item:
+                    similar_folders.append(item)
+    except FileNotFoundError:
+        print(f"The path {metaheuristic_results_folder} does not exist.")
+    except PermissionError:
+        print(f"Permission denied to access {metaheuristic_results_folder}.")
+
+    print(similar_folders)
+
+    # Vizualize best configuration
+
+    # Vizualize convergence
+    pass
+
+    # Vizualize Pareto Front
+    pass
+
+
 '''
     Run the heuristic simulation workflow.
 
@@ -247,34 +278,40 @@ def create_mh_instance(run, heur_sim_coordinator):
 '''
 def main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning, design_space_plot, nr_of_backbone_switches):
 
-    # Set up the general heuristic run configuration.
-    if heur_run_config_file_path:
-        heuristic_run_log_path = os.path.join(base_path, "data/logs/heuristic_run/")
-        os.makedirs(heuristic_run_log_path, exist_ok=True)
-        heuristic_run_config = Config(heur_run_config_file_path, Path(heuristic_run_log_path), "heuristic_run_config_manager")
+    run_ids = ["1715000895", "1715007178"]
+    for run_id in run_ids:
 
-        # Obtain the configuration parameters for the heuristic run.
-        nr_of_agents = heuristic_run_config.tryGet("nr_of_agents")
-        nr_of_iterations = heuristic_run_config.tryGet("nr_of_iterations")
+        # Visualisation of metaheuristic runs.
+        vizualize_mh_runs(run_id)
 
-        # Define the heuristic operators to be used.
-        heuristics_collection = define_heuristic_operators(heuristic_run_config)
+    # # Set up the general heuristic run configuration.
+    # if heur_run_config_file_path:
+    #     heuristic_run_log_path = os.path.join(base_path, "data/logs/heuristic_run/")
+    #     os.makedirs(heuristic_run_log_path, exist_ok=True)
+    #     heuristic_run_config = Config(heur_run_config_file_path, Path(heuristic_run_log_path), "heuristic_run_config_manager")
 
-        # Create the coordinator for the heuristic simulation workflow.
-        heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, nr_of_backbone_switches) # noqa 501
+    #     # Obtain the configuration parameters for the heuristic run.
+    #     nr_of_agents = heuristic_run_config.tryGet("nr_of_agents")
+    #     nr_of_iterations = heuristic_run_config.tryGet("nr_of_iterations")
 
-        run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
+    #     # Define the heuristic operators to be used.
+    #     heuristics_collection = define_heuristic_operators(heuristic_run_config)
 
-        # TODO: Implement the hyperheuristic run.
+    #     # Create the coordinator for the heuristic simulation workflow.
+    #     heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, nr_of_backbone_switches) # noqa 501
 
-    elif parameter_tuning:
-        parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
-        parameter_tuning_coordinator.parameter_tuning_workflow()
-    elif design_space_plot:
-        design_space_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
-        design_space_coordinator.determine_design_space()
+    #     run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
 
-    return
+    #     # TODO: Implement the hyperheuristic run.
+
+    # elif parameter_tuning:
+    #     parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
+    #     parameter_tuning_coordinator.parameter_tuning_workflow()
+    # elif design_space_plot:
+    #     design_space_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
+    #     design_space_coordinator.determine_design_space()
+
+    # return
 
 
 if __name__ == "__main__":

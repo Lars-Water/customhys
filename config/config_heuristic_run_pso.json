@@ -1,16 +1,16 @@
 {
     "nr_of_agents": 16,
-    "nr_of_iterations": 50,
-    "runs_nr_of_backbones": [50, 100, 200],
+    "nr_of_iterations": 100,
+    "runs_nr_of_backbones": [50],
     "mh_save_run_path_mh_name": "pso/",
     "metaheuristic": [
         {
             "name": "swarm_dynamic",
             "params": {
-                "factor": "rand-to-best-and-current",
-                "self_conf": 1,
-                "swarm_conf": 1.0,
-                "version": "inertial",
+                "factor": 1.0,
+                "self_conf": 2.54,
+                "swarm_conf": 2.56,
+                "version": "constriction",
                 "distribution": "uniform"
             },
             "strategy": "greedy"

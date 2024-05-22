@@ -9,8 +9,8 @@
     },
     "coordinator_functionalities": {
         "remove_sim_instance_configurations": true,
-        "remove_sim_instance_output": true,
-        "store_design_points_metrics_values": false
+        "remove_sim_instance_output": false,
+        "store_design_points_metrics_values": true
     },
     "results_path": "/home/lvdwater/hyper-heuristic-dse-2.0/data/raw",
     "output_paths": {
