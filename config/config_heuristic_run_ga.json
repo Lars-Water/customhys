@@ -2,7 +2,7 @@
     "nr_of_agents": 16,
     "nr_of_iterations": 100,
     "runs_nr_of_backbones": [50],
-    "mh_save_run_path_mh_name": "ga/",
+    "mh_save_run_path_mh_name": "ga",
     "metaheuristic": [
         {
             "name": "genetic_crossover",

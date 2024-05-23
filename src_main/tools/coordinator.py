@@ -32,10 +32,11 @@ class HeuristicSimulationCoordinator:
             coordinator_config_file_path: The path to the configuration file of the coordinator.
             nr_of_agents: The number of agents to run the simulation model with.
     '''
-    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, nr_of_backbone_switches=6):
+    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, mh_name, nr_of_backbone_switches=6):
         self.base_path = base_path
         self.nr_of_agents = nr_of_agents
         self.nr_of_sims = nr_of_agents
+        self.mh_name = mh_name
         self.nr_of_backbone_switches = nr_of_backbone_switches
 
         # Predefine the parameters for the execution times.
@@ -419,7 +420,7 @@ class HeuristicSimulationCoordinator:
             # Store design point metrics output.
             if self.store_design_points_metrics_values:
                 self.logger.info(f"Storing metrics output values for siminstance {sim_uid}.")
-                self.data_collector.store_design_point_metrics(latency_df, cost_df, sim_uid)
+                self.data_collector.store_design_point_metrics(latency_df, cost_df, sim_uid, self.mh_name)
 
             # Remove the csv file.
             if self.remove_sim_instance_output:
@@ -788,7 +789,7 @@ class HeuristicSimulationCoordinator:
             cost_df = cost_df[cost_df["name"] == "cost"]
 
             # Store design point metrics output.
-            self.data_collector.store_design_point_metrics(latency_df, cost_df, sim_uid)
+            self.data_collector.store_design_point_metrics(latency_df, cost_df, sim_uid, self.mh_name)
 
 
     @staticmethod
