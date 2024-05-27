@@ -27,8 +27,8 @@ ulimit -n 50000
 # CONFIG_PATH_HEUR_RUN="${BASE_PATH}/config/config_heuristic_run.json"
 # python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN" --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
-# CONFIG_PATH_HEUR_RUN_PSO="${BASE_PATH}/config/config_heuristic_run_pso.json"
-# python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN_PSO" --coordinator_config "$CONFIG_PATH_COORDINATOR"
+CONFIG_PATH_HEUR_RUN_PSO="${BASE_PATH}/config/config_heuristic_run_pso.json"
+python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN_PSO" --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
-CONFIG_PATH_HEUR_RUN_GA="${BASE_PATH}/config/config_heuristic_run_ga.json"
-python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN_GA" --coordinator_config "$CONFIG_PATH_COORDINATOR"
+# CONFIG_PATH_HEUR_RUN_GA="${BASE_PATH}/config/config_heuristic_run_ga.json"
+# python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN_GA" --coordinator_config "$CONFIG_PATH_COORDINATOR"

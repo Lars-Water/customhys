@@ -73,7 +73,7 @@ class instance(BP):
                 normalized_network_cost = (network_cost - self.boundaries['cost']['min'])/(self.boundaries['cost']['max'] - self.boundaries['cost']['min'])
                 weight_latency = fitness_config["weight_latency"]
                 weight_cost = fitness_config["weight_cost"]
-                fitness_value = (1 - (weight_latency * normalized_latency)) + (weight_cost * normalized_network_cost)
+                fitness_value = (weight_latency * (1 - normalized_latency)) + (weight_cost * normalized_network_cost)
                 fitness_values[agent_id] = fitness_value
 
             # TODO: Add other fitness functions here.

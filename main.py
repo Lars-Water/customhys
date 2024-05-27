@@ -358,13 +358,13 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, par
         mh_name = heuristic_run_config.tryGet('mh_save_run_path_mh_name')
         heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, mh_name, nr_of_backbone_switches) # noqa 501
 
-        # TODO: Implement a better version of this in the correct place of the code.
-        run_ids = ["1715000895", "1716497728", "1715007178", "1716414804"]
-        for run_id in run_ids:
-            # Visualisation of metaheuristic runs.
-            vizualize_mh_runs(run_id, heur_sim_coordinator)
+        # # TODO: Implement a better version of this in the correct place of the code.
+        # run_ids = ["1715000895", "1716497728", "1715007178", "1716414804"]
+        # for run_id in run_ids:
+        #     # Visualisation of metaheuristic runs.
+        #     vizualize_mh_runs(run_id, heur_sim_coordinator)
 
-        # run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
+        run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
 
         # TODO: Implement the hyperheuristic run.
 
