@@ -1,3 +1,4 @@
+from hmac import new
 from src_main.tools.logger import logger
 from src_main.data.collect_data import DataCollector
 
@@ -853,6 +854,9 @@ class HeuristicSimulationCoordinator:
                 # Define the number of backbone switches.
                 if line.startswith("LargeNet.n"):
                     new_file.write(f"LargeNet.n = {nr_of_backbone_switches}   # number of switches on backbone\n")
+                # TODO: Make this cleaner and more generic.
+                elif line.endswith('""serverC""'):
+                    new_file.write(f'LargeNet.llanBB[1..{nr_of_backbone_switches - 1}].*.cli.destAddress = "serverC"')
                 else:
                     new_file.write(line)
 
