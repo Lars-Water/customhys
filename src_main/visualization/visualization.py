@@ -211,12 +211,33 @@ def main_plot_convergence_vs_components(data_path, visualization_path, output_pa
     plot_convergence(convergence_numbers, nr_of_components_list, output_path)
 
 
-def main_plot_design_space(temp_design_points_data_file, output_path_design_space):
+def main_plot_design_space(temp_design_points_data_file, output_path_design_space, nr_of_operators_mh=1):
     # Ensure the directory exists
     os.makedirs(os.path.dirname(output_path_design_space), exist_ok=True)
 
-    # Read the design space data from the csv file
-    design_space_data = pd.read_csv(temp_design_points_data_file)
+    # Read the design space data with initial skip
+    reader = pd.read_csv(temp_design_points_data_file, iterator=True)
+
+    design_space_data = pd.DataFrame()
+
+    if nr_of_operators_mh == 1:
+        # Save the remaining rows in a dataframe.
+        design_space_data = reader.get_chunk()
+
+    elif nr_of_operators_mh > 1:
+        # Read the first 16 rows.
+        design_space_data = reader.get_chunk(16)
+        while True:
+            # Skip the next 16 rows.
+            try:
+                reader.get_chunk(16)
+            except StopIteration:
+                break
+            # Read the next 16 rows.
+            design_space_data = pd.concat([design_space_data] + [reader.get_chunk(16) for _ in range(nr_of_operators_mh - 1)])
+
+    # Close the iterator to release resources
+    reader.close()
 
     # Identify non-dominated points
     non_dominated_indices = find_non_dominated_points(design_space_data, 'AdjustedLatency', 'AdjustedNetworkCost')

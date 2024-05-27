@@ -295,7 +295,8 @@ def vizualize_mh_runs(run_id, heur_sim_coordinator):
 
     # Check in every mh_category for the corresponding run_id.
     for mh_category in mh_categories:
-        mh_category_path = os.path.join(metaheuristic_results_path, mh_category)
+        # mh_category_path = os.path.join(metaheuristic_results_path, mh_category)
+        mh_category_path = os.path.join(metaheuristic_results_path, mh_category, "Initial_Fitness_10BB_Traffic")
         if os.path.isdir(mh_category_path):
             runs = os.listdir(mh_category_path)
             for run in runs:
@@ -324,7 +325,10 @@ def vizualize_mh_runs(run_id, heur_sim_coordinator):
                     # Vizualize Pareto Front.
                     if os.path.exists(design_points_path):
                         output_path_design_space = os.path.join(run_path, "pareto_front.jpg")
-                        visualization.main_plot_design_space(design_points_path, output_path_design_space)
+                        if mh_category == "ga":
+                            visualization.main_plot_design_space(design_points_path, output_path_design_space, 2)
+                        else:
+                            visualization.main_plot_design_space(design_points_path, output_path_design_space)
 
 
 '''
@@ -339,7 +343,6 @@ def vizualize_mh_runs(run_id, heur_sim_coordinator):
         nr_of_backbone_switches (int): The number of backbone switches for the INET model.
 '''
 def main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning, design_space_plot, nr_of_backbone_switches):
-
     # Set up the general heuristic run configuration.
     if heur_run_config_file_path:
         heuristic_run_log_path = os.path.join(base_path, "data/logs/heuristic_run/")
@@ -358,22 +361,22 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, par
         mh_name = heuristic_run_config.tryGet('mh_save_run_path_mh_name')
         heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, mh_name, nr_of_backbone_switches) # noqa 501
 
-        # # TODO: Implement a better version of this in the correct place of the code.
-        # run_ids = ["1715000895", "1716497728", "1715007178", "1716414804"]
-        # for run_id in run_ids:
-        #     # Visualisation of metaheuristic runs.
-        #     vizualize_mh_runs(run_id, heur_sim_coordinator)
+        # TODO: Implement a better version of this in the correct place of the code.
+        run_ids = ["1715000895", "1716497728", "1715007178", "1716414804"]
+        for run_id in run_ids:
+            # Visualisation of metaheuristic runs.
+            vizualize_mh_runs(run_id, heur_sim_coordinator)
 
-        run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
+    #     # run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
 
-        # TODO: Implement the hyperheuristic run.
+    #     # TODO: Implement the hyperheuristic run.
 
-    elif parameter_tuning:
-        parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
-        parameter_tuning_coordinator.parameter_tuning_workflow()
-    elif design_space_plot:
-        design_space_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
-        design_space_coordinator.determine_design_space()
+    # elif parameter_tuning:
+    #     parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
+    #     parameter_tuning_coordinator.parameter_tuning_workflow()
+    # elif design_space_plot:
+    #     design_space_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
+    #     design_space_coordinator.determine_design_space()
 
     return
 
