@@ -1,10 +1,14 @@
 import numpy as np
-import json
 import pandas as pd
+import json
 import os
-
+import glob
 from datetime import datetime
 import time
+from pathlib import Path
+
+from src_main.tools.config_reader import Config
+from src_main.visualization import visualization
 
 
 class DataCollector:
@@ -161,3 +165,103 @@ def write_data(data, path, file_name):
     os.makedirs(path, exist_ok=True)
     with open( os.path.join(path, file_name) , "w") as file:
         json.dump(data, file, indent=4)
+
+
+def get_raw_run_paths(directory_path):
+    return {folder_name: os.path.join(directory_path, folder_name) for folder_name in os.listdir(directory_path) if os.path.isdir(os.path.join(directory_path, folder_name)) and folder_name.isdigit()}
+
+
+def get_processed_folder_ids(directory_path):
+    return {folder_name for folder_name in os.listdir(directory_path) if os.path.isdir(os.path.join(directory_path, folder_name)) and folder_name.isdigit()}
+
+
+def vizualize_mh_runs(ini_generation_func, nr_of_backbone_switches):
+    # Compare folder ids in raw and processed to vizualize absent processed folders.
+    mh_raw_results_path = os.path.join(os.getcwd(), "data/raw/results/metaheuristic")
+    raw_mh_categories = os.listdir(mh_raw_results_path)
+    raw_run_paths = {run_id: os.path.join(mh_raw_results_path, mh_category, run_id) for mh_category in raw_mh_categories for run_id in get_raw_run_paths(os.path.join(mh_raw_results_path, mh_category))}
+
+    mh_processed_results_path = os.path.join(os.getcwd(), "data/processed/results/metaheuristic")
+    processed_mh_categories = os.listdir(mh_processed_results_path)
+    processed_run_ids = {run_id for mh_category in processed_mh_categories for run_id in get_processed_folder_ids(os.path.join(mh_processed_results_path, mh_category))}
+
+    for run_id, run_path in raw_run_paths.items():
+        if run_id not in processed_run_ids:
+            try:
+                convergence_data_path = os.path.join(run_path, "convergence.csv")
+                general_heuristic_run_info_path = glob.glob(os.path.join(run_path, "*.json"))[0]
+                design_points_path = os.path.join(run_path, "design_point_metrics.csv")
+            except IndexError:
+                raise FileNotFoundError(f"Could not find the best fitness after every iteration or general heuristic run info files in {run_path}")
+
+            processed_run_path = run_path.replace("raw/", "processed/")
+            os.makedirs(processed_run_path, exist_ok=True)
+
+            # Vizualize best configuration.
+            general_heuristic_run_info = Config(Path(general_heuristic_run_info_path), Path(processed_run_path), "general_heuristic_run_info")
+            best_configuration_values = general_heuristic_run_info.tryGet("optimal_found_solution", "optimal_found_configuration")
+            generate_best_configuration_values(np.array(best_configuration_values))
+            template_ini_file_path = os.path.join("/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/dummy_sim_lans", "largeNet.ini")
+            design_point_ini_file_path = os.path.join(processed_run_path, "best_configuration.ini")
+            configurations = generate_best_configuration_values(np.array(best_configuration_values))
+            ini_generation_func(template_ini_file_path, design_point_ini_file_path, configurations, nr_of_backbone_switches)
+
+            # Vizualize convergence.
+            output_path = os.path.join(processed_run_path, "convergence.jpg")
+            visualization.main_plot_convergence_csv(convergence_data_path, output_path)
+
+            # Vizualize Pareto Front.
+            if os.path.exists(design_points_path):
+                output_path_design_space = os.path.join(processed_run_path, "pareto_front.jpg")
+                if "/ga/" in run_path:
+                    visualization.main_plot_design_space(design_points_path, output_path_design_space, 2)
+                else:
+                    visualization.main_plot_design_space(design_points_path, output_path_design_space)
+
+
+# TODO: Refactor such that it is more suited for the framework.
+def generate_best_configuration_values(best_configuration_values):
+    config_pattern = "**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string"
+    param_values = [
+        "ls=red,3,s;",
+        "ls=blue,3,s;",
+        "ls=green,3,s;",
+        "ls=yellow,3,s;"
+    ]
+
+    # Determine the param value index by segment indexing the config values from CUSTOMHys.
+    num_segments = len(param_values)
+    value_indices = np.floor(best_configuration_values * num_segments).astype(int)
+    value_indices[best_configuration_values == 1.0] = num_segments - 1
+
+    configurations = []
+
+    # TODO: Optimize this operations as it now parses and has duplicate code.
+    # Create a configuration for each parameter.
+    for switch_idx, value_idx in enumerate(value_indices):
+        selected_param_value = param_values[value_idx]
+
+        # Conditional handling for the switch gates where the first switch is handled differently.
+        first_switch_gate_index = "1" if switch_idx > 0 else "0"
+        second_switch_gate_index = "0"
+
+        # Replace placeholders in the configuration pattern are replaced with the corresponding indices.
+        current_param_pattern = config_pattern.replace("__switch_index", str(switch_idx))
+        current_param_pattern = current_param_pattern.replace("__gate_index", first_switch_gate_index)
+
+        # Create a configuration for the current parameter.
+        configurations.append({
+            "config_pattern": current_param_pattern,
+            "value": selected_param_value
+        })
+
+        # Replace placeholders in the configuration pattern are replaced with the corresponding indices.
+        current_param_pattern = config_pattern.replace("__switch_index", str(switch_idx+1))
+        current_param_pattern = current_param_pattern.replace("__gate_index", second_switch_gate_index)
+
+        configurations.append({
+            "config_pattern": current_param_pattern,
+            "value": selected_param_value
+        })
+
+    return configurations

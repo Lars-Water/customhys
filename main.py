@@ -1,5 +1,4 @@
 import os
-import glob
 import time
 from pathlib import Path
 import argparse
@@ -9,7 +8,6 @@ from src_main.tools.config_reader import Config
 import src_main.tools.coordinator as coordinator
 import src_main.models.model as model
 from src_main.data import collect_data
-from src_main.visualization import visualization
 
 from customhys import metaheuristic as mh
 # from customhys import hyperheuristic as hh
@@ -238,99 +236,6 @@ def create_mh_instance(run, heur_sim_coordinator):
     return problem_instance.get_formatted_problem()
 
 
-# TODO: Refactor such that it is more suited for the framework.
-def generate_best_configuration_values(best_configuration_values):
-    config_pattern = "**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string"
-    param_values = [
-        "ls=red,3,s;",
-        "ls=blue,3,s;",
-        "ls=green,3,s;",
-        "ls=yellow,3,s;"
-    ]
-
-    # Determine the param value index by segment indexing the config values from CUSTOMHys.
-    num_segments = len(param_values)
-    value_indices = np.floor(best_configuration_values * num_segments).astype(int)
-    value_indices[best_configuration_values == 1.0] = num_segments - 1
-
-    configurations = []
-
-    # TODO: Optimize this operations as it now parses and has duplicate code.
-    # Create a configuration for each parameter.
-    for switch_idx, value_idx in enumerate(value_indices):
-        selected_param_value = param_values[value_idx]
-
-        # Conditional handling for the switch gates where the first switch is handled differently.
-        first_switch_gate_index = "1" if switch_idx > 0 else "0"
-        second_switch_gate_index = "0"
-
-        # Replace placeholders in the configuration pattern are replaced with the corresponding indices.
-        current_param_pattern = config_pattern.replace("__switch_index", str(switch_idx))
-        current_param_pattern = current_param_pattern.replace("__gate_index", first_switch_gate_index)
-
-        # Create a configuration for the current parameter.
-        configurations.append({
-            "config_pattern": current_param_pattern,
-            "value": selected_param_value
-        })
-
-        # Replace placeholders in the configuration pattern are replaced with the corresponding indices.
-        current_param_pattern = config_pattern.replace("__switch_index", str(switch_idx+1))
-        current_param_pattern = current_param_pattern.replace("__gate_index", second_switch_gate_index)
-
-        configurations.append({
-            "config_pattern": current_param_pattern,
-            "value": selected_param_value
-        })
-
-    return configurations
-
-
-# TODO: Refactor such that it is more suited for the framework.
-def vizualize_mh_runs(run_id, heur_sim_coordinator):
-    metaheuristic_results_path = os.path.join(os.getcwd(), "data/raw/results/metaheuristic")
-
-    # Define the meatheuristic categories folders in the metaheuristic_results_path.
-    mh_categories = os.listdir(metaheuristic_results_path)
-
-    # Check in every mh_category for the corresponding run_id.
-    for mh_category in mh_categories:
-        # mh_category_path = os.path.join(metaheuristic_results_path, mh_category)
-        mh_category_path = os.path.join(metaheuristic_results_path, mh_category, "New_Fitness_10BB_Traffic")
-        if os.path.isdir(mh_category_path):
-            runs = os.listdir(mh_category_path)
-            for run in runs:
-                if run_id in run:
-                    run_path = os.path.join(mh_category_path, run)
-                    try:
-                        convergence_data_path = os.path.join(run_path, "convergence.csv")
-                        general_heuristic_run_info_path = glob.glob(os.path.join(run_path, "*.json"))[0]
-                        design_points_path = os.path.join(run_path, "design_point_metrics.csv")
-                    except IndexError:
-                        raise FileNotFoundError(f"Could not find the best fitness after every iteration or general heuristic run info files in {run_path}")
-
-                    # Vizualize best configuration.
-                    general_heuristic_run_info = Config(Path(general_heuristic_run_info_path), Path(run_path), "general_heuristic_run_info")
-                    best_configuration_values = general_heuristic_run_info.tryGet("optimal_found_solution", "optimal_found_configuration")
-                    generate_best_configuration_values(np.array(best_configuration_values))
-                    template_ini_file_path = os.path.join("/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/dummy_sim_lans", "largeNet.ini")
-                    design_point_ini_file_path = os.path.join(run_path, "best_configuration.ini")
-                    configurations = generate_best_configuration_values(np.array(best_configuration_values))
-                    heur_sim_coordinator.write_heur_run_ini_file(template_ini_file_path, design_point_ini_file_path, configurations, nr_of_backbone_switches)
-
-                    # Vizualize convergence.
-                    output_path = os.path.join(run_path, "convergence.jpg")
-                    visualization.main_plot_convergence_csv(convergence_data_path, output_path)
-
-                    # Vizualize Pareto Front.
-                    if os.path.exists(design_points_path):
-                        output_path_design_space = os.path.join(run_path, "pareto_front.jpg")
-                        if mh_category == "ga":
-                            visualization.main_plot_design_space(design_points_path, output_path_design_space, 2)
-                        else:
-                            visualization.main_plot_design_space(design_points_path, output_path_design_space)
-
-
 '''
     Run the heuristic simulation workflow.
 
@@ -361,11 +266,8 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, par
         mh_name = heuristic_run_config.tryGet('mh_save_run_path_mh_name')
         heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, mh_name, nr_of_backbone_switches) # noqa 501
 
-        # TODO: Implement a better version of this in the correct place of the code.
-        run_ids = ["1716823581", "1716817617"]
-        for run_id in run_ids:
-            # Visualisation of metaheuristic runs.
-            vizualize_mh_runs(run_id, heur_sim_coordinator)
+        # Visualisation of metaheuristic runs.
+        collect_data.vizualize_mh_runs(heur_sim_coordinator.write_heur_run_ini_file, nr_of_backbone_switches)
 
     #     # run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
 
