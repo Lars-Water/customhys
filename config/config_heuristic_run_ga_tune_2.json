@@ -1,0 +1,27 @@
+{
+    "nr_of_agents": 16,
+    "nr_of_iterations": 60,
+    "runs_nr_of_backbones": [50],
+    "mh_save_run_path_mh_name": "ga_tune_genmut_mutrate_0_3",
+    "metaheuristic": [
+        {
+            "name": "genetic_crossover",
+            "params": {
+                "pairing": "cost",
+                "crossover": "uniform",
+                "mating_pool_factor": 0.4
+            },
+            "strategy": "all"
+        },
+        {
+            "name": "genetic_mutation",
+            "params": {
+                "scale": 1.0,
+                "elite_rate": 0.1,
+                "mutation_rate": 0.3,
+                "distribution": "uniform"
+            },
+            "strategy": "all"
+        }
+    ]
+}

@@ -12,6 +12,20 @@ from src_main.data import collect_data
 from customhys import metaheuristic as mh
 # from customhys import hyperheuristic as hh
 
+
+import shutil
+
+def remove_directory(directory_path):
+    '''
+        Quick and dirty solution for running many heuristic runs after each other without clogging up memory.
+    '''
+    try:
+        shutil.rmtree(directory_path)  # Remove the entire directory and all its contents
+        print(f'Successfully removed {directory_path}')
+    except Exception as e:
+        print(f'Failed to delete {directory_path}. Reason: {e}')
+
+
 '''
     Run the metaheuristic search operator.
 
@@ -266,10 +280,16 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, par
         mh_name = heuristic_run_config.tryGet('mh_save_run_path_mh_name')
         heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, mh_name, nr_of_backbone_switches) # noqa 501
 
-        # Visualisation of metaheuristic runs.
-        collect_data.vizualize_mh_runs(heur_sim_coordinator.write_heur_run_ini_file, nr_of_backbone_switches)
+        # # Visualisation of metaheuristic runs.
+        # collect_data.vizualize_mh_runs(heur_sim_coordinator.write_heur_run_ini_file, nr_of_backbone_switches)
 
-    #     # run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
+        run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
+
+        experiments_directory_path = Path("/var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s16")
+        remove_directory(experiments_directory_path)
+
+        sims_directory_path = Path("/var/scratch/lvdwater/sims")
+        remove_directory(sims_directory_path)
 
     #     # TODO: Implement the hyperheuristic run.
 

@@ -213,7 +213,7 @@ def vizualize_mh_runs(ini_generation_func, nr_of_backbone_switches):
             # Vizualize Pareto Front.
             if os.path.exists(design_points_path):
                 output_path_design_space = os.path.join(processed_run_path, "pareto_front.jpg")
-                if "/ga/" in run_path:
+                if "/ga" in run_path:
                     visualization.main_plot_design_space(design_points_path, output_path_design_space, 2)
                 else:
                     visualization.main_plot_design_space(design_points_path, output_path_design_space)

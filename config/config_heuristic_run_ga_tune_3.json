@@ -1,8 +1,8 @@
 {
-    "nr_of_agents": 4,
-    "nr_of_iterations": 200,
+    "nr_of_agents": 16,
+    "nr_of_iterations": 60,
     "runs_nr_of_backbones": [50],
-    "mh_save_run_path_mh_name": "ga/",
+    "mh_save_run_path_mh_name": "ga_tune_genmut_mutrate_0_6",
     "metaheuristic": [
         {
             "name": "genetic_crossover",
@@ -18,7 +18,7 @@
             "params": {
                 "scale": 1.0,
                 "elite_rate": 0.1,
-                "mutation_rate": 0.25,
+                "mutation_rate": 0.6,
                 "distribution": "uniform"
             },
             "strategy": "all"
