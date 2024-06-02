@@ -141,6 +141,36 @@ def plot_convergence_against_iterations(best_fitness_after_every_iteration, outp
     plt.close()
 
 
+def quick_and_dirty_multiplot():
+    plt.figure()
+
+    output_path = Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/pso_swarm_conf")
+    data1 = pd.read_csv(Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/pso_swarm_conf/default/1716914576/convergence.csv"))
+    data1 = data1['best_fitness_value_untill_current_iteration'].values
+    plt.plot(data1, label="Default - PSO - Swarm Conf: 2.5")
+    data2 = pd.read_csv(Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/pso_swarm_conf/pso_tune_swarm_conf_0_01/1717079252/convergence.csv"))
+    data2 = data2['best_fitness_value_untill_current_iteration'].values
+    plt.plot(data2, label="PSO - Swarm Conf: 0.01")
+    data3 = pd.read_csv(Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/pso_swarm_conf/pso_tune_swarm_conf_4_99/1717076328/convergence.csv"))
+    data3 = data3['best_fitness_value_untill_current_iteration'].values
+    plt.plot(data3, label="PSO - Swarm Conf: 4.99")
+    # data4 = pd.read_csv(Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/ga_genmut_mutrate/ga_tune_genmut_mutrate_0_6/1717117393/convergence.csv"))
+    # data4 = data4['best_fitness_value_untill_current_iteration'].values
+    # plt.plot(data4, label="Mutation Rate: 0.6")
+    # data5 = pd.read_csv(Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/ga_genmut_mutrate/ga_tune_genmut_mutrate_0_9/1717120764/convergence.csv"))
+    # data5 = data5['best_fitness_value_untill_current_iteration'].values
+    # plt.plot(data5, label="Mutation Rate: 0.9")
+
+    plt.title("Best Fitness Value After Each Iteration")
+    plt.xlabel("Iteration")
+    plt.ylabel("Best Fitness Value")
+    plt.yticks(np.arange(0, 1.0, step=0.1))
+    plt.grid(True)
+    plt.legend()
+    plt.savefig(output_path)
+    plt.close()
+
+
 # Main functions
 
 
