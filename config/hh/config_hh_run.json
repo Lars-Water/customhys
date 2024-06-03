@@ -1,0 +1,98 @@
+{
+    "nr_of_agents": 16,
+    "nr_of_iterations": 100,
+    "runs_nr_of_backbones": [50],
+    "save_run_path_heuristic_name": "hh",
+    "heuristic_collection": [
+        {
+            "name": "genetic_crossover",
+            "params": {
+                "pairing": "cost",
+                "crossover": "uniform",
+                "mating_pool_factor": 0.3
+            },
+            "strategy": "all"
+        },
+        {
+            "name": "genetic_crossover",
+            "params": {
+                "pairing": "cost",
+                "crossover": "uniform",
+                "mating_pool_factor": 0.6
+            },
+            "strategy": "all"
+        },
+        {
+            "name": "genetic_crossover",
+            "params": {
+                "pairing": "cost",
+                "crossover": "uniform",
+                "mating_pool_factor": 0.9
+            },
+            "strategy": "all"
+        },
+        {
+            "name": "genetic_mutation",
+            "params": {
+                "scale": 0.3,
+                "elite_rate": 0.1,
+                "mutation_rate": 0.25,
+                "distribution": "uniform"
+            },
+            "strategy": "all"
+        },
+        {
+            "name": "genetic_mutation",
+            "params": {
+                "scale": 0.6,
+                "elite_rate": 0.1,
+                "mutation_rate": 0.25,
+                "distribution": "uniform"
+            },
+            "strategy": "all"
+        },
+        {
+            "name": "genetic_mutation",
+            "params": {
+                "scale": 0.9,
+                "elite_rate": 0.1,
+                "mutation_rate": 0.25,
+                "distribution": "uniform"
+            },
+            "strategy": "all"
+        },
+        {
+            "name": "swarm_dynamic",
+            "params": {
+                "factor": 0.3,
+                "self_conf": 2.54,
+                "swarm_conf": 2.56,
+                "version": "constriction",
+                "distribution": "uniform"
+            },
+            "strategy": "greedy"
+        },
+        {
+            "name": "swarm_dynamic",
+            "params": {
+                "factor": 0.6,
+                "self_conf": 2.54,
+                "swarm_conf": 2.56,
+                "version": "constriction",
+                "distribution": "uniform"
+            },
+            "strategy": "greedy"
+        },
+        {
+            "name": "swarm_dynamic",
+            "params": {
+                "factor": 0.9,
+                "self_conf": 2.54,
+                "swarm_conf": 2.56,
+                "version": "constriction",
+                "distribution": "uniform"
+            },
+            "strategy": "greedy"
+        }
+    ]
+}

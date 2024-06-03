@@ -30,7 +30,7 @@ class DataCollector:
         self.dir_design_points_metrics_output = dir_design_points_metrics_output
 
 
-    def store_design_point_metrics(self, latency_df, cost_df, sim_uid, mh_name):
+    def store_design_point_metrics(self, latency_df, cost_df, sim_uid, heuristic_name):
         """
         Stores the design point metrics in a CSV file.
 
@@ -44,7 +44,7 @@ class DataCollector:
         """
         # Define the file output path.
         os.makedirs(self.dir_design_points_metrics_output, exist_ok=True)
-        append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{mh_name}.csv")
+        append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}.csv")
 
         # Determine weighted metric values.
         adjusted_latency = latency_df['mean'].mean() * self.weight_latency

@@ -2,7 +2,7 @@
     "nr_of_agents": 16,
     "nr_of_iterations": 60,
     "runs_nr_of_backbones": [50],
-    "mh_save_run_path_mh_name": "ga_tune_genmut_mutrate_0_6",
+    "save_run_path_heuristic_name": "ga_tune_genmut_mutrate_0_6",
     "metaheuristic": [
         {
             "name": "genetic_crossover",
