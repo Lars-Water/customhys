@@ -141,6 +141,23 @@ def plot_convergence_against_iterations(best_fitness_after_every_iteration, outp
     plt.close()
 
 
+def plot_cable_occurrences_histogram(param_values, counts, output_path):
+    # Plot the histogram
+    plt.bar(param_values, counts, color='blue', alpha=0.7)
+
+    # Add labels and title
+    plt.xlabel('Cables')
+    plt.ylabel('Counts')
+    plt.title('Histogram of Selected Cables for Backbone Switches')
+    plt.xticks(param_values)  # Set the x-ticks to be the unique values
+
+    # Make the y-axis discrete for 2 step increments.
+    plt.yticks(np.arange(0, max(counts) + 1, 2))
+
+    # Save the plot in the processed run directory.
+    plt.savefig(output_path)
+
+
 def quick_and_dirty_multiplot():
     plt.figure()
 

@@ -2,6 +2,7 @@ import os
 import time
 from pathlib import Path
 import argparse
+from matplotlib.pylab import f
 import numpy as np
 
 from src_main.tools.config_reader import Config
@@ -11,7 +12,7 @@ from src_main.data import collect_data
 from src_main.visualization import visualization
 
 from customhys import metaheuristic as mh
-from customhys import hyperheuristic as hh
+# from customhys import hyperheuristic as hh
 
 
 # TODO: Improve and place this function in a separate module.
@@ -83,12 +84,10 @@ def run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nu
 def run_hh(heuristic_run_config, heur_sim_coordinator):
 
     # Create problem instance.
-    print("Creating problem instance...")
     run = 6
     prob = create_problem_instance(run, heur_sim_coordinator)
 
     # Create heuristic space.
-    print("Creating heuristic space...")
     heuristics_collection = define_heuristic_operators(heuristic_run_config)
 
     # Setup parameters for the hyperheuristic
@@ -116,7 +115,6 @@ def run_hh(heuristic_run_config, heur_sim_coordinator):
 
     # TODO: Make file label definition configurable.
     # Create hyper-heuristic object.
-    print("Creating hyper-heuristic object...")
     hyp = hh.Hyperheuristic(
         heuristic_space=heuristics_collection,
         problem=prob,
@@ -125,31 +123,14 @@ def run_hh(heuristic_run_config, heur_sim_coordinator):
     )
 
     # Start hyper-heuristic run.
+    best_sol, best_perf, hist_curr, hist_best = hyp.solve()
 
-    # best_sol, best_perf, hist_curr, hist_best = hyp.solve()
-
-    # print(f"Best solution: {best_sol}")
-    # print(f"Best performance: {best_perf}")
-    # print(f"Current history: {hist_curr}")
-    # print(f"Best history: {hist_best}")
+    print(f"Best solution: {best_sol}")
+    print(f"Best performance: {best_perf}")
+    print(f"Current history: {hist_curr}")
+    print(f"Best history: {hist_best}")
 
     return
-
-
-# TODO: Not being used anymore I believe. Check this.
-'''
-    Collect the simulation stats from the simulation run.
-
-    Args:
-        heur_sim_coordinator (HeuristicSimulationCoordinator): The coordinator object for the heuristic simulation workflow.
-        uid (str): The unique identifier for the simulation run.
-'''
-def process_simulated_instance(heur_sim_coordinator, uid):
-    heur_sim_coordinator.transform_scalar_files(uid)
-    simulation_metrics = heur_sim_coordinator.obtain_simulation_stats(uid)
-    fitness_value = heur_sim_coordinator.fitness_evaluation(simulation_metrics)
-
-    return fitness_value
 
 
 '''
@@ -275,12 +256,12 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, par
         heuristic_name = heuristic_run_config.tryGet('save_run_path_heuristic_name')
         heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, heuristic_name, nr_of_backbone_switches) # noqa 501
 
-        # # Visualisation of metaheuristic runs.
-        # collect_data.vizualize_mh_runs(heur_sim_coordinator.write_heur_run_ini_file, nr_of_backbone_switches)
+        # Visualisation of metaheuristic runs.
+        collect_data.vizualize_mh_runs(heur_sim_coordinator.write_heur_run_ini_file, nr_of_backbone_switches)
 
-        # run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
+        run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
 
-        run_hh(heuristic_run_config, heur_sim_coordinator)
+        # run_hh(heuristic_run_config, heur_sim_coordinator)
 
         # # TODO: Quick and dirty Manual removal of directories to prevent memory clogging.
         # experiments_directory_path = Path("/var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s16")
@@ -288,12 +269,12 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, par
         # sims_directory_path = Path("/var/scratch/lvdwater/sims")
         # remove_directory(sims_directory_path)
 
-    # elif parameter_tuning:
-    #     parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
-    #     parameter_tuning_coordinator.parameter_tuning_workflow()
-    # elif design_space_plot:
-    #     design_space_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
-    #     design_space_coordinator.determine_design_space()
+    elif parameter_tuning:
+        parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
+        parameter_tuning_coordinator.parameter_tuning_workflow()
+    elif design_space_plot:
+        design_space_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
+        design_space_coordinator.determine_design_space()
 
     return
 

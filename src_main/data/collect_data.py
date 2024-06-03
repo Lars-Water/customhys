@@ -197,18 +197,23 @@ def vizualize_mh_runs(ini_generation_func, nr_of_backbone_switches):
             processed_run_path = run_path.replace("raw/", "processed/")
             os.makedirs(processed_run_path, exist_ok=True)
 
-            # Vizualize best configuration.
+            # TODO: Remove hardcoded parameter values.
+            # Save the best configuration to an ini file.
             general_heuristic_run_info = Config(Path(general_heuristic_run_info_path), Path(processed_run_path), "general_heuristic_run_info")
             best_configuration_values = general_heuristic_run_info.tryGet("optimal_found_solution", "optimal_found_configuration")
-            generate_best_configuration_values(np.array(best_configuration_values))
             template_ini_file_path = os.path.join("/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/dummy_sim_lans", "largeNet.ini")
             design_point_ini_file_path = os.path.join(processed_run_path, "best_configuration.ini")
-            configurations = generate_best_configuration_values(np.array(best_configuration_values))
-            ini_generation_func(template_ini_file_path, design_point_ini_file_path, configurations, nr_of_backbone_switches)
+            best_solution_configurations = generate_best_configuration_values(np.array(best_configuration_values))
+            ini_generation_func(template_ini_file_path, design_point_ini_file_path, best_solution_configurations, nr_of_backbone_switches)
+
+            # Vizualize best configuration.
+            param_values, counts = determine_cable_occurrences(best_configuration_values)
+            output_path_best_solution = os.path.join(processed_run_path, "best_configuration.jpg")
+            visualization.plot_cable_occurrences_histogram(param_values, counts, output_path_best_solution)
 
             # Vizualize convergence.
-            output_path = os.path.join(processed_run_path, "convergence.jpg")
-            visualization.main_plot_convergence_csv(convergence_data_path, output_path)
+            output_path_convergence = os.path.join(processed_run_path, "convergence.jpg")
+            visualization.main_plot_convergence_csv(convergence_data_path, output_path_convergence)
 
             # Vizualize Pareto Front.
             if os.path.exists(design_points_path):
@@ -265,3 +270,24 @@ def generate_best_configuration_values(best_configuration_values):
         })
 
     return configurations
+
+
+# TODO: Refactor such that it is more suited for the framework.
+# TODO: Remove hardcoded parts.
+def determine_cable_occurrences(best_configuration_values):
+    formatted_best_configuration_values = np.array(best_configuration_values)
+
+    param_values = [
+        "10Mbps",
+        "100Mbps",
+        "1Gbps",
+        "10Gbps"
+    ]
+    num_segments = len(param_values)
+    value_indices = np.floor(formatted_best_configuration_values * num_segments).astype(int)
+    value_indices[best_configuration_values == 1.0] = num_segments - 1
+
+    # Get unique values and their counts
+    _, counts = np.unique(value_indices, return_counts=True)
+
+    return param_values, counts
