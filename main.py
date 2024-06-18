@@ -12,7 +12,7 @@ from src_main.data import collect_data
 from src_main.visualization import visualization
 
 from customhys import metaheuristic as mh
-# from customhys import hyperheuristic as hh
+from customhys import hyperheuristic as hh
 
 
 # TODO: Improve and place this function in a separate module.
@@ -122,13 +122,13 @@ def run_hh(heuristic_run_config, heur_sim_coordinator):
         file_label="INET-LANS"
     )
 
-    # Start hyper-heuristic run.
-    best_sol, best_perf, hist_curr, hist_best = hyp.solve()
+    # # Start hyper-heuristic run.
+    # best_sol, best_perf, hist_curr, hist_best = hyp.solve()
 
-    print(f"Best solution: {best_sol}")
-    print(f"Best performance: {best_perf}")
-    print(f"Current history: {hist_curr}")
-    print(f"Best history: {hist_best}")
+    # print(f"Best solution: {best_sol}")
+    # print(f"Best performance: {best_perf}")
+    # print(f"Current history: {hist_curr}")
+    # print(f"Best history: {hist_best}")
 
     return
 
@@ -234,7 +234,6 @@ def create_problem_instance(run, heur_sim_coordinator):
         nr_of_backbone_switches (int): The number of backbone switches for the INET model.
 '''
 def main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning, design_space_plot, nr_of_backbone_switches):
-
     # visualization.quick_and_dirty_multiplot()
     # return
 
@@ -259,9 +258,9 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, par
         # Visualisation of metaheuristic runs.
         collect_data.vizualize_mh_runs(heur_sim_coordinator.write_heur_run_ini_file, nr_of_backbone_switches)
 
-        run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
+        # run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
 
-        # run_hh(heuristic_run_config, heur_sim_coordinator)
+        run_hh(heuristic_run_config, heur_sim_coordinator)
 
         # # TODO: Quick and dirty Manual removal of directories to prevent memory clogging.
         # experiments_directory_path = Path("/var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s16")
