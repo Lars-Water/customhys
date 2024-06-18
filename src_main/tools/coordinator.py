@@ -1,6 +1,7 @@
 from hmac import new
 from src_main.tools.logger import logger
 from src_main.data.collect_data import DataCollector
+import src_main.tools.simulation_config.inet_config as inet_config
 
 import os
 import shutil
@@ -173,7 +174,7 @@ class HeuristicSimulationCoordinator:
 
         # TODO: Change the hardcoded number of backbone switches to a variable.
         # Write a new ini file with the parameter configurations.
-        self.write_heur_run_ini_file(
+        inet_config.generate_inet_lans_config(
             template_ini_file_path,
             design_point_ini_file_path,
             agent_configuration,
@@ -833,39 +834,6 @@ class HeuristicSimulationCoordinator:
                     design_file.write(f"**.switchBB[{switch_idx}].ethg$o[1].channel.display-string = ls={cable_option_colour},3,s;\n")
                     design_file.write(f"**.switchBB[{switch_idx+1}].ethg$o[0].channel.display-string = ls={cable_option_colour},3,s;\n")
                 design_file.write(f"**.switchBB[{switch_idx+1}].ethg$o[0].channel.cost = {cable_option['cost']}\n")
-
-
-    @staticmethod
-    def write_heur_run_ini_file(template_ini_file_path, design_point_ini_file_path, configurations, nr_of_backbone_switches):
-        """
-        Write a new INI file based on an existing template file, with updated configurations and number of backbone switches.
-
-        Parameters:
-        template_ini_file_path (str): The path to the template INI file.
-        design_point_ini_file_path (str): The path to the new INI file to be created.
-        configurations (list): A list of dictionaries, where each dictionary contains a configuration pattern and its corresponding value.
-        nr_of_backbone_switches (int): The number of backbone switches to be set in the new INI file.
-
-        Returns:
-        None
-        """
-        with open(template_ini_file_path, 'r') as template_file, open(design_point_ini_file_path, 'w') as new_file:
-            for line in template_file:
-                # Define the number of backbone switches.
-                if line.startswith("LargeNet.n"):
-                    new_file.write(f"LargeNet.n = {nr_of_backbone_switches}   # number of switches on backbone\n")
-                # TODO: Make this cleaner and more generic.
-                elif line.endswith("Remaining traffic"):
-                    new_file.write(f'LargeNet.llanBB[1..{nr_of_backbone_switches - 1}].*.cli.destAddress = "serverC"')
-                else:
-                    new_file.write(line)
-
-            new_file.write("\n# Custom parameters\n")
-
-            for configuration in configurations:
-                config_pattern = configuration["config_pattern"]
-                value = configuration["value"]
-                new_file.write(f"{config_pattern} = {value}\n")
 
 
     @staticmethod

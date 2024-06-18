@@ -9,6 +9,7 @@ from pathlib import Path
 
 from src_main.tools.config_reader import Config
 from src_main.visualization import visualization
+import src_main.tools.simulation_config.inet_config as inet_config
 
 
 class DataCollector:
@@ -175,7 +176,7 @@ def get_processed_folder_ids(directory_path):
     return {folder_name for folder_name in os.listdir(directory_path) if os.path.isdir(os.path.join(directory_path, folder_name)) and folder_name.isdigit()}
 
 
-def vizualize_mh_runs(ini_generation_func, nr_of_backbone_switches):
+def vizualize_mh_runs(nr_of_backbone_switches):
     # Compare folder ids in raw and processed to vizualize absent processed folders.
     mh_raw_results_path = os.path.join(os.getcwd(), "data/raw/results/metaheuristic")
     raw_mh_categories = os.listdir(mh_raw_results_path)
@@ -204,7 +205,7 @@ def vizualize_mh_runs(ini_generation_func, nr_of_backbone_switches):
             template_ini_file_path = os.path.join("/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/dummy_sim_lans", "largeNet.ini")
             design_point_ini_file_path = os.path.join(processed_run_path, "best_configuration.ini")
             best_solution_configurations = generate_best_configuration_values(np.array(best_configuration_values))
-            ini_generation_func(template_ini_file_path, design_point_ini_file_path, best_solution_configurations, nr_of_backbone_switches)
+            inet_config.generate_inet_lans_config(template_ini_file_path, design_point_ini_file_path, best_solution_configurations, nr_of_backbone_switches)
 
             # Vizualize best configuration.
             param_values, counts = determine_cable_occurrences(best_configuration_values)

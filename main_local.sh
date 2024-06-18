@@ -22,10 +22,10 @@ cd ../../
 # # HEURISTIC RUN
 # python3 main.py --nr_sw 6 --base_path "$BASE_PATH" --coordinator_config "$CONFIG_PATH_COORDINATOR" --heur_run_config "$CONFIG_PATH_HEUR_RUN"
 
-# # Specify the path to the hyperheuristic run configuration file here.
-# CONFIG_PATH_HYPHEUR_RUN="${BASE_PATH}/config/hh/config_heuristic_run.json"
 # Specify the path to the hyperheuristic run configuration file here.
-CONFIG_PATH_HYPHEUR_RUN="${BASE_PATH}/config/hh/config_hh_run_test_mh_collection.json"
+CONFIG_PATH_HYPHEUR_RUN="${BASE_PATH}/config/hh/config_hh_run.json"
+# # Specify the path to the hyperheuristic run configuration file here.
+# CONFIG_PATH_HYPHEUR_RUN="${BASE_PATH}/config/hh/config_hh_run_test_mh_collection.json"
 
 # HYPER-HEURISTIC RUN
 python3 main.py --nr_sw 6 --base_path "$BASE_PATH" --coordinator_config "$CONFIG_PATH_COORDINATOR" --heur_run_config "$CONFIG_PATH_HYPHEUR_RUN"

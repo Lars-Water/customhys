@@ -1,7 +1,7 @@
 {
-    "nr_of_agents": 16,
-    "nr_of_iterations": 100,
-    "runs_nr_of_backbones": [50],
+    "nr_of_agents": 2,
+    "nr_of_iterations": 1,
+    "runs_nr_of_backbones": [6],
     "save_run_path_heuristic_name": "hh",
     "heuristic_collection": [
         {

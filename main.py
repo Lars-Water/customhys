@@ -122,13 +122,13 @@ def run_hh(heuristic_run_config, heur_sim_coordinator):
         file_label="INET-LANS"
     )
 
-    # # Start hyper-heuristic run.
-    # best_sol, best_perf, hist_curr, hist_best = hyp.solve()
+    # Start hyper-heuristic run.
+    best_sol, best_perf, hist_curr, hist_best = hyp.solve()
 
-    # print(f"Best solution: {best_sol}")
-    # print(f"Best performance: {best_perf}")
-    # print(f"Current history: {hist_curr}")
-    # print(f"Best history: {hist_best}")
+    print(f"Best solution: {best_sol}")
+    print(f"Best performance: {best_perf}")
+    print(f"Current history: {hist_curr}")
+    print(f"Best history: {hist_best}")
 
     return
 
@@ -164,10 +164,10 @@ def calculate_distinct_simulation_components(start_time, end_time, heur_sim_coor
     Define the heuristic operators to be used in the metaheuristic.
 
     Returns:
-        list: The collection of heuristic operators to be used in the metaheuristic.
+        list: The collection of heuristic operators to be used in the CUSTOMHys heuristic component.
 '''
 def define_heuristic_operators(heuristic_run_config):
-    heursitic_operators = heuristic_run_config.tryGet("metaheuristic")
+    heursitic_operators = heuristic_run_config.tryGet("heuristic_collection")
     return [
         (
             heursitic_operator["name"],
@@ -256,7 +256,7 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, par
         heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, heuristic_name, nr_of_backbone_switches) # noqa 501
 
         # Visualisation of metaheuristic runs.
-        collect_data.vizualize_mh_runs(heur_sim_coordinator.write_heur_run_ini_file, nr_of_backbone_switches)
+        collect_data.vizualize_mh_runs(nr_of_backbone_switches)
 
         # run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
 
