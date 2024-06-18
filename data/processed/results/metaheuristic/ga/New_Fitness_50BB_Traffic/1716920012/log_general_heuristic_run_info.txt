@@ -1,0 +1,3 @@
+[ general_heuristic_run_info  03-06-2024 16:52:28  INFO     ]  Default config file: /home/larry/hyper-heuristic-dse-2.0/src_main/tools/default.cfg
+[ general_heuristic_run_info  03-06-2024 16:52:28  INFO     ]  Using config file: /home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/ga/New_Fitness_50BB_Traffic/1716920012/general.json
+[ general_heuristic_run_info  03-06-2024 16:52:28  INFO     ]  Loading config file: /home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/ga/New_Fitness_50BB_Traffic/1716920012/general.json
