@@ -10,6 +10,7 @@ import src_main.tools.coordinator as coordinator
 import src_main.models.model as model
 from src_main.data import collect_data
 from src_main.visualization import visualization
+from src_main.experiment_flows import experiment_1
 
 from customhys import metaheuristic as mh
 from customhys import hyperheuristic as hh
@@ -17,6 +18,7 @@ from customhys import hyperheuristic as hh
 
 # TODO: Improve and place this function in a separate module.
 import shutil
+from datetime import datetime
 def remove_directory(directory_path):
     '''
         Quick and dirty solution for running many heuristic runs after each other without clogging up memory.
@@ -234,48 +236,56 @@ def create_problem_instance(run, heur_sim_coordinator):
         nr_of_backbone_switches (int): The number of backbone switches for the INET model.
 '''
 def main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning, design_space_plot, nr_of_backbone_switches):
-    # visualization.quick_and_dirty_multiplot()
+
+    # Set up the experiment_1 configuration.
+    experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_1/experiment_1.json"))
+    experiment_1_log_path = os.path.join(base_path, "data/logs/experiments/experiment_1")
+    os.makedirs(experiment_1_log_path, exist_ok=True)
+    config_manager_filename = f"experiment_1_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    experiment_1_config = Config(experiment_1_config_file_path, Path(experiment_1_log_path), config_manager_filename)
+
+    # Run Experiment 1.
+    experiment_1.run_experiment(experiment_1_config)
+
+    # # Set up the general heuristic run configuration.
+    # if heur_run_config_file_path:
+        # heuristic_run_log_path = os.path.join(base_path, "data/logs/heuristic_run/")
+        # os.makedirs(heuristic_run_log_path, exist_ok=True)
+        # heuristic_run_config = Config(heur_run_config_file_path, Path(heuristic_run_log_path), "heuristic_run_config_manager")
+
+    #     # Obtain the configuration parameters for the heuristic run.
+    #     nr_of_agents = heuristic_run_config.tryGet("nr_of_agents")
+    #     nr_of_iterations = heuristic_run_config.tryGet("nr_of_iterations")
+
+    #     # Define the heuristic operators to be used.
+    #     heuristics_collection = define_heuristic_operators(heuristic_run_config)
+
+    #     # Create the coordinator for the heuristic simulation workflow.
+    #     # TODO: Change this naming flow, because it goes from main, to coordinator, to data collector.
+    #     heuristic_name = heuristic_run_config.tryGet('save_run_path_heuristic_name')
+    #     heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, heuristic_name, nr_of_backbone_switches) # noqa 501
+
+    #     # Visualisation of metaheuristic runs.
+    #     collect_data.vizualize_mh_runs(nr_of_backbone_switches)
+
+    #     # run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
+
+    #     run_hh(heuristic_run_config, heur_sim_coordinator)
+
+    #     # # TODO: Quick and dirty Manual removal of directories to prevent memory clogging.
+    #     # experiments_directory_path = Path("/var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s16")
+    #     # remove_directory(experiments_directory_path)
+    #     # sims_directory_path = Path("/var/scratch/lvdwater/sims")
+    #     # remove_directory(sims_directory_path)
+
+    # elif parameter_tuning:
+    #     parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
+    #     parameter_tuning_coordinator.parameter_tuning_workflow()
+    # elif design_space_plot:
+    #     design_space_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
+    #     design_space_coordinator.determine_design_space()
+
     # return
-
-    # Set up the general heuristic run configuration.
-    if heur_run_config_file_path:
-        heuristic_run_log_path = os.path.join(base_path, "data/logs/heuristic_run/")
-        os.makedirs(heuristic_run_log_path, exist_ok=True)
-        heuristic_run_config = Config(heur_run_config_file_path, Path(heuristic_run_log_path), "heuristic_run_config_manager")
-
-        # Obtain the configuration parameters for the heuristic run.
-        nr_of_agents = heuristic_run_config.tryGet("nr_of_agents")
-        nr_of_iterations = heuristic_run_config.tryGet("nr_of_iterations")
-
-        # Define the heuristic operators to be used.
-        heuristics_collection = define_heuristic_operators(heuristic_run_config)
-
-        # Create the coordinator for the heuristic simulation workflow.
-        # TODO: Change this naming flow, because it goes from main, to coordinator, to data collector.
-        heuristic_name = heuristic_run_config.tryGet('save_run_path_heuristic_name')
-        heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, heuristic_name, nr_of_backbone_switches) # noqa 501
-
-        # Visualisation of metaheuristic runs.
-        collect_data.vizualize_mh_runs(nr_of_backbone_switches)
-
-        # run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
-
-        run_hh(heuristic_run_config, heur_sim_coordinator)
-
-        # # TODO: Quick and dirty Manual removal of directories to prevent memory clogging.
-        # experiments_directory_path = Path("/var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s16")
-        # remove_directory(experiments_directory_path)
-        # sims_directory_path = Path("/var/scratch/lvdwater/sims")
-        # remove_directory(sims_directory_path)
-
-    elif parameter_tuning:
-        parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
-        parameter_tuning_coordinator.parameter_tuning_workflow()
-    elif design_space_plot:
-        design_space_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
-        design_space_coordinator.determine_design_space()
-
-    return
 
 
 if __name__ == "__main__":

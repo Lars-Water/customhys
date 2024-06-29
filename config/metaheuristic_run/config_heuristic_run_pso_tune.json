@@ -1,0 +1,19 @@
+{
+    "nr_of_agents": 16,
+    "nr_of_iterations": 60,
+    "runs_nr_of_backbones": [50],
+    "save_run_path_heuristic_name": "pso_tune_factor_0_1",
+    "metaheuristic": [
+        {
+            "name": "swarm_dynamic",
+            "params": {
+                "factor": 0.1,
+                "self_conf": 2.54,
+                "swarm_conf": 2.56,
+                "version": "constriction",
+                "distribution": "uniform"
+            },
+            "strategy": "greedy"
+        }
+    ]
+}
