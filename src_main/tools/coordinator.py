@@ -536,6 +536,10 @@ class HeuristicSimulationCoordinator:
         # os.makedirs(self.sims_path)
 
 
+    def get_datarate_cost_boundaries(self):
+        return self.min_datarate, self.max_datarate, self.min_cost, self.max_cost
+
+
     # TODO: Remove redundancy of multiple ini file writing.
     def manual_normalization(self):
         """

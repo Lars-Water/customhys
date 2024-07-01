@@ -237,33 +237,34 @@ def create_problem_instance(run, heur_sim_coordinator):
 '''
 def main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning, design_space_plot, nr_of_backbone_switches):
 
-    # Set up the experiment_1 configuration.
-    experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_1/experiment_1.json"))
-    experiment_1_log_path = os.path.join(base_path, "data/logs/experiments/experiment_1")
-    os.makedirs(experiment_1_log_path, exist_ok=True)
-    config_manager_filename = f"experiment_1_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-    experiment_1_config = Config(experiment_1_config_file_path, Path(experiment_1_log_path), config_manager_filename)
+    # Set up the general heuristic run configuration.
+    if heur_run_config_file_path:
+        heuristic_run_log_path = os.path.join(base_path, "data/logs/heuristic_run/")
+        os.makedirs(heuristic_run_log_path, exist_ok=True)
+        heuristic_run_config = Config(heur_run_config_file_path, Path(heuristic_run_log_path), "heuristic_run_config_manager")
 
-    # Run Experiment 1.
-    experiment_1.run_experiment(experiment_1_config)
-
-    # # Set up the general heuristic run configuration.
-    # if heur_run_config_file_path:
-        # heuristic_run_log_path = os.path.join(base_path, "data/logs/heuristic_run/")
-        # os.makedirs(heuristic_run_log_path, exist_ok=True)
-        # heuristic_run_config = Config(heur_run_config_file_path, Path(heuristic_run_log_path), "heuristic_run_config_manager")
-
-    #     # Obtain the configuration parameters for the heuristic run.
-    #     nr_of_agents = heuristic_run_config.tryGet("nr_of_agents")
-    #     nr_of_iterations = heuristic_run_config.tryGet("nr_of_iterations")
+        # Obtain the configuration parameters for the heuristic run.
+        nr_of_agents = heuristic_run_config.tryGet("nr_of_agents")
+        nr_of_iterations = heuristic_run_config.tryGet("nr_of_iterations")
 
     #     # Define the heuristic operators to be used.
     #     heuristics_collection = define_heuristic_operators(heuristic_run_config)
 
-    #     # Create the coordinator for the heuristic simulation workflow.
-    #     # TODO: Change this naming flow, because it goes from main, to coordinator, to data collector.
-    #     heuristic_name = heuristic_run_config.tryGet('save_run_path_heuristic_name')
-    #     heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, heuristic_name, nr_of_backbone_switches) # noqa 501
+        # Create the coordinator for the heuristic simulation workflow.
+        # TODO: Change this naming flow, because it goes from main, to coordinator, to data collector.
+        heuristic_name = heuristic_run_config.tryGet('save_run_path_heuristic_name')
+        heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, heuristic_name, nr_of_backbone_switches) # noqa 501
+
+        # Set up the experiment_1 configuration.
+        experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_1/experiment_1.json"))
+        experiment_1_log_path = os.path.join(base_path, "data/logs/experiments/experiment_1")
+        os.makedirs(experiment_1_log_path, exist_ok=True)
+        config_manager_filename = f"experiment_1_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        experiment_1_config = Config(experiment_1_config_file_path, Path(experiment_1_log_path), config_manager_filename)
+
+        # Run Experiment 1.
+        min_datarate, max_datarate, min_cost, max_cost = heur_sim_coordinator.get_datarate_cost_boundaries()
+        experiment_1.run_experiment(experiment_1_config, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator.simulation_run)
 
     #     # Visualisation of metaheuristic runs.
     #     collect_data.vizualize_mh_runs(nr_of_backbone_switches)
@@ -285,7 +286,7 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, par
     #     design_space_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
     #     design_space_coordinator.determine_design_space()
 
-    # return
+    return
 
 
 if __name__ == "__main__":
