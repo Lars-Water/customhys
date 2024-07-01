@@ -1,0 +1,9 @@
+[ experiment_1_config_manager_20240701141549  01-07-2024 14:15:49  INFO     ]  Default config file: /home/larry/hyper-heuristic-dse-2.0/src_main/tools/default.cfg
+[ experiment_1_config_manager_20240701141549  01-07-2024 14:15:49  INFO     ]  Using config file: /home/larry/hyper-heuristic-dse-2.0/config/experiment_1/experiment_1.json
+[ experiment_1_config_manager_20240701141549  01-07-2024 14:15:49  INFO     ]  Loading config file: /home/larry/hyper-heuristic-dse-2.0/config/experiment_1/experiment_1.json
+[ experiment_1_config_manager_20240701141549  01-07-2024 14:15:49  WARNING  ]  Could not get: ('hh_parameters', 'nr_of_agents')
+[ experiment_1_config_manager_20240701141549  01-07-2024 14:15:49  ERROR    ]  'nr_of_agents'
+[                                                                           ]  Traceback (most recent call last):
+[                                                                           ]    File "/home/larry/hyper-heuristic-dse-2.0/src_main/tools/config_reader.py", line 49, in tryGet
+[                                                                           ]      conf = conf[arg]
+[                                                                           ]  KeyError: 'nr_of_agents'
