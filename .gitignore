@@ -95,6 +95,7 @@ target/
 bin/
 
 # exclude data from source control by default
+/data/logs
 /data/external
 /data/interim
 /data/processed

@@ -39,7 +39,7 @@ class instance(BP):
                          'Differentiable': False,
                          'Separable': False,
                          'Scalable': True,
-                         'Unimodal': True,
+                         'Unimodal': False,
                          'Convex': False}
 
         # Determine min and max values for objectives

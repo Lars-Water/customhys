@@ -33,8 +33,8 @@ ulimit -n 80000
 # CONFIG_PATH_HEUR_RUN_GA="${BASE_PATH}/config/config_heuristic_run_ga.json"
 # python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN_GA" --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
-CONFIG_PATH_HEUR_RUN_GA="${BASE_PATH}/config/config_heuristic_run_ga_tune.json"
-python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN_GA" --coordinator_config "$CONFIG_PATH_COORDINATOR"
+# CONFIG_PATH_HEUR_RUN_GA="${BASE_PATH}/config/config_heuristic_run_ga_tune.json"
+# python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN_GA" --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
 # CONFIG_PATH_HEUR_RUN_GA="${BASE_PATH}/config/config_heuristic_run_ga_tune_2.json"
 # python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN_GA" --coordinator_config "$CONFIG_PATH_COORDINATOR"
@@ -45,8 +45,13 @@ python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_P
 # CONFIG_PATH_HEUR_RUN_GA="${BASE_PATH}/config/config_heuristic_run_ga_tune_4.json"
 # python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN_GA" --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
-CONFIG_PATH_HEUR_RUN_PSO="${BASE_PATH}/config/config_heuristic_run_pso_tune.json"
-python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN_PSO" --coordinator_config "$CONFIG_PATH_COORDINATOR"
+# CONFIG_PATH_HEUR_RUN_PSO="${BASE_PATH}/config/config_heuristic_run_pso_tune.json"
+# python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN_PSO" --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
 # CONFIG_PATH_HEUR_RUN_PSO="${BASE_PATH}/config/config_heuristic_run_pso_tune_2.json"
 # python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN_PSO" --coordinator_config "$CONFIG_PATH_COORDINATOR"
+
+# Experiment 1.
+# TODO: Change config file paths and point to experiment 1 folder.
+CONFIG_PATH_EXPERIMENT_1="${BASE_PATH}/config/experiment_1/experiment_1.json"
+python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_EXPERIMENT_1" --coordinator_config "$CONFIG_PATH_COORDINATOR"

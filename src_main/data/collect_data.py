@@ -92,16 +92,22 @@ def collect_mh_run(mh, path, run, num_agents, num_iterations, heuristic_run_meta
     save_config_and_meta_data(fitness_values.tolist(), configurations.tolist(), heuristic_run_meta_data, heuristic_run, unix_time, csv_file_name, folder_path)
 
 
-'''
-    Collect the data from the hyperheuristic run.
+def save_hh_run_meta_data(path, best_sol, best_perf, hist_curr, hist_best, hh_run_meta_data):
+    # Define the metadata from the mh run.
+    metadata = {
+        "total_execution_time": hh_run_meta_data["total_execution_time"],
+        "heuristic_execution_time": hh_run_meta_data["heuristic_execution_time"],
+        "coordinator_execution_time": hh_run_meta_data["coordinator_execution_time"],
+        "simulation_execution_time": hh_run_meta_data["simulation_execution_time"],
+        "best_sol": best_sol,
+        "best_perf": best_perf,
+        "hist_curr": hist_curr,
+        "hist_best": hist_best
+    }
 
-    Args:
-        hh (Hyperheuristic): The hyperheuristic object.
-        path (str): The path to the data file.
-        file_name (str): The name of the data file.
-'''
-def collect_hh_run(hh, path, file_name):
-    pass
+    # Define the filename and write remaining data to JSON file.
+    json_file_name = "general.json"
+    write_data(metadata, path, json_file_name)
 
 
 def save_heur_iterations_data(fitness_values, configurations, unix_time, path):
@@ -138,7 +144,7 @@ def save_config_and_meta_data(fitness_values, configurations, heuristic_run_meta
     metadata = {
         "total_execution_time": heuristic_run_meta_data["total_execution_time"],
         "heuristic_execution_time": heuristic_run_meta_data["heuristic_execution_time"],
-        "coordinator_execution_time": heuristic_run_meta_data["coordinator_execution_time"],
+        "coordinator_and_simulation_execution_time": heuristic_run_meta_data["coordinator_and_simulation_execution_time"],
         "simulation_execution_time": heuristic_run_meta_data["simulation_execution_time"]
     }
 
@@ -163,6 +169,19 @@ def save_config_and_meta_data(fitness_values, configurations, heuristic_run_meta
         path (str): The path to the data file.
 '''
 def write_data(data, path, file_name):
+    # Check if the data is an ndarray and convert to list if necessary
+    if isinstance(data, np.ndarray):
+        data = data.tolist()
+
+    # If the data is a dictionary, recursively convert any ndarrays in its values
+    elif isinstance(data, dict):
+        data = {key: (value.tolist() if isinstance(value, np.ndarray) else value) for key, value in data.items()}
+
+    # Similarly handle lists of ndarrays
+    elif isinstance(data, list):
+        data = [(item.tolist() if isinstance(item, np.ndarray) else item) for item in data]
+
+    # Save data structure.
     os.makedirs(path, exist_ok=True)
     with open( os.path.join(path, file_name) , "w") as file:
         json.dump(data, file, indent=4)
@@ -292,3 +311,30 @@ def determine_cable_occurrences(best_configuration_values):
     _, counts = np.unique(value_indices, return_counts=True)
 
     return param_values, counts
+
+
+'''
+    Calculate the distinct components of the heuristic run.
+
+    Args:
+        start_time (float): The start time of the heuristic run.
+        end_time (float): The end time of the heuristic run.
+        heur_sim_coordinator (HeuristicSimulationCoordinator): The coordinator object for the heuristic simulation workflow.
+
+    Returns:
+        dict: The distinct components of the heuristic run.
+'''
+def calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator):
+
+    # Caculate the distinct execution times for the distinct components of the heuristic run.
+    total_execution_time = end_time - start_time
+    simulation_execution_time = heur_sim_coordinator.simulation_execution_time
+    coordinator_execution_time = heur_sim_coordinator.coordinator_and_simulation_execution_time - heur_sim_coordinator.simulation_execution_time
+    heuristic_execution_time = total_execution_time - heur_sim_coordinator.coordinator_and_simulation_execution_time
+
+    return {
+        "total_execution_time": total_execution_time,
+        "heuristic_execution_time": heuristic_execution_time,
+        "coordinator_execution_time": coordinator_execution_time,
+        "simulation_execution_time": simulation_execution_time
+    }

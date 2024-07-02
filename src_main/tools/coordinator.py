@@ -42,7 +42,7 @@ class HeuristicSimulationCoordinator:
         self.nr_of_backbone_switches = nr_of_backbone_switches
 
         # Predefine the parameters for the execution times.
-        self.coordinator_execution_time = 0
+        self.coordinator_and_simulation_execution_time = 0
         self.simulation_execution_time = 0
 
         self.uids = []
@@ -243,7 +243,7 @@ class HeuristicSimulationCoordinator:
             end_time = time.time()
 
             # Add simulation run time to total coordinator time.
-            self.coordinator_execution_time += end_time - start_time
+            self.coordinator_and_simulation_execution_time += end_time - start_time
 
             sim_ids.clear()
             if self.remove_sim_instance_configurations:
@@ -271,7 +271,7 @@ class HeuristicSimulationCoordinator:
             end_time = time.time()
 
             # Add simulation run time to total coordinator time.
-            self.coordinator_execution_time += end_time - start_time
+            self.coordinator_and_simulation_execution_time += end_time - start_time
 
             if self.remove_sim_instance_configurations:
                 self.remove_simulation_instance_configurations()

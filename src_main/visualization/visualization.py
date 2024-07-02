@@ -17,7 +17,7 @@ def get_execution_times_from_config(config_path, visualization_path, type):
     conf = Config(config_path, visualization_path, "execution_times")
     metrics = ["nr_of_components", "nr_of_iterations", "metadata"]
     keys = ["nr_of_components" if type == "components" else "nr_of_iterations", "total_execution_time",
-            "heuristic_execution_time", "coordinator_execution_time", "simulation_execution_time"]
+            "heuristic_execution_time", "coordinator_and_simulation_execution_time", "simulation_execution_time"]
     values = [conf.tryGet(metric) if metric in metrics else conf.tryGet("metadata", metric) for metric in keys]
     return [round(value / 60, 1) if "time" in key else value for key, value in zip(keys, values)]
 
