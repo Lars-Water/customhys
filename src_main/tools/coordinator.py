@@ -1,7 +1,7 @@
-from hmac import new
 from src_main.tools.logger import logger
 from src_main.data.collect_data import DataCollector
 import src_main.tools.simulation_config.inet_config as inet_config
+import src_main.tools.file_operations as fo
 
 import os
 import shutil
@@ -93,7 +93,9 @@ class HeuristicSimulationCoordinator:
         self.logger.info("Determine flags for coordinator functionalities.")
         self.store_design_points_metrics_values = self.conf.tryGet("coordinator_functionalities", "store_design_points_metrics_values")
         self.remove_sim_instance_output = self.conf.tryGet("coordinator_functionalities", "remove_sim_instance_output")
-        self.remove_sim_instance_configurations = self.conf.tryGet("coordinator_functionalities", "remove_sim_instance_configurations")
+        self.remove_sim_instance_experiments_folder = self.conf.tryGet("coordinator_functionalities", "remove_sim_instance_experiments_folder")
+        self.remove_design_point_configuration_dummy_path = self.conf.tryGet("coordinator_functionalities", "remove_design_point_configuration_dummy_path")
+        self.remove_design_point_configuration_sims_path = self.conf.tryGet("coordinator_functionalities", "remove_design_point_configuration_sims_path")
 
         self.logger.info("Define the paths for the simulation model results.")
         self.results_path = self.conf.tryGet("results_path")
@@ -246,8 +248,15 @@ class HeuristicSimulationCoordinator:
             self.coordinator_and_simulation_execution_time += end_time - start_time
 
             sim_ids.clear()
-            if self.remove_sim_instance_configurations:
-                self.remove_simulation_instance_configurations()
+            if self.remove_design_point_configuration_dummy_path:
+                self.logger.debug("Removing simulation run templates in dummy path.")
+                fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_*")
+            if self.remove_design_point_configuration_sims_path:
+                self.logger.debug("Removing simulation run templates in sims path.")
+                fo.remove_design_point_configurations_sims_path(self.sims_path)
+            if self.remove_sim_instance_experiments_folder:
+                self.logger.debug("Removing simulation instances from experiments folder.")
+                fo.remove_sim_instance_folders(self.data_path, uids)
 
             return 0
 
@@ -273,8 +282,9 @@ class HeuristicSimulationCoordinator:
             # Add simulation run time to total coordinator time.
             self.coordinator_and_simulation_execution_time += end_time - start_time
 
-            if self.remove_sim_instance_configurations:
-                self.remove_simulation_instance_configurations()
+            if self.remove_design_point_configuration_dummy_path:
+                self.logger.debug("Removing simulation run templates in dummy path.")
+                fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_*")
 
             # self.logger.info("Fitness value: {}".format(fitness_value))
             return fitness_value[0]
@@ -509,33 +519,6 @@ class HeuristicSimulationCoordinator:
         return uids
 
 
-    def remove_simulation_instance_configurations(self):
-        """
-        Removes simulation run templates from the dummy path and sims path.
-
-        This method removes all the simulation run templates that match the pattern
-        "custom_dummy_*" from the dummy path and also removes the entire sims path.
-        After removing the templates and sims path, it recreates the sims path.
-
-        Args:
-            None
-
-        Returns:
-            None
-        """
-        self.logger.info("Removing simulation run templates in dummy path.")
-        pattern = "custom_dummy_*"
-        simulation_run_dir_pattern = os.path.join(self.sim_dummy_directory, pattern)
-        matching_sim_dummy_dir = [path for path in glob.glob(simulation_run_dir_pattern) if os.path.isdir(path)]
-        for directory in matching_sim_dummy_dir:
-            shutil.rmtree(directory)
-
-        # TODO: Should I make a distinct function of the removal from the sims path?
-        # self.logger.info("Removing simulation run templates in sims path.")
-        # shutil.rmtree(self.sims_path)
-        # os.makedirs(self.sims_path)
-
-
     def get_datarate_cost_boundaries(self):
         return self.min_datarate, self.max_datarate, self.min_cost, self.max_cost
 
@@ -600,8 +583,9 @@ class HeuristicSimulationCoordinator:
 
                 sim_ids.clear()
 
-        if self.remove_sim_instance_configurations:
-            self.remove_simulation_instance_configurations()
+        if self.remove_design_point_configuration_dummy_path:
+            self.logger.debug("Removing simulation run templates in dummy path.")
+            fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_*")
 
 
     def determine_boundary_value(self, sim_uid, parameter, boundary):
@@ -670,8 +654,9 @@ class HeuristicSimulationCoordinator:
             self.determine_sim_instance_parameter_tuning_results(sim_uid, parameter_names)
 
         sim_ids.clear()
-        if self.remove_sim_instance_configurations:
-            self.remove_simulation_instance_configurations()
+        if self.remove_design_point_configuration_dummy_path:
+            self.logger.debug("Removing simulation run templates in dummy path.")
+            fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_*")
 
 
     '''
@@ -765,8 +750,9 @@ class HeuristicSimulationCoordinator:
         self.determine_design_point_metrics(uids)
 
         sim_ids.clear()
-        if self.remove_sim_instance_configurations:
-            self.remove_simulation_instance_configurations()
+        if self.remove_design_point_configuration_dummy_path:
+            self.logger.debug("Removing simulation run templates in dummy path.")
+            fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_*")
 
 
     def determine_design_point_metrics(self, uids):
