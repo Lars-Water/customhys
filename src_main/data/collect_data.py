@@ -9,7 +9,7 @@ from pathlib import Path
 
 from src_main.tools.config_reader import Config
 from src_main.visualization import visualization
-import src_main.tools.simulation_config.inet_config as inet_config
+import src_main.tools.component_config as component_config
 
 
 class DataCollector:
@@ -64,12 +64,12 @@ class DataCollector:
         mh (Metaheuristic): The metaheuristic object.
         path (str): The path to the data file.
 '''
-def collect_mh_run(mh, path, run, num_agents, num_iterations, heuristic_run_meta_data):
+def collect_mh_run(mh, path, nr_of_components, num_agents, num_iterations, heuristic_run_meta_data):
 
     heuristic_run = dict()
 
     heuristic_run = {
-        "nr_of_components": run,
+        "nr_of_components": nr_of_components,
         "nr_of_agents": num_agents,
         "nr_of_iterations": num_iterations
     }
@@ -144,7 +144,7 @@ def save_config_and_meta_data(fitness_values, configurations, heuristic_run_meta
     metadata = {
         "total_execution_time": heuristic_run_meta_data["total_execution_time"],
         "heuristic_execution_time": heuristic_run_meta_data["heuristic_execution_time"],
-        "coordinator_and_simulation_execution_time": heuristic_run_meta_data["coordinator_and_simulation_execution_time"],
+        "coordinator_execution_time": heuristic_run_meta_data["coordinator_execution_time"],
         "simulation_execution_time": heuristic_run_meta_data["simulation_execution_time"]
     }
 
@@ -224,7 +224,7 @@ def vizualize_mh_runs(nr_of_backbone_switches):
             template_ini_file_path = os.path.join("/home/larry/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/dummy_sim_lans", "largeNet.ini")
             design_point_ini_file_path = os.path.join(processed_run_path, "best_configuration.ini")
             best_solution_configurations = generate_best_configuration_values(np.array(best_configuration_values))
-            inet_config.generate_inet_lans_config(template_ini_file_path, design_point_ini_file_path, best_solution_configurations, nr_of_backbone_switches)
+            component_config.generate_inet_lans_config(template_ini_file_path, design_point_ini_file_path, best_solution_configurations, nr_of_backbone_switches)
 
             # Vizualize best configuration.
             param_values, counts = determine_cable_occurrences(best_configuration_values)

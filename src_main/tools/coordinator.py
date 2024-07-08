@@ -1,6 +1,6 @@
 from src_main.tools.logger import logger
 from src_main.data.collect_data import DataCollector
-import src_main.tools.simulation_config.inet_config as inet_config
+import src_main.tools.component_config as component_config
 import src_main.tools.file_operations as fo
 
 import os
@@ -176,7 +176,7 @@ class HeuristicSimulationCoordinator:
 
         # TODO: Change the hardcoded number of backbone switches to a variable.
         # Write a new ini file with the parameter configurations.
-        inet_config.generate_inet_lans_config(
+        component_config.generate_inet_lans_config(
             template_ini_file_path,
             design_point_ini_file_path,
             agent_configuration,

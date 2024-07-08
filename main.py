@@ -13,7 +13,7 @@ from src_main.tools.config_reader import Config
 import src_main.tools.coordinator as coordinator
 import src_main.models.model as model
 from src_main.data import collect_data
-from src_main.experiment_flows import experiment_1
+from src_main.experiment_flows import experiment_1, experiment_2
 
 from customhys import metaheuristic as mh
 from customhys import hyperheuristic as hh
@@ -33,51 +33,51 @@ def remove_directory(directory_path):
         print(f'Failed to delete {directory_path}. Reason: {e}')
 
 
-'''
-    Run the metaheuristic search operator.
+# '''
+#     Run the metaheuristic search operator.
 
-    Args:
-        heuristic_run_config (Config): The configuration object for the heuristic run.
-        heur_sim_coordinator (HeuristicSimulationCoordinator): The coordinator object for the heuristic simulation workflow.
-        heuristics_collection (list): The collection of heuristics to be used in the metaheuristic.
-        num_agents (int): The number of agents in the metaheuristic.
-        num_iterations (int): The number of iterations for the metaheuristic.
-        base_path (string): Root of the project.
-        verbose (bool): The flag to indicate if the metaheuristic should run in verbose mode.
-'''
-def run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, num_agents, num_iterations, base_path, verbose=False):
+#     Args:
+#         heuristic_run_config (Config): The configuration object for the heuristic run.
+#         heur_sim_coordinator (HeuristicSimulationCoordinator): The coordinator object for the heuristic simulation workflow.
+#         heuristics_collection (list): The collection of heuristics to be used in the metaheuristic.
+#         num_agents (int): The number of agents in the metaheuristic.
+#         num_iterations (int): The number of iterations for the metaheuristic.
+#         base_path (string): Root of the project.
+#         verbose (bool): The flag to indicate if the metaheuristic should run in verbose mode.
+# '''
+# def run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, num_agents, num_iterations, base_path, verbose=False):
 
-    # Run the metaheuristic for every specified number of backbones.
-    runs_nr_of_backbones = heuristic_run_config.tryGet("runs_nr_of_backbones")
-    for run in runs_nr_of_backbones:
+#     # Run the metaheuristic for every specified number of backbones.
+#     runs_nr_of_backbones = heuristic_run_config.tryGet("runs_nr_of_backbones")
+#     for run in runs_nr_of_backbones:
 
-        # Start timer for the heuristic run.
-        start_time = time.time()
+#         # Start timer for the heuristic run.
+#         start_time = time.time()
 
-        # Create a problem instance for the metaheuristic.
-        prob = create_problem_instance(run, heur_sim_coordinator)
+#         # Create a problem instance for the metaheuristic.
+#         prob = create_problem_instance(run, heur_sim_coordinator)
 
-        # Generate a metaheuristic search method for the model.
-        met = mh.Metaheuristic(prob, heuristics_collection, num_agents=num_agents, num_iterations=num_iterations)
-        met.verbose = verbose
+#         # Generate a metaheuristic search method for the model.
+#         met = mh.Metaheuristic(prob, heuristics_collection, num_agents=num_agents, num_iterations=num_iterations)
+#         met.verbose = verbose
 
-        # Reset the execution times before starting the heuristic run.
-        heur_sim_coordinator.coordinator_and_simulation_execution_time = 0
-        heur_sim_coordinator.simulation_execution_time = 0
+#         # Reset the execution times before starting the heuristic run.
+#         heur_sim_coordinator.coordinator_and_simulation_execution_time = 0
+#         heur_sim_coordinator.simulation_execution_time = 0
 
-        # Run the metaheuristic on the problem. The fitness value is calculated at every iteration step by the run function in the SimulationModel class.
-        met.run()
+#         # Run the metaheuristic on the problem. The fitness value is calculated at every iteration step by the run function in the SimulationModel class.
+#         met.run()
 
-        # End timer for the heuristic run.
-        end_time = time.time()
+#         # End timer for the heuristic run.
+#         end_time = time.time()
 
-        heuristic_run_meta_data = calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator)
+#         heuristic_run_meta_data = calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator)
 
-        # Save the heuristic run data.
-        save_run_path = os.path.join(base_path, "data/raw/results/metaheuristic/", heuristic_run_config.tryGet('save_run_path_heuristic_name'))
-        collect_data.collect_mh_run(met,save_run_path,run,num_agents,num_iterations,heuristic_run_meta_data)
+#         # Save the heuristic run data.
+#         save_run_path = os.path.join(base_path, "data/raw/results/metaheuristic/", heuristic_run_config.tryGet('save_run_path_heuristic_name'))
+#         collect_data.collect_mh_run(met,save_run_path,run,num_agents,num_iterations,heuristic_run_meta_data)
 
-    return
+#     return
 
 
 '''
@@ -105,68 +105,6 @@ def calculate_distinct_simulation_components(start_time, end_time, heur_sim_coor
         "coordinator_and_simulation_execution_time": coordinator_and_simulation_execution_time,
         "simulation_execution_time": simulation_execution_time
     }
-
-
-'''
-    Define the heuristic operators to be used in the metaheuristic.
-
-    Returns:
-        list: The collection of heuristic operators to be used in the CUSTOMHys heuristic component.
-'''
-def define_heuristic_operators(heuristic_run_config):
-    heursitic_operators = heuristic_run_config.tryGet("heuristic_collection")
-    return [
-        (
-            heursitic_operator["name"],
-            heursitic_operator["params"],
-            heursitic_operator["strategy"]
-        )
-        for heursitic_operator in heursitic_operators
-    ]
-
-
-def create_problem_instance(run, heur_sim_coordinator):
-    """
-    Create a problem instance for the CUSTOMHys framework.
-
-    Args:
-        run (int): The number of runs for the problem instance.
-        heur_sim_coordinator (object): The heuristic simulation coordinator object.
-
-    Returns:
-        obj: The formatted problem instance.
-
-    """
-    subnet_structure = dict()
-
-    nr_of_backbone_cables = run - 1
-
-    # Create a formulation of the problem instance.
-    subnet_structure["boundaries"] = {
-        f"cable_{i}": [0, 1] for i in range(1, nr_of_backbone_cables + 1)
-    }
-    subnet_structure["optimal_solution"] = [0.9] * run,
-    subnet_structure["optimal_fitness"] = 30
-
-    # TODO: Initialize model object from here instead of calling the generate_instance method.
-    # Create a problem instance from the formulation.
-    boundaries = {
-        "datarate": {
-            "max": heur_sim_coordinator.max_datarate,
-            "min": heur_sim_coordinator.min_datarate
-        },
-        "cost": {
-            "max": heur_sim_coordinator.max_cost,
-            "min": heur_sim_coordinator.min_cost
-        }
-    }
-    problem_instance = model.generate_instance(
-        run,
-        subnet_structure,
-        heur_sim_coordinator.simulation_run,
-        boundaries
-    )
-    return problem_instance.get_formatted_problem()
 
 
 def quick_and_dirty_hh_multiplot(directory_path):
@@ -269,28 +207,38 @@ def quick_and_dirty_save_hh_positions_to_xlsx():
 '''
 def main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning, design_space_plot, nr_of_backbone_switches):
     # # Set up the general heuristic run configuration.
-    # if heur_run_config_file_path:
+    if heur_run_config_file_path:
 
-    #     # Set up the experiment_1 configuration object.
-    #     experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_1/experiment_1.json"))
-    #     experiment_1_log_path = os.path.join(base_path, "data/logs/experiments/experiment_1")
-    #     os.makedirs(experiment_1_log_path, exist_ok=True)
-    #     config_manager_filename = f"experiment_1_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-    #     experiment_1_config = Config(experiment_1_config_file_path, Path(experiment_1_log_path), config_manager_filename)
+        # Set up the experiment_2 configuration object.
+        experiment_2_config_file_path = Path(os.path.join(base_path, "config/experiment_2/experiment_2.json"))
+        experiment_2_log_path = os.path.join(base_path, "data/logs/experiments/experiment_2")
+        os.makedirs(experiment_2_log_path, exist_ok=True)
+        config_manager_filename = f"experiment_2_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        experiment_2_config = Config(experiment_2_config_file_path, Path(experiment_2_log_path), config_manager_filename)
 
-    #     # Create the coordinator for the heuristic simulation workflow.
-    #     # TODO: Change this naming flow, because it goes from main, to coordinator, to data collector.
-    #     nr_of_agents = experiment_1_config.tryGet("hh_parameters", "num_agents")
-    #     run_name = "experiment_1"
-    #     heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches) # noqa 501
+        # Run Experiment 2.
+        experiment_2.run_experiment(base_path, experiment_2_config, coordinator_config_file_path)
 
-    #     # Run Experiment 1.
-    #     min_datarate, max_datarate, min_cost, max_cost = heur_sim_coordinator.get_datarate_cost_boundaries()
-    #     experiment_1.run_experiment(experiment_1_config, heur_sim_coordinator, nr_of_backbone_switches)
+        # # Set up the experiment_1 configuration object.
+        # experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_1/experiment_1.json"))
+        # experiment_1_log_path = os.path.join(base_path, "data/logs/experiments/experiment_1")
+        # os.makedirs(experiment_1_log_path, exist_ok=True)
+        # config_manager_filename = f"experiment_1_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        # experiment_1_config = Config(experiment_1_config_file_path, Path(experiment_1_log_path), config_manager_filename)
 
-    #     # heuristic_run_log_path = os.path.join(base_path, "data/logs/heuristic_run/")
-    #     # os.makedirs(heuristic_run_log_path, exist_ok=True)
-    #     # heuristic_run_config = Config(heur_run_config_file_path, Path(heuristic_run_log_path), "heuristic_run_config_manager")
+        # # Create the coordinator for the heuristic simulation workflow.
+        # # TODO: Change this naming flow, because it goes from main, to coordinator, to data collector.
+        # nr_of_agents = experiment_1_config.tryGet("hh_parameters", "num_agents")
+        # run_name = "experiment_1"
+        # heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches) # noqa 501
+
+        # # Run Experiment 1.
+        # min_datarate, max_datarate, min_cost, max_cost = heur_sim_coordinator.get_datarate_cost_boundaries()
+        # experiment_1.run_experiment(experiment_1_config, heur_sim_coordinator, nr_of_backbone_switches)
+
+        # heuristic_run_log_path = os.path.join(base_path, "data/logs/heuristic_run/")
+        # os.makedirs(heuristic_run_log_path, exist_ok=True)
+        # heuristic_run_config = Config(heur_run_config_file_path, Path(heuristic_run_log_path), "heuristic_run_config_manager")
 
     #     # # Obtain the configuration parameters for the heuristic run.
     #     # nr_of_agents = heuristic_run_config.tryGet("nr_of_agents")

@@ -5,6 +5,7 @@ from customhys import hyperheuristic as hh
 
 import src_main.models.model as model
 from src_main.data import collect_data
+from src_main.tools import component_config
 
 
 def determine_heuristic_space(search_operator_space_path):
@@ -29,39 +30,6 @@ def determine_heuristic_space(search_operator_space_path):
     return heurstic_space
 
 
-def create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, design_point_sim_run):
-    subnet_structure = dict()
-
-    nr_of_backbone_cables = nr_of_backbone_switches - 1
-
-    # Create a formulation of the problem instance.
-    subnet_structure["boundaries"] = {
-        f"cable_{i}": [0, 1] for i in range(1, nr_of_backbone_cables + 1)
-    }
-    subnet_structure["optimal_solution"] = [0.9] * nr_of_backbone_switches,
-    subnet_structure["optimal_fitness"] = 30
-
-    # TODO: Initialize model object from here instead of calling the generate_instance method.
-    # Create a problem instance from the formulation.
-    boundaries = {
-        "datarate": {
-            "max": max_datarate,
-            "min": min_datarate
-        },
-        "cost": {
-            "max": max_cost,
-            "min": min_cost
-        }
-    }
-    problem_instance = model.generate_instance(
-        nr_of_backbone_switches,
-        subnet_structure,
-        design_point_sim_run,
-        boundaries
-    )
-    return problem_instance.get_formatted_problem()
-
-
 def run_experiment(experiment_config, heur_sim_coordinator, nr_of_backbone_switches):
     '''
         Experimental run of tuning the parameters of any provided search operators.
@@ -71,7 +39,7 @@ def run_experiment(experiment_config, heur_sim_coordinator, nr_of_backbone_switc
 
     # Create problem instance.
     min_datarate, max_datarate, min_cost, max_cost = heur_sim_coordinator.get_datarate_cost_boundaries()
-    prob = create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator.simulation_run)
+    prob = component_config.create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator.simulation_run)
 
     save_runs = []
 

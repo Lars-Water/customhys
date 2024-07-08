@@ -1,0 +1,14 @@
+{
+    "nr_of_agents": 16,
+    "nr_of_iterations": 50,
+    "nr_of_backbones": [50, 200, 500],
+    "metaheuristics_paths": [
+        "config/experiment_2/metaheuristics/ga.json",
+        "config/experiment_2/metaheuristics/pso.json",
+        "config/experiment_2/metaheuristics/gravitational.json"
+    ],
+    "hyperheuristic": [],
+    "search_operator_space_paths": [
+        "config/experiment_2/search_operator_space/gravitational.txt"
+    ]
+}

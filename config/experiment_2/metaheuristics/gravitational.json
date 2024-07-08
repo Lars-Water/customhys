@@ -1,0 +1,13 @@
+{
+    "save_run_path_heuristic_name": "gravitational",
+    "metaheuristic": [
+        {
+            "name": "gravitational_search",
+            "params": {
+                "gravity": 0.5,
+                "alpha": 0.0
+            },
+            "strategy": "probabilistic"
+        }
+    ]
+}
