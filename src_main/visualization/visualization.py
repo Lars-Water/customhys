@@ -1,4 +1,6 @@
+import json
 import os
+import glob
 import numpy as np
 import pandas as pd
 
@@ -59,6 +61,25 @@ def find_non_dominated_points(df, x_col, y_col):
             best_y = row[y_col]
 
     return non_dominated
+
+
+def find_files(directory, extension):
+    """
+    Find files with a specific extension in a given directory and its subdirectories.
+
+    Args:
+        directory (str): The directory to search for files.
+        extension (str): The file extension to filter the search.
+
+    Returns:
+        list: A list of file paths that match the given extension.
+
+    """
+    files = []
+    for root, _, _ in os.walk(directory):
+        for filename in glob.glob(os.path.join(root, f'*.{extension}')):
+            files.append(filename)
+    return files
 
 
 # Plotting functions
@@ -158,25 +179,19 @@ def plot_cable_occurrences_histogram(param_values, counts, output_path):
     plt.savefig(output_path)
 
 
-def quick_and_dirty_multiplot():
+def multiplot_metaheuristic_runs(directory):
     plt.figure()
 
-    output_path = Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/pso_swarm_conf")
-    data1 = pd.read_csv(Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/pso_swarm_conf/default/1716914576/convergence.csv"))
-    data1 = data1['best_fitness_value_untill_current_iteration'].values
-    plt.plot(data1, label="Default - PSO - Swarm Conf: 2.5")
-    data2 = pd.read_csv(Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/pso_swarm_conf/pso_tune_swarm_conf_0_01/1717079252/convergence.csv"))
-    data2 = data2['best_fitness_value_untill_current_iteration'].values
-    plt.plot(data2, label="PSO - Swarm Conf: 0.01")
-    data3 = pd.read_csv(Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/pso_swarm_conf/pso_tune_swarm_conf_4_99/1717076328/convergence.csv"))
-    data3 = data3['best_fitness_value_untill_current_iteration'].values
-    plt.plot(data3, label="PSO - Swarm Conf: 4.99")
-    # data4 = pd.read_csv(Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/ga_genmut_mutrate/ga_tune_genmut_mutrate_0_6/1717117393/convergence.csv"))
-    # data4 = data4['best_fitness_value_untill_current_iteration'].values
-    # plt.plot(data4, label="Mutation Rate: 0.6")
-    # data5 = pd.read_csv(Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/ga_genmut_mutrate/ga_tune_genmut_mutrate_0_9/1717120764/convergence.csv"))
-    # data5 = data5['best_fitness_value_untill_current_iteration'].values
-    # plt.plot(data5, label="Mutation Rate: 0.9")
+    csv_files = find_files(directory, 'csv')
+    json_files = find_files(directory, 'json')
+    for csv_file, json_file in zip(csv_files, json_files):
+        meta_data = json.load(open(json_file))
+        data = pd.read_csv(Path(csv_file))
+        data = data['best_fitness_value_untill_current_iteration'].values
+        # Check if 'ga' is in the path
+        if 'ga' in Path(csv_file).parts:
+            data = data[1::2]  # Skip every even element (0, 2, 4, ...) because mh has two operators.
+        plt.plot(np.array(data), label=f"{meta_data['nr_of_components']} components - {meta_data['nr_of_agents']} agents")
 
     plt.title("Best Fitness Value After Each Iteration")
     plt.xlabel("Iteration")
@@ -184,7 +199,7 @@ def quick_and_dirty_multiplot():
     plt.yticks(np.arange(0, 1.0, step=0.1))
     plt.grid(True)
     plt.legend()
-    plt.savefig(output_path)
+    plt.savefig(directory)
     plt.close()
 
 
