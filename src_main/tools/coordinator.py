@@ -1,5 +1,4 @@
-from pdb import run
-from src_main.tools.logger import logger
+from src_main.tools.logger import logger, setLevelLogger
 from src_main.data.collect_data import DataCollector
 import src_main.tools.component_config as component_config
 import src_main.tools.file_operations as fo
@@ -52,6 +51,7 @@ class HeuristicSimulationCoordinator:
         coordinator_log_path = os.path.join(self._base_path, "data/logs/coordinator")
         os.makedirs(coordinator_log_path, exist_ok=True)
         self.logger = logger("coordinator", coordinator_log_path)
+        setLevelLogger(self.logger, "INFO")
 
         self.logger.info("Reading coordinator config file.")
         self.conf = Config(coordinator_config_file_path, Path(coordinator_log_path), "coordinator_config_manager")
