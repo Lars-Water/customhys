@@ -1,3 +1,4 @@
+from pdb import run
 from src_main.tools.logger import logger
 from src_main.data.collect_data import DataCollector
 import src_main.tools.component_config as component_config
@@ -34,12 +35,12 @@ class HeuristicSimulationCoordinator:
             coordinator_config_file_path: The path to the configuration file of the coordinator.
             nr_of_agents: The number of agents to run the simulation model with.
     '''
-    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches=6):
-        self.base_path = base_path
-        self.nr_of_agents = nr_of_agents
-        self.nr_of_sims = nr_of_agents
-        self.run_name = run_name
-        self.nr_of_backbone_switches = nr_of_backbone_switches
+    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, run_name=None, nr_of_backbone_switches=6):
+        self._base_path = base_path
+        self._nr_of_agents = nr_of_agents
+        self._nr_of_sims = nr_of_agents
+        self._run_name = run_name
+        self._nr_of_backbone_switches = nr_of_backbone_switches
 
         # Predefine the parameters for the execution times.
         self.coordinator_and_simulation_execution_time = 0
@@ -48,7 +49,7 @@ class HeuristicSimulationCoordinator:
         self.uids = []
 
         # Set up the logger.
-        coordinator_log_path = os.path.join(self.base_path, "data/logs/coordinator")
+        coordinator_log_path = os.path.join(self._base_path, "data/logs/coordinator")
         os.makedirs(coordinator_log_path, exist_ok=True)
         self.logger = logger("coordinator", coordinator_log_path)
 
@@ -61,7 +62,7 @@ class HeuristicSimulationCoordinator:
         num_nodes = self.conf.tryGet("simulation_model", "simulation_model_configuration", "num_nodes")
         num_workers = self.conf.tryGet("simulation_model", "simulation_model_configuration", "num_workers")
         time_stamp = time.strftime("%Y%m%d_%H%M%S")
-        self.data_path = os.path.join(experiments_path, "data", f"campaign_{sim_model}", f"n{str(num_nodes)}_w{str(num_workers)}_s{str(self.nr_of_sims)}", time_stamp)
+        self.data_path = os.path.join(experiments_path, "data", f"campaign_{sim_model}", f"n{str(num_nodes)}_w{str(num_workers)}_s{str(self._nr_of_sims)}", time_stamp)
 
         # Define params for configuration file creation.
         workflow_config_file = os.path.join(self.data_path, "config.json")
@@ -122,6 +123,35 @@ class HeuristicSimulationCoordinator:
             self.logger.info(f"Minimum cost is: {self.min_cost}")
 
 
+    def set_run_name(self, run_name):
+        """
+        Sets the name of the run.
+
+        Parameters:
+        - run_name (str): The name of the run.
+        """
+        if not isinstance(run_name, str):
+            raise ValueError("Run name must be a string.")
+        self._run_name = run_name
+        self.logger.info(f"Run name set to {self._run_name}")
+
+
+    def set_nr_of_backbone_switches(self, nr_of_backbone_switches):
+        """
+        Sets the number of backbone switches.
+
+        Args:
+            nr_of_backbone_switches (int): The number of backbone switches to set.
+
+        """
+        if nr_of_backbone_switches < 0:
+            raise ValueError("Number of backbone switches cannot be negative")
+        elif nr_of_backbone_switches < 6:
+            raise ValueError("Number of backbone switches cannot be less than 6")
+        self._nr_of_backbone_switches = nr_of_backbone_switches
+        self.logger.info(f"Number of backbone switches set to {self._nr_of_backbone_switches}")
+
+
     def create_relevant_cluster_config(self):
         """
         Creates a relevant cluster configuration based on the platform specified in the coordinator configuration.
@@ -180,7 +210,7 @@ class HeuristicSimulationCoordinator:
             template_ini_file_path,
             design_point_ini_file_path,
             agent_configuration,
-            self.nr_of_backbone_switches
+            self._nr_of_backbone_switches
         )
 
 
@@ -195,7 +225,7 @@ class HeuristicSimulationCoordinator:
             None
         """
         self.logger.info(f"Storing fitness values locally at {self.agents_fitness_dir_relative_path}")
-        agents_fitness_dir = os.path.join(self.base_path, self.agents_fitness_dir_relative_path)
+        agents_fitness_dir = os.path.join(self._base_path, self.agents_fitness_dir_relative_path)
         os.makedirs(agents_fitness_dir, exist_ok=True)
         fitness_values_file_path = os.path.join(agents_fitness_dir, "fitness_values.json")
         if os.path.exists(fitness_values_file_path):
@@ -219,7 +249,7 @@ class HeuristicSimulationCoordinator:
         # Start timer for simulation run.
         start_time = time.time()
         # TODO: Merge the following two if statements into one. -> CUSTOMHys should be able to handle both situations?
-        if self.nr_of_agents > 1:
+        if self._nr_of_agents > 1:
             self.logger.info(f"Determining the simulation model parameters for the configuration values.")
             configurations = self.set_agents_param_values(config_values)
             sim_ids = []
@@ -432,7 +462,7 @@ class HeuristicSimulationCoordinator:
             # Store design point metrics output.
             if self.store_design_points_metrics_values:
                 self.logger.info(f"Storing metrics output values for siminstance {sim_uid}.")
-                self.data_collector.store_design_point_metrics(latency_df, cost_df, sim_uid, self.run_name)
+                self.data_collector.store_design_point_metrics(latency_df, cost_df, sim_uid, self._run_name)
 
             # Remove the csv file.
             if self.remove_sim_instance_output:
@@ -461,7 +491,7 @@ class HeuristicSimulationCoordinator:
             dict: A dictionary containing the UID of the evaluated simulation instance and its corresponding value.
         """
         start_time = time.time()
-        sim_instances = [create_sim_inet_lans_dummy(self.config, self.dummy_sim_path, uuid.uuid4(), self.inet_path) for _ in range(self.nr_of_sims)]
+        sim_instances = [create_sim_inet_lans_dummy(self.config, self.dummy_sim_path, uuid.uuid4(), self.inet_path) for _ in range(self._nr_of_sims)]
 
         uid = sim_instances[0].uid
         if uid in self.uids:
@@ -563,11 +593,11 @@ class HeuristicSimulationCoordinator:
                         "value": value
                     },
                     {
-                        "config_pattern": f"**.switchBB[1..{self.nr_of_backbone_switches-2}].ethg$o[0..1].channel.{parameter}",
+                        "config_pattern": f"**.switchBB[1..{self._nr_of_backbone_switches-2}].ethg$o[0..1].channel.{parameter}",
                         "value": value
                     },
                     {
-                        "config_pattern": f"**.switchBB[{self.nr_of_backbone_switches-1}].ethg$o[0].channel.{parameter}",
+                        "config_pattern": f"**.switchBB[{self._nr_of_backbone_switches-1}].ethg$o[0].channel.{parameter}",
                         "value": value
                     }
                 ]
@@ -643,7 +673,7 @@ class HeuristicSimulationCoordinator:
                     self.ini_file_template_path,
                     sim_instance_ini_file_path,
                     {parameter_name: parameter_value},
-                    self.nr_of_backbone_switches
+                    self._nr_of_backbone_switches
                 )
 
         self.logger.info("Evaluating the generated simulation instances.")
@@ -727,7 +757,7 @@ class HeuristicSimulationCoordinator:
         self.logger.info("Determining the design space for the simulation model.")
         cable_options = self.conf.tryGet("cable_options")
         sim_ids = []
-        for permutation in itertools.product(cable_options, repeat=self.nr_of_backbone_switches):
+        for permutation in itertools.product(cable_options, repeat=self._nr_of_backbone_switches):
             sim_id = uuid.uuid4()
             sim_ids.append(sim_id)
             sim_instance_path = self.generated_simulation_model_path + f"_{sim_id}"
@@ -781,7 +811,7 @@ class HeuristicSimulationCoordinator:
             cost_df = cost_df[cost_df["name"] == "cost"]
 
             # Store design point metrics output.
-            self.data_collector.store_design_point_metrics(latency_df, cost_df, sim_uid, self.run_name)
+            self.data_collector.store_design_point_metrics(latency_df, cost_df, sim_uid, self._run_name)
 
 
     @staticmethod

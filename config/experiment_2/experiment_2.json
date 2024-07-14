@@ -3,12 +3,32 @@
     "nr_of_iterations": 50,
     "nr_of_backbones": [50, 200, 500],
     "metaheuristics_paths": [
-        "config/experiment_2/metaheuristics/ga.json",
         "config/experiment_2/metaheuristics/pso.json",
         "config/experiment_2/metaheuristics/gravitational.json"
     ],
-    "hyperheuristic": [],
+    "hh_parameters": {
+        "cardinality": 2,
+        "cardinality_min": 1,
+        "num_iterations": 10,
+        "num_agents": 16,
+        "as_mh": true,
+        "num_replicas": 1,
+        "num_steps": 50,
+        "stagnation_percentage": 0.37,
+        "max_temperature": 100,
+        "min_temperature": 1e-6,
+        "cooling_rate": 1e-3,
+        "temperature_scheme": "fast",
+        "acceptance_scheme": "exponential",
+        "allow_weight_matrix": true,
+        "trial_overflow": false,
+        "learnt_dataset": null,
+        "repeat_operators": false,
+        "verbose": true,
+        "learning_portion": 0.37,
+        "solver": "static"
+    },
     "search_operator_space_paths": [
-        "config/experiment_2/search_operator_space/gravitational.txt"
+        "config/experiment_2/search_operator_space/experiment_1_result.txt"
     ]
 }

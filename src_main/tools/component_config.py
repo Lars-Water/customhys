@@ -7,6 +7,28 @@ from src_main.tools.config_reader import Config
 from customhys import metaheuristic as mh
 
 
+def determine_heuristic_space(search_operator_space_path):
+    # Open the file for reading
+    with open(search_operator_space_path, 'r') as file:
+        # Read all lines from the file
+        lines = file.readlines()
+
+    # Initialize an empty list to store the tuples
+    heurstic_space = []
+
+    # Iterate over each line in the file
+    for line in lines:
+        # Strip any leading/trailing whitespace from the line
+        line = line.strip()
+        # Use eval to convert the string representation of the tuple into an actual tuple
+        tuple_item = eval(line)
+        # Append the tuple to the list
+        heurstic_space.append(tuple_item)
+
+    # Print the list of tuples
+    return heurstic_space
+
+
 def create_mh(metaheuristic_path, metaheuristic_name, nr_of_agents, nr_of_iterations, prob, base_path, verbose=False):
     full_metaheuristic_path = Path(os.path.join(base_path, metaheuristic_path))
 
