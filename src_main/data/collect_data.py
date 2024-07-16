@@ -57,6 +57,65 @@ class DataCollector:
         append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
 
 
+def read_json_files(directory_path):
+    """
+    Reads every JSON file in the specified directory and returns their contents as a list of dictionaries.
+
+    Parameters:
+        directory_path (str): The path to the directory containing JSON files.
+
+    Returns:
+        list: A list of dictionaries, each representing the contents of a JSON file.
+    """
+    json_contents = []
+
+    # Check if the specified path is a directory
+    if not os.path.isdir(directory_path):
+        raise NotADirectoryError(f"The path '{directory_path}' is not a valid directory.")
+
+    # List all files in the directory
+    for file_name in os.listdir(directory_path):
+        # Check if the file is a JSON file
+        if file_name.endswith('.json'):
+            file_path = os.path.join(directory_path, file_name)
+
+            # Open and read the JSON file
+            with open(file_path, 'r', encoding='utf-8') as json_file:
+                try:
+                    data = json.load(json_file)
+                    json_contents.append(data)
+                except json.JSONDecodeError as e:
+                    print(f"Error decoding JSON from file '{file_name}': {e}")
+
+    return json_contents
+
+
+def quick_and_dirty_save_hh_positions_to_xlsx(hh_run_path, nr_of_backbone_switches, rescale=False):
+    centre_boundaries = [0.5] * nr_of_backbone_switches-1
+    span_boundaries = [1.0] * nr_of_backbone_switches-1
+    hh_steps = read_json_files(hh_run_path)
+
+    # Initialize a list to store the rescaled or original positions
+    positions_list = []
+
+    # Loop through the positions
+    for method, positions in positions_data.items():
+        for category, position_list in positions.items():
+            if rescale:
+                processed_positions = quick_and_dirty_rescale_back_positions(position_list, centre_boundaries, span_boundaries)
+            else:
+                processed_positions = [math.ceil(position * 4) if math.ceil(position * 4) != 0 else 1 for position in position_list]
+            positions_list.append([method, category] + processed_positions)
+
+    # Convert to a DataFrame
+    columns = ['Operator', 'Type'] + [f'Position_{i+1}' for i in range(50)]
+    positions_df = pd.DataFrame(positions_list, columns=columns)
+
+    # Write the DataFrame to an Excel file
+    excel_filename = 'rescaled_positions.xlsx'
+    positions_df.to_excel(excel_filename, index=False)
+
+
 '''
     Collect the data from the metaheuristic run.
 

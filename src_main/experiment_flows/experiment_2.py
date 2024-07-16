@@ -40,14 +40,14 @@ def _run_mh(metaheuristic_path, nr_of_agents, nr_of_iterations, prob, base_path,
     collect_data.collect_mh_run(met, save_run_path, nr_of_backbones, nr_of_agents, nr_of_iterations, heuristic_run_meta_data)
 
 
-def _run_hh(experiment_config, prob, heur_sim_coordinator):
+def _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones):
     # Run the Hyperheuristic of the metaheuristics run above.
     search_operator_space_path = experiment_config.tryGet('search_operator_space_path')
     search_operator_space_name = experiment_config.tryGet('search_operator_space_name')
 
     # Define experiment name.
     timestamp = int(time.time())
-    experiment_name = f"experiment_2_{search_operator_space_name}_{str(timestamp)}"
+    experiment_name = f"experiment_2_{nr_of_backbones}_{search_operator_space_name}_{str(timestamp)}"
 
     # Determine the hyperheuristic search space.
     heuristic_space = component_config.determine_heuristic_space(search_operator_space_path)
@@ -110,4 +110,4 @@ def run_experiment(base_path, experiment_config, coordinator_config_file_path):
         #     _run_mh(metaheuristic_path, nr_of_agents, nr_of_iterations, prob, base_path, heur_sim_coordinator, nr_of_backbones)
 
         # Run the hyperheuristic.
-        _run_hh(experiment_config, prob, heur_sim_coordinator)
+        _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones)

@@ -21,8 +21,8 @@ source setenv
 cd ../inet4.5
 source setenv
 cd ~/hyper-heuristic-dse-2.0
-eval "ulimit -n 80000"
-ulimit -n 80000
+eval "ulimit -n 262000"
+ulimit -n 262000
 
 # CONFIG_PATH_HEUR_RUN="${BASE_PATH}/config/config_heuristic_run.json"
 # python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN" --coordinator_config "$CONFIG_PATH_COORDINATOR"
@@ -51,7 +51,12 @@ ulimit -n 80000
 # CONFIG_PATH_HEUR_RUN_PSO="${BASE_PATH}/config/config_heuristic_run_pso_tune_2.json"
 # python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN_PSO" --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
-# Experiment 1.
-# TODO: Change config file paths and point to experiment 1 folder.
-CONFIG_PATH_EXPERIMENT_1="${BASE_PATH}/config/experiment_1/experiment_1.json"
-python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_EXPERIMENT_1" --coordinator_config "$CONFIG_PATH_COORDINATOR"
+# # Experiment 1.
+# # TODO: Change config file paths and point to experiment 1 folder.
+# CONFIG_PATH_EXPERIMENT_1="${BASE_PATH}/config/experiment_1/experiment_1.json"
+# python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_EXPERIMENT_1" --coordinator_config "$CONFIG_PATH_COORDINATOR"
+
+# Experiment 2.
+# TODO: Change config file paths and point to experiment 2 folder.
+CONFIG_PATH_EXPERIMENT_2="${BASE_PATH}/config/experiment_2/experiment_2.json"
+python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_EXPERIMENT_2" --coordinator_config "$CONFIG_PATH_COORDINATOR"
