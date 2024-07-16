@@ -1,3 +1,4 @@
+import math
 import numpy as np
 import pandas as pd
 import json
@@ -10,6 +11,7 @@ from pathlib import Path
 from src_main.tools.config_reader import Config
 from src_main.visualization import visualization
 import src_main.tools.component_config as component_config
+import src_main.data.sim_configurations as sim_configurations
 
 
 class DataCollector:
@@ -65,7 +67,7 @@ def read_json_files(directory_path):
         directory_path (str): The path to the directory containing JSON files.
 
     Returns:
-        list: A list of dictionaries, each representing the contents of a JSON file.
+        list: A list of tuples, each containing the file name and the dictionary representing the contents of a JSON file.
     """
     json_contents = []
 
@@ -83,37 +85,93 @@ def read_json_files(directory_path):
             with open(file_path, 'r', encoding='utf-8') as json_file:
                 try:
                     data = json.load(json_file)
-                    json_contents.append(data)
+                    json_contents.append((file_name, data))
                 except json.JSONDecodeError as e:
                     print(f"Error decoding JSON from file '{file_name}': {e}")
 
     return json_contents
 
 
-def quick_and_dirty_save_hh_positions_to_xlsx(hh_run_path, nr_of_backbone_switches, rescale=False):
-    centre_boundaries = [0.5] * nr_of_backbone_switches-1
-    span_boundaries = [1.0] * nr_of_backbone_switches-1
+def _find_extreme_avg_files(json_data):
+    """
+    Finds the JSON files with the highest and lowest 'Avg' values in the 'statistics' key.
+
+    Parameters:
+        json_data (list): A list of tuples, each containing the file name and the dictionary representing the contents of a JSON file.
+
+    Returns:
+        tuple: The file name with the highest 'Avg' value and the file name with the lowest 'Avg' value.
+    """
+    max_avg = None
+    min_avg = None
+    max_avg_hh_step = None
+    min_avg_hh_step = None
+    max_avg_file_name = None
+    min_avg_file_name = None
+
+    # Iterate through the list of JSON data
+    for file_name, data in json_data:
+        # Check if 'statistics' and 'Avg' key exist in the JSON
+        if 'details' in data and 'statistics' in data['details'] and 'Avg' in data['details']['statistics']:
+            avg_value = data['details']['statistics']['Avg']
+
+            if max_avg is None:
+                max_avg = avg_value
+                max_avg_hh_step = data
+                max_avg_file_name = file_name
+            # Update the file with the highest Avg value
+            elif avg_value > max_avg:
+                max_avg = avg_value
+                max_avg_hh_step = data
+                max_avg_file_name = file_name
+            if min_avg is None:
+                min_avg = avg_value
+                min_avg_hh_step = data
+                min_avg_file_name = file_name
+            # Update the file with the lowest Avg value
+            elif avg_value < min_avg:
+                min_avg = avg_value
+                min_avg_hh_step = data
+                min_avg_file_name = file_name
+
+    print(f"File with worst 'Avg' fitness: {max_avg_file_name}")
+    print(f"File with best 'Avg' fitness: {min_avg_file_name}")
+    return max_avg_hh_step, min_avg_hh_step
+
+
+def _process_hh_step_positions(centre_boundaries, span_boundaries, agent_positions, nr_of_cable_types, rescale=True):
+    if rescale:
+        return [math.ceil((centre + position * (span / 2)) * nr_of_cable_types) if math.ceil((centre + position * (span / nr_of_cable_types)) * nr_of_cable_types) != 0 else 1 for centre, span, position in zip(centre_boundaries, span_boundaries, agent_positions)]
+    else:
+        return [math.ceil(position * nr_of_cable_types) if math.ceil(position * nr_of_cable_types) != 0 else 1 for position in agent_positions]
+
+
+def quick_and_dirty_save_hh_positions_to_xlsx(hh_run_path, nr_of_backbone_switches, nr_of_cable_types, rescale=False):
+
+    # Define rescaling parameter values.
+    centre_boundaries = [0.5] * (nr_of_backbone_switches-1)
+    span_boundaries = [1.0] * (nr_of_backbone_switches-1)
+
+    # Read the JSON files from the specified directory.
     hh_steps = read_json_files(hh_run_path)
 
-    # Initialize a list to store the rescaled or original positions
-    positions_list = []
+    # Determine the JSON files for the steps with the highest and lowest average fitness values.
+    max_avg_hh_step, min_avg_hh_step = _find_extreme_avg_files(hh_steps)
+    if max_avg_hh_step is None or min_avg_hh_step is None:
+        raise ValueError("No JSON files with 'statistics' and 'Avg' keys found.")
+    positions = {
+        "worst_solution": max_avg_hh_step['details']['positions'],
+        "best_solution": min_avg_hh_step['details']['positions']
+    }
 
-    # Loop through the positions
-    for method, positions in positions_data.items():
-        for category, position_list in positions.items():
-            if rescale:
-                processed_positions = quick_and_dirty_rescale_back_positions(position_list, centre_boundaries, span_boundaries)
-            else:
-                processed_positions = [math.ceil(position * 4) if math.ceil(position * 4) != 0 else 1 for position in position_list]
-            positions_list.append([method, category] + processed_positions)
+    # Process the optimal cable configuration values for every hh replica.
+    optimal_configurations_list = []
+    for category, replicas_positions in positions.items():
+        for replica_positions in replicas_positions:
+            processed_positions = _process_hh_step_positions(centre_boundaries, span_boundaries, replica_positions, nr_of_cable_types, rescale)
+            optimal_configurations_list.append([category] + processed_positions)
 
-    # Convert to a DataFrame
-    columns = ['Operator', 'Type'] + [f'Position_{i+1}' for i in range(50)]
-    positions_df = pd.DataFrame(positions_list, columns=columns)
-
-    # Write the DataFrame to an Excel file
-    excel_filename = 'rescaled_positions.xlsx'
-    positions_df.to_excel(excel_filename, index=False)
+    sim_configurations.write_processed_design_points_to_xlsx(hh_run_path, optimal_configurations_list, nr_of_backbone_switches)
 
 
 '''
