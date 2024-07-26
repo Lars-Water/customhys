@@ -51,10 +51,13 @@ class HeuristicSimulationCoordinator:
         coordinator_log_path = os.path.join(self._base_path, "data/logs/coordinator")
         os.makedirs(coordinator_log_path, exist_ok=True)
         self.logger = logger("coordinator", coordinator_log_path)
-        setLevelLogger(self.logger, "INFO")
 
         self.logger.info("Reading coordinator config file.")
         self.conf = Config(coordinator_config_file_path, Path(coordinator_log_path), "coordinator_config_manager")
+
+        # Set logger level.
+        logger_lvl = self.conf.tryGet("logger_lvl")
+        setLevelLogger(self.logger, logger_lvl)
 
         # Define params to set up the Manager.
         experiments_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "experiments_path")
@@ -111,16 +114,6 @@ class HeuristicSimulationCoordinator:
         weight_latency = self.conf.tryGet("fitness_config", "weight_latency")
         weight_cost = self.conf.tryGet("fitness_config", "weight_cost")
         self.data_collector = DataCollector(weight_latency, weight_cost, dir_design_points_metrics_output)
-
-        # TODO: Implement normalisation correctly.
-        self.manual_normalization()
-
-        if hasattr(self, "max_datarate"):
-            self.logger.info(f"Maximum datarate is: {self.max_datarate}")
-            self.logger.info(f"Minimum datarate is: {self.min_datarate}")
-        if hasattr(self, "max_cost"):
-            self.logger.info(f"Maximum cost is: {self.max_cost}")
-            self.logger.info(f"Minimum cost is: {self.min_cost}")
 
 
     def set_run_name(self, run_name):
@@ -554,6 +547,7 @@ class HeuristicSimulationCoordinator:
 
 
     # TODO: Remove redundancy of multiple ini file writing.
+    # TODO: Improve code, because now it's very chaotic, e.g. 4 simulations seems not to be necessary but that could also only be for linear objective relationships.
     def manual_normalization(self):
         """
         Manually determines the min and max values for the objective parameters.
@@ -616,6 +610,8 @@ class HeuristicSimulationCoordinator:
         if self.remove_design_point_configuration_dummy_path:
             self.logger.debug("Removing simulation run templates in dummy path.")
             fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_*")
+
+        self._check_normalization()
 
 
     def determine_boundary_value(self, sim_uid, parameter, boundary):
@@ -812,6 +808,19 @@ class HeuristicSimulationCoordinator:
 
             # Store design point metrics output.
             self.data_collector.store_design_point_metrics(latency_df, cost_df, sim_uid, self._run_name)
+
+
+    def _check_normalization(self):
+        if hasattr(self, "max_datarate"):
+            self.logger.info(f"Maximum datarate is: {self.max_datarate}")
+            self.logger.info(f"Minimum datarate is: {self.min_datarate}")
+        else:
+            raise ValueError("Normalisation went wrong, max_datarate values are missing.")
+        if hasattr(self, "max_cost"):
+            self.logger.info(f"Maximum cost is: {self.max_cost}")
+            self.logger.info(f"Minimum cost is: {self.min_cost}")
+        else:
+            raise ValueError("Normalisation went wrong, max_datarate values are missing.")
 
 
     @staticmethod

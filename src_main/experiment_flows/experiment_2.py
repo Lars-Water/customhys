@@ -96,18 +96,19 @@ def run_experiment(base_path, experiment_config, coordinator_config_file_path):
 
     for nr_of_backbones in nrs_of_backbones:
 
-        # Set the number of backbones accordingly.
+        # Set the number of backbones accordingly and perform normalization.
         heur_sim_coordinator.set_nr_of_backbone_switches(nr_of_backbones)
+        heur_sim_coordinator.manual_normalization()
 
         # Create problem instance.
         min_datarate, max_datarate, min_cost, max_cost = heur_sim_coordinator.get_datarate_cost_boundaries()
         prob = component_config.create_problem_instance(nr_of_backbones, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator.simulation_run)
 
-        # # Run the metaheuristics.
-        # base_path = os.getcwd()
-        # metaheuristic_paths = experiment_config.tryGet('metaheuristics_paths')
-        # for metaheuristic_path in metaheuristic_paths:
-        #     _run_mh(metaheuristic_path, nr_of_agents, nr_of_iterations, prob, base_path, heur_sim_coordinator, nr_of_backbones)
+        # Run the metaheuristics.
+        base_path = os.getcwd()
+        metaheuristic_paths = experiment_config.tryGet('metaheuristics_paths')
+        for metaheuristic_path in metaheuristic_paths:
+            _run_mh(metaheuristic_path, nr_of_agents, nr_of_iterations, prob, base_path, heur_sim_coordinator, nr_of_backbones)
 
-        # Run the hyperheuristic.
-        _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones)
+        # # Run the hyperheuristic.
+        # _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones)

@@ -1,4 +1,5 @@
 {
+    "logger_lvl": "INFO",
     "parameter_tuning": {
         "parameter_names": [
             "LargeNet.**.cli.sendInterval"

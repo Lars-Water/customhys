@@ -1,4 +1,5 @@
 {
+    "logger_lvl": "INFO",
     "cable_options": [
         {"datarate": "10Mbps","cost": 1, "cable_colour": "red"},
         {"datarate": "100Mbps","cost": 2, "cable_colour": "blue"},
