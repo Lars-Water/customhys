@@ -204,6 +204,23 @@ def multiplot_metaheuristic_runs(directory):
     plt.close()
 
 
+def quick_and_dirty_multiplot_hh(hh_runs_fitness_values):
+    plt.figure()
+
+    for hh_run in hh_runs_fitness_values:
+        fitness_values = hh_run['fitness_values']
+        nr_of_backbone_switches = hh_run['nr_of_backbone_switches']
+        plt.plot(fitness_values, label=f"{nr_of_backbone_switches} backbone switches")
+    plt.title("Best Fitness Value After Each Iteration")
+    plt.xlabel("Iteration")
+    plt.ylabel("Best Fitness Value")
+    # plt.yticks(np.arange(0, 1.0, step=0.1))
+    plt.grid(True)
+    plt.legend()
+    plt.savefig(Path("/home/larry/hyper-heuristic-dse-2.0/hh_quick.png"))
+    plt.close()
+
+
 # Main functions
 
 

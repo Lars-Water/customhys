@@ -76,7 +76,9 @@ def read_json_files(directory_path):
         raise NotADirectoryError(f"The path '{directory_path}' is not a valid directory.")
 
     # List all files in the directory
-    for file_name in os.listdir(directory_path):
+    file_names = sorted(os.listdir(directory_path))
+
+    for file_name in file_names:
         # Check if the file is a JSON file
         if file_name.endswith('.json'):
             file_path = os.path.join(directory_path, file_name)
@@ -90,6 +92,20 @@ def read_json_files(directory_path):
                     print(f"Error decoding JSON from file '{file_name}': {e}")
 
     return json_contents
+
+
+def quick_and_dirty_collect_hh_fitness_for_every_step(hh_run_path):
+    # Read the JSON files from the specified directory.
+    hh_steps = read_json_files(hh_run_path)
+
+    # Process the fitness values for every hh replica.
+    fitness_values_list = []
+    for _, data in hh_steps:
+        if 'details' in data and 'historical' in data['details'] and isinstance(data['details']['historical'], list) and 'fitness' in data['details']['historical'][0]:
+            fitness_values_list.append(data['details']['historical'][0]['fitness'])
+    merged_fitness_values = [fitness for fitness_values in fitness_values_list for fitness in fitness_values]
+
+    return merged_fitness_values
 
 
 def _find_extreme_avg_files(json_data):
