@@ -205,10 +205,10 @@ def quick_and_dirty_save_hh_positions_to_xlsx(positions_data, rescale=False):
 def main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning, design_space_plot, nr_of_backbone_switches):
     # # Set up the general heuristic run configuration.
     if heur_run_config_file_path:
-        nr_of_backbone_switches = 50
-        nr_of_cable_types = 4
-        hh_run_path = Path(os.path.join(os.getcwd(), "data_files/raw/INET-LANS_experiment_2_200_subsequent_positions_1721088383"))
-        collect_data.quick_and_dirty_save_hh_positions_to_xlsx(hh_run_path, nr_of_backbone_switches, nr_of_cable_types, rescale=True)
+        # nr_of_backbone_switches = 50
+        # nr_of_cable_types = 4
+        # hh_run_path = Path(os.path.join(os.getcwd(), "data_files/raw/INET-LANS_experiment_2_200_subsequent_positions_1721088383"))
+        # collect_data.quick_and_dirty_save_hh_positions_to_xlsx(hh_run_path, nr_of_backbone_switches, nr_of_cable_types, rescale=True)
 
         # directories = [
         #     Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/experiment_2/metaheuristics/gravitational"),
@@ -218,15 +218,15 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, par
         # for directory in directories:
         #     visualization.multiplot_metaheuristic_runs(directory)
 
-        # # Set up the experiment_2 configuration object.
-        # experiment_2_config_file_path = Path(os.path.join(base_path, "config/experiment_2/experiment_2.json"))
-        # experiment_2_log_path = os.path.join(base_path, "data/logs/experiments/experiment_2")
-        # os.makedirs(experiment_2_log_path, exist_ok=True)
-        # config_manager_filename = f"experiment_2_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-        # experiment_2_config = Config(experiment_2_config_file_path, Path(experiment_2_log_path), config_manager_filename)
+        # Set up the experiment_2 configuration object.
+        experiment_2_config_file_path = Path(os.path.join(base_path, "config/experiment_2/experiment_2.json"))
+        experiment_2_log_path = os.path.join(base_path, "data/logs/experiments/experiment_2")
+        os.makedirs(experiment_2_log_path, exist_ok=True)
+        config_manager_filename = f"experiment_2_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        experiment_2_config = Config(experiment_2_config_file_path, Path(experiment_2_log_path), config_manager_filename)
 
-        # # Run Experiment 2.
-        # experiment_2.run_experiment(base_path, experiment_2_config, coordinator_config_file_path)
+        # Run Experiment 2.
+        experiment_2.run_experiment(base_path, experiment_2_config, coordinator_config_file_path)
 
         # # Set up the experiment_1 configuration object.
         # experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_1/experiment_1.json"))
