@@ -1,9 +1,9 @@
-from distributed import span
 import matplotlib.pyplot as plt
 import json
 import pandas as pd
 import math
 
+import warnings
 import os
 import time
 from pathlib import Path
@@ -191,6 +191,34 @@ def quick_and_dirty_save_hh_positions_to_xlsx(positions_data, rescale=False):
     positions_df.to_excel(excel_filename, index=False)
 
 
+def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches):
+    # Set up the experiment_1 configuration object.
+    experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_1/experiment_1.json"))
+    experiment_1_log_path = os.path.join(base_path, "data/logs/experiments/experiment_1")
+    os.makedirs(experiment_1_log_path, exist_ok=True)
+    config_manager_filename = f"experiment_1_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    experiment_1_config = Config(experiment_1_config_file_path, Path(experiment_1_log_path), config_manager_filename)
+    # TODO: Change this naming flow, because it goes from main, to coordinator, to data collector.
+    nr_of_agents = experiment_1_config.tryGet("hh_parameters", "num_agents")
+    run_name = "experiment_1"
+    coordinator_params = (base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches)
+
+    # Run Experiment 1.
+    experiment_1.run_experiment(experiment_1_config, coordinator_params)
+
+
+def experiment_2(base_path, coordinator_config_file_path):
+    # Set up the experiment_2 configuration object.
+    experiment_2_config_file_path = Path(os.path.join(base_path, "config/experiment_2/experiment_2.json"))
+    experiment_2_log_path = os.path.join(base_path, "data/logs/experiments/experiment_2")
+    os.makedirs(experiment_2_log_path, exist_ok=True)
+    config_manager_filename = f"experiment_2_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    experiment_2_config = Config(experiment_2_config_file_path, Path(experiment_2_log_path), config_manager_filename)
+
+    # Run Experiment 2.
+    experiment_2.run_experiment(base_path, experiment_2_config, coordinator_config_file_path)
+
+
 '''
     Run the heuristic simulation workflow.
 
@@ -198,89 +226,74 @@ def quick_and_dirty_save_hh_positions_to_xlsx(positions_data, rescale=False):
         base_path (str): The base path for the project.
         coordinator_config_file_path (Path): The path to the coordinator configuration file.
         heur_run_config_file_path (Path): The path to the heuristic run configuration file.
+        experiment (str): The experiments that were requested to be run.
         parameter_tuning (bool): The flag to indicate if parameter tuning is enabled.
         design_space_plot (bool): The flag to indicate if design space determination is enabled.
         nr_of_backbone_switches (int): The number of backbone switches for the INET model.
 '''
-def main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning, design_space_plot, nr_of_backbone_switches):
-    # # Set up the general heuristic run configuration.
-    if heur_run_config_file_path:
-        # nr_of_backbone_switches = 50
-        # nr_of_cable_types = 4
-        # hh_run_path = Path(os.path.join(os.getcwd(), "data_files/raw/INET-LANS_experiment_2_200_subsequent_positions_1721088383"))
-        # collect_data.quick_and_dirty_save_hh_positions_to_xlsx(hh_run_path, nr_of_backbone_switches, nr_of_cable_types, rescale=True)
+def main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, parameter_tuning, design_space_plot, nr_of_backbone_switches):
 
-        # directories = [
-        #     Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/experiment_2/metaheuristics/gravitational"),
-        #     Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/experiment_2/metaheuristics/pso"),
-        #     Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/experiment_2/metaheuristics/ga")
-        # ]
-        # for directory in directories:
-        #     visualization.multiplot_metaheuristic_runs(directory)
+    # Run the requested experiments.
+    if experiment == '1':
+        experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
+    elif experiment == '2':
+        experiment_2(base_path, coordinator_config_file_path)
+    elif experiment == 'both':
+        experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
+        experiment_2(base_path, coordinator_config_file_path)
 
-        # Set up the experiment_2 configuration object.
-        experiment_2_config_file_path = Path(os.path.join(base_path, "config/experiment_2/experiment_2.json"))
-        experiment_2_log_path = os.path.join(base_path, "data/logs/experiments/experiment_2")
-        os.makedirs(experiment_2_log_path, exist_ok=True)
-        config_manager_filename = f"experiment_2_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-        experiment_2_config = Config(experiment_2_config_file_path, Path(experiment_2_log_path), config_manager_filename)
+    # # # Set up the general heuristic run configuration.
+    # if heur_run_config_file_path:
+    #     # nr_of_backbone_switches = 50
+    #     # nr_of_cable_types = 4
+    #     # hh_run_path = Path(os.path.join(os.getcwd(), "data_files/raw/INET-LANS_experiment_2_200_subsequent_positions_1721088383"))
+    #     # collect_data.quick_and_dirty_save_hh_positions_to_xlsx(hh_run_path, nr_of_backbone_switches, nr_of_cable_types, rescale=True)
 
-        # Run Experiment 2.
-        experiment_2.run_experiment(base_path, experiment_2_config, coordinator_config_file_path)
+    #     # directories = [
+    #     #     Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/experiment_2/metaheuristics/gravitational"),
+    #     #     Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/experiment_2/metaheuristics/pso"),
+    #     #     Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/experiment_2/metaheuristics/ga")
+    #     # ]
+    #     # for directory in directories:
+    #     #     visualization.multiplot_metaheuristic_runs(directory)
 
-        # # Set up the experiment_1 configuration object.
-        # experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_1/experiment_1.json"))
-        # experiment_1_log_path = os.path.join(base_path, "data/logs/experiments/experiment_1")
-        # os.makedirs(experiment_1_log_path, exist_ok=True)
-        # config_manager_filename = f"experiment_1_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-        # experiment_1_config = Config(experiment_1_config_file_path, Path(experiment_1_log_path), config_manager_filename)
+    #     # heuristic_run_log_path = os.path.join(base_path, "data/logs/heuristic_run/")
+    #     # os.makedirs(heuristic_run_log_path, exist_ok=True)
+    #     # heuristic_run_config = Config(heur_run_config_file_path, Path(heuristic_run_log_path), "heuristic_run_config_manager")
 
-        # # Create the coordinator for the heuristic simulation workflow.
-        # # TODO: Change this naming flow, because it goes from main, to coordinator, to data collector.
-        # nr_of_agents = experiment_1_config.tryGet("hh_parameters", "num_agents")
-        # run_name = "experiment_1"
-        # heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches) # noqa 501
+    # #     # # Obtain the configuration parameters for the heuristic run.
+    # #     # nr_of_agents = heuristic_run_config.tryGet("nr_of_agents")
+    # #     # nr_of_iterations = heuristic_run_config.tryGet("nr_of_iterations")
 
-        # # Run Experiment 1.
-        # min_datarate, max_datarate, min_cost, max_cost = heur_sim_coordinator.get_datarate_cost_boundaries()
-        # experiment_1.run_experiment(experiment_1_config, heur_sim_coordinator, nr_of_backbone_switches)
+    # # #     # Define the heuristic operators to be used.
+    # # #     heuristics_collection = define_heuristic_operators(heuristic_run_config)
 
-        # heuristic_run_log_path = os.path.join(base_path, "data/logs/heuristic_run/")
-        # os.makedirs(heuristic_run_log_path, exist_ok=True)
-        # heuristic_run_config = Config(heur_run_config_file_path, Path(heuristic_run_log_path), "heuristic_run_config_manager")
+    # # #     # Visualisation of metaheuristic runs.
+    # # #     collect_data.vizualize_mh_runs(nr_of_backbone_switches)
 
-    #     # # Obtain the configuration parameters for the heuristic run.
-    #     # nr_of_agents = heuristic_run_config.tryGet("nr_of_agents")
-    #     # nr_of_iterations = heuristic_run_config.tryGet("nr_of_iterations")
+    # # #     # run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
 
-    # #     # Define the heuristic operators to be used.
-    # #     heuristics_collection = define_heuristic_operators(heuristic_run_config)
+    # # #     run_hh(heuristic_run_config, heur_sim_coordinator)
 
-    # #     # Visualisation of metaheuristic runs.
-    # #     collect_data.vizualize_mh_runs(nr_of_backbone_switches)
+    # # #     # # TODO: Quick and dirty Manual removal of directories to prevent memory clogging.
+    # # #     # experiments_directory_path = Path("/var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s16")
+    # # #     # remove_directory(experiments_directory_path)
+    # # #     # sims_directory_path = Path("/var/scratch/lvdwater/sims")
+    # # #     # remove_directory(sims_directory_path)
 
-    # #     # run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
-
-    # #     run_hh(heuristic_run_config, heur_sim_coordinator)
-
-    # #     # # TODO: Quick and dirty Manual removal of directories to prevent memory clogging.
-    # #     # experiments_directory_path = Path("/var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s16")
-    # #     # remove_directory(experiments_directory_path)
-    # #     # sims_directory_path = Path("/var/scratch/lvdwater/sims")
-    # #     # remove_directory(sims_directory_path)
-
-    # # elif parameter_tuning:
-    # #     parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
-    # #     parameter_tuning_coordinator.parameter_tuning_workflow()
-    # # elif design_space_plot:
-    # #     design_space_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
-    # #     design_space_coordinator.determine_design_space()
+    # # # elif parameter_tuning:
+    # # #     parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
+    # # #     parameter_tuning_coordinator.parameter_tuning_workflow()
+    # # # elif design_space_plot:
+    # # #     design_space_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
+    # # #     design_space_coordinator.determine_design_space()
 
     return
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the heuristic simulation workflow.")
+    parser.add_argument('--experiment', choices=['1', '2', 'both'], required=True, help='Choose which experiment to run')
     parser.add_argument("--nr_sw", type=int, required=False, help="The number of backbone switches.")
     parser.add_argument("--base_path", type=str, required=True, help="Root of the project.")
     parser.add_argument("--coordinator_config", type=str, required=True, help="Path to the coordinator configuration file.")
@@ -290,6 +303,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Convert the arguments to Path objects.
+    experiment = args.experiment
     nr_of_backbone_switches = args.nr_sw
     base_path = Path(args.base_path)
     coordinator_config_file_path = Path(args.coordinator_config)
@@ -300,6 +314,10 @@ if __name__ == "__main__":
     # Check if the base path exists.
     if not base_path.exists():
         raise FileNotFoundError(f"The base path {base_path} does not exist.")
+
+    # Check if any experiments are defined.
+    if experiment is None:
+        warnings.warn("No experiment defined. The program will continue without running any experiment.", UserWarning)
 
     # Check if the coordinator configuration file exists
     if not coordinator_config_file_path.exists():
@@ -319,4 +337,4 @@ if __name__ == "__main__":
     # TODO: Check if design space configurations are provided if design space is enabled.
     pass
 
-    main(base_path, coordinator_config_file_path, heur_run_config_file_path, parameter_tuning, design_space_plot, nr_of_backbone_switches)
+    main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, parameter_tuning, design_space_plot, nr_of_backbone_switches)

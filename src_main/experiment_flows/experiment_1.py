@@ -6,16 +6,23 @@ from customhys import hyperheuristic as hh
 import src_main.models.model as model
 from src_main.data import collect_data
 from src_main.tools import component_config
+from src_main.tools import coordinator
 
 
-def run_experiment(experiment_config, heur_sim_coordinator, nr_of_backbone_switches):
+def run_experiment(experiment_config, coordinator_params):
     '''
         Experimental run of tuning the parameters of any provided search operators.
     '''
     search_operator_space_paths = experiment_config.tryGet('search_operator_space_paths')
     search_operator_space_names = experiment_config.tryGet('search_operator_space_names')
+    pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
+
+    # Create the HeuristicSimulationCoordinator.
+    base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches = coordinator_params
+    heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches) # noqa 501
 
     # Create problem instance.
+    heur_sim_coordinator.manual_normalization()
     min_datarate, max_datarate, min_cost, max_cost = heur_sim_coordinator.get_datarate_cost_boundaries()
     prob = component_config.create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator.simulation_run)
 
@@ -34,7 +41,8 @@ def run_experiment(experiment_config, heur_sim_coordinator, nr_of_backbone_switc
             heuristic_space=heuristic_space,
             problem=prob,
             parameters=hh_parameters,
-            file_label="INET-LANS_" + experiment_name
+            file_label="INET-LANS_" + experiment_name,
+            pass_finalised_positions=pass_finalised_positions
         )
 
         # Start timer for the heuristic run.

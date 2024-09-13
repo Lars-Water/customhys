@@ -40,7 +40,7 @@ def _run_mh(metaheuristic_path, nr_of_agents, nr_of_iterations, prob, base_path,
     collect_data.collect_mh_run(met, save_run_path, nr_of_backbones, nr_of_agents, nr_of_iterations, heuristic_run_meta_data)
 
 
-def _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones):
+def _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones, pass_finalised_positions):
     # Run the Hyperheuristic of the metaheuristics run above.
     search_operator_space_path = experiment_config.tryGet('search_operator_space_path')
     search_operator_space_name = experiment_config.tryGet('search_operator_space_name')
@@ -58,7 +58,8 @@ def _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones):
         heuristic_space=heuristic_space,
         problem=prob,
         parameters=hh_parameters,
-        file_label="INET-LANS_" + experiment_name
+        file_label="INET-LANS_" + experiment_name,
+        pass_finalised_positions=pass_finalised_positions
     )
 
     # Start timer for the heuristic run.
@@ -94,6 +95,8 @@ def run_experiment(base_path, experiment_config, coordinator_config_file_path):
     nrs_of_backbones = experiment_config.tryGet('nr_of_backbones')
     heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents) # noqa 501
 
+    pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
+
     for nr_of_backbones in nrs_of_backbones:
 
         # Set the number of backbones accordingly and perform normalization.
@@ -110,5 +113,5 @@ def run_experiment(base_path, experiment_config, coordinator_config_file_path):
         for metaheuristic_path in metaheuristic_paths:
             _run_mh(metaheuristic_path, nr_of_agents, nr_of_iterations, prob, base_path, heur_sim_coordinator, nr_of_backbones)
 
-        # # Run the hyperheuristic.
-        # _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones)
+        # Run the hyperheuristic.
+        _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones, pass_finalised_positions)
