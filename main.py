@@ -13,7 +13,8 @@ from src_main.tools.config_reader import Config
 import src_main.tools.coordinator as coordinator
 import src_main.models.model as model
 from src_main.data import collect_data
-from src_main.experiment_flows import experiment_1, experiment_2
+import src_main.experiment_flows.experiment_1 as exp_1_flow
+import src_main.experiment_flows.experiment_2 as exp_2_flow
 from src_main.visualization import visualization
 
 
@@ -138,7 +139,7 @@ def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switche
     coordinator_params = (base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches)
 
     # Run Experiment 1.
-    experiment_1.run_experiment(experiment_1_config, coordinator_params)
+    exp_1_flow.run_experiment(experiment_1_config, coordinator_params)
 
 
 def experiment_2(base_path, coordinator_config_file_path):
@@ -160,7 +161,7 @@ def experiment_2(base_path, coordinator_config_file_path):
     experiment_2_config = Config(experiment_2_config_file_path, Path(experiment_2_log_path), config_manager_filename)
 
     # Run Experiment 2.
-    experiment_2.run_experiment(base_path, experiment_2_config, coordinator_config_file_path)
+    exp_2_flow.run_experiment(base_path, experiment_2_config, coordinator_config_file_path)
 
 
 def visualize_experiment_1():
@@ -197,14 +198,14 @@ def visualize_experiment_2(base_path, metaheuristics):
 '''
 def main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, parameter_tuning, design_space_plot, nr_of_backbone_switches):
 
-    # # Run the requested experiments.
-    # if experiment == '1':
-    #     experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
-    # elif experiment == '2':
-    #     experiment_2(base_path, coordinator_config_file_path)
-    # elif experiment == 'all':
-    #     experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
-    #     experiment_2(base_path, coordinator_config_file_path)
+    # Run the requested experiments.
+    if experiment == '1':
+        experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
+    elif experiment == '2':
+        experiment_2(base_path, coordinator_config_file_path)
+    elif experiment == 'all':
+        experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
+        experiment_2(base_path, coordinator_config_file_path)
 
     if visualize == '1':
         visualize_experiment_1()

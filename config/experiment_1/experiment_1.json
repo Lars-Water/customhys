@@ -2,7 +2,7 @@
     "hh_parameters": {
         "cardinality": 1,
         "cardinality_min": 1,
-        "num_iterations": 3,
+        "num_iterations": 5,
         "num_agents": 16,
         "as_mh": true,
         "num_replicas": 1,
@@ -23,9 +23,15 @@
     },
     "pass_finalised_positions": false,
     "search_operator_space_paths": [
-        "config/experiment_1/search_operator_space/gravitational.txt"
+        "config/experiment_1/search_operator_space/gravitational.txt",
+        "config/experiment_1/search_operator_space/genetic_crossover.txt",
+        "config/experiment_1/search_operator_space/genetic_mutation.txt",
+        "config/experiment_1/search_operator_space/swarm_dynamic.txt"
     ],
     "search_operator_space_names": [
-        "gravitational"
+        "gravitational",
+        "genetic_crossover",
+        "genetic_mutation",
+        "swarm_dynamic"
     ]
 }

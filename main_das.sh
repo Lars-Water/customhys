@@ -42,7 +42,11 @@ ulimit -n 262000
 # Experiment 1.
 # TODO: Change config file paths and point to experiment 1 folder.
 CONFIG_PATH_EXPERIMENT_1="${BASE_PATH}/config/experiment_1/experiment_1.json"
-python3 main.py --experiment 1 --nr_sw 20 --base_path "$BASE_PATH" --coordinator_config "$CONFIG_PATH_COORDINATOR"
+python3 main.py \
+ --experiment 1 \
+ --nr_sw 20 \
+ --base_path "$BASE_PATH" \
+ --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
 # # Experiment 2.
 # # TODO: Change config file paths and point to experiment 2 folder.

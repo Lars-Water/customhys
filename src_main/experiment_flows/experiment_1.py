@@ -3,7 +3,6 @@ import time
 
 from customhys import hyperheuristic as hh
 
-import src_main.models.model as model
 from src_main.data import collect_data
 from src_main.tools import component_config
 from src_main.tools import coordinator
