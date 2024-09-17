@@ -27,5 +27,22 @@ CONFIG_PATH_HYPHEUR_RUN="${BASE_PATH}/config/hh/config_hh_run.json"
 # # Specify the path to the hyperheuristic run configuration file here.
 # CONFIG_PATH_HYPHEUR_RUN="${BASE_PATH}/config/hh/config_hh_run_test_mh_collection.json"
 
-# HYPER-HEURISTIC RUN
-python3 main.py --nr_sw 10 --base_path "$BASE_PATH" --coordinator_config "$CONFIG_PATH_COORDINATOR" --heur_run_config "$CONFIG_PATH_HYPHEUR_RUN"
+# # HYPER-HEURISTIC RUN
+# python3 main.py --nr_sw 10 --base_path "$BASE_PATH" --coordinator_config "$CONFIG_PATH_COORDINATOR" --heur_run_config "$CONFIG_PATH_HYPHEUR_RUN"
+
+# Metaheuristics to visualize
+METAHEURISTICS="gravitational pso ga"
+
+# Run the Python script with metaheuristics
+python3 main.py \
+  --visualize 2 \
+  --base_path "$BASE_PATH" \
+  --coordinator_config "$CONFIG_PATH_COORDINATOR"
+
+# # Run the Python script with metaheuristics
+# python3 main.py \
+#   --experiment all \
+#   --visualize all \
+#   --metaheuristics $METAHEURISTICS \
+#   --base_path "$BASE_PATH" \
+#   --coordinator_config "$CONFIG_PATH_COORDINATOR"

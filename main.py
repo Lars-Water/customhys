@@ -31,80 +31,6 @@ def remove_directory(directory_path):
         print(f'Failed to delete {directory_path}. Reason: {e}')
 
 
-# '''
-#     Run the metaheuristic search operator.
-
-#     Args:
-#         heuristic_run_config (Config): The configuration object for the heuristic run.
-#         heur_sim_coordinator (HeuristicSimulationCoordinator): The coordinator object for the heuristic simulation workflow.
-#         heuristics_collection (list): The collection of heuristics to be used in the metaheuristic.
-#         num_agents (int): The number of agents in the metaheuristic.
-#         num_iterations (int): The number of iterations for the metaheuristic.
-#         base_path (string): Root of the project.
-#         verbose (bool): The flag to indicate if the metaheuristic should run in verbose mode.
-# '''
-# def run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, num_agents, num_iterations, base_path, verbose=False):
-
-#     # Run the metaheuristic for every specified number of backbones.
-#     runs_nr_of_backbones = heuristic_run_config.tryGet("runs_nr_of_backbones")
-#     for run in runs_nr_of_backbones:
-
-#         # Start timer for the heuristic run.
-#         start_time = time.time()
-
-#         # Create a problem instance for the metaheuristic.
-#         prob = create_problem_instance(run, heur_sim_coordinator)
-
-#         # Generate a metaheuristic search method for the model.
-#         met = mh.Metaheuristic(prob, heuristics_collection, num_agents=num_agents, num_iterations=num_iterations)
-#         met.verbose = verbose
-
-#         # Reset the execution times before starting the heuristic run.
-#         heur_sim_coordinator.coordinator_and_simulation_execution_time = 0
-#         heur_sim_coordinator.simulation_execution_time = 0
-
-#         # Run the metaheuristic on the problem. The fitness value is calculated at every iteration step by the run function in the SimulationModel class.
-#         met.run()
-
-#         # End timer for the heuristic run.
-#         end_time = time.time()
-
-#         heuristic_run_meta_data = calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator)
-
-#         # Save the heuristic run data.
-#         save_run_path = os.path.join(base_path, "data/raw/results/metaheuristic/", heuristic_run_config.tryGet('save_run_path_heuristic_name'))
-#         collect_data.collect_mh_run(met,save_run_path,run,num_agents,num_iterations,heuristic_run_meta_data)
-
-#     return
-
-
-'''
-    Calculate the distinct components of the heuristic run.
-
-    Args:
-        start_time (float): The start time of the heuristic run.
-        end_time (float): The end time of the heuristic run.
-        heur_sim_coordinator (HeuristicSimulationCoordinator): The coordinator object for the heuristic simulation workflow.
-
-    Returns:
-        dict: The distinct components of the heuristic run.
-'''
-def calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator):
-
-    # Caculate the distinct execution times for the distinct components of the heuristic run.
-    total_execution_time = end_time - start_time
-    heuristic_execution_time = total_execution_time - heur_sim_coordinator.coordinator_and_simulation_execution_time
-    coordinator_and_simulation_execution_time = heur_sim_coordinator.coordinator_and_simulation_execution_time - heur_sim_coordinator.simulation_execution_time
-    simulation_execution_time = heur_sim_coordinator.simulation_execution_time
-
-    return {
-        "total_execution_time": total_execution_time,
-        "heuristic_execution_time": heuristic_execution_time,
-        "coordinator_and_simulation_execution_time": coordinator_and_simulation_execution_time,
-        "simulation_execution_time": simulation_execution_time
-    }
-
-
 def quick_and_dirty_hh_multiplot(directory_path):
     all_historical_fitness = []
 
@@ -132,7 +58,6 @@ def quick_and_dirty_hh_multiplot(directory_path):
     plt.xlabel('Iteration')
     plt.ylabel('Fitness')
     plt.title('Optimal Fitness Every Iteration')
-    plt.ylim(0.5, 0.7)
     plt.legend()
 
     # Save the plot in the same directory
@@ -192,6 +117,15 @@ def quick_and_dirty_save_hh_positions_to_xlsx(positions_data, rescale=False):
 
 
 def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches):
+    """
+    Set up and run Experiment 1.
+    Parameters:
+    base_path (str): The base directory path where configuration and log files are stored.
+    coordinator_config_file_path (str): The file path to the coordinator configuration file.
+    nr_of_backbone_switches (int): The number of backbone switches to be used in the experiment.
+    Returns:
+    None
+    """
     # Set up the experiment_1 configuration object.
     experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_1/experiment_1.json"))
     experiment_1_log_path = os.path.join(base_path, "data/logs/experiments/experiment_1")
@@ -208,6 +142,16 @@ def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switche
 
 
 def experiment_2(base_path, coordinator_config_file_path):
+    """
+    Set up and run Experiment 2.
+    This function sets up the configuration for Experiment 2, creates necessary directories,
+    and runs the experiment using the provided base path and coordinator configuration file path.
+    Args:
+        base_path (str): The base directory path where configuration and log files are located.
+        coordinator_config_file_path (str): The file path to the coordinator configuration file.
+    Returns:
+        None
+    """
     # Set up the experiment_2 configuration object.
     experiment_2_config_file_path = Path(os.path.join(base_path, "config/experiment_2/experiment_2.json"))
     experiment_2_log_path = os.path.join(base_path, "data/logs/experiments/experiment_2")
@@ -217,6 +161,26 @@ def experiment_2(base_path, coordinator_config_file_path):
 
     # Run Experiment 2.
     experiment_2.run_experiment(base_path, experiment_2_config, coordinator_config_file_path)
+
+
+def visualize_experiment_1():
+    # TODO: Remove hardcoding and use the proper directory path.
+    # Visualize the results of Experiment 1 to a multiline plot of the different HH steps progressions.
+    directory_path = Path("/home/larry/hyper-heuristic-dse-2.0/data_files/raw/INET-LANS_experiment_2_NONE_FOLLOW_1721035065")
+    quick_and_dirty_hh_multiplot(directory_path)
+
+
+def visualize_experiment_2(base_path, metaheuristics):
+    # # Visualize the results of Experiment 2 to a multiline plot of the different MH runs in different network sizes.
+    # for metaheuristic in metaheuristics:
+    #     directory = Path(base_path / "data/raw/results/experiment_2/metaheuristics" / metaheuristic)
+    #     visualization.multiplot_metaheuristic_runs(directory)
+
+    # TODO: Visualize the results of Experiment 2 to a multiline plot of the different HH runs in different network sizes.
+    hh_run_path = Path("/home/larry/hyper-heuristic-dse-2.0/data_files/raw/INET-LANS_experiment_2_NONE_FOLLOW_1721035065")
+    hh_runs_fitness_values = collect_data.quick_and_dirty_collect_hh_fitness_for_every_step(hh_run_path)
+    print(f"hh_runs_fitness_values: {hh_runs_fitness_values}")
+    visualization.quick_and_dirty_multiplot_hh(hh_runs_fitness_values)
 
 
 '''
@@ -231,69 +195,67 @@ def experiment_2(base_path, coordinator_config_file_path):
         design_space_plot (bool): The flag to indicate if design space determination is enabled.
         nr_of_backbone_switches (int): The number of backbone switches for the INET model.
 '''
-def main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, parameter_tuning, design_space_plot, nr_of_backbone_switches):
+def main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, parameter_tuning, design_space_plot, nr_of_backbone_switches):
 
-    # Run the requested experiments.
-    if experiment == '1':
-        experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
-    elif experiment == '2':
-        experiment_2(base_path, coordinator_config_file_path)
-    elif experiment == 'both':
-        experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
-        experiment_2(base_path, coordinator_config_file_path)
+    # # Run the requested experiments.
+    # if experiment == '1':
+    #     experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
+    # elif experiment == '2':
+    #     experiment_2(base_path, coordinator_config_file_path)
+    # elif experiment == 'all':
+    #     experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
+    #     experiment_2(base_path, coordinator_config_file_path)
 
-    # # # Set up the general heuristic run configuration.
+    if visualize == '1':
+        visualize_experiment_1()
+    elif visualize == '2':
+        visualize_experiment_2(base_path, metaheuristics)
+    elif visualize == 'all':
+        visualize_experiment_1()
+        visualize_experiment_2(base_path, metaheuristics)
+
+    # # Set up the general heuristic run configuration.
     # if heur_run_config_file_path:
-    #     # nr_of_backbone_switches = 50
-    #     # nr_of_cable_types = 4
-    #     # hh_run_path = Path(os.path.join(os.getcwd(), "data_files/raw/INET-LANS_experiment_2_200_subsequent_positions_1721088383"))
-    #     # collect_data.quick_and_dirty_save_hh_positions_to_xlsx(hh_run_path, nr_of_backbone_switches, nr_of_cable_types, rescale=True)
+    #     nr_of_backbone_switches = 50
+    #     nr_of_cable_types = 4
+    #     hh_run_path = Path(os.path.join(os.getcwd(), "data_files/raw/INET-LANS_experiment_2_200_subsequent_positions_1721088383"))
+    #     collect_data.quick_and_dirty_save_hh_positions_to_xlsx(hh_run_path, nr_of_backbone_switches, nr_of_cable_types, rescale=True)
 
-    #     # directories = [
-    #     #     Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/experiment_2/metaheuristics/gravitational"),
-    #     #     Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/experiment_2/metaheuristics/pso"),
-    #     #     Path("/home/larry/hyper-heuristic-dse-2.0/data/raw/results/experiment_2/metaheuristics/ga")
-    #     # ]
-    #     # for directory in directories:
-    #     #     visualization.multiplot_metaheuristic_runs(directory)
+    #     heuristic_run_log_path = os.path.join(base_path, "data/logs/heuristic_run/")
+    #     os.makedirs(heuristic_run_log_path, exist_ok=True)
+    #     heuristic_run_config = Config(heur_run_config_file_path, Path(heuristic_run_log_path), "heuristic_run_config_manager")
 
-    #     # heuristic_run_log_path = os.path.join(base_path, "data/logs/heuristic_run/")
-    #     # os.makedirs(heuristic_run_log_path, exist_ok=True)
-    #     # heuristic_run_config = Config(heur_run_config_file_path, Path(heuristic_run_log_path), "heuristic_run_config_manager")
+    #     # Obtain the configuration parameters for the heuristic run.
+    #     nr_of_agents = heuristic_run_config.tryGet("nr_of_agents")
+    #     nr_of_iterations = heuristic_run_config.tryGet("nr_of_iterations")
 
-    # #     # # Obtain the configuration parameters for the heuristic run.
-    # #     # nr_of_agents = heuristic_run_config.tryGet("nr_of_agents")
-    # #     # nr_of_iterations = heuristic_run_config.tryGet("nr_of_iterations")
+    #     # Define the heuristic operators to be used.
+    #     heuristics_collection = define_heuristic_operators(heuristic_run_config)
 
-    # # #     # Define the heuristic operators to be used.
-    # # #     heuristics_collection = define_heuristic_operators(heuristic_run_config)
+    #     # Visualisation of metaheuristic runs.
+    #     collect_data.vizualize_mh_runs(nr_of_backbone_switches)
 
-    # # #     # Visualisation of metaheuristic runs.
-    # # #     collect_data.vizualize_mh_runs(nr_of_backbone_switches)
+        # # TODO: Quick and dirty Manual removal of directories to prevent memory clogging.
+        # experiments_directory_path = Path("/var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s16")
+        # remove_directory(experiments_directory_path)
+        # sims_directory_path = Path("/var/scratch/lvdwater/sims")
+        # remove_directory(sims_directory_path)
 
-    # # #     # run_mh(heuristic_run_config, heur_sim_coordinator, heuristics_collection, nr_of_agents, nr_of_iterations, base_path, verbose=False)
-
-    # # #     run_hh(heuristic_run_config, heur_sim_coordinator)
-
-    # # #     # # TODO: Quick and dirty Manual removal of directories to prevent memory clogging.
-    # # #     # experiments_directory_path = Path("/var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s16")
-    # # #     # remove_directory(experiments_directory_path)
-    # # #     # sims_directory_path = Path("/var/scratch/lvdwater/sims")
-    # # #     # remove_directory(sims_directory_path)
-
-    # # # elif parameter_tuning:
-    # # #     parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
-    # # #     parameter_tuning_coordinator.parameter_tuning_workflow()
-    # # # elif design_space_plot:
-    # # #     design_space_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
-    # # #     design_space_coordinator.determine_design_space()
+    # elif parameter_tuning:
+    #     parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
+    #     parameter_tuning_coordinator.parameter_tuning_workflow()
+    # elif design_space_plot:
+    #     design_space_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
+    #     design_space_coordinator.determine_design_space()
 
     return
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the heuristic simulation workflow.")
-    parser.add_argument('--experiment', choices=['1', '2', 'both'], required=True, help='Choose which experiment to run')
+    parser.add_argument('--experiment', choices=['1', '2', 'all'], required=False, help='Choose which experiment to run')
+    parser.add_argument('--visualize', choices=['1', '2', 'all'], required=False, help='Choose which experiment to visualize')
+    parser.add_argument('--metaheuristics', nargs='+', required=False, help='List of metaheuristics to visualize')
     parser.add_argument("--nr_sw", type=int, required=False, help="The number of backbone switches.")
     parser.add_argument("--base_path", type=str, required=True, help="Root of the project.")
     parser.add_argument("--coordinator_config", type=str, required=True, help="Path to the coordinator configuration file.")
@@ -304,6 +266,8 @@ if __name__ == "__main__":
 
     # Convert the arguments to Path objects.
     experiment = args.experiment
+    visualize = args.visualize
+    metaheuristics = args.metaheuristics
     nr_of_backbone_switches = args.nr_sw
     base_path = Path(args.base_path)
     coordinator_config_file_path = Path(args.coordinator_config)
@@ -323,18 +287,18 @@ if __name__ == "__main__":
     if not coordinator_config_file_path.exists():
         raise FileNotFoundError(f"The coordinator configuration file {coordinator_config_file_path} does not exist.")
 
-    # Check if no heuristic config file path is provided nor parameter tuning is enabled.
-    if not heur_run_config_file_path and not parameter_tuning and not design_space_plot:
-        raise ValueError("Please provide a heuristic run configuration file or enable parameter tuning or design space determination.")
-    # Check if both heuristic config file path is provided and parameter tuning is enabled.
-    elif heur_run_config_file_path and parameter_tuning or heur_run_config_file_path and design_space_plot or parameter_tuning and design_space_plot:
-        raise ValueError("Multiple functionalities enabled; Please provide only a heuristic run configuration file, or only enable parameter tuning or design space configuration.")
-    # Check if the heuristic config file path exists.
-    elif heur_run_config_file_path and not heur_run_config_file_path.exists():
-        raise FileNotFoundError(f"The heuristic run configuration file {heur_run_config_file_path} does not exist.")
-    # TODO: Check if parameter tuning configurations are provided if parameter tuning is enabled.
-    pass
-    # TODO: Check if design space configurations are provided if design space is enabled.
-    pass
+    # # Check if no heuristic config file path is provided nor parameter tuning is enabled.
+    # if not heur_run_config_file_path and not parameter_tuning and not design_space_plot:
+    #     raise ValueError("Please provide a heuristic run configuration file or enable parameter tuning or design space determination.")
+    # # Check if both heuristic config file path is provided and parameter tuning is enabled.
+    # elif heur_run_config_file_path and parameter_tuning or heur_run_config_file_path and design_space_plot or parameter_tuning and design_space_plot:
+    #     raise ValueError("Multiple functionalities enabled; Please provide only a heuristic run configuration file, or only enable parameter tuning or design space configuration.")
+    # # Check if the heuristic config file path exists.
+    # elif heur_run_config_file_path and not heur_run_config_file_path.exists():
+    #     raise FileNotFoundError(f"The heuristic run configuration file {heur_run_config_file_path} does not exist.")
+    # # TODO: Check if parameter tuning configurations are provided if parameter tuning is enabled.
+    # pass
+    # # TODO: Check if design space configurations are provided if design space is enabled.
+    # pass
 
-    main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, parameter_tuning, design_space_plot, nr_of_backbone_switches)
+    main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, parameter_tuning, design_space_plot, nr_of_backbone_switches)
