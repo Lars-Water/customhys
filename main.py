@@ -2,6 +2,7 @@ import matplotlib.pyplot as plt
 import json
 import pandas as pd
 import math
+import re
 
 import warnings
 import os
@@ -16,6 +17,15 @@ from src_main.data import collect_data
 import src_main.experiment_flows.experiment_1 as exp_1_flow
 import src_main.experiment_flows.experiment_2 as exp_2_flow
 from src_main.visualization import visualization
+
+
+def _determine_nr_backbones_from_filename(filename, regex_pattern):
+    # Extract the number of backbone switches from the filename.
+    match = regex_pattern.search(filename)
+    if match:
+        return int(match.group(1))
+    else:
+        raise ValueError(f"Could not extract the number of backbone switches from {filename}")
 
 
 # TODO: Improve and place this function in a separate module.
@@ -139,7 +149,7 @@ def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switche
     coordinator_params = (base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches)
 
     # Run Experiment 1.
-    exp_1_flow.run_experiment(experiment_1_config, coordinator_params)
+    file_label = exp_1_flow.run_experiment(experiment_1_config, coordinator_params)
 
 
 def experiment_2(base_path, coordinator_config_file_path):
@@ -164,23 +174,25 @@ def experiment_2(base_path, coordinator_config_file_path):
     exp_2_flow.run_experiment(base_path, experiment_2_config, coordinator_config_file_path)
 
 
-def visualize_experiment_1():
-    # TODO: Remove hardcoding and use the proper directory path.
+def visualize_experiment_1(hh_run_dirs_exp_1):
     # Visualize the results of Experiment 1 to a multiline plot of the different HH steps progressions.
-    directory_path = Path("/home/larry/hyper-heuristic-dse-2.0/data_files/raw/INET-LANS_experiment_2_NONE_FOLLOW_1721035065")
-    quick_and_dirty_hh_multiplot(directory_path)
+    for hh_run_dir_exp_1 in hh_run_dirs_exp_1:
+        quick_and_dirty_hh_multiplot(Path(hh_run_dir_exp_1))
 
 
-def visualize_experiment_2(base_path, metaheuristics):
-    # # Visualize the results of Experiment 2 to a multiline plot of the different MH runs in different network sizes.
-    # for metaheuristic in metaheuristics:
-    #     directory = Path(base_path / "data/raw/results/experiment_2/metaheuristics" / metaheuristic)
-    #     visualization.multiplot_metaheuristic_runs(directory)
+def visualize_experiment_2(base_path, metaheuristics, hh_run_dirs_exp_2, nr_of_backbone_switches=20):
+    # Visualize the results of Experiment 2 to a multiline plot of the different MH runs in different network sizes.
+    for metaheuristic in metaheuristics:
+        directory = Path(base_path / "data/raw/results/experiment_2/metaheuristics" / metaheuristic)
+        visualization.multiplot_metaheuristic_runs(directory)
 
-    # TODO: Visualize the results of Experiment 2 to a multiline plot of the different HH runs in different network sizes.
-    hh_run_path = Path("/home/larry/hyper-heuristic-dse-2.0/data_files/raw/INET-LANS_experiment_2_NONE_FOLLOW_1721035065")
-    hh_runs_fitness_values = collect_data.quick_and_dirty_collect_hh_fitness_for_every_step(hh_run_path)
-    print(f"hh_runs_fitness_values: {hh_runs_fitness_values}")
+    # Visualize the results of Experiment 2 to a multiline plot of the different HH runs in different network sizes.
+    backbones_pattern = re.compile(r"INET-LANS_experiment_2_(\d+)_backbones")
+    hh_runs_fitness_values = []
+    for hh_run_dir_exp_2 in hh_run_dirs_exp_2:
+        nr_of_backbone_switches = _determine_nr_backbones_from_filename(hh_run_dir_exp_2, backbones_pattern)
+        fitness_values = collect_data.quick_and_dirty_collect_hh_fitness_for_every_step(Path(hh_run_dir_exp_2))
+        hh_runs_fitness_values.append({"fitness_values": fitness_values,"nr_of_backbone_switches": nr_of_backbone_switches})
     visualization.quick_and_dirty_multiplot_hh(hh_runs_fitness_values)
 
 
@@ -196,7 +208,7 @@ def visualize_experiment_2(base_path, metaheuristics):
         design_space_plot (bool): The flag to indicate if design space determination is enabled.
         nr_of_backbone_switches (int): The number of backbone switches for the INET model.
 '''
-def main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, parameter_tuning, design_space_plot, nr_of_backbone_switches):
+def main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, hh_run_dirs_exp_1, hh_run_dirs_exp_2, parameter_tuning, design_space_plot, nr_of_backbone_switches):
 
     # Run the requested experiments.
     if experiment == '1':
@@ -208,12 +220,12 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, exp
         experiment_2(base_path, coordinator_config_file_path)
 
     if visualize == '1':
-        visualize_experiment_1()
+        visualize_experiment_1(hh_run_dirs_exp_1)
     elif visualize == '2':
-        visualize_experiment_2(base_path, metaheuristics)
+        visualize_experiment_2(base_path, metaheuristics, hh_run_dirs_exp_2)
     elif visualize == 'all':
-        visualize_experiment_1()
-        visualize_experiment_2(base_path, metaheuristics)
+        visualize_experiment_1(hh_run_dirs_exp_1)
+        visualize_experiment_2(base_path, metaheuristics, hh_run_dirs_exp_2)
 
     # # Set up the general heuristic run configuration.
     # if heur_run_config_file_path:
@@ -229,9 +241,6 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, exp
     #     # Obtain the configuration parameters for the heuristic run.
     #     nr_of_agents = heuristic_run_config.tryGet("nr_of_agents")
     #     nr_of_iterations = heuristic_run_config.tryGet("nr_of_iterations")
-
-    #     # Define the heuristic operators to be used.
-    #     heuristics_collection = define_heuristic_operators(heuristic_run_config)
 
     #     # Visualisation of metaheuristic runs.
     #     collect_data.vizualize_mh_runs(nr_of_backbone_switches)
@@ -257,6 +266,8 @@ if __name__ == "__main__":
     parser.add_argument('--experiment', choices=['1', '2', 'all'], required=False, help='Choose which experiment to run')
     parser.add_argument('--visualize', choices=['1', '2', 'all'], required=False, help='Choose which experiment to visualize')
     parser.add_argument('--metaheuristics', nargs='+', required=False, help='List of metaheuristics to visualize')
+    parser.add_argument("--hh_run_dirs_exp_1", nargs='+', required=False, help="List of HH run directories for Experiment 1.")
+    parser.add_argument("--hh_run_dirs_exp_2", nargs='+', required=False, help="List of HH run directories for Experiment 2.")
     parser.add_argument("--nr_sw", type=int, required=False, help="The number of backbone switches.")
     parser.add_argument("--base_path", type=str, required=True, help="Root of the project.")
     parser.add_argument("--coordinator_config", type=str, required=True, help="Path to the coordinator configuration file.")
@@ -269,6 +280,8 @@ if __name__ == "__main__":
     experiment = args.experiment
     visualize = args.visualize
     metaheuristics = args.metaheuristics
+    hh_run_dirs_exp_1 = args.hh_run_dirs_exp_1
+    hh_run_dirs_exp_2 = args.hh_run_dirs_exp_2
     nr_of_backbone_switches = args.nr_sw
     base_path = Path(args.base_path)
     coordinator_config_file_path = Path(args.coordinator_config)
@@ -302,4 +315,4 @@ if __name__ == "__main__":
     # # TODO: Check if design space configurations are provided if design space is enabled.
     # pass
 
-    main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, parameter_tuning, design_space_plot, nr_of_backbone_switches)
+    main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, hh_run_dirs_exp_1, hh_run_dirs_exp_2, parameter_tuning, design_space_plot, nr_of_backbone_switches)

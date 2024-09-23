@@ -33,9 +33,18 @@ CONFIG_PATH_HYPHEUR_RUN="${BASE_PATH}/config/hh/config_hh_run.json"
 # Metaheuristics to visualize
 METAHEURISTICS="gravitational pso ga"
 
+# HH Run directories to visualize in experiment 1.
+HH_RUN_DIRS_EXP_1="$PWD/data_files/raw/INET-LANS_experiment_1_genetic_crossover_1726576957"
+
+# HH Run directories to visualize in experiment 2.
+HH_RUN_DIRS_EXP_2="$PWD/data_files/raw/INET-LANS_experiment_2_50_backbones_subsequent_positions_1721079199 $PWD/data_files/raw/INET-LANS_experiment_2_200_backbones_subsequent_positions_1721114973"
+
 # Run the Python script with metaheuristics
 python3 main.py \
   --visualize 2 \
+  --metaheuristics $METAHEURISTICS \
+  --hh_run_dirs_exp_1 $HH_RUN_DIRS_EXP_1 \
+  --hh_run_dirs_exp_2 $HH_RUN_DIRS_EXP_2 \
   --base_path "$BASE_PATH" \
   --coordinator_config "$CONFIG_PATH_COORDINATOR"
 

@@ -1,6 +1,5 @@
 import time
 import os
-from pathlib import Path
 
 from customhys import hyperheuristic as hh
 from customhys import metaheuristic as mh
@@ -47,7 +46,7 @@ def _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones, pass
 
     # Define experiment name.
     timestamp = int(time.time())
-    experiment_name = f"experiment_2_{nr_of_backbones}_{search_operator_space_name}_{str(timestamp)}"
+    file_label = f"INET-LANS_experiment_2_{nr_of_backbones}_backbones_{search_operator_space_name}_{str(timestamp)}"
 
     # Determine the hyperheuristic search space.
     heuristic_space = component_config.determine_heuristic_space(search_operator_space_path)
@@ -58,7 +57,7 @@ def _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones, pass
         heuristic_space=heuristic_space,
         problem=prob,
         parameters=hh_parameters,
-        file_label="INET-LANS_" + experiment_name,
+        file_label=file_label,
         pass_finalised_positions=pass_finalised_positions
     )
 
@@ -85,6 +84,8 @@ def _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones, pass
     print(f"Best performance: {best_perf}")
     print(f"Current history: {hist_curr}")
     print(f"Best history: {hist_best}")
+
+    return file_label
 
 
 def run_experiment(base_path, experiment_config, coordinator_config_file_path):

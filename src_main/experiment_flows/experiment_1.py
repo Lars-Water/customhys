@@ -36,11 +36,13 @@ def run_experiment(experiment_config, coordinator_params):
 
         # Configure Hyperheurstic Object.
         hh_parameters = experiment_config.tryGet('hh_parameters')
+        timestamp = int(time.time())
+        file_label = f"INET-LANS_{experiment_name}_{str(timestamp)}"
         hyp = hh.Hyperheuristic(
             heuristic_space=heuristic_space,
             problem=prob,
             parameters=hh_parameters,
-            file_label="INET-LANS_" + experiment_name,
+            file_label=file_label,
             pass_finalised_positions=pass_finalised_positions
         )
 
@@ -75,3 +77,5 @@ def run_experiment(experiment_config, coordinator_params):
             "current_history": hist_curr,
             "best_history": hist_best
         })
+
+        return file_label
