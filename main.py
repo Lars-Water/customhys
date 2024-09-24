@@ -149,7 +149,7 @@ def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switche
     coordinator_params = (base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches)
 
     # Run Experiment 1.
-    file_label = exp_1_flow.run_experiment(experiment_1_config, coordinator_params)
+    exp_1_flow.run_experiment(experiment_1_config, coordinator_params)
 
 
 def experiment_2(base_path, coordinator_config_file_path):
@@ -175,9 +175,19 @@ def experiment_2(base_path, coordinator_config_file_path):
 
 
 def visualize_experiment_1(hh_run_dirs_exp_1):
-    # Visualize the results of Experiment 1 to a multiline plot of the different HH steps progressions.
+
     for hh_run_dir_exp_1 in hh_run_dirs_exp_1:
-        quick_and_dirty_hh_multiplot(Path(hh_run_dir_exp_1))
+        path_hh_run = Path(hh_run_dir_exp_1)
+
+        # Visualize the results of Experiment 1 to a multiline plot of the different HH steps progressions.
+        quick_and_dirty_hh_multiplot(path_hh_run)
+
+        # Visualize an abstraction of the most optimal network configuration determined with the hh run to an xlsx file.
+        backbones_pattern = re.compile(r"INET-LANS_experiment_2_(\d+)_backbones")
+        nr_of_backbone_switches = _determine_nr_backbones_from_filename(hh_run_dir_exp_1, backbones_pattern)
+        # TODO: Allow a dynamic way of determining the number of cables used in the hh run; e.g. config file, or file label of the hh run path.
+        nr_of_cable_types = 4
+        collect_data.quick_and_dirty_save_hh_positions_to_xlsx(path_hh_run, nr_of_backbone_switches, nr_of_cable_types, rescale=True)
 
 
 def visualize_experiment_2(base_path, metaheuristics, hh_run_dirs_exp_2, nr_of_backbone_switches=20):
@@ -186,13 +196,22 @@ def visualize_experiment_2(base_path, metaheuristics, hh_run_dirs_exp_2, nr_of_b
         directory = Path(base_path / "data/raw/results/experiment_2/metaheuristics" / metaheuristic)
         visualization.multiplot_metaheuristic_runs(directory)
 
-    # Visualize the results of Experiment 2 to a multiline plot of the different HH runs in different network sizes.
     backbones_pattern = re.compile(r"INET-LANS_experiment_2_(\d+)_backbones")
     hh_runs_fitness_values = []
     for hh_run_dir_exp_2 in hh_run_dirs_exp_2:
+        path_hh_run = Path(hh_run_dir_exp_2)
         nr_of_backbone_switches = _determine_nr_backbones_from_filename(hh_run_dir_exp_2, backbones_pattern)
-        fitness_values = collect_data.quick_and_dirty_collect_hh_fitness_for_every_step(Path(hh_run_dir_exp_2))
+
+        # TODO: Allow a dynamic way of determining the number of cables used in the hh run; e.g. config file, or file label of the hh run path.
+        nr_of_cable_types = 4
+
+        # Visualize an abstraction of the most optimal network configuration determined with the hh run to an xlsx file.
+        collect_data.quick_and_dirty_save_hh_positions_to_xlsx(path_hh_run, nr_of_backbone_switches, nr_of_cable_types, rescale=True)
+
+        fitness_values = collect_data.quick_and_dirty_collect_hh_fitness_for_every_step(path_hh_run)
         hh_runs_fitness_values.append({"fitness_values": fitness_values,"nr_of_backbone_switches": nr_of_backbone_switches})
+
+    # Visualize the results of Experiment 2 to a multiline plot of the different HH runs in different network sizes.
     visualization.quick_and_dirty_multiplot_hh(hh_runs_fitness_values)
 
 
@@ -265,7 +284,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the heuristic simulation workflow.")
     parser.add_argument('--experiment', choices=['1', '2', 'all'], required=False, help='Choose which experiment to run')
     parser.add_argument('--visualize', choices=['1', '2', 'all'], required=False, help='Choose which experiment to visualize')
-    parser.add_argument('--metaheuristics', nargs='+', required=False, help='List of metaheuristics to visualize')
+    parser.add_argument('--metaheuristics', nargs='+', required=False, help='List of metaheuristics to visualize. Checks the results folder of experiment 2 for the singular metaheuristic runs.')
     parser.add_argument("--hh_run_dirs_exp_1", nargs='+', required=False, help="List of HH run directories for Experiment 1.")
     parser.add_argument("--hh_run_dirs_exp_2", nargs='+', required=False, help="List of HH run directories for Experiment 2.")
     parser.add_argument("--nr_sw", type=int, required=False, help="The number of backbone switches.")

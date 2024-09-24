@@ -39,16 +39,16 @@ ulimit -n 262000
 
 # EXPERIMENT PIPELINES
 
-# Experiment 1.
-# TODO: Change config file paths and point to experiment 1 folder.
-CONFIG_PATH_EXPERIMENT_1="${BASE_PATH}/config/experiment_1/experiment_1.json"
-python3 main.py \
- --experiment 1 \
- --nr_sw 20 \
- --base_path "$BASE_PATH" \
- --coordinator_config "$CONFIG_PATH_COORDINATOR"
+# # Experiment 1.
+# CONFIG_PATH_EXPERIMENT_1="${BASE_PATH}/config/experiment_1/experiment_1.json"
+# python3 main.py \
+#  --experiment 1 \
+#  --nr_sw 20 \
+#  --base_path "$BASE_PATH" \
+#  --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
-# # Experiment 2.
-# # TODO: Change config file paths and point to experiment 2 folder.
-# CONFIG_PATH_EXPERIMENT_2="${BASE_PATH}/config/experiment_2/experiment_2.json"
-# python3 main.py --nr_sw 6 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_EXPERIMENT_2" --coordinator_config "$CONFIG_PATH_COORDINATOR"
+# Experiment 2.
+python3 main.py \
+  --experiment 2 \
+  --base_path "$BASE_PATH" \
+  --coordinator_config "$CONFIG_PATH_COORDINATOR"

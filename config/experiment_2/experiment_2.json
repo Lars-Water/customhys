@@ -1,14 +1,16 @@
 {
     "nr_of_agents": 16,
     "nr_of_iterations": 50,
-    "nr_of_backbones": [20],
+    "nr_of_backbones": [50, 200, 500],
     "metaheuristics_paths": [
-        "config/experiment_2/metaheuristics/ga.json"
+        "config/experiment_2/metaheuristics/ga.json",
+        "config/experiment_2/metaheuristics/gravitational.json",
+        "config/experiment_2/metaheuristics/pso.json"
     ],
     "hh_parameters": {
         "cardinality": 1,
         "cardinality_min": 1,
-        "num_iterations": 3,
+        "num_iterations": 10,
         "num_agents": 16,
         "as_mh": true,
         "num_replicas": 1,
@@ -29,5 +31,5 @@
     },
     "pass_finalised_positions": true,
     "search_operator_space_path": "config/experiment_2/search_operator_space/experiment_1_result.txt",
-    "search_operator_space_name": "subsequent_positions"
+    "search_operator_space_name": "hh_run_with_followed_up_positions"
 }
