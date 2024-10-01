@@ -10,6 +10,10 @@ from math import isfinite
 
 import numpy as np
 
+# NOTE: CUSTOM CHANGE BY LARS - Added json and os for custom implementation of parallelized agent evaluation.
+import json
+import os
+
 __all__ = ['Population']
 __selectors__ = ['all', 'greedy', 'metropolis', 'probabilistic']
 
@@ -31,7 +35,7 @@ class Population:
 
     # Class initialisation
     # ------------------------------------------------------------------------
-    def __init__(self, boundaries, num_agents=30, is_constrained=True):
+    def __init__(self, boundaries, num_agents=30, is_constrained=True, finalised_positions_previous_step=None):
         """
         Return a population of size ``num_agents`` within a problem domain defined by ``boundaries``.
 
@@ -43,6 +47,8 @@ class Population:
             Number of search agents or population size. The default is 30.
         :param bool is_constrained: optional.
             Avoid agents abandon the search space. The default is True.
+        :param list finalised_positions_previous_step (optional):
+            NOTE: CUSTOM CHANGE BY LARS - The finalised positions of the previous step in the HH process. This is used to pass the finalised positions of the previous step to the next step for initialising the positions of the agents.
 
         :returns: population object.
         """
@@ -90,6 +96,9 @@ class Population:
         self.backup_particular_best_fitness = np.full(self.num_agents, np.nan)
 
         self.is_constrained = is_constrained
+
+        # NOTE: CUSTOM CHANGE BY LARS - THE FINALISED POSITIONS OF THE PREVIOUS STEP IN THE HH PROCESS. THIS IS USED TO PASS THE FINALISED POSITIONS OF THE PREVIOUS STEP TO THE NEXT STEP FOR INITIALIZING THE POSITIONS OF THE AGENTS.
+        self.finalised_positions_previous_step = finalised_positions_previous_step
 
         # TODO Add capability for dealing with topologies (neighbourhoods)
         # self.local_best_fitness = self.fitness
@@ -277,9 +286,19 @@ class Population:
         if self.is_constrained:
             self._check_simple_constraints()
 
-        # Evaluate each agent in this function
-        for agent in range(self.num_agents):
-            self.fitness[agent] = problem_function(self.rescale_back(self._positions[agent, :]))
+        # TODO: Remove hardcoded path and use a configuration file.
+        if self.num_agents > 1:
+            # NOTE: CUSTOM CHANGE MADE BY LARS - Custom implementation for parallelized agent evaluation.
+            problem_function(self.rescale_back(self.positions))
+            fitness_values_file_path = os.path.join("/home/larry/hyper-heuristic-dse-2.0/data/raw/agents_fitness", "fitness_values.json")
+            with open(fitness_values_file_path, "r") as fitness_values_file:
+                fitness_values = json.load(fitness_values_file)
+                for agent, fitness in fitness_values.items():
+                    self.fitness[int(agent)] = fitness
+        else:
+            # Evaluate each agent in this function
+            for agent in range(self.num_agents):
+                self.fitness[agent] = problem_function(self.rescale_back(self.positions[agent, :]))
 
     # ==============
     # INITIALISATORS
@@ -298,7 +317,10 @@ class Population:
 
         :returns: None.
         """
-        if scheme == 'vertex':
+        # NOTE: CUSTOM CHANGE BY LARS - THE FINALISED POSITIONS OF THE PREVIOUS STEP IN THE HH PROCESS. THIS IS USED TO PASS THE FINALISED POSITIONS OF THE PREVIOUS STEP TO THE NEXT STEP FOR INITIALIZING THE POSITIONS OF THE AGENTS.
+        if self.finalised_positions_previous_step is not None:
+            self.positions = self.finalised_positions_previous_step
+        elif scheme == 'vertex':
             self._positions = self._grid_matrix(self.num_dimensions, self.num_agents)
         else:
             self._positions = np.random.uniform(-1, 1, (self.num_agents, self.num_dimensions))

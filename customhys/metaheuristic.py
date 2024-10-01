@@ -22,7 +22,7 @@ class Metaheuristic:
         search operators from op, and it is based on a population from Population.
     """
     def __init__(self, problem, search_operators=None, num_agents: int = 30, num_iterations: int = 100,
-                 initial_scheme: str = 'random', verbose: bool = False):
+                 initial_scheme: str = 'random', verbose: bool = False, finalised_positions_previous_step = None):
         """
         Create a population-based metaheuristic by employing different simple search operators.
 
@@ -42,6 +42,8 @@ class Metaheuristic:
             Number of agents or population size. The default is 30.
         :param int num_iterations: Optional.
             Number of iterations or generations that the metaheuristic is going to perform. The default is 100.
+        :param list finalised_positions_previous_step (optional):
+            NOTE: CUSTOM CHANGE BY LARS - The finalised positions of the previous step in the HH process. This is used to pass the finalised positions of the previous step to the next step for initialising the positions of the agents.
 
         :return: None.
         """
@@ -49,8 +51,9 @@ class Metaheuristic:
         self.finalisation_conditions = None
         self._problem_function = problem['function']
 
+        # NOTE: CUSTOM BY LARS - PASSING THE PREVIOUS STEP FINALISED AGENT POSITIONS IF PROVIDED
         # Create population
-        self.pop = Population(problem['boundaries'], num_agents, problem['is_constrained'])
+        self.pop = Population(problem['boundaries'], num_agents, problem['is_constrained'], finalised_positions_previous_step=finalised_positions_previous_step)
 
         # Check and read the search_operators
         if search_operators:
