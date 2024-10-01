@@ -1,14 +1,44 @@
 import time
 import os
 
-from customhys import hyperheuristic as hh
-from customhys import metaheuristic as mh
+from src_main.external.customhys.customhys import hyperheuristic as hh
+from src_main.external.customhys.customhys import metaheuristic as mh
 
 from src_main.tools import component_config
 from src_main.tools.config_reader import Config
 from src_main.tools import coordinator
 
 from src_main.data import collect_data
+
+
+def run_experiment(base_path, experiment_config, coordinator_config_file_path):
+
+    # Define the number of agents and iterations for the coordinator and metaheuristics.
+    nr_of_agents = experiment_config.tryGet('nr_of_agents')
+    nr_of_iterations = experiment_config.tryGet('nr_of_iterations')
+    nrs_of_backbones = experiment_config.tryGet('nr_of_backbones')
+    heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents) # noqa 501
+
+    pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
+
+    for nr_of_backbones in nrs_of_backbones:
+
+        # Set the number of backbones accordingly and perform normalization.
+        heur_sim_coordinator.set_nr_of_backbone_switches(nr_of_backbones)
+        heur_sim_coordinator.manual_normalization()
+
+        # Create problem instance.
+        min_datarate, max_datarate, min_cost, max_cost = heur_sim_coordinator.get_datarate_cost_boundaries()
+        prob = component_config.create_problem_instance(nr_of_backbones, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator.simulation_run)
+
+        # Run the metaheuristics.
+        base_path = os.getcwd()
+        metaheuristic_paths = experiment_config.tryGet('metaheuristics_paths')
+        for metaheuristic_path in metaheuristic_paths:
+            _run_mh(metaheuristic_path, nr_of_agents, nr_of_iterations, prob, base_path, heur_sim_coordinator, nr_of_backbones)
+
+        # Run the hyperheuristic.
+        _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones, pass_finalised_positions)
 
 
 def _determine_metaheurstic_name(metaheuristic_path):
@@ -89,33 +119,3 @@ def _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones, pass
     print(f"Best history: {hist_best}")
 
     return file_label
-
-
-def run_experiment(base_path, experiment_config, coordinator_config_file_path):
-
-    # Define the number of agents and iterations for the coordinator and metaheuristics.
-    nr_of_agents = experiment_config.tryGet('nr_of_agents')
-    nr_of_iterations = experiment_config.tryGet('nr_of_iterations')
-    nrs_of_backbones = experiment_config.tryGet('nr_of_backbones')
-    heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents) # noqa 501
-
-    pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
-
-    for nr_of_backbones in nrs_of_backbones:
-
-        # Set the number of backbones accordingly and perform normalization.
-        heur_sim_coordinator.set_nr_of_backbone_switches(nr_of_backbones)
-        heur_sim_coordinator.manual_normalization()
-
-        # Create problem instance.
-        min_datarate, max_datarate, min_cost, max_cost = heur_sim_coordinator.get_datarate_cost_boundaries()
-        prob = component_config.create_problem_instance(nr_of_backbones, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator.simulation_run)
-
-        # Run the metaheuristics.
-        base_path = os.getcwd()
-        metaheuristic_paths = experiment_config.tryGet('metaheuristics_paths')
-        for metaheuristic_path in metaheuristic_paths:
-            _run_mh(metaheuristic_path, nr_of_agents, nr_of_iterations, prob, base_path, heur_sim_coordinator, nr_of_backbones)
-
-        # # Run the hyperheuristic.
-        # _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones, pass_finalised_positions)

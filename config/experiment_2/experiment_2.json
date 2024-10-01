@@ -3,9 +3,7 @@
     "nr_of_iterations": 100,
     "nr_of_backbones": [300],
     "metaheuristics_paths": [
-        "config/experiment_2/metaheuristics/gravitational.json",
-        "config/experiment_2/metaheuristics/pso.json",
-        "config/experiment_2/metaheuristics/ga.json"
+        "config/experiment_2/metaheuristics/gravitational.json"
     ],
     "hh_parameters": {
         "cardinality": 1,

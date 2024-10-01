@@ -1,7 +1,7 @@
 import os
 import time
 
-from customhys import hyperheuristic as hh
+from src_main.external.customhys.customhys import hyperheuristic as hh
 
 from src_main.data import collect_data
 from src_main.tools import component_config
