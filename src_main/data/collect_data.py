@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import json
 import os
+import re
 import glob
 from datetime import datetime
 import time
@@ -59,6 +60,23 @@ class DataCollector:
         append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
 
 
+def _natural_key(file_name):
+    """
+    Generate a key for natural sorting of file names.
+
+    This function splits the input file name into a list of integers and non-digit parts,
+    which can be used to sort file names in a human-friendly order (e.g., 'file2' comes
+    before 'file10').
+
+    Args:
+        file_name (str): The name of the file to be split into parts.
+
+    Returns:
+        list: A list containing integers and strings, representing the split parts of the file name.
+    """
+    return [int(part) if part.isdigit() else part for part in re.split(r'(\d+)', file_name)]
+
+
 def read_json_files(directory_path):
     """
     Reads every JSON file in the specified directory and returns their contents as a list of dictionaries.
@@ -75,8 +93,8 @@ def read_json_files(directory_path):
     if not os.path.isdir(directory_path):
         raise NotADirectoryError(f"The path '{directory_path}' is not a valid directory.")
 
-    # List all files in the directory
-    file_names = sorted(os.listdir(directory_path))
+    # List all files in the directory and sort using the natural_key
+    file_names = sorted(os.listdir(directory_path), key=_natural_key)
 
     for file_name in file_names:
         # Check if the file is a JSON file

@@ -37,7 +37,7 @@ METAHEURISTICS="gravitational pso ga"
 HH_RUN_DIRS_EXP_1="$PWD/data_files/raw/INET-LANS_experiment_1_genetic_crossover_1726576957"
 
 # HH Run directories to visualize in experiment 2.
-HH_RUN_DIRS_EXP_2="$PWD/data_files/raw/INET-LANS_experiment_2_50_backbones_subsequent_positions_1721079199 $PWD/data_files/raw/INET-LANS_experiment_2_200_backbones_subsequent_positions_1721114973"
+HH_RUN_DIRS_EXP_2="$PWD/data_files/raw/INET-LANS_experiment_2_50_backbones_hh_run_with_followed_up_positions_10_iterations_20_steps_1727434496 $PWD/data_files/raw/INET-LANS_experiment_2_200_backbones_hh_run_with_followed_up_positions_10_iterations_20_steps_1727439213 $PWD/data_files/raw/INET-LANS_experiment_2_300_backbones_hh_run_with_followed_up_positions_10_iterations_20_steps_1727525178"
 
 # Run the Python script with metaheuristics
 python3 main.py \
