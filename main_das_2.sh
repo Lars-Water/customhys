@@ -30,7 +30,19 @@ ulimit -n 262000
 CONFIG_PATH_EXPERIMENT_1="${BASE_PATH}/config/experiment_1/experiment_1.json"
 python3 main.py \
  --experiment 1 \
- --nr_sw 500 \
+ --nr_sw 50 \
+ --base_path "$BASE_PATH" \
+ --coordinator_config "$CONFIG_PATH_COORDINATOR"
+
+python3 main.py \
+ --experiment 1 \
+ --nr_sw 200 \
+ --base_path "$BASE_PATH" \
+ --coordinator_config "$CONFIG_PATH_COORDINATOR"
+
+python3 main.py \
+ --experiment 1 \
+ --nr_sw 300 \
  --base_path "$BASE_PATH" \
  --coordinator_config "$CONFIG_PATH_COORDINATOR"
 

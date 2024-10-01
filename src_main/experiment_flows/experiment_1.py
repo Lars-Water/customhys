@@ -28,6 +28,11 @@ def run_experiment(experiment_config, coordinator_params):
     save_runs = []
 
     for search_operator_space_path, search_operator_space_name in zip(search_operator_space_paths, search_operator_space_names):
+
+        # Open a file in write mode ('w') and write the string
+        with open("output.txt", "w") as file:
+            file.write(f"Running {search_operator_space_path} - {search_operator_space_name}")
+
         # Get the current Unix timestamp
         timestamp = int(time.time())
         experiment_name = f"experiment_1_{search_operator_space_name}_{str(timestamp)}"
@@ -37,7 +42,9 @@ def run_experiment(experiment_config, coordinator_params):
         # Configure Hyperheurstic Object.
         hh_parameters = experiment_config.tryGet('hh_parameters')
         timestamp = int(time.time())
-        file_label = f"INET-LANS_{experiment_name}_{str(timestamp)}"
+        nr_of_iterations = experiment_config.tryGet('hh_parameters', 'num_iterations')
+        nr_of_steps = experiment_config.tryGet('hh_parameters', 'num_steps')
+        file_label = f"INET-LANS_{experiment_name}_{nr_of_iterations}_iterations_{nr_of_steps}_steps_{str(timestamp)}_{nr_of_backbone_switches}_switches"
         hyp = hh.Hyperheuristic(
             heuristic_space=heuristic_space,
             problem=prob,
@@ -77,5 +84,3 @@ def run_experiment(experiment_config, coordinator_params):
             "current_history": hist_curr,
             "best_history": hist_best
         })
-
-        return file_label

@@ -44,15 +44,18 @@ def _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones, pass
     search_operator_space_path = experiment_config.tryGet('search_operator_space_path')
     search_operator_space_name = experiment_config.tryGet('search_operator_space_name')
 
-    # Define experiment name.
-    timestamp = int(time.time())
-    file_label = f"INET-LANS_experiment_2_{nr_of_backbones}_backbones_{search_operator_space_name}_{str(timestamp)}"
-
     # Determine the hyperheuristic search space.
     heuristic_space = component_config.determine_heuristic_space(search_operator_space_path)
 
     # Configure Hyperheurstic.
     hh_parameters = experiment_config.tryGet('hh_parameters')
+    nr_of_iterations = experiment_config.tryGet('hh_parameters', 'num_iterations')
+    nr_of_steps = experiment_config.tryGet('hh_parameters', 'num_steps')
+
+    # Define experiment name.
+    timestamp = int(time.time())
+    file_label = f"INET-LANS_experiment_2_{nr_of_backbones}_backbones_{search_operator_space_name}_{nr_of_iterations}_iterations_{nr_of_steps}_steps_{str(timestamp)}"
+
     hyp = hh.Hyperheuristic(
         heuristic_space=heuristic_space,
         problem=prob,
@@ -114,5 +117,5 @@ def run_experiment(base_path, experiment_config, coordinator_config_file_path):
         for metaheuristic_path in metaheuristic_paths:
             _run_mh(metaheuristic_path, nr_of_agents, nr_of_iterations, prob, base_path, heur_sim_coordinator, nr_of_backbones)
 
-        # Run the hyperheuristic.
-        _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones, pass_finalised_positions)
+        # # Run the hyperheuristic.
+        # _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones, pass_finalised_positions)

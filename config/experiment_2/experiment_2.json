@@ -1,11 +1,11 @@
 {
     "nr_of_agents": 16,
-    "nr_of_iterations": 50,
-    "nr_of_backbones": [50, 200, 500],
+    "nr_of_iterations": 100,
+    "nr_of_backbones": [300],
     "metaheuristics_paths": [
-        "config/experiment_2/metaheuristics/ga.json",
         "config/experiment_2/metaheuristics/gravitational.json",
-        "config/experiment_2/metaheuristics/pso.json"
+        "config/experiment_2/metaheuristics/pso.json",
+        "config/experiment_2/metaheuristics/ga.json"
     ],
     "hh_parameters": {
         "cardinality": 1,
@@ -14,7 +14,7 @@
         "num_agents": 16,
         "as_mh": true,
         "num_replicas": 1,
-        "num_steps": 10,
+        "num_steps": 20,
         "stagnation_percentage": 0.37,
         "max_temperature": 100,
         "min_temperature": 1e-6,
