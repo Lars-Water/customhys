@@ -290,7 +290,10 @@ class Population:
         if self.num_agents > 1:
             # NOTE: CUSTOM CHANGE MADE BY LARS - Custom implementation for parallelized agent evaluation.
             problem_function(self.rescale_back(self.positions))
-            fitness_values_file_path = os.path.join("/home/larry/hyper-heuristic-dse-2.0/data/raw/agents_fitness", "fitness_values.json")
+            # Build the path relative to the current working directory.
+            current_working_dir = os.getcwd()
+            fitness_values_file_path = os.path.join(current_working_dir, "data/raw/agents_fitness", "fitness_values.json")
+            # fitness_values_file_path = os.path.join("/home/larry/hyper-heuristic-dse-2.0/data/raw/agents_fitness", "fitness_values.json")
             with open(fitness_values_file_path, "r") as fitness_values_file:
                 fitness_values = json.load(fitness_values_file)
                 for agent, fitness in fitness_values.items():
