@@ -30,7 +30,7 @@ try:
     tf.get_logger().setLevel('ERROR')
     _using_tensorflow = True
 
-except ImportError:
+except ImportError as e:
     import warnings as wa
 
     message = "`Tensorflow` not found! Please, install it to use the machine_learning module"
@@ -43,7 +43,7 @@ class Hyperheuristic:
     collection from Operators to build metaheuristics using the Metaheuristic module.
     """
 
-    def __init__(self, heuristic_space='default.txt', problem=None, parameters=None, file_label='', weights_array=None):
+    def __init__(self, heuristic_space='default.txt', problem=None, parameters=None, file_label='', weights_array=None, pass_finalised_positions=False):
         """
         Create a hyper-heuristic process using a operator collection as heuristic space.
 
@@ -79,9 +79,12 @@ class Hyperheuristic:
             Tag or label for saving files. The default is ''.
         :param numpy.array weights_array: Optional.
             Weights of the search operators, if there is a-priori information about them. The default is None.
+
+        NOTE: CUSTOM CHANGE BY LARS - DEFINED A FUNCTION ARGUMENT THAT DETERMINES IF A FINALISED POSITION SHOULD BE PASSED TO THE SUBSEQUENT HH-STEP.
+        :param boolean pass_finalised_positions: Optional
+            Boolean that determines if a finalised step should be passed to the subequent step.
         """
         # Read the heuristic space
-        # TODO: fix for any OS (now, it only works for Windows)
         if isinstance(heuristic_space, list):
             self.heuristic_space_label = 'custom_list'
             self.heuristic_space = heuristic_space
@@ -139,6 +142,11 @@ class Hyperheuristic:
         self.min_cardinality = None
         self.num_iterations = None
         self.toggle_seq_as_meta(parameters['as_mh'])
+
+        # NOTE: CUSTOM CHANGE BY LARS - DEFINE LIST TO COLLECT THE FINALISED POSITIONS OF THE CURRENT STEP.
+        self.pass_finalised_positions = pass_finalised_positions
+        if self.pass_finalised_positions:
+            self.collection_finalised_positions_previous_step = []
 
     def toggle_seq_as_meta(self, as_mh=None):
         if as_mh is None:
@@ -493,9 +501,6 @@ class Hyperheuristic:
         action = None
         temperature = self.parameters['max_temperature']
 
-        # NOTE: CUSTOM CHANGE BY LARS - VARIABLE FOR PASSING THE FINALISED POSITIONS OF THE PREVIOUS STEP TO THE NEXT STEP. SAVE THE FINALISED POSITION OF THE INITIAL STEP.
-        collection_finalised_positions_previous_step = current_details['positions']
-
         # Print the first status update, step = 0
         if self.parameters['verbose']:
             print('{} :: Step: {:4d}, Action: {:12s}, Temp: {:.2e}, Card: {:3d}, Perf: {:.2e} [Initial]'.format(
@@ -512,12 +517,13 @@ class Hyperheuristic:
             action = self._choose_action(len(current_solution), action)
             candidate_solution = self._obtain_candidate_solution(sol=current_solution, action=action)
 
-            # NOTE: CUSTOM CHANGE BY LARS - PASSING THE FINALISED POSITIONS OF THE PREVIOUS STEP TO THE NEXT STEP.
+            # NOTE: CUSTOM CHANGE BY LARS - PASSING THE FINALISED POSITIONS OF THE PREVIOUS STEP FOR THE CURRENT CANDIDATE EVALUATION POPULATION INITIALISATION.
             # Evaluate this candidate solution
-            candidate_performance, candidate_details = self.evaluate_candidate_solution(candidate_solution, collection_finalised_positions_previous_step=collection_finalised_positions_previous_step)
-
-            # NOTE: CUSTOM CHANGE BY LARS - SAVE THE FINALISED POSITION OF THIS STEP TO INITIALISE AS POSITION FOR THE NEXT STEP.
-            collection_finalised_positions_previous_step = candidate_details['positions']
+            if self.pass_finalised_positions:
+                candidate_performance, candidate_details = self.evaluate_candidate_solution(candidate_solution, collection_finalised_positions_previous_step=self.collection_finalised_positions_previous_step)
+            else:
+                # NOTE: ORIGINAL VERSION OF CUSTOMHYS.
+                candidate_performance, candidate_details = self.evaluate_candidate_solution(candidate_solution)
 
             # Print update
             if self.parameters['verbose']:
@@ -538,6 +544,38 @@ class Hyperheuristic:
                 if self.parameters['verbose']:
                     print('A', end='')
 
+            # # If the candidate solution is better or equal than the current best solution
+            # if candidate_performance <= best_performance:
+
+            #     # Update the best solution and its performance
+            #     best_solution = np.copy(candidate_solution)
+            #     best_performance = candidate_performance
+
+            #     # Reset the stagnation counter
+            #     stag_counter = 0
+
+            #     # Save this information
+            #     if save_steps:
+            #         _save_step(step, {
+            #             'encoded_solution': best_solution,
+            #             'performance': best_performance,
+            #             'details': candidate_details
+            #         }, self.file_label)
+
+            #     # Add improvement mark
+            #     if self.parameters['verbose']:
+            #         print('+', end='')
+            # else:
+            #     # Update the stagnation counter
+            #     stag_counter += 1
+
+            # historical_current.append(current_performance)
+            # historical_best.append(best_performance)
+            # # Add ending mark
+            # if self.parameters['verbose']:
+            #     print('')
+
+            # NOTE: Custom code that saves every step, and not only those with better solutions.
             # If the candidate solution is better or equal than the current best solution
             if candidate_performance <= best_performance:
 
@@ -548,14 +586,6 @@ class Hyperheuristic:
                 # Reset the stagnation counter
                 stag_counter = 0
 
-                # Save this information
-                if save_steps:
-                    _save_step(step, {
-                        'encoded_solution': best_solution,
-                        'performance': best_performance,
-                        'details': candidate_details
-                    }, self.file_label)
-
                 # Add improvement mark
                 if self.parameters['verbose']:
                     print('+', end='')
@@ -563,8 +593,17 @@ class Hyperheuristic:
                 # Update the stagnation counter
                 stag_counter += 1
 
+            # Save this information for every run
+            if save_steps:
+                _save_step(step, {
+                    'encoded_solution': candidate_solution,
+                    'performance': candidate_performance,
+                    'details': candidate_details
+                }, self.file_label)
+
             historical_current.append(current_performance)
             historical_best.append(best_performance)
+
             # Add ending mark
             if self.parameters['verbose']:
                 print('')
@@ -933,16 +972,22 @@ class Hyperheuristic:
         fitness_data = list()
         position_data = list()
 
-        # NOTE: CUSTOM CHANGE BY LARS - ZIPPED PARSING OF NUMBER REPLICAS AND FINALISED POSITIONS OF THE PREVIOUS STEP.
-        # Run the metaheuristic several times
-        # for _ in range(self.parameters['num_replicas']):
-        for _, finalised_positions_previous_step in zip(range(self.parameters['num_replicas']), collection_finalised_positions_previous_step):
-            # NOTE: CUSTOM CHANGE BY LARS - ADDED FINALISED POSITIONS OF THE PREVIOUS STEP TO THE METAHEURISTIC.
+        # NOTE: CUSTOM CHANGE BY LARS - ADDED FINALISED POSITIONS OF THE PREVIOUS STEP TO THE METAHEURISTIC.
+        # Determine the finalized positions of the previous step if provided.
+        # Run the metaheuristic several times.
+        for i in range(self.parameters['num_replicas']):
+            # If a collection of previous steps is passed, define these previous steps for agent population setting of the current step.
+            if collection_finalised_positions_previous_step:
+                finalised_positions_previous_step = collection_finalised_positions_previous_step[i]
+            # If no collection object is passed, or the collection object is empty then no previous steps have to be passed for population creation.
+            else:
+                finalised_positions_previous_step = None
+
             # Call the metaheuristic
-            mh = Metaheuristic(self.problem, search_operators,
+            mh = Metaheuristic(self.problem,
+                               search_operators,
                                self.parameters['num_agents'],
-                               self.num_iterations,
-                               finalised_positions_previous_step=finalised_positions_previous_step)
+                               self.num_iterations,finalised_positions_previous_step=finalised_positions_previous_step)
 
             # Run this metaheuristic
             mh.run()
@@ -955,9 +1000,17 @@ class Hyperheuristic:
             fitness_data.append(_temporal_fitness)
             position_data.append(_temporal_position)
 
+            # If a collection object is passed then the current finalised positions should be saved as starting points for the next step.
+            if collection_finalised_positions_previous_step is not None:
+                # NOTE: CUSTOM CHANGE BY LARS - CLEAR FINALISED POSITIONS OF THE PREVIOUS STEP AFTER RUNNING THE METAHEURISTIC.
+                self.collection_finalised_positions_previous_step.clear()
+                # NOTE: CUSTOM CHANGE BY LARS - DEFINE NEWLY FINALISED POSITIONS OF THE CURRENT STEP AFTER RUNNING THE METAHEURISTIC.
+                self.collection_finalised_positions_previous_step.append(mh.pop.positions)
+
         # Determine a performance metric once finish the repetitions
         fitness_stats = self.get_statistics(fitness_data)
 
+        # NOTE: CUSTOM CHANGE BY LARS - PASSING EXTRA COLLECTION OF THE FINALISED POSITIONS OF THE CURRENT STEP.
         # Return the performance value and the corresponding details
         return self.get_performance(fitness_stats), dict(
             historical=historical_data, fitness=fitness_data, positions=position_data, statistics=fitness_stats)
