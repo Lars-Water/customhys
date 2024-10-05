@@ -270,7 +270,7 @@ class Population:
             self.global_best_position = np.copy(candidate_position)
             self.global_best_fitness = np.copy(candidate_fitness)
 
-    def evaluate_fitness(self, problem_function):
+    def evaluate_fitness(self, problem_function, file_name="fitness_values.json"):
         """
         Evaluate the population positions in the problem function.
 
@@ -292,7 +292,7 @@ class Population:
             problem_function(self.rescale_back(self.positions))
             # Build the path relative to the current working directory.
             current_working_dir = os.getcwd()
-            fitness_values_file_path = os.path.join(current_working_dir, "data/raw/agents_fitness", "fitness_values.json")
+            fitness_values_file_path = os.path.join(current_working_dir, "data/raw/agents_fitness", file_name)
             # fitness_values_file_path = os.path.join("/home/larry/hyper-heuristic-dse-2.0/data/raw/agents_fitness", "fitness_values.json")
             with open(fitness_values_file_path, "r") as fitness_values_file:
                 fitness_values = json.load(fitness_values_file)

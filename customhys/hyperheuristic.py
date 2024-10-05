@@ -43,7 +43,7 @@ class Hyperheuristic:
     collection from Operators to build metaheuristics using the Metaheuristic module.
     """
 
-    def __init__(self, heuristic_space='default.txt', problem=None, parameters=None, file_label='', weights_array=None, pass_finalised_positions=False):
+    def __init__(self, heuristic_space='default.txt', problem=None, parameters=None, file_label='', weights_array=None, pass_finalised_positions=False, file_name_fitness_values="fitness_values.json"):
         """
         Create a hyper-heuristic process using a operator collection as heuristic space.
 
@@ -137,6 +137,7 @@ class Hyperheuristic:
         # Initialise other parameters
         self.parameters = parameters
         self.file_label = file_label
+        self.file_name_fitness_values = file_name_fitness_values
 
         self.max_cardinality = None
         self.min_cardinality = None
@@ -451,6 +452,7 @@ class Hyperheuristic:
 
     def solve(self, mode=None, save_steps=True):
         mode = mode if mode is not None else self.parameters["solver"]
+        print("#### solve "+str(mode))
 
         if mode == 'dynamic':
             return self._solve_dynamic(save_steps)
@@ -634,8 +636,10 @@ class Hyperheuristic:
         rep = 0
         while rep < self.parameters['num_replicas']:
             # Call the metaheuristic
-            mh = Metaheuristic(self.problem, num_agents=self.parameters['num_agents'],
-                               num_iterations=self.num_iterations)
+            mh = Metaheuristic(self.problem, 
+                                num_agents=self.parameters['num_agents'],
+                                num_iterations=self.num_iterations, 
+                                file_name_fitness_values=self.file_name_fitness_values)
 
             # %% INITIALISER PART
             mh.apply_initialiser()
@@ -987,7 +991,9 @@ class Hyperheuristic:
             mh = Metaheuristic(self.problem,
                                search_operators,
                                self.parameters['num_agents'],
-                               self.num_iterations,finalised_positions_previous_step=finalised_positions_previous_step)
+                               self.num_iterations,
+                               finalised_positions_previous_step=finalised_positions_previous_step,     
+                               file_name_fitness_values=self.file_name_fitness_values)
 
             # Run this metaheuristic
             mh.run()

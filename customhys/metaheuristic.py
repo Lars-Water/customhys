@@ -22,7 +22,7 @@ class Metaheuristic:
         search operators from op, and it is based on a population from Population.
     """
     def __init__(self, problem, search_operators=None, num_agents: int = 30, num_iterations: int = 100,
-                 initial_scheme: str = 'random', verbose: bool = False, finalised_positions_previous_step = None):
+                 initial_scheme: str = 'random', verbose: bool = False, finalised_positions_previous_step = None, file_name_fitness_values="fitness_values.json"):
         """
         Create a population-based metaheuristic by employing different simple search operators.
 
@@ -79,6 +79,9 @@ class Metaheuristic:
         # Set the initial scheme
         self.initial_scheme = initial_scheme
 
+        # Set file_name_fitness_values
+        self.file_name_fitness_values = file_name_fitness_values
+
     def apply_initialiser(self):
         # Set initial iteration
         self.pop.iteration = 0
@@ -87,7 +90,7 @@ class Metaheuristic:
         self.pop.initialise_positions(self.initial_scheme)  # Default: random
 
         # Evaluate fitness values
-        self.pop.evaluate_fitness(self._problem_function)
+        self.pop.evaluate_fitness(self._problem_function, self.file_name_fitness_values)
 
         # Update population, particular, and global
         self.pop.update_positions('population', 'all')  # Default
@@ -102,7 +105,7 @@ class Metaheuristic:
         exec('Operators.' + operator_name + '(self.pop,' + operator_params)
 
         # Evaluate fitness values
-        self.pop.evaluate_fitness(self._problem_function)
+        self.pop.evaluate_fitness(self._problem_function, self.file_name_fitness_values)
 
         # Update population
         if selector in __selectors__:
