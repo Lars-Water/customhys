@@ -43,7 +43,7 @@ CONFIG_PATH_EXPERIMENT_1="${BASE_PATH}/config/experiment_1/experiment_1.json"
 echo "Starting main 300"
 python3 main.py \
  --experiment 1 \
- --nr_sw 300 \
+ --nr_sw 10 \
  --base_path "$BASE_PATH" \
  --coordinator_config "$CONFIG_PATH_COORDINATOR"
 

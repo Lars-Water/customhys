@@ -1,3 +1,0 @@
-[ coordinator_config_manager  05-10-2024 12:40:25  INFO     ]  Default config file: /home/mherget/hyper-heuristic-dse-2.0/src_main/external/simulation_model/src/utils/default.cfg
-[ coordinator_config_manager  05-10-2024 12:40:25  INFO     ]  Using config file: /home/mherget/hyper-heuristic-dse-2.0/config/coordinator/config_coordinator_das_2.json
-[ coordinator_config_manager  05-10-2024 12:40:25  INFO     ]  Loading config file: /home/mherget/hyper-heuristic-dse-2.0/config/coordinator/config_coordinator_das_2.json
