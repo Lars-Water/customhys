@@ -33,7 +33,7 @@
             "sims_path": "/var/scratch/mherget/sims",
             "dummy_path": "/home/mherget/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims",
             "simulation_model_template_path": "/home/mherget/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/dummy_sim_lans",
-            "simulation_model_generated_path": "/home/mherget/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/custom_dummy"
+            "simulation_model_generated_path": "/var/scratch/mherget/custom_dummy"
         },
         "simulation_model_configuration": {
             "sim_model": "custom",
