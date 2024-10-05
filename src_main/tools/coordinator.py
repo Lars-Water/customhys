@@ -543,6 +543,11 @@ class HeuristicSimulationCoordinator:
 
 
     def get_datarate_cost_boundaries(self):
+        print("##### get_datarate_cost_boundaries:")
+        print("##### self.min_datarate:" + str(self.min_datarate))
+        print("##### self.max_datarate:" + str(self.max_datarate))
+        print("##### self.min_cost:" + str(self.min_cost))
+        print("##### self.max_cost:" + str(self.max_cost))
         return self.min_datarate, self.max_datarate, self.min_cost, self.max_cost
 
 
@@ -576,9 +581,15 @@ class HeuristicSimulationCoordinator:
 
         # Generate simulation instances the min and max parameter value configurations.
         sim_ids = []
-        for parameter, boundaries in boundaries.items():
-            for boundary in boundaries:
-                value = boundaries[boundary]
+        sim_id_boundaries = {}
+        # print("##### boundaries:")
+        # print(boundaries)
+        for parameter, boundaries_local in boundaries.items():
+            sim_id_boundaries[parameter] = {}
+            for boundary in boundaries_local:
+                value = boundaries_local[boundary]
+                # print(boundary)
+                # print(value)
                 self.logger.debug(f"Generating normalization sim instance for parameter: {parameter} - boundary: {boundary} - value: {value}")
                 sim_id = uuid.uuid4()
                 configuration = [
@@ -597,15 +608,22 @@ class HeuristicSimulationCoordinator:
                 ]
                 self.generate_design_point(sim_id, configuration)
                 sim_ids.append(sim_id)
+                sim_id_boundaries[parameter][boundary] = sim_id
 
-                self.logger.info("Evaluating the generated simulation instances.")
-                uids = self.run_multiple_simulation_configuration(sim_ids)
+        # print(sim_id_boundaries)
+        self.logger.info("Evaluating the generated simulation instances.")
+        uids = self.run_multiple_simulation_configuration(sim_ids)
+        # print(sim_ids)
+        # print(uids)
 
+        for parameter, boundaries_local in boundaries.items():
+            for boundary in boundaries_local:
+                value = boundaries_local[boundary]
+                uid = list(uids.keys())[list(uids.values()).index(sim_ids.index(sim_id_boundaries[parameter][boundary]))]
                 self.logger.info("Determine the boundary value for the objective.")
-                for sim_uid in uids.keys():
-                    self.determine_boundary_value(sim_uid, parameter, boundary)
+                self.determine_boundary_value(uid, parameter, boundary)
 
-                sim_ids.clear()
+        sim_ids.clear()
 
         if self.remove_design_point_configuration_dummy_path:
             self.logger.debug("Removing simulation run templates in dummy path.")
@@ -615,7 +633,7 @@ class HeuristicSimulationCoordinator:
 
 
     def determine_boundary_value(self, sim_uid, parameter, boundary):
-        csv_file_path = os.path.join(self.data_path, "results", sim_uid, "x.csv")
+        csv_file_path = os.path.join(self.data_path, "results", str(sim_uid), "x.csv")
         df = pd.read_csv(csv_file_path)
 
         # Determine boundary values for the datarate parameter.
@@ -626,6 +644,9 @@ class HeuristicSimulationCoordinator:
             _ = latency_df['stddev']
             _ = latency_df['min']
             _ = latency_df['max']
+            # print("mean_end_to_end_delay "+str(parameter)+" "+str(boundary))
+            # print(mean_end_to_end_delay)
+            # print(mean_end_to_end_delay.to_numpy()[0])
             if boundary == "min":
                 self.min_datarate = mean_end_to_end_delay.to_numpy()[0]
             elif boundary == "max":
@@ -634,6 +655,10 @@ class HeuristicSimulationCoordinator:
         elif parameter == "cost":
             cost_df = df[df['type'] == "param"]
             cost_df = cost_df[cost_df["name"] == "cost"]
+            # print("cost_df")
+            # print(cost_df)
+            # print(cost_df['value'])
+            # print(cost_df['value'].astype(float))
             if boundary == "min":
                 self.min_cost = cost_df['value'].astype(float).sum()
             elif boundary == "max":

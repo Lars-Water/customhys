@@ -3,7 +3,7 @@
         "cardinality": 1,
         "cardinality_min": 1,
         "num_iterations": 10,
-        "num_agents": 16,
+        "num_agents": 64,
         "as_mh": true,
         "num_replicas": 1,
         "num_steps": 50,

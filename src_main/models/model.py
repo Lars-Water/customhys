@@ -2,6 +2,7 @@ import numpy as np
 
 # from external.CUSTOMHys.customhys import benchmark_func as bf
 from customhys import benchmark_func as bf
+import customhys
 
 # Import BasicProblem object for generating a custom optimisation problem.
 BP = bf.BasicProblem
@@ -44,6 +45,7 @@ class instance(BP):
 
         # Determine min and max values for objectives
         self.boundaries = boundaries
+        print("##### Customhys version:" + str(customhys.__version__))
 
 
     '''

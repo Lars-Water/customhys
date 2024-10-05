@@ -18,6 +18,8 @@ import src_main.experiment_flows.experiment_1 as exp_1_flow
 import src_main.experiment_flows.experiment_2 as exp_2_flow
 from src_main.visualization import visualization
 
+import customhys
+
 
 def _determine_nr_backbones_from_filename(filename, regex_pattern):
     # Extract the number of backbone switches from the filename.
@@ -137,6 +139,7 @@ def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switche
     Returns:
     None
     """
+    print("##### experiment_1")
     # Set up the experiment_1 configuration object.
     experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_1/experiment_1.json"))
     experiment_1_log_path = os.path.join(base_path, "data/logs/experiments/experiment_1")
@@ -148,6 +151,7 @@ def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switche
     run_name = "experiment_1"
     coordinator_params = (base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches)
 
+    print("##### exp_1_flow ")
     # Run Experiment 1.
     exp_1_flow.run_experiment(experiment_1_config, coordinator_params)
 
@@ -228,6 +232,7 @@ def visualize_experiment_2(base_path, metaheuristics, hh_run_dirs_exp_2, nr_of_b
         nr_of_backbone_switches (int): The number of backbone switches for the INET model.
 '''
 def main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, hh_run_dirs_exp_1, hh_run_dirs_exp_2, parameter_tuning, design_space_plot, nr_of_backbone_switches):
+    print("##### Customhys version:" + str(customhys.__version__))
 
     # Run the requested experiments.
     if experiment == '1':
