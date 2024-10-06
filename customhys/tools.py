@@ -14,6 +14,7 @@ import scipy.stats as st
 from subprocess import call
 from tqdm import tqdm
 
+np.errstate(divide='ignore', invalid='ignore')
 
 def printmsk(var, level=1, name=None):
     """

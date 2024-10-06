@@ -19,7 +19,7 @@ from . import operators as op
 from . import tools as jt
 from .metaheuristic import Metaheuristic
 
-np.seterr(divide='ignore')
+
 _using_tensorflow = False
 try:
     import tensorflow as tf
@@ -1121,7 +1121,8 @@ class Hyperheuristic:
         :return: dict: Statistics computed from the raw data.
         """
         # Get descriptive statistics
-        dst = st.describe(raw_data)
+        with np.errstate(divide='ignore', invalid='ignore'):
+            dst = st.describe(raw_data, nan_policy='omit')
 
         # Store statistics
         return dict(nob=dst.nobs,
