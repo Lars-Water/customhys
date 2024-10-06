@@ -11,6 +11,7 @@ import json
 import numpy as np
 import random
 import scipy.stats as st
+import time
 from datetime import datetime
 from os import makedirs as _create_path
 from os.path import exists as _check_path
@@ -18,6 +19,7 @@ from . import operators as op
 from . import tools as jt
 from .metaheuristic import Metaheuristic
 
+np.seterr(divide='ignore')
 _using_tensorflow = False
 try:
     import tensorflow as tf
@@ -452,7 +454,6 @@ class Hyperheuristic:
 
     def solve(self, mode=None, save_steps=True):
         mode = mode if mode is not None else self.parameters["solver"]
-        print("#### solve "+str(mode))
 
         if mode == 'dynamic':
             return self._solve_dynamic(save_steps)
@@ -476,9 +477,11 @@ class Hyperheuristic:
         """
 
         # %% INITIALISER PART
+        start_time = datetime.now()
 
         # PERTURBATOR (GENERATOR): Create the initial solution
         current_solution = self._obtain_candidate_solution()
+
 
         # Evaluate this solution
         current_performance, current_details = self.evaluate_candidate_solution(current_solution)
@@ -491,6 +494,8 @@ class Hyperheuristic:
         # SELECTOR: Initialise the best solution and its performance
         best_solution = np.copy(current_solution)
         best_performance = current_performance
+
+        end_time = datetime.now()
 
         # Save this historical register, step = 0
         if save_steps:
@@ -505,13 +510,15 @@ class Hyperheuristic:
 
         # Print the first status update, step = 0
         if self.parameters['verbose']:
-            print('{} :: Step: {:4d}, Action: {:12s}, Temp: {:.2e}, Card: {:3d}, Perf: {:.2e} [Initial]'.format(
-                self.file_label, step, 'None', temperature, len(current_solution), current_performance))
+            print('{} time: {} :: Step: {:4d}, Action: {:12s}, Temp: {:.2e}, Card: {:3d}, Perf: {:.2e} [Initial]'.format(
+                self.file_label, (end_time - start_time)
+, step, 'None', temperature, len(current_solution), current_performance))
 
         # Perform a metaheuristic (now, Simulated Annealing) as hyper-heuristic process
         while not self._check_finalisation(step, stag_counter,
                                            temperature - self.parameters['min_temperature']):
             # Update step and temperature
+            start_time = datetime.now()
             step += 1
             temperature = self._obtain_temperature(step, self.parameters['temperature_scheme'])
 
@@ -527,10 +534,12 @@ class Hyperheuristic:
                 # NOTE: ORIGINAL VERSION OF CUSTOMHYS.
                 candidate_performance, candidate_details = self.evaluate_candidate_solution(candidate_solution)
 
+            end_time = datetime.now()
+
             # Print update
             if self.parameters['verbose']:
-                print('{} :: Step: {:4d}, Action: {:12s}, Temp: {:.2e}, Card: {:3d}, '.format(
-                    self.file_label, step, action, temperature, len(candidate_solution)) +
+                print('{} time: {} :: Step: {:4d}, Action: {:12s}, Temp: {:.2e}, Card: {:3d}, '.format(
+                    self.file_label, (end_time - start_time), step, action, temperature, len(candidate_solution)) +
                       'candPerf: {:.2e}, currPerf: {:.2e}, bestPerf: {:.2e}'.format(
                           candidate_performance, current_performance, best_performance), end=' ')
 
@@ -667,6 +676,7 @@ class Hyperheuristic:
 
             # FINALISATOR: Finalise due to other concepts
             while not self._check_finalisation(step, stag_counter):
+                start_time = datetime.now()
                 # Update the current set
                 if self.parameters['trial_overflow'] and self.__stagnation_check(stag_counter):
                     possible_transitions = np.ones(self.num_operators) / self.num_operators
@@ -706,12 +716,14 @@ class Hyperheuristic:
                 current_fitness = np.copy(mh.pop.global_best_fitness)
                 current_position = np.copy(mh.pop.rescale_back(mh.pop.global_best_position))
 
+                end_time = datetime.now()
+
                 # Print update
                 if self.parameters['verbose']:
                     print(
-                        '{} :: Rep: {:3d}, Step: {:3d}, Trial: {:3d}, SO: {:30s}, currPerf: {:.2e}, candPerf: {:.2e} '
+                        '{} time: {} :: Rep: {:3d}, Step: {:3d}, Trial: {:3d}, SO: {:30s}, currPerf: {:.2e}, candPerf: {:.2e} '
                         'which: {:10s}'.format(
-                            self.file_label, rep + 1, step + 1, stag_counter,
+                            self.file_label, (end_time - start_time), rep + 1, step + 1, stag_counter,
                                              candidate_search_operator[0][0] + ' & ' + candidate_search_operator[0][2][
                                                                                        :4],
                             best_fitness[-1], current_fitness, which_matrix), end=' ')
@@ -837,6 +849,7 @@ class Hyperheuristic:
 
             # Finalisator
             while not self._check_finalisation(step, stag_counter):
+                start_time = datetime.now()
                 # Use the trained model to predict operators weights
                 if stag_counter == 0:
                     operator_prediction = model.predict(current_sequence)
@@ -853,12 +866,14 @@ class Hyperheuristic:
                 current_fitness = np.copy(mh.pop.global_best_fitness)
                 current_position = np.copy(mh.pop.rescale_back(mh.pop.global_best_position))
 
+                end_time = datetime.now()
+
                 # Print update
                 if self.parameters['verbose']:
                     print(
-                        '{} :: Neural Network, Rep: {:3d}, Step: {:3d}, Trial: {:3d}, SO: {:30s}, currPerf: {:.2e}, candPerf: {:.2e}, '
+                        '{} : time: {}:: Neural Network, Rep: {:3d}, Step: {:3d}, Trial: {:3d}, SO: {:30s}, currPerf: {:.2e}, candPerf: {:.2e}, '
                         'csl: {:3d}'.format(
-                            self.file_label, rep + 1, step + 1, stag_counter,
+                            self.file_label, (end_time - start_time), rep + 1, step + 1, stag_counter,
                                              candidate_search_operator[0][0] + ' & ' + candidate_search_operator[0][2][
                                                                                        :4],
                             best_fitness[-1], current_fitness, len(self.current_space)), end=' ')
