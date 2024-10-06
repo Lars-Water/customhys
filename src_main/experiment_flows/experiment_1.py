@@ -42,13 +42,19 @@ def run_experiment(experiment_config, coordinator_params):
         fns_hh.append(threading.Thread(target=run_search_operator_space_path, args=(
     experiment_config, search_operator_space_path, search_operator_space_name, nr_of_backbone_switches, prob, heur_sim_coordinator)))
 
+
     print(fns_hh)
     proc = []
     for p in fns_hh:
         p.start()
         proc.append(p)
+    print("##### procs")
+    print(proc)
     for p in proc:
         p.join()
+
+    print(save_runs)
+    print("Finished Exp 1")
 
 def run_search_operator_space_path(experiment_config, search_operator_space_path, search_operator_space_name, nr_of_backbone_switches, prob, heur_sim_coordinator):
     pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
@@ -102,10 +108,10 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     save_run_path = os.path.join(os.getcwd(), "data/raw/results/experiment_1/", search_operator_space_name)
     collect_data.save_hh_run_meta_data(save_run_path, best_sol, best_perf, hist_curr, hist_best, hh_run_meta_data)
 
-    print(f" ("+search_operator_space_name+") Best solution: {best_sol}")
-    print(f" ("+search_operator_space_name+") Best performance: {best_perf}")
-    print(f" ("+search_operator_space_name+") Current history: {hist_curr}")
-    print(f" ("+search_operator_space_name+") Best history: {hist_best}")
+    print(f" ("+search_operator_space_name+") Best solution: "+str(best_sol))
+    print(f" ("+search_operator_space_name+") Best performance: "+str(best_perf))
+    print(f" ("+search_operator_space_name+") Best history: "+str(hist_best))
+    print(f" ("+search_operator_space_name+") Current history: "+str(hist_curr))
 
     save_runs.append({
         "experiment_name": experiment_name,

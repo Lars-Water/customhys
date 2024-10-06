@@ -549,11 +549,12 @@ class HeuristicSimulationCoordinator:
 
 
     def get_datarate_cost_boundaries(self):
-        print("##### get_datarate_cost_boundaries:")
-        print("##### self.min_datarate:" + str(self.min_datarate))
-        print("##### self.max_datarate:" + str(self.max_datarate))
-        print("##### self.min_cost:" + str(self.min_cost))
-        print("##### self.max_cost:" + str(self.max_cost))
+        self.logger.info("get_datarate_cost_boundaries: \n" +
+                            "self.min_datarate: " + str(self.min_datarate) + "\n" +
+                            "self.max_datarate: " + str(self.max_datarate) + "\n" +
+                            "self.min_cost: " + str(self.min_cost) + "\n" +
+                            "self.max_cost: " + str(self.max_cost)
+        )
         return self.min_datarate, self.max_datarate, self.min_cost, self.max_cost
 
 
