@@ -16,7 +16,6 @@ def run_experiment(experiment_config, coordinator_params):
         Experimental run of tuning the parameters of any provided search operators.
     '''
     print("##### exp_1_flow.run_experiment ")
-    np.seterr(divide='ignore', invalid='ignore')
     search_operator_space_paths = experiment_config.tryGet('search_operator_space_paths')
     search_operator_space_names = experiment_config.tryGet('search_operator_space_names')
     pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
