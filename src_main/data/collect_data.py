@@ -15,6 +15,7 @@ import src_main.tools.component_config as component_config
 import src_main.data.sim_configurations as sim_configurations
 
 
+
 class DataCollector:
 
     def __init__(self, weight_latency, weight_cost, dir_design_points_metrics_output):

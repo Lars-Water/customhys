@@ -16,6 +16,7 @@ def run_experiment(experiment_config, coordinator_params):
         Experimental run of tuning the parameters of any provided search operators.
     '''
     print("##### exp_1_flow.run_experiment ")
+    np.seterr(divide='ignore', invalid='ignore')
     search_operator_space_paths = experiment_config.tryGet('search_operator_space_paths')
     search_operator_space_names = experiment_config.tryGet('search_operator_space_names')
     pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
@@ -36,20 +37,20 @@ def run_experiment(experiment_config, coordinator_params):
     heur_sim_coordinator.simulation_execution_time = 0
     
 
-    print("##### for search_operator_space_path ")
+    print("### for search_operator_space_path ")
     fns_hh = []
     for search_operator_space_path, search_operator_space_name in zip(search_operator_space_paths, search_operator_space_names):
         fns_hh.append(threading.Thread(target=run_search_operator_space_path, args=(
     experiment_config, search_operator_space_path, search_operator_space_name, nr_of_backbone_switches, prob, heur_sim_coordinator)))
 
 
-    print(fns_hh)
+    # print(fns_hh)
     proc = []
     for p in fns_hh:
         p.start()
         proc.append(p)
-    print("##### procs")
-    print(proc)
+    # print("##### procs")
+    # print(proc)
     for p in proc:
         p.join()
 
@@ -66,7 +67,6 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     timestamp = int(time.time())
     experiment_name = f"experiment_1_{search_operator_space_name}_{str(timestamp)}"
 
-    save_runs.append("test")
     print("##### ("+search_operator_space_name+") determine_heuristic_space")
 
     heuristic_space = component_config.determine_heuristic_space(search_operator_space_path)
@@ -89,7 +89,6 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     )
 
 
-    print("##### ("+search_operator_space_name+") start_time")
     # Start timer for the heuristic run.
     start_time = time.time()
 
@@ -100,10 +99,8 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     # End timer for the heuristic run.
     end_time = time.time()
 
-    print("###### ("+search_operator_space_name+") hh_run_meta_data")
     hh_run_meta_data = collect_data.calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator)
 
-    print("###### ("+search_operator_space_name+") save_run_path")
     # Save the heuristic run data.
     save_run_path = os.path.join(os.getcwd(), "data/raw/results/experiment_1/", search_operator_space_name)
     collect_data.save_hh_run_meta_data(save_run_path, best_sol, best_perf, hist_curr, hist_best, hh_run_meta_data)
