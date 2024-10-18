@@ -111,3 +111,7 @@ bin/
 # exclude configuration file settings from source control
 /config/config_coordinator.json
 /config/config_visualization.json
+
+
+# Marius Models
+src_main/external/simulation_model/sims/faezeh_old/
