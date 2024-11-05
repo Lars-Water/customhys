@@ -207,7 +207,7 @@ class HeuristicSimulationCoordinator:
         )
 
 
-    def locally_store_agents_fitness_values(self, fitness_values):
+    def locally_store_agents_fitness_values(self, fitness_values, file_name_fitness_values="fitness_values.json"):
         """
         Locally stores the fitness values of agents in a JSON file.
 
@@ -220,7 +220,7 @@ class HeuristicSimulationCoordinator:
         self.logger.info(f"Storing fitness values locally at {self.agents_fitness_dir_relative_path}")
         agents_fitness_dir = os.path.join(self._base_path, self.agents_fitness_dir_relative_path)
         os.makedirs(agents_fitness_dir, exist_ok=True)
-        fitness_values_file_path = os.path.join(agents_fitness_dir, "fitness_values.json")
+        fitness_values_file_path = os.path.join(agents_fitness_dir, file_name_fitness_values)
         if os.path.exists(fitness_values_file_path):
             os.remove(fitness_values_file_path)
         with open(fitness_values_file_path, 'w') as f:
@@ -237,7 +237,7 @@ class HeuristicSimulationCoordinator:
         Returns:
             The fitness value of the simulation run.
     '''
-    def simulation_run(self, fitfunc, config_values):
+    def simulation_run(self, fitfunc, config_values, file_name_fitness_values="fitness_values.json"):
 
         # Start timer for simulation run.
         start_time = time.time()
@@ -262,7 +262,7 @@ class HeuristicSimulationCoordinator:
             self.logger.info("Locally storing the agents fitness values.")
             fitness_config = self.conf.tryGet("fitness_config")
             fitness_values = fitfunc(fitness_config, simulation_metrics)
-            self.locally_store_agents_fitness_values(fitness_values)
+            self.locally_store_agents_fitness_values(fitness_values, file_name_fitness_values)
 
             # End timer for simulation run.
             end_time = time.time()
@@ -270,17 +270,23 @@ class HeuristicSimulationCoordinator:
             # Add simulation run time to total coordinator time.
             self.coordinator_and_simulation_execution_time += end_time - start_time
 
-            sim_ids.clear()
-            if self.remove_design_point_configuration_dummy_path:
+            if self.remove_design_point_configuration_dummy_path: 
                 self.logger.debug("Removing simulation run templates in dummy path.")
-                fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_*")
+                # print(""+str(self.sim_dummy_directory))
+                for sim_id in sim_ids:
+                    fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_"+str(sim_id)+"*")
             if self.remove_design_point_configuration_sims_path:
                 self.logger.debug("Removing simulation run templates in sims path.")
-                fo.remove_design_point_configurations_sims_path(self.sims_path)
+                # print("sims_path "+str(self.sims_path))
+                for sim_id in sim_ids:
+                    fo.remove_design_point_configurations_dummy_path(self.sims_path, pattern=str(sim_id))
+                # fo.remove_design_point_configurations_sims_path(self.sims_path)
             if self.remove_sim_instance_experiments_folder:
                 self.logger.debug("Removing simulation instances from experiments folder.")
+                # print("data_path "+str(self.data_path))
                 fo.remove_sim_instance_folders(self.data_path, uids)
 
+            sim_ids.clear()
             return 0
 
         else:
@@ -543,6 +549,12 @@ class HeuristicSimulationCoordinator:
 
 
     def get_datarate_cost_boundaries(self):
+        self.logger.info("get_datarate_cost_boundaries: \n" +
+                            "self.min_datarate: " + str(self.min_datarate) + "\n" +
+                            "self.max_datarate: " + str(self.max_datarate) + "\n" +
+                            "self.min_cost: " + str(self.min_cost) + "\n" +
+                            "self.max_cost: " + str(self.max_cost)
+        )
         return self.min_datarate, self.max_datarate, self.min_cost, self.max_cost
 
 
@@ -576,9 +588,15 @@ class HeuristicSimulationCoordinator:
 
         # Generate simulation instances the min and max parameter value configurations.
         sim_ids = []
-        for parameter, boundaries in boundaries.items():
-            for boundary in boundaries:
-                value = boundaries[boundary]
+        sim_id_boundaries = {}
+        # print("##### boundaries:")
+        # print(boundaries)
+        for parameter, boundaries_local in boundaries.items():
+            sim_id_boundaries[parameter] = {}
+            for boundary in boundaries_local:
+                value = boundaries_local[boundary]
+                # print(boundary)
+                # print(value)
                 self.logger.debug(f"Generating normalization sim instance for parameter: {parameter} - boundary: {boundary} - value: {value}")
                 sim_id = uuid.uuid4()
                 configuration = [
@@ -597,15 +615,22 @@ class HeuristicSimulationCoordinator:
                 ]
                 self.generate_design_point(sim_id, configuration)
                 sim_ids.append(sim_id)
+                sim_id_boundaries[parameter][boundary] = sim_id
 
-                self.logger.info("Evaluating the generated simulation instances.")
-                uids = self.run_multiple_simulation_configuration(sim_ids)
+        # print(sim_id_boundaries)
+        self.logger.info("Evaluating the generated simulation instances.")
+        uids = self.run_multiple_simulation_configuration(sim_ids)
+        # print(sim_ids)
+        # print(uids)
 
+        for parameter, boundaries_local in boundaries.items():
+            for boundary in boundaries_local:
+                value = boundaries_local[boundary]
+                uid = list(uids.keys())[list(uids.values()).index(sim_ids.index(sim_id_boundaries[parameter][boundary]))]
                 self.logger.info("Determine the boundary value for the objective.")
-                for sim_uid in uids.keys():
-                    self.determine_boundary_value(sim_uid, parameter, boundary)
+                self.determine_boundary_value(uid, parameter, boundary)
 
-                sim_ids.clear()
+        sim_ids.clear()
 
         if self.remove_design_point_configuration_dummy_path:
             self.logger.debug("Removing simulation run templates in dummy path.")
@@ -615,7 +640,7 @@ class HeuristicSimulationCoordinator:
 
 
     def determine_boundary_value(self, sim_uid, parameter, boundary):
-        csv_file_path = os.path.join(self.data_path, "results", sim_uid, "x.csv")
+        csv_file_path = os.path.join(self.data_path, "results", str(sim_uid), "x.csv")
         df = pd.read_csv(csv_file_path)
 
         # Determine boundary values for the datarate parameter.
@@ -626,6 +651,9 @@ class HeuristicSimulationCoordinator:
             _ = latency_df['stddev']
             _ = latency_df['min']
             _ = latency_df['max']
+            # print("mean_end_to_end_delay "+str(parameter)+" "+str(boundary))
+            # print(mean_end_to_end_delay)
+            # print(mean_end_to_end_delay.to_numpy()[0])
             if boundary == "min":
                 self.min_datarate = mean_end_to_end_delay.to_numpy()[0]
             elif boundary == "max":
@@ -634,6 +662,10 @@ class HeuristicSimulationCoordinator:
         elif parameter == "cost":
             cost_df = df[df['type'] == "param"]
             cost_df = cost_df[cost_df["name"] == "cost"]
+            # print("cost_df")
+            # print(cost_df)
+            # print(cost_df['value'])
+            # print(cost_df['value'].astype(float))
             if boundary == "min":
                 self.min_cost = cost_df['value'].astype(float).sum()
             elif boundary == "max":

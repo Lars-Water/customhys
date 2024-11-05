@@ -1,4 +1,4 @@
-customhys
+openpyxl
 dask
 dask_jobqueue
 matplotlib
@@ -6,4 +6,3 @@ numpy
 pandas
 plotly
 type_enforced
-sys

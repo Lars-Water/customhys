@@ -1,7 +1,10 @@
 import numpy as np
 
+
+
 # from external.CUSTOMHys.customhys import benchmark_func as bf
 from customhys import benchmark_func as bf
+import customhys
 
 # Import BasicProblem object for generating a custom optimisation problem.
 BP = bf.BasicProblem
@@ -44,13 +47,30 @@ class instance(BP):
 
         # Determine min and max values for objectives
         self.boundaries = boundaries
+        self.file_name_fitness_values="fitness_values.json"
 
+
+    '''
+        Set file name for local fitness values file for running multiple HH/MH at once
+    '''
+    def set_file_name_fitness_values(self, file_name_fitness_values):
+        self.file_name_fitness_values = file_name_fitness_values
+
+
+    def get_formatted_problem(self, is_constrained=True, fts=None):
+        return dict(function=lambda x: self.get_function_value(x),
+                    boundaries=(self.min_search_range, self.max_search_range),
+                    is_constrained=is_constrained,
+                    features=self.get_features(fts=fts),
+                    func_name=self.func_name,
+                    dimensions=self.variable_num,
+                    set_file_name_fitness_values=lambda x: self.set_file_name_fitness_values(x))
 
     '''
         Run the simulation model with the given variables.
     '''
     def get_func_val(self, variables, *args):
-        return self.sim_run(self.fitfunc, variables)
+        return self.sim_run(self.fitfunc, variables, self.file_name_fitness_values)
 
 
     '''
@@ -79,7 +99,7 @@ class instance(BP):
             # TODO: Add other fitness functions here.
             else:
                 return 0
-        print("fitfunc fitness_values:"+str(fitness_values))
+        # self.logger.info("fitfunc fitness_values:"+str(fitness_values))
         return fitness_values
 
 

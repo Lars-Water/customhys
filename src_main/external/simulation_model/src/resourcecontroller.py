@@ -54,7 +54,7 @@ class ResourceController:
 
                     num_workers = num_jobs * job_processes
 
-                    self.cluster = SLURMCluster(job_directives_skip=["--mem"], cores=job_cores, processes=job_processes, walltime=walltime, memory=job_memory, worker_extra_args=['--resources slots={}'.format(job_cores)], log_directory=self.logs_path)
+                    self.cluster = SLURMCluster(job_directives_skip=["--mem"], cores=job_cores, processes=job_processes, walltime=walltime, death_timeout=5*60*60, memory=job_memory, worker_extra_args=['--resources slots={}'.format(job_cores)], log_directory=self.logs_path)
                     self.cluster.scale(jobs=num_jobs)
                     # TODO: check if number of slots does not exceed num of cores per worker
                     # TODO: wait for all workers to arrive?

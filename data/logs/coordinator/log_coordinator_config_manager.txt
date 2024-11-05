@@ -1,3 +1,0 @@
-[ coordinator_config_manager  17-09-2024 16:02:24  INFO     ]  Default config file: /home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/src/utils/default.cfg
-[ coordinator_config_manager  17-09-2024 16:02:24  INFO     ]  Using config file: /home/lvdwater/hyper-heuristic-dse-2.0/config/coordinator/config_coordinator_das.json
-[ coordinator_config_manager  17-09-2024 16:02:24  INFO     ]  Loading config file: /home/lvdwater/hyper-heuristic-dse-2.0/config/coordinator/config_coordinator_das.json
