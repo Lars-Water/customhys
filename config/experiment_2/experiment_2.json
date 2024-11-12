@@ -1,7 +1,7 @@
 {
-    "nr_of_agents": 16,
+    "nr_of_agents": 32,
     "nr_of_iterations": 100,
-    "nr_of_backbones": [300],
+    "nr_of_backbones": [10],
     "metaheuristics_paths": [
         "config/experiment_2/metaheuristics/gravitational.json"
     ],

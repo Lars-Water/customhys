@@ -101,7 +101,7 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     hh_run_meta_data = collect_data.calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator)
 
     # Save the heuristic run data.
-    save_run_path = os.path.join(os.getcwd(), "data/raw/results/experiment_1/", search_operator_space_name)
+    save_run_path = os.path.join(os.getcwd(), "data/raw/results/experiment_1/", experiment_name)
     collect_data.save_hh_run_meta_data(save_run_path, best_sol, best_perf, hist_curr, hist_best, hh_run_meta_data)
 
     print(f" ("+search_operator_space_name+") Best solution: "+str(best_sol))
