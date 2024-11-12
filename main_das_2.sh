@@ -34,17 +34,17 @@ CONFIG_PATH_EXPERIMENT_1="${BASE_PATH}/config/experiment_1/experiment_2.json"
 #  --base_path "$BASE_PATH" \
 #  --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
-python3 main.py \
- --visualize 1 \
- --hh_run_dirs_exp_1 "/home/mherget/hyper-heuristic-dse-2.0/data_files/raw/INET-LANS_experiment_1_genetic_mutation_1731429308_10_iterations_10_steps_1731429308_10_switches" \
-  --base_path "$BASE_PATH" \
- --coordinator_config "$CONFIG_PATH_COORDINATOR"
-
 # python3 main.py \
-#  --experiment 1 \
-#  --nr_sw 10 \
-#  --base_path "$BASE_PATH" \
+#  --visualize 1 \
+#  --hh_run_dirs_exp_1 "/home/mherget/hyper-heuristic-dse-2.0/data_files/raw/INET-LANS_experiment_1_genetic_mutation_1731429308_10_iterations_10_steps_1731429308_10_switches" \
+#   --base_path "$BASE_PATH" \
 #  --coordinator_config "$CONFIG_PATH_COORDINATOR"
+
+python3 main.py \
+ --experiment 1 \
+ --nr_sw 50 \
+ --base_path "$BASE_PATH" \
+ --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
 # echo "Starting main 2"
 # python3 main.py \

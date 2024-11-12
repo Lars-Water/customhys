@@ -18,6 +18,7 @@
         "learnt_dataset": null,
         "repeat_operators": false,
         "verbose": true,
+        "verbose_mh": false,
         "learning_portion": 0.37,
         "solver": "static"
     },
