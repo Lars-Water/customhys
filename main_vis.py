@@ -11,12 +11,7 @@ import time
 from pathlib import Path
 import argparse
 
-from src_main.tools.config_reader import Config
-import src_main.tools.coordinator as coordinator
-import src_main.models.model as model
 from src_main.data import collect_data
-import src_main.experiment_flows.experiment_1 as exp_1_flow
-import src_main.experiment_flows.experiment_2 as exp_2_flow
 from src_main.visualization import visualization
 
 from setuptools import setup, find_packages
@@ -68,7 +63,7 @@ def quick_and_dirty_hh_multiplot(directory_path):
     plt.figure(figsize=(10, 6))
 
     for idx, fitness_values in enumerate(all_historical_fitness):
-        plt.plot(fitness_values, label=f'HH Step: {idx + 1}')
+        plt.plot(fitness_values, label=f'HH Step: {idx}')
 
     plt.xlabel('Iteration')
     plt.ylabel('Fitness')
@@ -131,55 +126,6 @@ def quick_and_dirty_save_hh_positions_to_xlsx(positions_data, rescale=False):
     positions_df.to_excel(excel_filename, index=False)
 
 
-def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches):
-    """
-    Set up and run Experiment 1.
-    Parameters:
-    base_path (str): The base directory path where configuration and log files are stored.
-    coordinator_config_file_path (str): The file path to the coordinator configuration file.
-    nr_of_backbone_switches (int): The number of backbone switches to be used in the experiment.
-    Returns:
-    None
-    """
-    print("##### experiment_1")
-    # Set up the experiment_1 configuration object.
-    experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_1/experiment_1.json"))
-    experiment_1_log_path = os.path.join(base_path, "data/logs/experiments/experiment_1")
-    os.makedirs(experiment_1_log_path, exist_ok=True)
-    config_manager_filename = f"experiment_1_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-    experiment_1_config = Config(experiment_1_config_file_path, Path(experiment_1_log_path), config_manager_filename)
-    # TODO: Change this naming flow, because it goes from main, to coordinator, to data collector.
-    nr_of_agents = experiment_1_config.tryGet("hh_parameters", "num_agents")
-    run_name = "experiment_1"
-    coordinator_params = (base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches)
-
-    print("##### exp_1_flow ")
-    # Run Experiment 1.
-    exp_1_flow.run_experiment(experiment_1_config, coordinator_params)
-
-
-def experiment_2(base_path, coordinator_config_file_path):
-    """
-    Set up and run Experiment 2.
-    This function sets up the configuration for Experiment 2, creates necessary directories,
-    and runs the experiment using the provided base path and coordinator configuration file path.
-    Args:
-        base_path (str): The base directory path where configuration and log files are located.
-        coordinator_config_file_path (str): The file path to the coordinator configuration file.
-    Returns:
-        None
-    """
-    # Set up the experiment_2 configuration object.
-    experiment_2_config_file_path = Path(os.path.join(base_path, "config/experiment_2/experiment_2.json"))
-    experiment_2_log_path = os.path.join(base_path, "data/logs/experiments/experiment_2")
-    os.makedirs(experiment_2_log_path, exist_ok=True)
-    config_manager_filename = f"experiment_2_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-    experiment_2_config = Config(experiment_2_config_file_path, Path(experiment_2_log_path), config_manager_filename)
-
-    # Run Experiment 2.
-    exp_2_flow.run_experiment(base_path, experiment_2_config, coordinator_config_file_path)
-
-
 def visualize_experiment_1(hh_run_dirs_exp_1):
 
     for hh_run_dir_exp_1 in hh_run_dirs_exp_1:
@@ -189,7 +135,7 @@ def visualize_experiment_1(hh_run_dirs_exp_1):
         quick_and_dirty_hh_multiplot(path_hh_run)
 
         # Visualize an abstraction of the most optimal network configuration determined with the hh run to an xlsx file.
-        backbones_pattern = re.compile(r"INET-LANS_experiment_2_(\d+)_backbones")
+        backbones_pattern = re.compile(r"(\d+)_switches")
         nr_of_backbone_switches = _determine_nr_backbones_from_filename(hh_run_dir_exp_1, backbones_pattern)
         # TODO: Allow a dynamic way of determining the number of cables used in the hh run; e.g. config file, or file label of the hh run path.
         nr_of_cable_types = 4
@@ -235,15 +181,6 @@ def visualize_experiment_2(base_path, metaheuristics, hh_run_dirs_exp_2, nr_of_b
 '''
 def main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, hh_run_dirs_exp_1, hh_run_dirs_exp_2, parameter_tuning, design_space_plot, nr_of_backbone_switches):
     print("##### Customhys version:" + str(customhys.__version__))
-
-    # Run the requested experiments.
-    if experiment == '1':
-        experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
-    elif experiment == '2':
-        experiment_2(base_path, coordinator_config_file_path)
-    elif experiment == 'all':
-        experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
-        experiment_2(base_path, coordinator_config_file_path)
 
     if visualize == '1':
         visualize_experiment_1(hh_run_dirs_exp_1)

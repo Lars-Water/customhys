@@ -4,7 +4,7 @@
 eval "$(/home/mherget/miniconda3/bin/conda shell.bash hook)"
 
 # Specify the path to the base directory of the hyper-heuristic DSE here.
-BASE_PATH="/home/mherget/hyper-heuristic-dse-2.0"
+BASE_PATH="/home/herget/UvA-git/hyper-heuristic-dse-2.0"
 # Specify the path to the coordinator configuration file here
 CONFIG_PATH_COORDINATOR="${BASE_PATH}/config/coordinator/config_coordinator_das_2.json"
 
