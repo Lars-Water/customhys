@@ -1,7 +1,7 @@
 import os
 import time
-# from multiprocessing import Process
 import threading
+from pathlib import Path
 
 from src_main.external.customhys.customhys import hyperheuristic as hh
 
@@ -11,6 +11,7 @@ from src_main.tools import coordinator
 
 save_runs = []
 experiment_config = None
+max_cost = None
 def run_experiment(experiment_config, coordinator_params):
     '''
         Experimental run of tuning the parameters of any provided search operators.
@@ -29,7 +30,7 @@ def run_experiment(experiment_config, coordinator_params):
     heur_sim_coordinator.manual_normalization()
     min_datarate, max_datarate, min_cost, max_cost = heur_sim_coordinator.get_datarate_cost_boundaries()
     print("##### prob ")
-    prob = component_config.create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator.simulation_run)
+
 
     # Reset the execution times before starting the heuristic run.
     heur_sim_coordinator.coordinator_and_simulation_execution_time = 0
@@ -40,7 +41,7 @@ def run_experiment(experiment_config, coordinator_params):
     fns_hh = []
     for search_operator_space_path, search_operator_space_name in zip(search_operator_space_paths, search_operator_space_names):
         fns_hh.append(threading.Thread(target=run_search_operator_space_path, args=(
-    experiment_config, search_operator_space_path, search_operator_space_name, nr_of_backbone_switches, prob, heur_sim_coordinator)))
+    experiment_config, search_operator_space_path, search_operator_space_name, nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator)))
 
 
     # print(fns_hh)
@@ -56,7 +57,7 @@ def run_experiment(experiment_config, coordinator_params):
     print(save_runs)
     print("Finished Exp 1")
 
-def run_search_operator_space_path(experiment_config, search_operator_space_path, search_operator_space_name, nr_of_backbone_switches, prob, heur_sim_coordinator):
+def run_search_operator_space_path(experiment_config, search_operator_space_path, search_operator_space_name, nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator):
     pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
         # Open a file in write mode ('w') and write the string
     with open("output.txt", "a") as file:
@@ -76,15 +77,20 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     nr_of_iterations = experiment_config.tryGet('hh_parameters', 'num_iterations')
     nr_of_steps = experiment_config.tryGet('hh_parameters', 'num_steps')
     file_label = f"INET-LANS_{experiment_name}_{nr_of_iterations}_iterations_{nr_of_steps}_steps_{str(timestamp)}_{nr_of_backbone_switches}_switches"
-    prob_local = prob
-    prob_local['set_file_name_fitness_values']("fitness_values_"+str(search_operator_space_name)+".json")
+
+    probs = {}
+    num_replicas = hh_parameters["num_replicas"] if hh_parameters["num_replicas"] > 0 else 1 
+    for rep in range(num_replicas):
+        probs[rep] = component_config.create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator.simulation_run)
+        probs[rep]['set_file_name_fitness_values']("fitness_values_"+str(search_operator_space_name)+"_replica_"+str(rep)+".json")
+        print(probs[rep]['get_file_name_fitness_values']())
+
     hyp = hh.Hyperheuristic(
         heuristic_space=heuristic_space,
-        problem=prob_local,
+        problems=probs,
         parameters=hh_parameters,
         file_label=file_label,
-        pass_finalised_positions=pass_finalised_positions,
-        file_name_fitness_values="fitness_values_"+str(search_operator_space_name)+".json"
+        pass_finalised_positions=pass_finalised_positions
     )
 
 

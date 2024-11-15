@@ -1,7 +1,5 @@
 import numpy as np
 
-
-
 # from external.CUSTOMHys.customhys import benchmark_func as bf
 from customhys import benchmark_func as bf
 import customhys
@@ -56,6 +54,9 @@ class instance(BP):
     def set_file_name_fitness_values(self, file_name_fitness_values):
         self.file_name_fitness_values = file_name_fitness_values
 
+    def get_file_name_fitness_values(self):
+        return self.file_name_fitness_values
+
 
     def get_formatted_problem(self, is_constrained=True, fts=None):
         return dict(function=lambda x: self.get_function_value(x),
@@ -64,7 +65,9 @@ class instance(BP):
                     features=self.get_features(fts=fts),
                     func_name=self.func_name,
                     dimensions=self.variable_num,
-                    set_file_name_fitness_values=lambda x: self.set_file_name_fitness_values(x))
+                    set_file_name_fitness_values=lambda x: self.set_file_name_fitness_values(x),
+                    get_file_name_fitness_values=lambda: self.get_file_name_fitness_values()
+        )
 
     '''
         Run the simulation model with the given variables.

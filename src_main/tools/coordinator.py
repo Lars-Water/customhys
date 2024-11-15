@@ -4,6 +4,7 @@ import src_main.tools.component_config as component_config
 import src_main.tools.file_operations as fo
 
 import os
+import glob
 import shutil
 import re
 import pandas as pd
@@ -228,9 +229,9 @@ class HeuristicSimulationCoordinator:
         fitness_values_file_path_old_nmbr = 0
         if os.path.exists(fitness_values_file_path):
             # Keep version of old locally stored fitness values
-            filenames = os.listdir(agents_fitness_dir)
-            fitness_values_file_path_old_nmbr = max((int(filename.strip(file_name_fitness_values)) if filename.strip(file_name_fitness_values) else 0) for filename in filenames if filename.find(Path(file_name_fitness_values).stem) >= 0) + 1
-            fitness_values_file_path_old =  os.path.join(agents_fitness_dir, Path(fitness_values_file_path).stem + str(fitness_values_file_path_old_nmbr) + ".json")
+            filenames =  [os.path.basename(x) for x in glob.glob(str(agents_fitness_dir)+"/"+Path(file_name_fitness_values).stem+"*")]
+            fitness_values_file_path_old_nmbr = max((int(filename.strip(file_name_fitness_values + "_")) if filename.strip(file_name_fitness_values + "_") else -1) for filename in filenames) + 1
+            fitness_values_file_path_old =  os.path.join(agents_fitness_dir, Path(fitness_values_file_path).stem + "_" + str(fitness_values_file_path_old_nmbr) + ".json")
             shutil.copy2(fitness_values_file_path, fitness_values_file_path_old)
             os.remove(fitness_values_file_path)
         with open(fitness_values_file_path, 'w') as f:

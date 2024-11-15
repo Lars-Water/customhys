@@ -3,8 +3,8 @@
 # Activate upper bash command to set conda environment.
 eval "$(/home/mherget/miniconda3/bin/conda shell.bash hook)"
 
-# Specify the path to the base directory of the hyper-heuristic DSE here.
-BASE_PATH="/home/herget/UvA-git/hyper-heuristic-dse-2.0"
+# Specify the path to the base directory of the hyper-heuristic DSE here. /home/mherget/scratch/hyper-heuristic-dse-2.0/main_local.sh
+BASE_PATH="/var/scratch/mherget/hyper-heuristic-dse-2.0"
 # Specify the path to the coordinator configuration file here
 CONFIG_PATH_COORDINATOR="${BASE_PATH}/config/coordinator/config_coordinator_das_2.json"
 
@@ -20,9 +20,10 @@ cd ${OMNET_BASE}
 source setenv
 cd ../inet4.5
 source setenv
-cd ~/hyper-heuristic-dse-2.0
+cd ${BASE_PATH}
 eval "ulimit -n 262000"
 ulimit -n 262000
+
 
 # EXPERIMENT PIPELINES
 
@@ -42,7 +43,7 @@ CONFIG_PATH_EXPERIMENT_1="${BASE_PATH}/config/experiment_1/experiment_2.json"
 
 python3 main.py \
  --experiment 1 \
- --nr_sw 50 \
+ --nr_sw  20 \
  --base_path "$BASE_PATH" \
  --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
