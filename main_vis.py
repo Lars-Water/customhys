@@ -1,9 +1,17 @@
+from turtle import color
 import matplotlib.pyplot as plt
 import json
 import pandas as pd
 import math
 import re
 import customhys
+
+
+import matplotlib.colors as mcolors
+
+import numpy as np
+import random
+import scipy.stats as st
 
 import warnings
 import os
@@ -40,9 +48,34 @@ def remove_directory(directory_path):
     except Exception as e:
         print(f'Failed to delete {directory_path}. Reason: {e}')
 
+def get_statistics(raw_data):
+        """
+        Return statistics from all the fitness values found after running a metaheuristic several times. The oncoming
+        statistics are ``nob`` (number of observations), ``Min`` (minimum), ``Max`` (maximum), ``Avg`` (average),
+        ``Std`` (standard deviation), ``Skw`` (skewness), ``Kur`` (kurtosis), ``IQR`` (interquartile range),
+        ``Med`` (median), and ``MAD`` (Median absolute deviation).
+        :param list raw_data: List of the fitness values.
+        :return: dict: Statistics computed from the raw data.
+        """
+        # Get descriptive statistics
+        with np.errstate(divide='ignore', invalid='ignore'):
+            dst = st.describe(raw_data, nan_policy='omit')
+
+        # Store statistics
+        return dict(nob=dst.nobs,
+                    Min=dst.minmax[0],
+                    Max=dst.minmax[1],
+                    Avg=dst.mean,
+                    Std=np.std(raw_data),
+                    Skw=dst.skewness,
+                    Kur=dst.kurtosis,
+                    IQR=st.iqr(raw_data),
+                    Med=np.median(raw_data),
+                    MAD=st.median_abs_deviation(raw_data))
 
 def quick_and_dirty_hh_multiplot(directory_path):
     all_historical_fitness = []
+    print(directory_path)
 
     # List all files in the directory
     for filename in os.listdir(directory_path):
@@ -55,15 +88,44 @@ def quick_and_dirty_hh_multiplot(directory_path):
                 try:
                     # Load JSON content
                     data = json.load(json_file)
-                    historical_fitness = data['details']['historical'][0]['fitness']
+                    rep_values = {}
+                    for replica in data['details']['historical']:
+                        # print(replica['fitness'])
+                        for i in range(len(replica)):
+                            if not i in rep_values:
+                                rep_values[i] = []
+                            rep_values[i].append(replica['fitness'][i])
+                        i_rap = len(replica)
+                    print()
+                    historical_values_stats = {
+                        "Med": [],
+                        "Min": [],
+                        "Max": []
+                    }
+                    for i in range(i_rap):
+                        stats =  get_statistics(rep_values[i])
+                        historical_values_stats["Med"].append(stats["Med"])
+                        historical_values_stats["Min"].append(stats["Med"]-(stats["IQR"]/2))
+                        historical_values_stats["Max"].append(stats["Med"]+(stats["IQR"]/2))
+                        print(stats)
+                    historical_fitness = historical_values_stats
                     all_historical_fitness.append(historical_fitness)
                 except json.JSONDecodeError as e:
                     print(f"Error reading {file_path}: {e}")
 
     plt.figure(figsize=(10, 6))
 
+    i_col = 0
+# Sort colors by hue, saturation, value and name.
+
+    names = list(mcolors.TABLEAU_COLORS)
+    i_col = 0
     for idx, fitness_values in enumerate(all_historical_fitness):
-        plt.plot(fitness_values, label=f'HH Step: {idx}')
+        if idx <= 3:
+            plt.plot(fitness_values['Med'], label=f'HH Step: {idx}', color=names[i_col])
+            plt.plot(fitness_values['Min'], color=names[i_col], linestyle = 'dotted')
+            plt.plot(fitness_values['Max'], color=names[i_col], linestyle = 'dotted')
+        i_col += 1
 
     plt.xlabel('Iteration')
     plt.ylabel('Fitness')
