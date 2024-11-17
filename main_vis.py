@@ -1,3 +1,4 @@
+from turtle import color
 import matplotlib.pyplot as plt
 import json
 import pandas as pd
@@ -5,18 +6,20 @@ import math
 import re
 import customhys
 
+
+import matplotlib.colors as mcolors
+
+import numpy as np
+import random
+import scipy.stats as st
+
 import warnings
 import os
 import time
 from pathlib import Path
 import argparse
 
-from src_main.tools.config_reader import Config
-import src_main.tools.coordinator as coordinator
-import src_main.models.model as model
 from src_main.data import collect_data
-import src_main.experiment_flows.experiment_1 as exp_1_flow
-import src_main.experiment_flows.experiment_2 as exp_2_flow
 from src_main.visualization import visualization
 
 from setuptools import setup, find_packages
@@ -45,6 +48,30 @@ def remove_directory(directory_path):
     except Exception as e:
         print(f'Failed to delete {directory_path}. Reason: {e}')
 
+def get_statistics(raw_data):
+        """
+        Return statistics from all the fitness values found after running a metaheuristic several times. The oncoming
+        statistics are ``nob`` (number of observations), ``Min`` (minimum), ``Max`` (maximum), ``Avg`` (average),
+        ``Std`` (standard deviation), ``Skw`` (skewness), ``Kur`` (kurtosis), ``IQR`` (interquartile range),
+        ``Med`` (median), and ``MAD`` (Median absolute deviation).
+        :param list raw_data: List of the fitness values.
+        :return: dict: Statistics computed from the raw data.
+        """
+        # Get descriptive statistics
+        with np.errstate(divide='ignore', invalid='ignore'):
+            dst = st.describe(raw_data, nan_policy='omit')
+
+        # Store statistics
+        return dict(nob=dst.nobs,
+                    Min=dst.minmax[0],
+                    Max=dst.minmax[1],
+                    Avg=dst.mean,
+                    Std=np.std(raw_data),
+                    Skw=dst.skewness,
+                    Kur=dst.kurtosis,
+                    IQR=st.iqr(raw_data),
+                    Med=np.median(raw_data),
+                    MAD=st.median_abs_deviation(raw_data))
 
 def quick_and_dirty_hh_multiplot(directory_path):
     all_historical_fitness = []
@@ -60,15 +87,42 @@ def quick_and_dirty_hh_multiplot(directory_path):
                 try:
                     # Load JSON content
                     data = json.load(json_file)
-                    historical_fitness = data['details']['historical'][0]['fitness']
+                    rep_values = {}
+                    for replica in data['details']['historical']:
+                        # print(replica['fitness'])
+                        for i in range(len(replica['fitness'])):
+                            if not i in rep_values:
+                                rep_values[i] = []
+                            rep_values[i].append(replica['fitness'][i])
+                        i_rap = len(replica['fitness'])
+                    historical_values_stats = {
+                        "Med": [],
+                        "Min": [],
+                        "Max": []
+                    }
+                    for i in range(i_rap):
+                        stats =  get_statistics(rep_values[i])
+                        historical_values_stats["Med"].append(stats["Med"])
+                        historical_values_stats["Min"].append(stats["Med"]-(stats["IQR"]/2))
+                        historical_values_stats["Max"].append(stats["Med"]+(stats["IQR"]/2))
+                    historical_fitness = historical_values_stats
                     all_historical_fitness.append(historical_fitness)
                 except json.JSONDecodeError as e:
                     print(f"Error reading {file_path}: {e}")
 
     plt.figure(figsize=(10, 6))
 
+    i_col = 0
+# Sort colors by hue, saturation, value and name.
+
+    names = list(mcolors.TABLEAU_COLORS)
+    i_col = 0
     for idx, fitness_values in enumerate(all_historical_fitness):
-        plt.plot(fitness_values, label=f'HH Step: {idx + 1}')
+        if idx <= 3:
+            plt.plot(fitness_values['Med'], label=f'HH Step: {idx}', color=names[i_col])
+            plt.plot(fitness_values['Min'], color=names[i_col], linestyle = 'dotted')
+            plt.plot(fitness_values['Max'], color=names[i_col], linestyle = 'dotted')
+        i_col += 1
 
     plt.xlabel('Iteration')
     plt.ylabel('Fitness')
@@ -77,6 +131,99 @@ def quick_and_dirty_hh_multiplot(directory_path):
 
     # Save the plot in the same directory
     plot_file_path = os.path.join(directory_path, 'historical_fitness_plot.png')
+    plt.savefig(plot_file_path)
+    plt.close()
+
+    print(f"Plot saved as {plot_file_path}")
+
+def quick_and_dirty_hh_boxplot(directory_path):
+    all_historical_fitness = []
+
+    num_files = 0
+    for filename in os.listdir(directory_path):
+        file_path = os.path.join(directory_path, filename)
+        if filename.endswith('.json') and os.path.isfile(file_path):
+            num_files += 1
+
+    print(num_files)
+    fig, axs = plt.subplots(num_files, 1, figsize=(10, 6*num_files))
+    names = list(mcolors.TABLEAU_COLORS)
+    # List all files in the directory
+    i_step = 0
+    for filename in os.listdir(directory_path):
+        # Construct full file path
+        file_path = os.path.join(directory_path, filename)
+
+        # Check if the file is a JSON file
+        if filename.endswith('.json') and os.path.isfile(file_path):
+            with open(file_path, 'r', encoding='utf-8') as json_file:
+                try:
+                    # Load JSON content
+                    data = json.load(json_file)
+                    iteration_value_step = {}
+                    for replica in data['details']['historical']:
+                        for i in range(len(replica['fitness'])):
+                            if not i in iteration_value_step:
+                                iteration_value_step[i] = []
+                            iteration_value_step[i].append(replica['fitness'][i])
+                    iteration_value_step_list = list(iteration_value_step.values())
+                    axs[i_step].boxplot(iteration_value_step_list, showmeans=True)
+                    axs[i_step].set_title('HH Step: '+str(i_step))
+                    i_step +=1
+                except json.JSONDecodeError as e:
+                    print(f"Error reading {file_path}: {e}")
+
+# Sort colors by hue, saturation, value and name.
+
+
+    # Save the plot in the same directory
+    plot_file_path = os.path.join(directory_path, 'historical_fitness_boxplot.png')
+    fig.tight_layout()
+    fig.savefig(plot_file_path)
+
+    print(f"Plot saved as {plot_file_path}")
+
+def quick_and_dirty_hh_boxplot_all(directory_path):
+    all_historical_fitness = []
+    iteration_values = {}
+
+    # List all files in the directory
+    for filename in os.listdir(directory_path):
+        # Construct full file path
+        file_path = os.path.join(directory_path, filename)
+
+        # Check if the file is a JSON file
+        if filename.endswith('.json') and os.path.isfile(file_path):
+            with open(file_path, 'r', encoding='utf-8') as json_file:
+                try:
+                    # Load JSON content
+                    data = json.load(json_file)
+                    for replica in data['details']['historical']:
+                        for i in range(len(replica['fitness'])):
+                            if not i in iteration_values:
+                                iteration_values[i] = []
+                            iteration_values[i].append(replica['fitness'][i])
+                except json.JSONDecodeError as e:
+                    print(f"Error reading {file_path}: {e}")
+
+    iteration_values_list = list(iteration_values.values())
+
+    plt.figure(figsize=(10, 6))
+
+    i_col = 0
+    plt.boxplot(iteration_values_list, showmeans=True)
+# Sort colors by hue, saturation, value and name.
+
+    names = list(mcolors.TABLEAU_COLORS)
+
+
+    plt.xlabel('Iteration')
+    plt.ylabel('Fitness')
+    plt.title('Optimal Fitness Every Iteration')
+    plt.legend()
+
+    # Save the plot in the same directory
+    plot_file_path = os.path.join(directory_path, 'historical_fitness_boxplot_all.png')
     plt.savefig(plot_file_path)
     plt.close()
 
@@ -105,7 +252,7 @@ def quick_and_dirty_save_hh_positions_to_xlsx(positions_data, rescale=False):
 
     #     },
     #     "Crossover": {
-    #         "Worst": [0.5464518124009579, 0.27160005042194424, 0.8641534642254884, 0.28216867682564417, 0.902826755184196, 0.6886784823671213, 0.06644156851309413, 0.7410623578382756, 0.6537357725877133, -0.2981174367287347, -0.3226857195237185, -0.6493784950470745, -0.6302932963629073, -0.9775119797448784, -0.8434389694224462, 0.035166839476338474, 0.254175132268214, 0.779988582143023, 0.8983290288513619, 0.7674329282016832, -0.5982820586172723, -0.12829953433371943, 0.36312734477422826, 0.7152809638240423, 0.8775957684664346, 0.940055720980083, -0.5098715052873162, -0.7385657905624119, 0.8457861776205897, -0.21497535212715468, 0.10101825314369761, 0.7591443381551211, 0.448101056540698, 0.10242044228311253, 0.9301485960682858, 0.08114556495540604, 0.03925213967089136, -0.796680101314998, 0.24648240847341185, -0.37104721658513795, -0.43890072554851356, -0.7116411578259918, 0.5576837643274504, 0.8137345458384624, -0.7259510712506605, 0.9621821085045761, -0.13155868612824984, 0.7532267847673226, -0.20627317726817807],
+    #         "Worst": [0.5464518124009579, 0.27160005042194424, 0.8641534642254884, 0.28216867682564417, 0.902826755184196, 0.6886784823671213, 0.06644156851309413, 0.7410623578382756, 0.6537357725877133, -0.2981174367287347, -0.3226857195237185, -0.6493784950470745, -0.6302932963629073, -0.9775119797448784, -0.8434389694224462, 0.035166839476338474, 0.254175132268214, 0.779988582143023, 0.8983290288513619, 0.7674329282016832, -0.5982820586172723, -0.12829953433371943, 0.36312734477422826, 0.7152809638240423, 0.8775957684664346, 0.940055720980083, -0.5098715052873162, -0.7385657905624119, 0.8457861776205897, -0.21497535212715468, 0.10101825314369761, 0.7591443381551211, 0.4481quick_and_dirty_hh_multiplot01056540698, 0.10242044228311253, 0.9301485960682858, 0.08114556495540604, 0.03925213967089136, -0.796680101314998, 0.24648240847341185, -0.37104721658513795, -0.43890072554851356, -0.7116411578259918, 0.5576837643274504, 0.8137345458384624, -0.7259510712506605, 0.9621821085045761, -0.13155868612824984, 0.7532267847673226, -0.20627317726817807],
     #         "Best": [-0.32750114409697273, -0.3223890998684106, -0.19640077812240547, 0.15931259703667208, -0.022535543843164016, 0.36273467338637483, 0.4219244059618271, 0.10110439977688485, 0.40985971391840226, 0.22709716346565617, -0.33582035816159306, -0.11763707550342846, -0.10555539370921377, 0.1297886277447725, -0.027075210363023416, 0.27729679055635814, 0.32948624096514345, 0.31371507120817527, -0.023495877856167503, -0.09997028438244512, -0.17752780960156853, 0.27199025433152546, -0.32654182168571433, -0.15942003906054225, 0.09158193732898787, 0.46783418167554547, 0.20460336851696626, -0.19251610140007228, -0.037871583059580036, -0.10806083224748522, 0.1452908448290182, -0.44008949306069806, -0.1343006914041406, 0.26542603718305585, 0.1795273697212829, 0.37154769900557766, 0.06993686349867194, 0.3019741706525578, -0.24897077430616377, -0.1283352569911947, -0.27290601544709164, -0.4633330298314464, -0.4940546971108059, -0.3268633345116534, -0.391894877442753, 0.33799578282091497, -0.24545393438725238, -0.47280549248322357, 0.22819086630563726]
     #     }
     # }
@@ -131,55 +278,6 @@ def quick_and_dirty_save_hh_positions_to_xlsx(positions_data, rescale=False):
     positions_df.to_excel(excel_filename, index=False)
 
 
-def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches):
-    """
-    Set up and run Experiment 1.
-    Parameters:
-    base_path (str): The base directory path where configuration and log files are stored.
-    coordinator_config_file_path (str): The file path to the coordinator configuration file.
-    nr_of_backbone_switches (int): The number of backbone switches to be used in the experiment.
-    Returns:
-    None
-    """
-    print("##### experiment_1")
-    # Set up the experiment_1 configuration object.
-    experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_1/experiment_1.json"))
-    experiment_1_log_path = os.path.join(base_path, "data/logs/experiments/experiment_1")
-    os.makedirs(experiment_1_log_path, exist_ok=True)
-    config_manager_filename = f"experiment_1_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-    experiment_1_config = Config(experiment_1_config_file_path, Path(experiment_1_log_path), config_manager_filename)
-    # TODO: Change this naming flow, because it goes from main, to coordinator, to data collector.
-    nr_of_agents = experiment_1_config.tryGet("hh_parameters", "num_agents")
-    run_name = "experiment_1"
-    coordinator_params = (base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches)
-
-    print("##### exp_1_flow ")
-    # Run Experiment 1.
-    exp_1_flow.run_experiment(experiment_1_config, coordinator_params)
-
-
-def experiment_2(base_path, coordinator_config_file_path):
-    """
-    Set up and run Experiment 2.
-    This function sets up the configuration for Experiment 2, creates necessary directories,
-    and runs the experiment using the provided base path and coordinator configuration file path.
-    Args:
-        base_path (str): The base directory path where configuration and log files are located.
-        coordinator_config_file_path (str): The file path to the coordinator configuration file.
-    Returns:
-        None
-    """
-    # Set up the experiment_2 configuration object.
-    experiment_2_config_file_path = Path(os.path.join(base_path, "config/experiment_2/experiment_2.json"))
-    experiment_2_log_path = os.path.join(base_path, "data/logs/experiments/experiment_2")
-    os.makedirs(experiment_2_log_path, exist_ok=True)
-    config_manager_filename = f"experiment_2_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-    experiment_2_config = Config(experiment_2_config_file_path, Path(experiment_2_log_path), config_manager_filename)
-
-    # Run Experiment 2.
-    exp_2_flow.run_experiment(base_path, experiment_2_config, coordinator_config_file_path)
-
-
 def visualize_experiment_1(hh_run_dirs_exp_1):
 
     for hh_run_dir_exp_1 in hh_run_dirs_exp_1:
@@ -187,9 +285,11 @@ def visualize_experiment_1(hh_run_dirs_exp_1):
 
         # Visualize the results of Experiment 1 to a multiline plot of the different HH steps progressions.
         quick_and_dirty_hh_multiplot(path_hh_run)
+        quick_and_dirty_hh_boxplot_all(path_hh_run)
+        quick_and_dirty_hh_boxplot(path_hh_run)
 
         # Visualize an abstraction of the most optimal network configuration determined with the hh run to an xlsx file.
-        backbones_pattern = re.compile(r"INET-LANS_experiment_2_(\d+)_backbones")
+        backbones_pattern = re.compile(r"(\d+)_switches")
         nr_of_backbone_switches = _determine_nr_backbones_from_filename(hh_run_dir_exp_1, backbones_pattern)
         # TODO: Allow a dynamic way of determining the number of cables used in the hh run; e.g. config file, or file label of the hh run path.
         nr_of_cable_types = 4
@@ -235,15 +335,6 @@ def visualize_experiment_2(base_path, metaheuristics, hh_run_dirs_exp_2, nr_of_b
 '''
 def main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, hh_run_dirs_exp_1, hh_run_dirs_exp_2, parameter_tuning, design_space_plot, nr_of_backbone_switches):
     print("##### Customhys version:" + str(customhys.__version__))
-
-    # Run the requested experiments.
-    if experiment == '1':
-        experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
-    elif experiment == '2':
-        experiment_2(base_path, coordinator_config_file_path)
-    elif experiment == 'all':
-        experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
-        experiment_2(base_path, coordinator_config_file_path)
 
     if visualize == '1':
         visualize_experiment_1(hh_run_dirs_exp_1)
