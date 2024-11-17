@@ -155,6 +155,7 @@ class Hyperheuristic:
         if self.pass_finalised_positions:
             self.collection_finalised_positions_previous_step = []
 
+
     def toggle_seq_as_meta(self, as_mh=None):
         if as_mh is None:
             self.parameters['as_mh'] = not self.parameters['as_mh']
@@ -483,9 +484,11 @@ class Hyperheuristic:
         # %% INITIALISER PART
         start_time = datetime.now()
 
+        # NOTE: CUSTOM CHANGE BY LARS - Custom variable to save hh step best design point later on.
+        self.hh_step = 0
+
         # PERTURBATOR (GENERATOR): Create the initial solution
         current_solution = self._obtain_candidate_solution()
-
 
         # Evaluate this solution
         current_performance, current_details = self.evaluate_candidate_solution(current_solution)
@@ -524,6 +527,10 @@ class Hyperheuristic:
             # Update step and temperature
             start_time = datetime.now()
             step += 1
+
+            # NOTE: CUSTOM CHANGE BY LARS - Custom variable to save hh step best design point later on.
+            self.hh_step += 1
+
             temperature = self._obtain_temperature(step, self.parameters['temperature_scheme'])
 
             # Generate a neighbour solution (just indices-codes)
@@ -1016,8 +1023,9 @@ class Hyperheuristic:
                                search_operators,
                                self.parameters['num_agents'],
                                self.num_iterations,
-                               finalised_positions_previous_step=finalised_positions_previous_step,
                                verbose=self.parameters['verbose_mh'])
+                               finalised_positions_previous_step=finalised_positions_previous_step,
+                               file_name_fitness_values=self.file_name_fitness_values, pass_finalised_positions=self.pass_finalised_positions)
 
             # Run this metaheuristic
             fns_mh.append(threading.Thread(target=mhs[i].run))
