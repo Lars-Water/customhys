@@ -25,7 +25,7 @@ class Metaheuristic:
         search operators from op, and it is based on a population from Population.
     """
     def __init__(self, problem, search_operators=None, num_agents: int = 30, num_iterations: int = 100,
-                 initial_scheme: str = 'random', verbose: bool = False, finalised_positions_previous_step = None, file_name_fitness_values="fitness_values.json", pass_finalised_positions = False):
+                 initial_scheme: str = 'random', verbose: bool = False, finalised_positions_previous_step = None,  pass_finalised_positions = False):
         """
         Create a population-based metaheuristic by employing different simple search operators.
 
@@ -85,7 +85,7 @@ class Metaheuristic:
         self.initial_scheme = initial_scheme
 
         # Set file_name_fitness_values
-        self.file_name_fitness_values = file_name_fitness_values
+        self.file_name_fitness_values = problem['get_file_name_fitness_values']()
 
         # NOTE: CUSTOM CHANGE BY LARS - Set the flag for passing finalised positions.
         self.pass_finalised_positions = pass_finalised_positions
@@ -172,7 +172,7 @@ class Metaheuristic:
                 self.update_historicals()
 
             # Verbose (if so) some information
-            self._verbose('{}\npop. radius: {}'.format(self.pop.iteration, self.historical['radius'][-1]))
+            self._verbose('Iteration: {}\npop. radius: {}'.format(self.pop.iteration, self.historical['radius'][-1]))
             self._verbose(self.pop.get_state())
 
             # TODO: Save design points in CSV file.
