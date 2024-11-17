@@ -18,7 +18,9 @@ from os.path import exists as _check_path
 from . import operators as op
 from . import tools as jt
 from .metaheuristic import Metaheuristic
+from pathlib import Path
 
+import threading
 
 _using_tensorflow = False
 try:
@@ -45,7 +47,7 @@ class Hyperheuristic:
     collection from Operators to build metaheuristics using the Metaheuristic module.
     """
 
-    def __init__(self, heuristic_space='default.txt', problem=None, parameters=None, file_label='', weights_array=None, pass_finalised_positions=False, file_name_fitness_values="fitness_values.json"):
+    def __init__(self, heuristic_space='default.txt', problems=None, parameters=None, file_label='', weights_array=None, pass_finalised_positions=False):
         """
         Create a hyper-heuristic process using a operator collection as heuristic space.
 
@@ -121,9 +123,12 @@ class Hyperheuristic:
                               learning_portion=0.37,  # Percent of seqs to learn  lvl:2
                               solver='static')  # Indicate which solver use lvl:1
 
+        if "verbose_mh" not in parameters:
+            parameters['verbose_mh'] = parameters['verbose']
+
         # Read the problem
-        if problem:
-            self.problem = problem
+        if problems:
+            self.problems = problems
         else:
             raise HyperheuristicError('Problem must be provided')
 
@@ -139,7 +144,6 @@ class Hyperheuristic:
         # Initialise other parameters
         self.parameters = parameters
         self.file_label = file_label
-        self.file_name_fitness_values = file_name_fitness_values
 
         self.max_cardinality = None
         self.min_cardinality = None
@@ -626,6 +630,7 @@ class Hyperheuristic:
         # Return the best solution found and its details
         return best_solution, best_performance, historical_current, historical_best
 
+# Todo add threaded replica evaluation
     def _solve_dynamic(self, save_steps=True):
         """
         Run the hyper-heuristic based on Simulated Annealing (SA) to find the best metaheuristic. Each meatheuristic is
@@ -645,10 +650,10 @@ class Hyperheuristic:
         rep = 0
         while rep < self.parameters['num_replicas']:
             # Call the metaheuristic
-            mh = Metaheuristic(self.problem, 
+            mh = Metaheuristic(self.problems[rep], 
                                 num_agents=self.parameters['num_agents'],
                                 num_iterations=self.num_iterations, 
-                                file_name_fitness_values=self.file_name_fitness_values)
+                                verbose=self.parameters['verbose_mh'])
 
             # %% INITIALISER PART
             mh.apply_initialiser()
@@ -788,6 +793,7 @@ class Hyperheuristic:
         # Return the best solution found and its details
         return fitness_per_repetition, sequence_per_repetition, self.transition_matrix
 
+# Todo add threaded replica evaluation
     def _solve_neural_network(self, save_steps=True):
         """
          Run the hyper-heuristic based on Neural Network (NN) to find the best metaheuristic. Given the current
@@ -821,9 +827,10 @@ class Hyperheuristic:
         for rep in range(self.parameters['num_replicas']):
             # Metaheuristic
             mh = Metaheuristic(
-                self.problem,
+                self.problems[rep],
                 num_agents=self.parameters['num_agents'],
-                num_iterations=self.num_iterations)
+                num_iterations=self.num_iterations,
+                verbose=self.parameters['verbose_mh'])
 
             # Initialiser
             mh.apply_initialiser()
@@ -994,6 +1001,8 @@ class Hyperheuristic:
         # NOTE: CUSTOM CHANGE BY LARS - ADDED FINALISED POSITIONS OF THE PREVIOUS STEP TO THE METAHEURISTIC.
         # Determine the finalized positions of the previous step if provided.
         # Run the metaheuristic several times.
+        mhs = {}
+        fns_mh = []
         for i in range(self.parameters['num_replicas']):
             # If a collection of previous steps is passed, define these previous steps for agent population setting of the current step.
             if collection_finalised_positions_previous_step:
@@ -1003,21 +1012,32 @@ class Hyperheuristic:
                 finalised_positions_previous_step = None
 
             # Call the metaheuristic
-            mh = Metaheuristic(self.problem,
+            mhs[i] = Metaheuristic(self.problems[i],
                                search_operators,
                                self.parameters['num_agents'],
                                self.num_iterations,
-                               finalised_positions_previous_step=finalised_positions_previous_step,     
-                               file_name_fitness_values=self.file_name_fitness_values)
+                               finalised_positions_previous_step=finalised_positions_previous_step,
+                               verbose=self.parameters['verbose_mh'])
 
             # Run this metaheuristic
-            mh.run()
+            fns_mh.append(threading.Thread(target=mhs[i].run))
 
+        proc = []
+        for p in fns_mh:
+            p.start()
+            proc.append(p)
+        # print("##### procs")
+        # print(proc)
+        for p in proc:
+            p.join()
+
+        for i in range(self.parameters['num_replicas']):
             # Store the historical values from this run
-            historical_data.append(mh.historical)
+            historical_data.append(mhs[i].historical)
 
+     
             # Read and store the solution obtained
-            _temporal_position, _temporal_fitness = mh.get_solution()
+            _temporal_position, _temporal_fitness = mhs[i].get_solution()
             fitness_data.append(_temporal_fitness)
             position_data.append(_temporal_position)
 
@@ -1026,7 +1046,7 @@ class Hyperheuristic:
                 # NOTE: CUSTOM CHANGE BY LARS - CLEAR FINALISED POSITIONS OF THE PREVIOUS STEP AFTER RUNNING THE METAHEURISTIC.
                 self.collection_finalised_positions_previous_step.clear()
                 # NOTE: CUSTOM CHANGE BY LARS - DEFINE NEWLY FINALISED POSITIONS OF THE CURRENT STEP AFTER RUNNING THE METAHEURISTIC.
-                self.collection_finalised_positions_previous_step.append(mh.pop.positions)
+                self.collection_finalised_positions_previous_step.append(mhs[i].pop.positions)
 
         # Determine a performance metric once finish the repetitions
         fitness_stats = self.get_statistics(fitness_data)
@@ -1125,16 +1145,16 @@ class Hyperheuristic:
             dst = st.describe(raw_data, nan_policy='omit')
 
         # Store statistics
-        return dict(nob=dst.nobs,
-                    Min=dst.minmax[0],
-                    Max=dst.minmax[1],
-                    Avg=dst.mean,
-                    Std=np.std(raw_data),
-                    Skw=dst.skewness,
-                    Kur=dst.kurtosis,
-                    IQR=st.iqr(raw_data),
-                    Med=np.median(raw_data),
-                    MAD=st.median_abs_deviation(raw_data))
+            return dict(nob=dst.nobs,
+                        Min=dst.minmax[0],
+                        Max=dst.minmax[1],
+                        Avg=dst.mean,
+                        Std=np.std(raw_data),
+                        Skw=dst.skewness,
+                        Kur=dst.kurtosis,
+                        IQR=st.iqr(raw_data),
+                        Med=np.median(raw_data),
+                        MAD=st.median_abs_deviation(raw_data))
 
     def _get_sample_sequences(self, sample_params):
         """
@@ -1152,9 +1172,9 @@ class Hyperheuristic:
         if sample_params['retrieve_sequences']:
             filters = dict({'collection': self.heuristic_space_label,
                             'limit_seqs': sample_params.get('limit_seqs', 100),
-                            'dimensions': f'-{self.problem["dimensions"]}D-',
+                            'dimensions': f'-{self.problems[0]["dimensions"]}D-',
                             'population': f'-{self.parameters["num_agents"]}pop-',
-                            'func_name': self.problem['func_name']})
+                            'func_name': self.problems[0]['func_name']})
             seqfitness, seqrep = _get_stored_sample_sequences(filters)
         else:
             # Generate sequences from dynamic solver
@@ -1192,8 +1212,8 @@ class Hyperheuristic:
                 sequences_to_save[idx] = (seqfitness[idx], seqrep[idx])
 
             # Store sequence without identificator of experiment : '-'.join(self.file_label.split('-')[:2]
-            sequences_name = '-'.join([self.problem['func_name'],
-                                       f'{self.problem["dimensions"]}D',
+            sequences_name = '-'.join([self.problems[0]['func_name'],
+                                       f'{self.problems[0]["dimensions"]}D',
                                        f'{self.parameters["num_agents"]}pop',
                                        self.heuristic_space_label,
                                        self.file_label])
