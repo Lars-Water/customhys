@@ -1,21 +1,20 @@
 #!/bin/bash
 
 # Activate upper bash command to set conda environment.
-eval "$(/home/lvdwater/miniconda3/bin/conda shell.bash hook)"
-
+eval "$(/home/mherget/miniconda3/bin/conda shell.bash hook)"
 
 # Specify the path to the base directory of the hyper-heuristic DSE here.
-BASE_PATH="/var/scratch/lvdwater/hyper-heuristic-dse-2.0"
+BASE_PATH="/var/scratch/mherget/hyper-heuristic-dse-2.0"
 
 # Specify the path to the coordinator configuration file here
-CONFIG_PATH_COORDINATOR="${BASE_PATH}/config/coordinator/config_coordinator_das_2.json"
+CONFIG_PATH_COORDINATOR="${BASE_PATH}/config/coordinator/config_coordinator_das_2_herget.json"
 
 # Define PYTHONPATH to Herman's framework.
 export PYTHONPATH="${PYTHONPATH}:${BASE_PATH}/src_main/external/simulation_model"
 
 # Define OMNET++ shared library to link loader.
-OMNET_BASE="/var/scratch/lvdwater/omnet/omnetpp-6.0.1"
-export PATH=$PATH:/var/scratch/lvdwater/omnet/omnetpp-6.0.1/bin/
+OMNET_BASE="/var/scratch/mherget/omnet/omnetpp-6.0.1"
+export PATH=$PATH:/var/scratch/mherget/omnet/omnetpp-6.0.1/bin/
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${OMNET_BASE}/lib/
 
 cd ${OMNET_BASE}

@@ -556,17 +556,19 @@ class HeuristicSimulationCoordinator:
         """
         start_time = time.time()
 
-        # Configuring siminstances.
-        sim_instances = [create_sim_inet_lans_dummy_parallel(self.config, self.dummy_sim_path, sim_id, self.inet_path) for sim_id in sim_ids]
-        uids = {sim_instance.uid: id for id, sim_instance in enumerate(sim_instances)}
-
-        self.logger.debug(f"Enqueing sim instances.")
-
-        # Run the configured simulation model.
+        # Create/Get queue id for every problem
         queue_name = Path(file_name_fitness_values).stem
         if queue_name not in self.queues:
             self.queues[queue_name] = f'q{len(self.queues)}'
         queue_id = self.queues[queue_name]
+
+        self.logger.debug(f"(Queue: {queue_id}) Enqueing sim instances.")
+
+        # Configuring siminstances.
+        sim_instances = [create_sim_inet_lans_dummy_parallel(self.config, self.dummy_sim_path, sim_id, self.inet_path) for sim_id in sim_ids]
+        uids = {sim_instance.uid: id for id, sim_instance in enumerate(sim_instances)}
+
+        # Run the configured simulation model.
         self.manager.enqueue_tasks(sim_instances, queue_id=queue_id)
 
         self.logger.debug(f"(Queue: {queue_id}) Evaluating simulation instances: {uids} with sim ids: {sim_ids}")
