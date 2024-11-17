@@ -1023,9 +1023,9 @@ class Hyperheuristic:
                                search_operators,
                                self.parameters['num_agents'],
                                self.num_iterations,
-                               verbose=self.parameters['verbose_mh'])
-                               finalised_positions_previous_step=finalised_positions_previous_step,
-                               file_name_fitness_values=self.file_name_fitness_values, pass_finalised_positions=self.pass_finalised_positions)
+                               verbose=self.parameters['verbose_mh'],
+                               finalised_positions_previous_step=finalised_positions_previous_step,  
+                               pass_finalised_positions=self.pass_finalised_positions)
 
             # Run this metaheuristic
             fns_mh.append(threading.Thread(target=mhs[i].run))
