@@ -58,7 +58,7 @@ class Metaheuristic:
 
         # NOTE: CUSTOM BY LARS - PASSING THE PREVIOUS STEP FINALISED AGENT POSITIONS IF PROVIDED
         # Create population
-        self.pop = Population(problem['boundaries'], num_agents, problem['is_constrained'], finalised_positions_previous_step=finalised_positions_previous_step)
+        self.pop = Population(problem['boundaries'], num_agents, problem['is_constrained'], finalised_positions_previous_step=finalised_positions_previous_step, pass_finalised_positions=pass_finalised_positions)
 
         # Check and read the search_operators
         if search_operators:
