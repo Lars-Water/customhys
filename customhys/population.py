@@ -10,6 +10,9 @@ from math import isfinite
 
 import numpy as np
 
+import pandas as pd
+import os
+
 # NOTE: CUSTOM CHANGE BY LARS - Added json and os for custom implementation of parallelized agent evaluation.
 import json
 import os
@@ -35,7 +38,7 @@ class Population:
 
     # Class initialisation
     # ------------------------------------------------------------------------
-    def __init__(self, boundaries, num_agents=30, is_constrained=True, finalised_positions_previous_step=None):
+    def __init__(self, boundaries, num_agents=30, is_constrained=True, finalised_positions_previous_step=None, pass_finalised_positions = False):
         """
         Return a population of size ``num_agents`` within a problem domain defined by ``boundaries``.
 
@@ -49,7 +52,8 @@ class Population:
             Avoid agents abandon the search space. The default is True.
         :param list finalised_positions_previous_step (optional):
             NOTE: CUSTOM CHANGE BY LARS - The finalised positions of the previous step in the HH process. This is used to pass the finalised positions of the previous step to the next step for initialising the positions of the agents.
-
+        :param bool pass_finalised_positions:
+            NOTE: CUSTOM CHANGE BY LARS - Flag that determines whether the finalised positions of the previous step should be used for agent initialization in the current step.
         :returns: population object.
         """
         # Read number of variables or dimension
@@ -99,6 +103,9 @@ class Population:
 
         # NOTE: CUSTOM CHANGE BY LARS - THE FINALISED POSITIONS OF THE PREVIOUS STEP IN THE HH PROCESS. THIS IS USED TO PASS THE FINALISED POSITIONS OF THE PREVIOUS STEP TO THE NEXT STEP FOR INITIALIZING THE POSITIONS OF THE AGENTS.
         self.finalised_positions_previous_step = finalised_positions_previous_step
+
+        # NOTE: CUSTOM CHANGE BY LARS - Set the flag for passing finalised positions.
+        self.pass_finalised_positions = pass_finalised_positions
 
         # TODO Add capability for dealing with topologies (neighbourhoods)
         # self.local_best_fitness = self.fitness
@@ -308,7 +315,7 @@ class Population:
     # ==============
     # TODO Add more initialisation operators like grid, boundary, etc.
 
-    def initialise_positions(self, scheme='random'):
+    def initialise_positions(self, scheme='random', file_label=None):
         """
         Initialise population by an initialisation scheme.
 
@@ -318,10 +325,16 @@ class Population:
             in [-1,1]. Otherwise, 'vertex' uses the vertices of nested hyper-cubes to allocate the agents. The default
             is 'random'.
 
+        :parameter str file_label: Optional
+            NOTE: CUSTOM CHANGE BY LARS - File label to use for saving design point data.
+
         :returns: None.
         """
         # NOTE: CUSTOM CHANGE BY LARS - THE FINALISED POSITIONS OF THE PREVIOUS STEP IN THE HH PROCESS. THIS IS USED TO PASS THE FINALISED POSITIONS OF THE PREVIOUS STEP TO THE NEXT STEP FOR INITIALIZING THE POSITIONS OF THE AGENTS.
-        if self.finalised_positions_previous_step is not None:
+        if self.pass_finalised_positions:
+            best_positions_path = os.path.join(os.getcwd(), "data/raw/design_points/best_positions", f"{file_label}.csv")
+            best_positions_df = pd.read_csv(best_positions_path)
+            best_positions = best_positions_df.tail(self.num_agents)
             self.positions = self.finalised_positions_previous_step
         elif scheme == 'vertex':
             self._positions = self._grid_matrix(self.num_dimensions, self.num_agents)
