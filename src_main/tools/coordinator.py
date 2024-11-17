@@ -37,7 +37,7 @@ class HeuristicSimulationCoordinator:
             coordinator_config_file_path: The path to the configuration file of the coordinator.
             nr_of_agents: The number of agents to run the simulation model with.
     '''
-    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, run_name=None, nr_of_backbone_switches=6):
+    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, run_name=None, nr_of_backbone_switches=6, nr_of_design_queues=0):
         self._base_path = base_path
         self._nr_of_agents = nr_of_agents
         self._nr_of_sims = nr_of_agents
@@ -49,6 +49,7 @@ class HeuristicSimulationCoordinator:
         self.simulation_execution_time = 0
 
         self.uids = []
+        self.queues = {}
 
         # Set up the logger.
         coordinator_log_path = os.path.join(self._base_path, "data/logs/coordinator")
@@ -78,7 +79,7 @@ class HeuristicSimulationCoordinator:
 
         self.logger.info("Setting up workflow configuration file.")
         self.sims_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "sims_path")
-        design_queues = [WorkflowConfig.create_design_point_queue_config("base", 0, "FIFO")]
+        design_queues = [WorkflowConfig.create_design_point_queue_config(f'q{queue_id}', 0 if queue_id > 0 else 1, "FIFO") for queue_id in range(nr_of_design_queues+1)]
         cluster_config = self.create_relevant_cluster_config()
         self.workflow_config = WorkflowConfig(self.sims_path, "config", "run_sim", "results", "logs", "out",
                             workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, design_queues, "uuid", cluster_config)
@@ -265,9 +266,9 @@ class HeuristicSimulationCoordinator:
                 self.generate_design_point(sim_id, agent_configuration)
 
             self.logger.info("Run the generated simulation instances.")
-            uids = self.run_multiple_simulation_configuration(sim_ids)
+            uids = self.run_multiple_simulation_configuration(sim_ids, file_name_fitness_values)
 
-            self.logger.info("Collect the simulation stats from the simulation instances runs.")
+            self.logger.info("Collect the simulation stats from the simulation instances runs.\n"+str(uids.keys()))
             simulation_metrics = self.obtain_simulation_stats(uids)
 
             self.logger.info("Locally storing the agents fitness values.")
@@ -458,7 +459,25 @@ class HeuristicSimulationCoordinator:
 
             # TODO: Change scavetool output filename to something more descriptive.
             csv_file_path = os.path.join(self.data_path, "results", sim_uid, "x.csv")
-            df = pd.read_csv(csv_file_path)
+
+            # Todo: Check for raceconditions while results files are written by the workers, until then just wait before reading the file
+            i_trys = 0
+            while True and i_trys <= 1000:
+                try:
+                    df = pd.read_csv(csv_file_path)
+                    pass 
+                    # if this point is reached everything worked fine, so exit loop
+                    break
+                except:
+                    i_trys += 1
+                    self.logger.error("Error reading "+str(csv_file_path)+" (Try #"+str(i_trys)+"), TRYING AGAIN IN 200MS.")
+                    # os.listdir(csv_file_path_dbg)
+                    time.sleep(0.2)
+
+            # Try one last time to create an intentional FileNotFoundError for the user
+            if (i_trys >= 1000): 
+                df = pd.read_csv(csv_file_path)
+            
 
             # Determine end-to-end delay statistics.
             latency_df = df[df["type"] == "statistic"]
@@ -525,7 +544,7 @@ class HeuristicSimulationCoordinator:
         return {uid: 0}
 
 
-    def run_multiple_simulation_configuration(self, sim_ids):
+    def run_multiple_simulation_configuration(self, sim_ids, file_name_fitness_values="fitness_values.json"):
         """
         Run multiple simulation configurations.
 
@@ -537,18 +556,24 @@ class HeuristicSimulationCoordinator:
         """
         start_time = time.time()
 
+        # Create/Get queue id for every problem
+        queue_name = Path(file_name_fitness_values).stem
+        if queue_name not in self.queues:
+            self.queues[queue_name] = f'q{len(self.queues)}'
+        queue_id = self.queues[queue_name]
+
+        self.logger.debug(f"(Queue: {queue_id}) Enqueing sim instances.")
+
         # Configuring siminstances.
         sim_instances = [create_sim_inet_lans_dummy_parallel(self.config, self.dummy_sim_path, sim_id, self.inet_path) for sim_id in sim_ids]
         uids = {sim_instance.uid: id for id, sim_instance in enumerate(sim_instances)}
 
-        self.logger.debug(f"Enqueing sim instances.")
-
         # Run the configured simulation model.
-        self.manager.enqueue_tasks(sim_instances)
+        self.manager.enqueue_tasks(sim_instances, queue_id=queue_id)
 
-        self.logger.debug(f"Evaluating simulation instances: {uids} with sim ids: {sim_ids}")
+        self.logger.debug(f"(Queue: {queue_id}) Evaluating simulation instances: {uids} with sim ids: {sim_ids}")
 
-        self.manager.evaluate_all()
+        self.manager.evaluate_queue_all(queue_id)
 
         end_time = time.time()
 
