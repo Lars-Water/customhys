@@ -86,13 +86,28 @@ def _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones, pass
     timestamp = int(time.time())
     file_label = f"INET-LANS_experiment_2_{nr_of_backbones}_backbones_{search_operator_space_name}_{nr_of_iterations}_iterations_{nr_of_steps}_steps_{str(timestamp)}"
 
+    probs = {}
+    num_replicas = hh_parameters["num_replicas"] if hh_parameters["num_replicas"] > 0 else 1
+    for rep in range(num_replicas):
+        probs[rep] = prob
+        probs[rep]['set_file_name_fitness_values']("fitness_values_"+str(search_operator_space_name)+"_replica_"+str(rep)+".json")
+        print(probs[rep]['get_file_name_fitness_values']())
+
     hyp = hh.Hyperheuristic(
         heuristic_space=heuristic_space,
-        problem=prob,
+        problems=probs,
         parameters=hh_parameters,
         file_label=file_label,
         pass_finalised_positions=pass_finalised_positions
     )
+
+    # hyp = hh.Hyperheuristic(
+    #     heuristic_space=heuristic_space,
+    #     problem=prob,
+    #     parameters=hh_parameters,
+    #     file_label=file_label,
+    #     pass_finalised_positions=pass_finalised_positions
+    # )
 
     # Start timer for the heuristic run.
     start_time = time.time()

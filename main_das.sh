@@ -24,28 +24,6 @@ cd ~/hyper-heuristic-dse-2.0
 eval "ulimit -n 262000"
 ulimit -n 262000
 
-# DEFAULT
-
-# CONFIG_PATH_HEUR_RUN="${BASE_PATH}/config/config_heuristic_run.json"
-# python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN" --coordinator_config "$CONFIG_PATH_COORDINATOR"
-
-# PARAMETER TUNING
-
-# CONFIG_PATH_HEUR_RUN_PSO="${BASE_PATH}/config/config_heuristic_run_pso.json"
-# python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN_PSO" --coordinator_config "$CONFIG_PATH_COORDINATOR"
-
-# CONFIG_PATH_HEUR_RUN_GA="${BASE_PATH}/config/config_heuristic_run_ga.json"
-# python3 main.py --nr_sw 50 --base_path "$BASE_PATH" --heur_run_config "$CONFIG_PATH_HEUR_RUN_GA" --coordinator_config "$CONFIG_PATH_COORDINATOR"
-
-# EXPERIMENT PIPELINES
-
-# # Experiment 1.
-# CONFIG_PATH_EXPERIMENT_1="${BASE_PATH}/config/experiment_1/experiment_1.json"
-# python3 main.py \
-#  --experiment 1 \
-#  --nr_sw 20 \
-#  --base_path "$BASE_PATH" \
-#  --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
 # Experiment 2.
 python3 main.py \
