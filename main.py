@@ -141,7 +141,6 @@ def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switche
     Returns:
     None
     """
-    print("##### experiment_1")
     # Set up the experiment_1 configuration object.
     experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_1/experiment_1.json"))
     experiment_1_log_path = os.path.join(base_path, "data/logs/experiments/experiment_1")
@@ -153,7 +152,6 @@ def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switche
     run_name = "experiment_1"
     coordinator_params = (base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches)
 
-    print("##### exp_1_flow ")
     # Run Experiment 1.
     exp_1_flow.run_experiment(experiment_1_config, coordinator_params)
 

@@ -16,20 +16,19 @@ def run_experiment(experiment_config, coordinator_params):
     '''
         Experimental run of tuning the parameters of any provided search operators.
     '''
-    print("##### exp_1_flow.run_experiment ")
     search_operator_space_paths = experiment_config.tryGet('search_operator_space_paths')
     search_operator_space_names = experiment_config.tryGet('search_operator_space_names')
     pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
+    hh_parameters = experiment_config.tryGet('hh_parameters')
+    num_replicas = hh_parameters["num_replicas"] if hh_parameters["num_replicas"] > 0 else 1 
 
     # Create the HeuristicSimulationCoordinator.
     base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches = coordinator_params
-    heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches) # noqa 501
+    heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches, len(search_operator_space_names)*num_replicas) # noqa 501
 
     # Create problem instance.
-    print("##### manual_normalization ")
     heur_sim_coordinator.manual_normalization()
     min_datarate, max_datarate, min_cost, max_cost = heur_sim_coordinator.get_datarate_cost_boundaries()
-    print("##### prob ")
 
 
     # Reset the execution times before starting the heuristic run.
@@ -37,7 +36,6 @@ def run_experiment(experiment_config, coordinator_params):
     heur_sim_coordinator.simulation_execution_time = 0
     
 
-    print("### for search_operator_space_path ")
     fns_hh = []
     for search_operator_space_path, search_operator_space_name in zip(search_operator_space_paths, search_operator_space_names):
         fns_hh.append(threading.Thread(target=run_search_operator_space_path, args=(
@@ -83,7 +81,7 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     for rep in range(num_replicas):
         probs[rep] = component_config.create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator.simulation_run)
         probs[rep]['set_file_name_fitness_values']("fitness_values_"+str(search_operator_space_name)+"_replica_"+str(rep)+".json")
-        print(probs[rep]['get_file_name_fitness_values']())
+        # print(probs[rep]['get_file_name_fitness_values']())
 
     hyp = hh.Hyperheuristic(
         heuristic_space=heuristic_space,
