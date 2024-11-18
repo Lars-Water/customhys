@@ -15,7 +15,7 @@ from .population import __selectors__
 
 __all__ = ['local_random_walk', 'random_search', 'random_sample', 'random_flight', 'differential_mutation',
            'firefly_dynamic', 'swarm_dynamic', 'gravitational_search', 'central_force_dynamic', 'spiral_dynamic',
-           'genetic_mutation', 'genetic_crossover']
+           'genetic_mutation', 'genetic_crossover', 'genetic_algorithm']
 
 
 # Search operator aliases
@@ -29,6 +29,7 @@ def get_operator_aliases():
         'central_force_dynamic': 'CF',
         'differential_mutation': 'DM',
         'firefly_dynamic': 'FD',
+        'genetic_algorithm': 'GA',
         'genetic_crossover': 'GC',
         'genetic_mutation': 'GM',
         'gravitational_search': 'GS',
@@ -239,6 +240,14 @@ def firefly_dynamic(pop, alpha=1.0, beta=1.0, gamma=100.0, distribution='uniform
 
     # Move fireflies according to their attractions
     pop.positions += alpha * epsilon_value + beta * difference_positions
+
+
+def genetic_algorithm(pop, scale=1.0, elite_rate=0.1, mutation_rate=0.25, distribution='uniform', pairing='rank', crossover='blend', mating_pool_factor=0.4):
+    """
+    Apply the genetic search operators sequentially to the population's positions (pop.positions).
+    """
+    genetic_mutation(pop, scale, elite_rate, mutation_rate, distribution)
+    genetic_crossover(pop, pairing, crossover, mating_pool_factor)
 
 
 def genetic_crossover(pop, pairing='rank', crossover='blend', mating_pool_factor=0.4):
@@ -894,6 +903,20 @@ def obtain_operators(num_vals=5):
                 beta=[*np.linspace(0.01, 1.0, num_vals)],
                 gamma=[*np.linspace(1.0, 1000.0, num_vals)]),
             __selectors__),
+        (
+            'genetic_algorithm',
+            dict(
+                scale=[*np.linspace(0.01, 1.0, num_vals)],
+                elite_rate=[*np.linspace(0.0, 0.9, num_vals)],
+                mutation_rate=[*np.linspace(0.1, 0.9, num_vals)],
+                distribution=['uniform', 'gaussian', 'levy'],
+                pairing=['rank', 'cost', 'random', 'tournament_2_100', 'tournament_2_75', 'tournament_2_50',
+                         'tournament_3_100', 'tournament_3_75', 'tournament_3_50'],
+                crossover=['single', 'two', 'uniform', 'blend', 'linear_0.5_0.5'],
+                mating_pool_factor=[*np.linspace(0.1, 0.9, num_vals)]
+            ),
+            __selectors__
+        ),
         (
             'genetic_crossover',
             dict(
