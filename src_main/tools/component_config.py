@@ -3,6 +3,7 @@ from pathlib import Path
 
 from src_main.models import model, modelASML
 from src_main.tools.config_reader import Config
+import numpy as np
 
 from customhys import metaheuristic as mh
 
@@ -71,21 +72,18 @@ def _format_metaheuristic(metaheuristic_operators):
 
 
 def create_problem_instanceASML(template_xml_file_path, max_wfpm, min_wfpm, design_point_sim_run):
-    print("### create_problem_instanceASML")
-
     template_file = ET.parse(template_xml_file_path)
 
-    print("template_file.findall", template_file.findall('//core[@frequency]'))
-    nr_of_processor_cores = len(template_file.findall('//core[@frequency]'))
+    nr_of_processor_cores = len(template_file.findall('.//core[@frequency]'))
 
-    subnet_structure = dict()
+    instance_config = dict()
 
     # Create a formulation of the problem instance.
-    subnet_structure["boundaries"] = {
+    instance_config["boundaries"] = {
         f"proc_{i}": [0, 1] for i in range(1, nr_of_processor_cores + 1)
     }
-    subnet_structure["optimal_solution"] = [0.99] * nr_of_processor_cores,
-    subnet_structure["optimal_fitness"] = 0.0
+    instance_config["optimal_solution"] = [0.99] * nr_of_processor_cores,
+    instance_config["optimal_fitness"] = 0.0
 
     boundaries = {
         "wfpm": {
@@ -94,21 +92,26 @@ def create_problem_instanceASML(template_xml_file_path, max_wfpm, min_wfpm, desi
         }
     }
 
-    problem_instance = modelASML.generate_instance
-    (
-        nr_of_processor_cores,
-        subnet_structure,
-        design_point_sim_run,
-        boundaries
-    )
+    min_range = np.array([instance_config['boundaries'][key][0]
+                          for key in instance_config['boundaries']])
+    max_range = np.array([instance_config['boundaries'][key][1]
+                          for key in instance_config['boundaries']])
+
+    problem_instance = modelASML.instanceASML(nr_of_processor_cores,
+                    min_range,
+                    max_range,
+                    instance_config['optimal_solution'],
+                    instance_config['optimal_fitness'],
+                    'CQN',
+                    design_point_sim_run,
+                    boundaries)
+    
     return problem_instance.get_formatted_problem()
 
 
 def generate_asml_config(template_xml_file_path, design_point_xml_file_path, configurations):
-    print("### generate_asml_config")
-
     tree = ET.parse(template_xml_file_path)
-    cores = tree.findall('//core[@frequency]')
+    cores = tree.findall('.//core[@frequency]')
     if len(configurations) != len(cores):
         raise ValueError('generate_asml_config: configurations and cores in xml are not the same length!')
     

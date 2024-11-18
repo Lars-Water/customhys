@@ -45,7 +45,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
 
     def setNumberOfCoresWithFrequencies(self):
         tree = ET.parse(self.template_xml_file_path)
-        cores = tree.findall('//core[@frequency]')
+        cores = tree.findall('.//core[@frequency]')
         self.numberOfCoresWithFrequencies = len(cores)
 
     def generate_design_point(self, sim_id, agent_configuration):
@@ -178,17 +178,9 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
                 df = pd.read_csv(csv_file_path)
             
 
-            # TODO ASML
             # Determine end-to-end delay statistics.
-            latency_df = df[df["type"] == "statistic"]
-            latency_df = latency_df[latency_df["module"].str.endswith(".cli")]
-            latency_df = latency_df[latency_df["name"].str.startswith("endToEndDelay")]
-
-            # Get the cost of all components with a cost paramater in the simulation model.
-            cost_df = df[df['type'] == "param"]
-            cost_df = cost_df[cost_df["name"] == "cost"]
-
-            wfpm = 0.5
+            simtime_df = df[df["name"].fillna("").str.endswith("#waverage")]
+            wfpm = simtime_df.loc[simtime_df['value'].idxmax()]['value']
 
             #/ TODO ASML
 
@@ -241,8 +233,8 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
             ignore_normalization = simulation_model_param['ignore_normalization']
             if not ignore_normalization:
                 boundaries[simulation_model_param['param_name']] = {
-                    "max": simulation_model_param['values'][-1],
-                    "min": simulation_model_param['values'][0]
+                    "max": simulation_model_param['values'][0],
+                    "min": simulation_model_param['values'][-1]
                 }
 
         # Generate simulation instances the min and max parameter value configurations.
@@ -273,8 +265,8 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
             for boundary in boundaries_local:
                 value = boundaries_local[boundary]
                 uid = list(uids.keys())[list(uids.values()).index(sim_ids.index(sim_id_boundaries[parameter][boundary]))]
-                self.logger.info("Determine the boundary value for the objective.")
-                self.determine_boundary_value(uid, parameter, boundary)
+                val_boun = self.determine_boundary_value(uid, parameter, boundary)
+                self.logger.info(f"Determine the boundary value for the objective: {parameter} - boundary: {boundary} - value: {value} --> {val_boun}")
 
         sim_ids.clear()
 
@@ -291,24 +283,29 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
         df = pd.read_csv(csv_file_path)
 
         # Determine boundary values for the datarate parameter.
-        if parameter == "wfpm":
-            # cli_df = df[df["module"].fillna("").str.endswith(".cli")]
-            # wfpm_df = cli_df[(cli_df["type"] == "statistic") & (cli_df["name"].str.startswith("endToEndDelay"))]
+        if parameter == "processor_freq":
+            simtime_df = df[df["name"].fillna("").str.endswith("#waverage")]
+            simtime_max = simtime_df.loc[simtime_df['value'].idxmax()]['value']
 
-            wfpm_runtime = 0 # TODO ASML
 
             if boundary == "min":
-                self.min_wfpm_runtime = 10 # wfpm_runtime
+                self.min_wfpm_runtime = simtime_max # wfpm_runtime
+                return self.min_wfpm_runtime
             elif boundary == "max":
-                self.max_wfpm_runtime = 15 #wfpm_runtime
+                self.max_wfpm_runtime = simtime_max #wfpm_runtime
+                return self.max_wfpm_runtime
 
     def _check_normalization(self):
     # TODO ASML
-        if (not hasattr(self, "max_wfpm_runtime")) or (not hasattr(self, "min_wfpm_runtime")):
+        if hasattr(self, "min_wfpm_runtime"):
             self.logger.info(f"Minimum WFPM runtime is: {self.min_wfpm_runtime}")
+        else:
+            raise ValueError("Normalisation went wrong, min_wfpm_runtime values are missing.")
+
+        if hasattr(self, "max_wfpm_runtime"):
             self.logger.info(f"Maximum WFPM runtime is: {self.max_wfpm_runtime}")
         else:
-            raise ValueError("Normalisation went wrong, max_wfpm_runtime or min_wfpm_runtime values are missing.")
+            raise ValueError("Normalisation went wrong, max_wfpm_runtime values are missing.")
 
     def create_dummy(self, *args, **kwargs):
         return create_sim_asml(*args, **kwargs)

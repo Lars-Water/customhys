@@ -3,6 +3,9 @@
 # Activate upper bash command to set conda environment.
 eval "$(/home/mherget/miniconda3/bin/conda shell.bash hook)"
 
+# TXT from windows to unix_
+# find . -type f -print0 | xargs -0 dos2unix
+
 # Specify the path to the base directory of the hyper-heuristic DSE here.
 BASE_PATH="/var/scratch/mherget/hyper-heuristic-dse-2.0"
 

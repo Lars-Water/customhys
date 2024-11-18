@@ -6,7 +6,6 @@ from src.utils.config_creator import OmnetSimConfig, SiminstanceConfig
 
 def create_sim(workflow_config, id, dummy_sim_path, dummy_sim, config, pdes=None, ini="omnetpp.ini", libraries=None, ned_paths=None, time_limit=None, metadata=None):
     dummy_sim_folder = os.path.join(dummy_sim_path, dummy_sim)
-    print(dummy_sim_folder)
 
     ##### Create copy of a dummy sim
     sim_folder = os.path.join(workflow_config["sims_path"], str(id))
