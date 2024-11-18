@@ -34,7 +34,7 @@ class DataCollectorASML(DataCollector):
         self.dir_design_points_metrics_output = dir_design_points_metrics_output
 
 
-    def store_design_point_metrics(self, wfpm_df, sim_uid, heuristic_name):
+    def store_design_point_metrics(self, wfpm, sim_uid, heuristic_name):
         """
         Stores the design point metrics in a CSV file.
 
@@ -51,9 +51,9 @@ class DataCollectorASML(DataCollector):
         append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}.csv")
 
         # Determine weighted metric values._
-        adjusted_wfpm = wfpm_df['mean'].mean() * self.weight_wfpm
+        adjusted_wfpm = wfpm * self.weight_wfpm
 
         # Append the adjusted values to the design points metrics storage.
-        append_df = pd.DataFrame([[sim_uid, adjusted_wfpm, adjusted_network_cost]],
+        append_df = pd.DataFrame([[sim_uid, adjusted_wfpm]],
                                 columns=['SimulationID', 'AdjustedWFPM'])
         append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)

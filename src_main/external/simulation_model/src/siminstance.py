@@ -174,6 +174,11 @@ class Siminstance:
             self.logger.info("Omnet will record eventlog")
             simulation_command += ["--record-eventlog"]
 
+        # # Todo fix True for other experiments
+        # if (self.cnf.tryGet("omnet", "simulation", "oversubscribe") or True):
+        #     self.logger.info("Omnet will oversubscribe")
+        #     simulation_command += ["--oversubscribe"]
+
         if (self.cnf.tryGet("omnet", "simulation", "pdes")):
             num_lps = self.cnf.tryGet("omnet", "simulation", "pdes", "num_lps")
             self.logger.info("Omnet execution will perform pdes with {} lps".format(num_lps))

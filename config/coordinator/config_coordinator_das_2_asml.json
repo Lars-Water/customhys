@@ -1,5 +1,5 @@
 {
-    "logger_lvl": "DEBUG",
+    "logger_lvl": "INFO",
     "parameter_tuning": {},
     "coordinator_functionalities": {
         "remove_design_point_configuration_dummy_path": true,
@@ -32,14 +32,15 @@
         "simulation_model_configuration": {
             "sim_model": "asml",
             "platform": "DAS",
-            "jobs": 1,
+            "jobs": 3,
             "job_cores": 64,
             "job_processes": 1,
             "job_memory": "120GB",
             "num_nodes": 1,
             "num_workers": 1,
             "threads_per_worker": 8,
-            "walltime": "100:0:0"
+            "walltime": "100:0:0",
+            "oversubscribe": true
         },
         "simulation_model_params": [
             {
@@ -48,7 +49,9 @@
                 "configuration_pattern": ["core", "frequency"],
                 "values": [
                     "0.5",
+                    "0.6",
                     "0.75",
+                    "0.8",
                     "0.85",
                     "0.9",
                     "0.95",
@@ -56,7 +59,9 @@
                     "1.05",
                     "1.1",
                     "1.15",
+                    "1.2",
                     "1.25",
+                    "1.4",
                     "1.5",
                     "1.75",
                     "2.0"

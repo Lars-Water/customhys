@@ -1015,7 +1015,8 @@ class HeuristicSimulationCoordinator:
         # Duplicate a new custom dummy sim directory and ignore the given filename.
         shutil.copytree(src_dir,
                         dest_dir,
-                        ignore=HeuristicSimulationCoordinator.ignore_file(file_to_ignore)
+                        ignore=HeuristicSimulationCoordinator.ignore_file(file_to_ignore),
+                        symlinks=True
         )
 
 

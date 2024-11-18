@@ -31,8 +31,6 @@ def run_experiment(experiment_config, coordinator_params):
     heur_sim_coordinator.manual_normalization()
     min_wfpm_runtime, max_wfpm_runtime = heur_sim_coordinator.get_boundaries()
 
-
-
     # Reset the execution times before starting the heuristic run.
     heur_sim_coordinator.coordinator_and_simulation_execution_time = 0
     heur_sim_coordinator.simulation_execution_time = 0
@@ -62,7 +60,7 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     coordinator_log_path = os.path.join(base_path, "data/logs/exp_asml")              
     os.makedirs(coordinator_log_path, exist_ok=True)
 
-    conf = Config(coordinator_config_file_path, Path(coordinator_log_path), "run_search_operator_space_path_search_operator_space_name")
+    conf = Config(coordinator_config_file_path, Path(coordinator_log_path), f"run_search_operator_space_path_{search_operator_space_name}")
 
     pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
         # Open a file in write mode ('w') and write the string

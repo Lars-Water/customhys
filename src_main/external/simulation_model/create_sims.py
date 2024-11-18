@@ -12,7 +12,7 @@ def create_sim(workflow_config, id, dummy_sim_path, dummy_sim, config, pdes=None
 
     if os.path.exists(sim_folder):
         shutil.rmtree(sim_folder)
-    shutil.copytree(dummy_sim_folder, sim_folder)
+    shutil.copytree(dummy_sim_folder, sim_folder, symlinks=True)
 
     with open(os.path.join(sim_folder, "id.txt"), "w") as fp:
         fp.write("id: {}".format(id))

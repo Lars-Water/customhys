@@ -180,7 +180,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
 
             # Determine end-to-end delay statistics.
             simtime_df = df[df["name"].fillna("").str.endswith("#waverage")]
-            wfpm = simtime_df.loc[simtime_df['value'].idxmax()]['value']
+            wfpm = float(simtime_df.loc[simtime_df['value'].idxmax()]['value'])
 
             #/ TODO ASML
 
@@ -285,8 +285,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
         # Determine boundary values for the datarate parameter.
         if parameter == "processor_freq":
             simtime_df = df[df["name"].fillna("").str.endswith("#waverage")]
-            simtime_max = simtime_df.loc[simtime_df['value'].idxmax()]['value']
-
+            simtime_max = float(simtime_df.loc[simtime_df['value'].idxmax()]['value'])
 
             if boundary == "min":
                 self.min_wfpm_runtime = simtime_max # wfpm_runtime

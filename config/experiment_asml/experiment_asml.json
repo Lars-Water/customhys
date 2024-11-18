@@ -2,11 +2,11 @@
     "hh_parameters": {
         "cardinality": 1,
         "cardinality_min": 1,
-        "num_iterations": 10,
-        "num_agents": 16,
+        "num_iterations": 20,
+        "num_agents": 32,
         "as_mh": true,
-        "num_replicas": 1,
-        "num_steps": 20,
+        "num_replicas": 3,
+        "num_steps": 10,
         "stagnation_percentage": 0.37,
         "max_temperature": 100,
         "min_temperature": 1e-6,
@@ -24,9 +24,15 @@
     },
     "pass_finalised_positions": false,
     "search_operator_space_paths": [
-        "config/experiment_1/search_operator_space/genetic_mutation.txt"
+        "config/experiment_1/search_operator_space/genetic_mutation.txt",
+        "config/experiment_1/search_operator_space/swarm_dynamic.txt",
+        "config/experiment_1/search_operator_space/genetic_crossover.txt",
+        "config/experiment_1/search_operator_space/gravitational.txt"
     ],
     "search_operator_space_names": [
-        "genetic_mutation"
+        "genetic_mutation",
+        "swarm_dynamic",
+        "genetic_crossover",
+        "gravitational"
     ]
 }
