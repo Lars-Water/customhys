@@ -1,10 +1,12 @@
 import os
 from pathlib import Path
 
-from src_main.models import model
+from src_main.models import model, modelASML
 from src_main.tools.config_reader import Config
 
 from customhys import metaheuristic as mh
+
+import xml.etree.ElementTree as ET
 
 
 def determine_heuristic_space(search_operator_space_path):
@@ -67,6 +69,57 @@ def _format_metaheuristic(metaheuristic_operators):
         for metaheuristic_operator in metaheuristic_operators
     ]
 
+
+def create_problem_instanceASML(template_xml_file_path, max_wfpm, min_wfpm, design_point_sim_run):
+    print("### create_problem_instanceASML")
+
+    template_file = ET.parse(template_xml_file_path)
+
+    print("template_file.findall", template_file.findall('//core[@frequency]'))
+    nr_of_processor_cores = len(template_file.findall('//core[@frequency]'))
+
+    subnet_structure = dict()
+
+    # Create a formulation of the problem instance.
+    subnet_structure["boundaries"] = {
+        f"proc_{i}": [0, 1] for i in range(1, nr_of_processor_cores + 1)
+    }
+    subnet_structure["optimal_solution"] = [0.99] * nr_of_processor_cores,
+    subnet_structure["optimal_fitness"] = 0.0
+
+    boundaries = {
+        "wfpm": {
+            "max": max_wfpm,
+            "min": min_wfpm
+        }
+    }
+
+    problem_instance = modelASML.generate_instance
+    (
+        nr_of_processor_cores,
+        subnet_structure,
+        design_point_sim_run,
+        boundaries
+    )
+    return problem_instance.get_formatted_problem()
+
+
+def generate_asml_config(template_xml_file_path, design_point_xml_file_path, configurations):
+    print("### generate_asml_config")
+
+    tree = ET.parse(template_xml_file_path)
+    cores = tree.findall('//core[@frequency]')
+    if len(configurations) != len(cores):
+        raise ValueError('generate_asml_config: configurations and cores in xml are not the same length!')
+    
+    for core_id in range(len(cores)):
+        core=cores[core_id]
+        core.attrib['frequency'] = configurations[core_id]["value"]
+    
+    tree.write(design_point_xml_file_path)
+
+
+    
 
 def create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, design_point_sim_run):
     """

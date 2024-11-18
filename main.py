@@ -17,6 +17,7 @@ import src_main.models.model as model
 from src_main.data import collect_data
 import src_main.experiment_flows.experiment_1 as exp_1_flow
 import src_main.experiment_flows.experiment_2 as exp_2_flow
+import src_main.experiment_flows.experiment_asml as exp_asml_flow
 from src_main.visualization import visualization
 
 from setuptools import setup, find_packages
@@ -131,6 +132,21 @@ def quick_and_dirty_save_hh_positions_to_xlsx(positions_data, rescale=False):
     positions_df.to_excel(excel_filename, index=False)
 
 
+def experiment_asml(base_path, coordinator_config_file_path):
+    # Set up the experiment_1 configuration object.
+    experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_asml/experiment_asml.json"))
+    experiment_1_log_path = os.path.join(base_path, "data/logs/experiments/experiment_asml")
+    os.makedirs(experiment_1_log_path, exist_ok=True)
+    config_manager_filename = f"experiment_asml_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    experiment_1_config = Config(experiment_1_config_file_path, Path(experiment_1_log_path), config_manager_filename)
+    # TODO: Change this naming flow, because it goes from main, to coordinator, to data collector.
+    nr_of_agents = experiment_1_config.tryGet("hh_parameters", "num_agents")
+    run_name = "experiment_asml"
+    coordinator_params = (base_path, coordinator_config_file_path, nr_of_agents, run_name)
+
+    # Run Experiment 1.
+    exp_asml_flow.run_experiment(experiment_1_config, coordinator_params)
+
 def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches):
     """
     Set up and run Experiment 1.
@@ -239,6 +255,8 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, exp
         experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
     elif experiment == '2':
         experiment_2(base_path, coordinator_config_file_path)
+    elif experiment == 'asml':
+        experiment_asml(base_path, coordinator_config_file_path)
     elif experiment == 'all':
         experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
         experiment_2(base_path, coordinator_config_file_path)
@@ -287,7 +305,7 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, exp
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the heuristic simulation workflow.")
-    parser.add_argument('--experiment', choices=['1', '2', 'all'], required=False, help='Choose which experiment to run')
+    parser.add_argument('--experiment', choices=['1', '2', 'asml', 'all'], required=False, help='Choose which experiment to run')
     parser.add_argument('--visualize', choices=['1', '2', 'all'], required=False, help='Choose which experiment to visualize')
     parser.add_argument('--metaheuristics', nargs='+', required=False, help='List of metaheuristics to visualize. Checks the results folder of experiment 2 for the singular metaheuristic runs.')
     parser.add_argument("--hh_run_dirs_exp_1", nargs='+', required=False, help="List of HH run directories for Experiment 1.")

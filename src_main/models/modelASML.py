@@ -1,0 +1,126 @@
+import numpy as np
+
+# from external.CUSTOMHys.customhys import benchmark_func as bf
+from customhys import benchmark_func as bf
+import customhys
+
+# Import BasicProblem object for generating a custom optimisation problem.
+BP = bf.BasicProblem
+
+'''
+    Subclass of BasicProblem object to generate a custom optimisation problem.
+
+    variable_num:              Number of dimensions of the problem
+    max_search_range:          Maximum boundaries of parameter values
+    min_search_range:          Minimum boundaries of parameter values
+    optimal_solution:          Optimal configuration of parameter values
+    global_optimum_solution:   Optimal fitness value of optimal configuration
+    func_name:                 Name of the function?
+'''
+
+
+class instanceASML(BP):
+    def __init__(self,
+                variable_num,
+                max_search_range,
+                min_search_range,
+                optimal_solution,
+                global_optimum_solution,
+                func_name,
+                sim_run,
+                boundaries):
+        super().__init__(variable_num)
+        self.max_search_range = max_search_range
+        self.min_search_range = min_search_range
+        self.optimal_solution = optimal_solution
+        self.global_optimum_solution = global_optimum_solution
+        self.func_name = func_name
+        self.sim_run = sim_run
+        self.features = {'Continuous': False,
+                         'Differentiable': False,
+                         'Separable': False,
+                         'Scalable': True,
+                         'Unimodal': False,
+                         'Convex': False}
+
+        # Determine min and max values for objectives
+        self.boundaries = boundaries
+        self.file_name_fitness_values="fitness_values.json"
+
+
+    '''
+        Set file name for local fitness values file for running multiple HH/MH at once
+    '''
+    def set_file_name_fitness_values(self, file_name_fitness_values):
+        self.file_name_fitness_values = file_name_fitness_values
+
+    def get_file_name_fitness_values(self):
+        return self.file_name_fitness_values
+
+
+    def get_formatted_problem(self, is_constrained=True, fts=None):
+        return dict(function=lambda x: self.get_function_value(x),
+                    boundaries=(self.min_search_range, self.max_search_range),
+                    is_constrained=is_constrained,
+                    features=self.get_features(fts=fts),
+                    func_name=self.func_name,
+                    dimensions=self.variable_num,
+                    set_file_name_fitness_values=lambda x: self.set_file_name_fitness_values(x),
+                    get_file_name_fitness_values=lambda: self.get_file_name_fitness_values()
+        )
+
+    '''
+        Run the simulation model with the given variables.
+    '''
+    def get_func_val(self, variables, *args):
+        return self.sim_run(self.fitfunc, variables, self.file_name_fitness_values)
+
+
+    '''
+        Evaluate the fitness value of the simulation run.
+
+        Args:
+            simulation_metrics: The simulation metrics obtained from the simulation run.
+    '''
+    def fitfunc(self, fitness_config, simulations_metrics):
+        # TODO ASML
+        fitness_function = fitness_config["fitness_function"]
+
+        fitness_values = {}
+        for simulation_metrics in simulations_metrics:
+            (agent_id, metrics), = simulation_metrics.items()
+            # Fitness value evaluates the objectives for latency and network cost.
+            if fitness_function == "wfpm":
+                wfpm = metrics["wfpm"]
+
+                normalized_wfpm = (wfpm - self.boundaries['wfpm']['min'])/(self.boundaries['wfpm']['max'] - self.boundaries['wfpm']['min'])
+
+                weight_wfpm = fitness_config["weight_wfpm"]
+                fitness_value = (weight_wfpm * normalized_wfpm)
+                fitness_values[agent_id] = fitness_value
+
+            # TODO: Add other fitness functions here.
+            else:
+                return 0
+        # self.logger.info("fitfunc fitness_values:"+str(fitness_values))
+        return fitness_values
+
+
+'''
+    Generate a basic problem instance from a given simulation model
+    configuration and simulation run functionality.
+'''
+def generate_instance(variable_num, instance_config, sim_run, boundaries):
+    min_range = np.array([instance_config['boundaries'][key][0]
+                          for key in instance_config['boundaries']])
+    max_range = np.array([instance_config['boundaries'][key][1]
+                          for key in instance_config['boundaries']])
+
+    return instanceASML(variable_num,
+                    min_range,
+                    max_range,
+                    instance_config['optimal_solution'],
+                    instance_config['optimal_fitness'],
+                    'CQN',
+                    sim_run,
+                    boundaries)

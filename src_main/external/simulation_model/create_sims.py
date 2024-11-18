@@ -6,6 +6,7 @@ from src.utils.config_creator import OmnetSimConfig, SiminstanceConfig
 
 def create_sim(workflow_config, id, dummy_sim_path, dummy_sim, config, pdes=None, ini="omnetpp.ini", libraries=None, ned_paths=None, time_limit=None, metadata=None):
     dummy_sim_folder = os.path.join(dummy_sim_path, dummy_sim)
+    print(dummy_sim_folder)
 
     ##### Create copy of a dummy sim
     sim_folder = os.path.join(workflow_config["sims_path"], str(id))
@@ -127,6 +128,35 @@ def create_sim_inet_lans_dummy_parallel(workflow_config, dummy_sim_path, id, ine
     dummy_sim = "custom_dummy" + f"_{str(id)}"
     config = "LargeNet"
     ini = "largeNet.ini"
+
+    libraries = [os.path.join(inet_base, "src", "INET")]
+
+    ned_paths = [os.path.join(inet_base, "src"), os.path.join(inet_base, "examples"),
+                 os.path.join(inet_base, "showcases"), os.path.join(inet_base, "tests", "validation"),
+                 os.path.join(inet_base, "tests", "networks"), os.path.join(inet_base, "tutorials")]
+
+    print(dummy_sim_path, dummy_sim)
+
+    return create_sim(workflow_config, id, dummy_sim_path, dummy_sim, config, time_limit=None, ini=ini, libraries=libraries, ned_paths=ned_paths)
+
+
+def create_sim_asml(workflow_config, dummy_sim_path, id, inet_base):
+    dummy_sim = "custom_faezeh"
+    config = "General"
+    ini = "omnetpp.ini"
+
+    libraries = [os.path.join(inet_base, "src", "INET")]
+
+    ned_paths = [os.path.join(inet_base, "src"), os.path.join(inet_base, "examples"),
+                 os.path.join(inet_base, "showcases"), os.path.join(inet_base, "tests", "validation"),
+                 os.path.join(inet_base, "tests", "networks"), os.path.join(inet_base, "tutorials")]
+
+    return create_sim(workflow_config, id, dummy_sim_path, dummy_sim, config, time_limit=None, ini=ini, libraries=libraries, ned_paths=ned_paths)
+
+def create_sim_asml_parallel(workflow_config, dummy_sim_path, id, inet_base):
+    dummy_sim = "custom_faezeh" + f"_{str(id)}"
+    config = "General"
+    ini = "omnetpp.ini"
 
     libraries = [os.path.join(inet_base, "src", "INET")]
 

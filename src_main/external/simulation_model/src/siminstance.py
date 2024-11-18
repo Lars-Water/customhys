@@ -266,6 +266,7 @@ class Siminstance:
 
             self.stats.record_time_stat("compilation", "make_exec_start")
             make_output = subprocess.run(make_command, cwd=self.path, capture_output=True)
+            print(make_output)
             self.record_total_time_stat(("compilation", "make_exec_time"), ("compilation", "make_exec_start"), ("compilation", "make_exec_end"))
 
             self.stats.record_time_stat("compilation", "make_store_start")
@@ -279,7 +280,8 @@ class Siminstance:
                 self.logger.info("Make execution was successfull")
             else:
                 self.logger.warn("Make execution was not successfull")
-                raise Exception("Make execution was not successfull")
+                self.logger.warn(make_output)
+                raise Exception("Make execution was not successfull", make_output)
 
 
         else:
@@ -334,7 +336,8 @@ class Siminstance:
                 self.logger.info("Simulation execution was successfull")
             else:
                 self.logger.warn("Simulation execution was not successfull")
-                raise Exception("Simulation execution was not successfull")
+                self.logger.warn(simulation_output)
+                raise Exception("Simulation execution was not successfull",simulation_output)
 
         else:
             self.logger.warn("No supported simulator configuration data was found.")

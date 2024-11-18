@@ -103,6 +103,7 @@ class HeuristicSimulationCoordinator:
         self.remove_sim_instance_output = self.conf.tryGet("coordinator_functionalities", "remove_sim_instance_output")
         self.remove_sim_instance_experiments_folder = self.conf.tryGet("coordinator_functionalities", "remove_sim_instance_experiments_folder")
         self.remove_design_point_configuration_dummy_path = self.conf.tryGet("coordinator_functionalities", "remove_design_point_configuration_dummy_path")
+        self.remove_design_point_configuration_dummy_path_pattern = self.conf.tryGet("coordinator_functionalities", "remove_design_point_configuration_dummy_path_pattern") 
         self.remove_design_point_configuration_sims_path = self.conf.tryGet("coordinator_functionalities", "remove_design_point_configuration_sims_path")
 
         self.logger.info("Define the paths for the simulation model results.")
@@ -286,7 +287,7 @@ class HeuristicSimulationCoordinator:
                 self.logger.debug("Removing simulation run templates in dummy path.")
                 # print(""+str(self.sim_dummy_directory))
                 for sim_id in sim_ids:
-                    fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_"+str(sim_id)+"*")
+                    fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern=self.remove_design_point_configuration_dummy_path_pattern+str(sim_id)+"*")
             if self.remove_design_point_configuration_sims_path:
                 self.logger.debug("Removing simulation run templates in sims path.")
                 # print("sims_path "+str(self.sims_path))
@@ -325,8 +326,7 @@ class HeuristicSimulationCoordinator:
 
             if self.remove_design_point_configuration_dummy_path:
                 self.logger.debug("Removing simulation run templates in dummy path.")
-                fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_*")
-
+                fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
             # self.logger.info("Fitness value: {}".format(fitness_value))
             return fitness_value[0]
 
@@ -520,7 +520,7 @@ class HeuristicSimulationCoordinator:
             dict: A dictionary containing the UID of the evaluated simulation instance and its corresponding value.
         """
         start_time = time.time()
-        sim_instances = [create_sim_inet_lans_dummy(self.config, self.dummy_sim_path, uuid.uuid4(), self.inet_path) for _ in range(self._nr_of_sims)]
+        sim_instances = [self.create_dummy(self.config, self.dummy_sim_path, uuid.uuid4(), self.inet_path) for _ in range(self._nr_of_sims)]
 
         uid = sim_instances[0].uid
         if uid in self.uids:
@@ -565,7 +565,7 @@ class HeuristicSimulationCoordinator:
         self.logger.debug(f"(Queue: {queue_id}) Enqueing sim instances.")
 
         # Configuring siminstances.
-        sim_instances = [create_sim_inet_lans_dummy_parallel(self.config, self.dummy_sim_path, sim_id, self.inet_path) for sim_id in sim_ids]
+        sim_instances = [self.create_dummy_parallel(self.config, self.dummy_sim_path, sim_id, self.inet_path) for sim_id in sim_ids]
         uids = {sim_instance.uid: id for id, sim_instance in enumerate(sim_instances)}
 
         # Run the configured simulation model.
@@ -670,7 +670,7 @@ class HeuristicSimulationCoordinator:
 
         if self.remove_design_point_configuration_dummy_path:
             self.logger.debug("Removing simulation run templates in dummy path.")
-            fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_*")
+            fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
 
         self._check_normalization()
 
@@ -750,7 +750,7 @@ class HeuristicSimulationCoordinator:
         sim_ids.clear()
         if self.remove_design_point_configuration_dummy_path:
             self.logger.debug("Removing simulation run templates in dummy path.")
-            fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_*")
+            fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
 
 
     '''
@@ -846,7 +846,7 @@ class HeuristicSimulationCoordinator:
         sim_ids.clear()
         if self.remove_design_point_configuration_dummy_path:
             self.logger.debug("Removing simulation run templates in dummy path.")
-            fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_*")
+            fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
 
 
     def determine_design_point_metrics(self, uids):
@@ -1017,3 +1017,10 @@ class HeuristicSimulationCoordinator:
                         dest_dir,
                         ignore=HeuristicSimulationCoordinator.ignore_file(file_to_ignore)
         )
+
+
+    def create_dummy(self, *args, **kwargs):
+        return create_sim_inet_lans_dummy(*args, **kwargs)
+
+    def create_dummy_parallel(self, *args, **kwargs):
+        return create_sim_inet_lans_dummy_parallel(*args, **kwargs)
