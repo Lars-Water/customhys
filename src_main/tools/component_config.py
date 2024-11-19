@@ -126,6 +126,8 @@ def generate_asml_config(template_xml_file_path, design_point_xml_file_path, con
         param_name = configuration["param_name"]
         config_pattern = configuration["config_pattern"]
         value = configuration["value"]
+        # print(config_pattern)
+        # print(configuration)
         elems_pattern = tree.findall(config_pattern[0])
         # print(configuration, len(elems_pattern))
         # print(elems_pattern)
@@ -140,12 +142,14 @@ def generate_asml_config(template_xml_file_path, design_point_xml_file_path, con
             elem = elems_pattern[0]
             elem.attrib["cost"] = str(value[1])
             m = int(value[0])
+            # print(value)
             for core in elem.iter("core"):
                 if m > 0:
                     core.attrib['active'] = "true"
                 else:
                     core.attrib['active'] = "false"
                 m -= 1
+                # print(m)
             
     
     tree.write(design_point_xml_file_path)
