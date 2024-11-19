@@ -97,7 +97,15 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
         problems=probs,
         parameters=hh_parameters,
         file_label=file_label,
-        pass_finalised_positions=pass_finalised_positions
+        pass_finalised_positions=pass_finalised_positions,
+        file_details= {
+            "experiment_name": experiment_name,
+            "hh_parameters": hh_parameters,
+            "timestamp": timestamp,
+            "search_operator_space_name": search_operator_space_name,
+            "template_ini_file_path": template_ini_file_path,
+            "coordinator_config": conf
+        }
     )
 
 

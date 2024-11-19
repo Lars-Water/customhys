@@ -24,15 +24,9 @@
     },
     "pass_finalised_positions": false,
     "search_operator_space_paths": [
-        "config/experiment_1/search_operator_space/genetic_mutation.txt",
-        "config/experiment_1/search_operator_space/swarm_dynamic.txt",
-        "config/experiment_1/search_operator_space/genetic_crossover.txt",
-        "config/experiment_1/search_operator_space/gravitational.txt"
+        "config/experiment_1/search_operator_space/genetic_mutation.txt"
     ],
     "search_operator_space_names": [
-        "genetic_mutation",
-        "swarm_dynamic",
-        "genetic_crossover",
-        "gravitational"
+        "genetic_mutation"
     ]
 }
