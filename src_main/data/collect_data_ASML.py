@@ -18,7 +18,7 @@ from .collect_data import DataCollector
 
 class DataCollectorASML(DataCollector):
 
-    def __init__(self, weight_wfpm, dir_design_points_metrics_output):
+    def __init__(self, weight_wfpm, weight_cost, dir_design_points_metrics_output):
         """
         Initialize the CollectData object.
 
@@ -31,10 +31,11 @@ class DataCollectorASML(DataCollector):
             None
         """
         self.weight_wfpm = weight_wfpm
+        self.weight_cost = weight_cost
         self.dir_design_points_metrics_output = dir_design_points_metrics_output
 
 
-    def store_design_point_metrics(self, wfpm, sim_uid, heuristic_name):
+    def store_design_point_metrics(self, wfpm, cost, sim_uid, heuristic_name):
         """
         Stores the design point metrics in a CSV file.
 
@@ -52,8 +53,9 @@ class DataCollectorASML(DataCollector):
 
         # Determine weighted metric values._
         adjusted_wfpm = wfpm * self.weight_wfpm
+        adjusted_cost = cost * self.weight_cost
 
         # Append the adjusted values to the design points metrics storage.
-        append_df = pd.DataFrame([[sim_uid, adjusted_wfpm]],
-                                columns=['SimulationID', 'AdjustedWFPM'])
+        append_df = pd.DataFrame([[sim_uid, adjusted_wfpm, adjusted_cost]],
+                                columns=['SimulationID', 'AdjustedWFPM', 'AdjustedCost'])
         append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)

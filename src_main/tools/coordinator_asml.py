@@ -35,11 +35,13 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
         # TODO ASML
         dir_design_points_metrics_output = self.conf.tryGet("output_paths", "design_points_metrics_output")
         weight_wfpm = self.conf.tryGet("fitness_config", "weight_wfpm")
-        self.data_collector = DataCollectorASML(weight_wfpm, dir_design_points_metrics_output)
+        weight_cost= self.conf.tryGet("fitness_config", "weight_wfpm")
+        self.data_collector = DataCollectorASML(weight_wfpm, weight_cost, dir_design_points_metrics_output)
 
         
         self.template_xml_file_path = os.path.join(self.simulation_model_template_path, "platform.xml")
         self.setNumberOfCoresWithFrequencies()
+        # self.setNumberOfCoresWithActive()
 
 
 
@@ -47,6 +49,13 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
         tree = ET.parse(self.template_xml_file_path)
         cores = tree.findall('.//core[@frequency]')
         self.numberOfCoresWithFrequencies = len(cores)
+
+    # def setNumberOfCoresActive(self):
+    #     self.numberOfCoresActive = 0
+    #     simulation_model_params = self.conf.tryGet("simulation_model", "simulation_model_params")
+    #     for sim_param in sim_param:
+    #         if sim_param["param_name"].include("processor_cores_active"):
+    #             self.numberOfCoresActive += len(sim_param["configuration_pattern"])        
 
     def generate_design_point(self, sim_id, agent_configuration):
         """
@@ -129,10 +138,13 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
                     selected_param_value = param_values[value_idx]
    
                     # Replace placeholders in the configuration pattern are replaced with the corresponding indices.
-                    current_param_pattern = config_pattern
+                    current_param_pattern = config_pattern[:]
+                    current_param_pattern.append(core_idx)
+                    # print("### ", current_param_pattern)
 
                     # Create a configuration for the current parameter.
                     agent_configuration.append({
+                        "param_name": param["param_name"],
                         "config_pattern": current_param_pattern,
                         "value": selected_param_value
                     })
@@ -182,12 +194,15 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
             simtime_df = df[df["name"].fillna("").str.endswith("#waverage")]
             wfpm = float(simtime_df.loc[simtime_df['value'].idxmax()]['value'])
 
+            cost_df = df[df["name"].fillna("").str.endswith("#cost")]
+            cost = float(pd.to_numeric(cost_df['value']).sum())
+
             #/ TODO ASML
 
             # Store design point metrics output.
             if self.store_design_points_metrics_values:
                 self.logger.info(f"Storing metrics output values for siminstance {sim_uid}.")
-                self.data_collector.store_design_point_metrics(wfpm, sim_uid, self._run_name)
+                self.data_collector.store_design_point_metrics(wfpm, cost, sim_uid, self._run_name)
 
             # Remove the csv file.
             if self.remove_sim_instance_output:
@@ -196,7 +211,8 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
 
             fitness_values.append({
                 agent_id: {
-                    "wfpm": wfpm
+                    "wfpm": wfpm,
+                    "cost": cost
                 }
             })
 
@@ -207,9 +223,11 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
     def get_boundaries(self):
         self.logger.info("get_datarate_cost_boundaries: \n" +
                             "self.min_wfpm_runtime: " + str(self.min_wfpm_runtime) + "\n" +
-                            "self.max_wfpm_runtime: " + str(self.max_wfpm_runtime) 
+                            "self.max_wfpm_runtime: " + str(self.max_wfpm_runtime) +"\n" +
+                            "self.min_cost_runtime: " + str(self.min_cost) + "\n" +
+                            "self.max_cost_runtime: " + str(self.max_cost) 
         )
-        return self.min_wfpm_runtime, self.max_wfpm_runtime
+        return self.min_wfpm_runtime, self.max_wfpm_runtime, self.min_cost, self.max_cost
 
     def manual_normalization(self):
         """
@@ -233,8 +251,8 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
             ignore_normalization = simulation_model_param['ignore_normalization']
             if not ignore_normalization:
                 boundaries[simulation_model_param['param_name']] = {
-                    "max": simulation_model_param['values'][0],
-                    "min": simulation_model_param['values'][-1]
+                    "max": simulation_model_param['values'][-1],
+                    "min": simulation_model_param['values'][0]
                 }
 
         # Generate simulation instances the min and max parameter value configurations.
@@ -242,22 +260,38 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
         sim_id_boundaries = {}
         # print("##### boundaries:")
         # print(boundaries)
+        tree = ET.parse(self.template_xml_file_path)
         for parameter, boundaries_local in boundaries.items():
             sim_id_boundaries[parameter] = {}
             for boundary in boundaries_local:
                 value = boundaries_local[boundary]
                 self.logger.debug(f"Generating normalization sim instance for parameter: {parameter} - boundary: {boundary} - value: {value}")
                 sim_id = uuid.uuid4()
-                configuration = [
-                    {
-                        "config_pattern": ["core", "frequency", "*"],
-                        "value": value
-                    } for x in range(self.numberOfCoresWithFrequencies)
-                ]
+                if parameter == "processor_freq":
+                    configuration = [
+                        {
+                            "param_name": parameter,
+                            "config_pattern": [".//core[@frequency]", x, "frequency"],
+                            "value": value
+                        } for x in range(self.numberOfCoresWithFrequencies)
+                    ]
+                    if boundary == "max":
+                        configuration += [{
+                            "param_name":  "processor_freq",
+                            "config_pattern": [".//core[@active]", x, "active"],
+                            "value": ["true", 1]
+                        } for x in range(len(tree.findall('.//core[@active]')))]
+                elif parameter == "num_processor_cores_active":
+                    configuration = [
+                        {
+                            "param_name": parameter,
+                            "config_pattern": [".//processor[@name='sun_P0']", 0],
+                            "value": value
+                        }
+                    ]
                 self.generate_design_point(sim_id, configuration)
                 sim_ids.append(sim_id)
                 sim_id_boundaries[parameter][boundary] = sim_id
-
         self.logger.info("Evaluating the generated simulation instances.")
         uids = self.run_multiple_simulation_configuration(sim_ids)
 
@@ -283,16 +317,21 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
         df = pd.read_csv(csv_file_path)
 
         # Determine boundary values for the datarate parameter.
-        if parameter == "processor_freq":
+        if parameter == "processor_freq" or parameter == "num_processor_cores_active":
             simtime_df = df[df["name"].fillna("").str.endswith("#waverage")]
             simtime_max = float(simtime_df.loc[simtime_df['value'].idxmax()]['value'])
 
+            cost_df = df[df["name"].fillna("").str.endswith("#cost")]
+            # print(cost_df)
+            cost = float(pd.to_numeric(cost_df['value']).sum())
+
             if boundary == "min":
                 self.min_wfpm_runtime = simtime_max # wfpm_runtime
-                return self.min_wfpm_runtime
+                self.min_cost = cost # wfpm_runtime
             elif boundary == "max":
                 self.max_wfpm_runtime = simtime_max #wfpm_runtime
-                return self.max_wfpm_runtime
+                self.max_cost = cost #wfpm_runtime
+    
 
     def _check_normalization(self):
     # TODO ASML

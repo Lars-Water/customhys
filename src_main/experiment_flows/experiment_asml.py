@@ -29,7 +29,7 @@ def run_experiment(experiment_config, coordinator_params):
     heur_sim_coordinator = coordinator_asml.HeuristicSimulationCoordinatorASML(base_path, coordinator_config_file_path, nr_of_agents, run_name, len(search_operator_space_names)*num_replicas) # noqa 501
     # Create problem instance.
     heur_sim_coordinator.manual_normalization()
-    min_wfpm_runtime, max_wfpm_runtime = heur_sim_coordinator.get_boundaries()
+    min_wfpm_runtime, max_wfpm_runtime, min_cost, max_cost = heur_sim_coordinator.get_boundaries()
 
     # Reset the execution times before starting the heuristic run.
     heur_sim_coordinator.coordinator_and_simulation_execution_time = 0
@@ -39,7 +39,7 @@ def run_experiment(experiment_config, coordinator_params):
     fns_hh = []
     for search_operator_space_path, search_operator_space_name in zip(search_operator_space_paths, search_operator_space_names):
         fns_hh.append(threading.Thread(target=run_search_operator_space_path, args=(
-    experiment_config, search_operator_space_path, search_operator_space_name, max_wfpm_runtime, min_wfpm_runtime, heur_sim_coordinator, coordinator_params)))
+    experiment_config, search_operator_space_path, search_operator_space_name, max_wfpm_runtime, min_wfpm_runtime, min_cost, max_cost, heur_sim_coordinator, coordinator_params)))
 
 
     # print(fns_hh)
@@ -55,7 +55,7 @@ def run_experiment(experiment_config, coordinator_params):
     print(save_runs)
     print("Finished Exp 1")
 
-def run_search_operator_space_path(experiment_config, search_operator_space_path, search_operator_space_name, max_wfpm_runtime, min_wfpm_runtime, heur_sim_coordinator, coordinator_params):
+def run_search_operator_space_path(experiment_config, search_operator_space_path, search_operator_space_name, max_wfpm_runtime, min_wfpm_runtime, min_cost, max_cost, heur_sim_coordinator, coordinator_params):
     base_path, coordinator_config_file_path, nr_of_agents, run_name = coordinator_params
     coordinator_log_path = os.path.join(base_path, "data/logs/exp_asml")              
     os.makedirs(coordinator_log_path, exist_ok=True)
@@ -89,7 +89,7 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     
 
     for rep in range(num_replicas):
-        probs[rep] = component_config.create_problem_instanceASML(template_ini_file_path, max_wfpm_runtime, min_wfpm_runtime, heur_sim_coordinator.simulation_run)
+        probs[rep] = component_config.create_problem_instanceASML(template_ini_file_path, max_wfpm_runtime, min_wfpm_runtime, min_cost, max_cost, heur_sim_coordinator.simulation_run)
         probs[rep]['set_file_name_fitness_values']("fitness_values_"+str(search_operator_space_name)+"_replica_"+str(rep)+".json")
 
     hyp = hh.Hyperheuristic(

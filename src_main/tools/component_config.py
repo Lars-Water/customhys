@@ -71,24 +71,31 @@ def _format_metaheuristic(metaheuristic_operators):
     ]
 
 
-def create_problem_instanceASML(template_xml_file_path, max_wfpm, min_wfpm, design_point_sim_run):
+def create_problem_instanceASML(template_xml_file_path, max_wfpm, min_wfpm, min_cost, max_cost, design_point_sim_run):
     template_file = ET.parse(template_xml_file_path)
 
     nr_of_processor_cores = len(template_file.findall('.//core[@frequency]'))
+    nr_of_processor_active = len(template_file.findall('.//core[@frequency]'))
+
+    variable_num = nr_of_processor_cores
 
     instance_config = dict()
 
     # Create a formulation of the problem instance.
     instance_config["boundaries"] = {
-        f"proc_{i}": [0, 1] for i in range(1, nr_of_processor_cores + 1)
+        f"proc_{i}": [0, 1] for i in range(1, variable_num + 1)
     }
-    instance_config["optimal_solution"] = [0.99] * nr_of_processor_cores,
+    instance_config["optimal_solution"] = [0.99] * variable_num,
     instance_config["optimal_fitness"] = 0.0
 
     boundaries = {
         "wfpm": {
             "max": max_wfpm,
             "min": min_wfpm
+        },
+        "cost": {
+            "max": max_cost,
+            "min": min_cost       
         }
     }
 
@@ -97,7 +104,7 @@ def create_problem_instanceASML(template_xml_file_path, max_wfpm, min_wfpm, desi
     max_range = np.array([instance_config['boundaries'][key][1]
                           for key in instance_config['boundaries']])
 
-    problem_instance = modelASML.instanceASML(nr_of_processor_cores,
+    problem_instance = modelASML.instanceASML(variable_num,
                     min_range,
                     max_range,
                     instance_config['optimal_solution'],
@@ -111,13 +118,35 @@ def create_problem_instanceASML(template_xml_file_path, max_wfpm, min_wfpm, desi
 
 def generate_asml_config(template_xml_file_path, design_point_xml_file_path, configurations):
     tree = ET.parse(template_xml_file_path)
-    cores = tree.findall('.//core[@frequency]')
-    if len(configurations) != len(cores):
-        raise ValueError('generate_asml_config: configurations and cores in xml are not the same length!')
+    # cores = tree.findall('.//core[@frequency]')
+    # if len(configurations) != len(cores):
+    #     raise ValueError('generate_asml_config: configurations and cores in xml are not the same length!')
     
-    for core_id in range(len(cores)):
-        core=cores[core_id]
-        core.attrib['frequency'] = configurations[core_id]["value"]
+    for configuration in configurations:
+        param_name = configuration["param_name"]
+        config_pattern = configuration["config_pattern"]
+        value = configuration["value"]
+        elems_pattern = tree.findall(config_pattern[0])
+        # print(configuration, len(elems_pattern))
+        # print(elems_pattern)
+        if param_name == "processor_freq":
+            elem = elems_pattern[config_pattern[1]] #%len(elems_pattern)
+            elem.attrib["cost"] = str(value[1])
+            if len(config_pattern) > 2:
+                elem.attrib[config_pattern[2]] = value[0]
+            else:
+                elem.attrib["frequency"] = value[0]
+        elif param_name == "num_processor_cores_active":
+            elem = elems_pattern[0]
+            elem.attrib["cost"] = str(value[1])
+            m = int(value[0])
+            for core in elem.iter("core"):
+                if m > 0:
+                    core.attrib['active'] = "true"
+                else:
+                    core.attrib['active'] = "false"
+                m -= 1
+            
     
     tree.write(design_point_xml_file_path)
 

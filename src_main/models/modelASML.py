@@ -92,11 +92,14 @@ class instanceASML(BP):
             # Fitness value evaluates the objectives for latency and network cost.
             if fitness_function == "wfpm":
                 wfpm = metrics["wfpm"]
+                cost = metrics["cost"]
 
                 normalized_wfpm = (wfpm - self.boundaries['wfpm']['min'])/(self.boundaries['wfpm']['max'] - self.boundaries['wfpm']['min'])
+                normalized_cost = (cost - self.boundaries['cost']['min'])/(self.boundaries['cost']['max'] - self.boundaries['cost']['min'])
 
                 weight_wfpm = fitness_config["weight_wfpm"]
-                fitness_value = (weight_wfpm * normalized_wfpm)
+                weight_cost = fitness_config["weight_cost"]
+                fitness_value = (weight_wfpm * normalized_wfpm) + (weight_cost * normalized_cost)
                 fitness_values[agent_id] = fitness_value
 
             # TODO: Add other fitness functions here.
