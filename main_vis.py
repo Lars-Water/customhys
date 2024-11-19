@@ -75,6 +75,7 @@ def get_statistics(raw_data):
 
 def quick_and_dirty_hh_multiplot(directory_path):
     all_historical_fitness = []
+    mh = getMHfromDir(directory_path)
 
     # List all files in the directory
     for filename in os.listdir(directory_path):
@@ -110,34 +111,46 @@ def quick_and_dirty_hh_multiplot(directory_path):
                 except json.JSONDecodeError as e:
                     print(f"Error reading {file_path}: {e}")
 
-    plt.figure(figsize=(10, 6))
+    num_subplots = math.ceil(len(all_historical_fitness)/3 + 0.001) + 1
+    fig, axs = plt.subplots(num_subplots, 1, figsize=(10, 6*num_subplots))
 
-    i_col = 0
 # Sort colors by hue, saturation, value and name.
 
-    names = list(mcolors.TABLEAU_COLORS)
-    i_col = 0
-    for idx, fitness_values in enumerate(all_historical_fitness):
-        if idx <= 3:
-            plt.plot(fitness_values['Med'], label=f'HH Step: {idx}', color=names[i_col])
-            plt.plot(fitness_values['Min'], color=names[i_col], linestyle = 'dotted')
-            plt.plot(fitness_values['Max'], color=names[i_col], linestyle = 'dotted')
-        i_col += 1
+    names = list(mcolors.CSS4_COLORS)
+    random.Random(69).shuffle(names)
+    names = list(mcolors.TABLEAU_COLORS) + names
 
-    plt.xlabel('Iteration')
-    plt.ylabel('Fitness')
-    plt.title('Optimal Fitness Every Iteration')
-    plt.legend()
+    for idx, fitness_values in enumerate(all_historical_fitness):
+        ids = math.ceil((idx/3) + 0.001)
+        print(idx, ids/3,  math.ceil(idx/3),  math.ceil(idx/3) + 1)
+        axs[0].plot(fitness_values['Med'], label=f'HH Step: {idx}', color=names[idx])
+        axs[ids].plot(fitness_values['Med'], label=f'HH Step: {idx}', color=names[idx])
+        axs[ids].plot(fitness_values['Min'], color=names[idx], linestyle = 'dotted')
+        axs[ids].plot(fitness_values['Max'], color=names[idx], linestyle = 'dotted')
+
+
+    for i, ax in enumerate(axs):
+        ax.set_xlabel('Iteration')
+        ax.set_ylabel('Fitness')
+        # axs[1].set_title(f'Optimal Fitness Every Iteration with Min/Max in dotted\n{mh}')
+        ax.legend()
+
+    axs[0].set_xlabel('Iteration')
+    axs[0].set_ylabel('Fitness')
+    axs[0].set_title(f'Optimal Fitness Every Iteration\n{mh}')
+    axs[0].legend()
 
     # Save the plot in the same directory
-    plot_file_path = os.path.join(directory_path, 'historical_fitness_plot.png')
-    plt.savefig(plot_file_path)
-    plt.close()
+    plot_file_path = os.path.join(directory_path, mh+'_historical_fitness_plot.png')
+
+    fig.tight_layout()
+    fig.savefig(plot_file_path)
 
     print(f"Plot saved as {plot_file_path}")
 
 def quick_and_dirty_hh_boxplot(directory_path):
     all_historical_fitness = []
+    mh = getMHfromDir(directory_path)
 
     num_files = 0
     for filename in os.listdir(directory_path):
@@ -150,6 +163,7 @@ def quick_and_dirty_hh_boxplot(directory_path):
     names = list(mcolors.TABLEAU_COLORS)
     # List all files in the directory
     i_step = 0
+    iteration_value_step_list = []
     for filename in os.listdir(directory_path):
         # Construct full file path
         file_path = os.path.join(directory_path, filename)
@@ -166,26 +180,46 @@ def quick_and_dirty_hh_boxplot(directory_path):
                             if not i in iteration_value_step:
                                 iteration_value_step[i] = []
                             iteration_value_step[i].append(replica['fitness'][i])
-                    iteration_value_step_list = list(iteration_value_step.values())
-                    axs[i_step].boxplot(iteration_value_step_list, showmeans=True)
-                    axs[i_step].set_title('HH Step: '+str(i_step))
+                    iteration_value_step_list.append(list(iteration_value_step.values()))
                     i_step +=1
+                    
                 except json.JSONDecodeError as e:
                     print(f"Error reading {file_path}: {e}")
 
 # Sort colors by hue, saturation, value and name.
+    result = []
+    for inner_list in iteration_value_step_list:
+        for inner in inner_list:
+            result.append(min(inner))
+            result.append(max(inner))
+    ylim = [min(result), max(result)]
+    print("yliom",ylim)
 
+
+    for i in range(i_step):
+        axs[i].boxplot(iteration_value_step_list[i], showmeans=True, meanline=True)
+        axs[i].set_title('HH Step: '+str(i))
+        axs[i].set_ylim(ylim)
 
     # Save the plot in the same directory
-    plot_file_path = os.path.join(directory_path, 'historical_fitness_boxplot.png')
+    plot_file_path = os.path.join(directory_path, mh+'_historical_fitness_boxplot.png')
+    fig.suptitle(mh)
     fig.tight_layout()
     fig.savefig(plot_file_path)
 
     print(f"Plot saved as {plot_file_path}")
 
-def quick_and_dirty_hh_boxplot_all(directory_path):
+def getMHfromDir(dir, repl="ASML-Faezeh_experiment_asml_"):
+    dirl = str(dir).split("/")[-1]
+    dirl = dirl.replace(repl, "")
+    name = dirl.split("_")[0]
+    if not (dirl.split("_")[1]).isnumeric():
+        name += "_"+dirl.split("_")[1]
+    return name
+def quick_and_dirty_hh_boxplot_all(directory_path, fig = None):
     all_historical_fitness = []
     iteration_values = {}
+    mh = getMHfromDir(directory_path)
 
     # List all files in the directory
     for filename in os.listdir(directory_path):
@@ -219,11 +253,11 @@ def quick_and_dirty_hh_boxplot_all(directory_path):
 
     plt.xlabel('Iteration')
     plt.ylabel('Fitness')
-    plt.title('Optimal Fitness Every Iteration')
+    plt.title(f'Boxplot of all HH steps combined\n{mh}')
     plt.legend()
 
     # Save the plot in the same directory
-    plot_file_path = os.path.join(directory_path, 'historical_fitness_boxplot_all.png')
+    plot_file_path = os.path.join(directory_path, mh+'_historical_fitness_boxplot_all.png')
     plt.savefig(plot_file_path)
     plt.close()
 
@@ -276,6 +310,24 @@ def quick_and_dirty_save_hh_positions_to_xlsx(positions_data, rescale=False):
     # Write the DataFrame to an Excel file
     excel_filename = 'rescaled_positions.xlsx'
     positions_df.to_excel(excel_filename, index=False)
+
+
+def visualize_experiment_asml(hh_run_dirs_exp_1):
+
+    for hh_run_dir_exp_1 in hh_run_dirs_exp_1:
+        path_hh_run = Path(hh_run_dir_exp_1)
+
+        # Visualize the results of Experiment 1 to a multiline plot of the different HH steps progressions.
+        quick_and_dirty_hh_multiplot(path_hh_run)
+        quick_and_dirty_hh_boxplot_all(path_hh_run)
+        quick_and_dirty_hh_boxplot(path_hh_run)
+
+        # Visualize an abstraction of the most optimal network configuration determined with the hh run to an xlsx file.
+        # backbones_pattern = re.compile(r"(\d+)_switches")
+        # nr_of_backbone_switches = _determine_nr_backbones_from_filename(hh_run_dir_exp_1, backbones_pattern)
+        # # TODO: Allow a dynamic way of determining the number of cables used in the hh run; e.g. config file, or file label of the hh run path.
+        # nr_of_cable_types = 4
+        # collect_data.quick_and_dirty_save_hh_positions_to_xlsx(path_hh_run, nr_of_backbone_switches, nr_of_cable_types, rescale=True)
 
 
 def visualize_experiment_1(hh_run_dirs_exp_1):
@@ -338,11 +390,14 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, exp
 
     if visualize == '1':
         visualize_experiment_1(hh_run_dirs_exp_1)
+    elif visualize == 'asml':
+        visualize_experiment_asml(hh_run_dirs_exp_1)
     elif visualize == '2':
         visualize_experiment_2(base_path, metaheuristics, hh_run_dirs_exp_2)
     elif visualize == 'all':
         visualize_experiment_1(hh_run_dirs_exp_1)
         visualize_experiment_2(base_path, metaheuristics, hh_run_dirs_exp_2)
+        visualize_experiment_asml(hh_run_dirs_exp_1)
 
     # # Set up the general heuristic run configuration.
     # if heur_run_config_file_path:
@@ -381,7 +436,7 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, exp
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the heuristic simulation workflow.")
     parser.add_argument('--experiment', choices=['1', '2', 'all'], required=False, help='Choose which experiment to run')
-    parser.add_argument('--visualize', choices=['1', '2', 'all'], required=False, help='Choose which experiment to visualize')
+    parser.add_argument('--visualize', choices=['1', '2', 'asml', 'all'], required=False, help='Choose which experiment to visualize')
     parser.add_argument('--metaheuristics', nargs='+', required=False, help='List of metaheuristics to visualize. Checks the results folder of experiment 2 for the singular metaheuristic runs.')
     parser.add_argument("--hh_run_dirs_exp_1", nargs='+', required=False, help="List of HH run directories for Experiment 1.")
     parser.add_argument("--hh_run_dirs_exp_2", nargs='+', required=False, help="List of HH run directories for Experiment 2.")

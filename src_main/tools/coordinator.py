@@ -11,10 +11,11 @@ import pandas as pd
 import numpy as np
 import time
 import json
+import sys
 from pathlib import Path
 import glob
 import itertools
-from pathlib import Path
+
 
 from experiments import create_sim_custom_dummy, create_sim_inet_lans_dummy, create_sim_inet_lans_dummy_parallel
 from src.manager import Manager
@@ -231,10 +232,10 @@ class HeuristicSimulationCoordinator:
         fitness_values_file_path_old_nmbr = 0
         if os.path.exists(fitness_values_file_path):
             # Keep version of old locally stored fitness values
-            # filenames =  [os.path.basename(x) for x in glob.glob(str(agents_fitness_dir)+"/"+Path(file_name_fitness_values).stem+"*")]
-            # fitness_values_file_path_old_nmbr = max((int(filename.strip(file_name_fitness_values + "_")) if filename.strip(file_name_fitness_values + "_") else -1) for filename in filenames) + 1
-            # fitness_values_file_path_old =  os.path.join(agents_fitness_dir, Path(fitness_values_file_path).stem + "_" + str(fitness_values_file_path_old_nmbr) + ".json")
-            # shutil.copy2(fitness_values_file_path, fitness_values_file_path_old)
+            filenames =  [os.path.basename(x) for x in glob.glob(str(agents_fitness_dir)+"/"+Path(file_name_fitness_values).stem+"*")]
+            fitness_values_file_path_old_nmbr = max((int(filename.strip(file_name_fitness_values + "_")) if filename.strip(file_name_fitness_values + "_") else -1) for filename in filenames) + 1
+            fitness_values_file_path_old =  os.path.join(agents_fitness_dir, Path(fitness_values_file_path).stem + "_" + str(fitness_values_file_path_old_nmbr) + ".json")
+            shutil.copy2(fitness_values_file_path, fitness_values_file_path_old)
             os.remove(fitness_values_file_path)
         with open(fitness_values_file_path, 'w') as f:
             json.dump(fitness_values, f)
@@ -1015,8 +1016,7 @@ class HeuristicSimulationCoordinator:
         # Duplicate a new custom dummy sim directory and ignore the given filename.
         shutil.copytree(src_dir,
                         dest_dir,
-                        ignore=HeuristicSimulationCoordinator.ignore_file(file_to_ignore),
-                        symlinks=True
+                        ignore=HeuristicSimulationCoordinator.ignore_file(file_to_ignore)
         )
 
 

@@ -4,6 +4,7 @@ import pandas as pd
 import math
 import re
 import customhys
+import sys
 
 import warnings
 import os
@@ -21,8 +22,10 @@ import src_main.experiment_flows.experiment_asml as exp_asml_flow
 from src_main.visualization import visualization
 
 from setuptools import setup, find_packages
+from pathlib import Path
 
-
+sys.path.insert(0, Path(__file__).parent.as_posix())
+sys.path.append("./src_main/external/simulation_model")
 
 def _determine_nr_backbones_from_filename(filename, regex_pattern):
     # Extract the number of backbone switches from the filename.

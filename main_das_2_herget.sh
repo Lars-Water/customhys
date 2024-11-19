@@ -4,7 +4,7 @@
 eval "$(/home/mherget/miniconda3/bin/conda shell.bash hook)"
 
 # Specify the path to the base directory of the hyper-heuristic DSE here.
-BASE_PATH="/var/scratch/mherget/hyper-heuristic-dse-2.0"
+BASE_PATH="/home/herget/UvA-git/hyper-heuristic-dse-2.0"
 
 # Specify the path to the coordinator configuration file here
 CONFIG_PATH_COORDINATOR="${BASE_PATH}/config/coordinator/config_coordinator_das_2_herget.json"
@@ -30,32 +30,27 @@ ulimit -n 262000
 
 # Experiment 1.
 CONFIG_PATH_EXPERIMENT_1="${BASE_PATH}/config/experiment_1/experiment_2.json"
-# python3 main.py \
-#  --experiment 1 \
-#  --nr_sw 50 \
-#  --base_path "$BASE_PATH" \
-#  --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
-# python3 main_vis.py \
-#  --visualize 1 \
-#  --hh_run_dirs_exp_1 "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/INET-LANS_experiment_1_swarm_dynamic_1731454437_10_iterations_20_steps_1731454438_20_switches" \
-#   --base_path "$BASE_PATH" \
-#  --coordinator_config "$CONFIG_PATH_COORDINATOR"
-
-python3 main.py \
- --experiment 1 \
- --nr_sw  20 \
- --base_path "$BASE_PATH" \
+python3 main_vis.py \
+ --visualize "asml" \
+ --hh_run_dirs_exp_1 "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_genetic_crossover_1731957092_20_iterations_10_steps_1731957092" \
+  --base_path "$BASE_PATH" \
+ --coordinator_config "$CONFIG_PATH_COORDINATOR"
+ 
+python3 main_vis.py \
+ --visualize "asml" \
+ --hh_run_dirs_exp_1 "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_genetic_mutation_1731957092_20_iterations_10_steps_1731957092" \
+  --base_path "$BASE_PATH" \
  --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
-# echo "Starting main 2"
-# python3 main.py \
-#  --experiment 2 \
-#  --base_path "$BASE_PATH" \
-#  --coordinator_config "$CONFIG_PATH_COORDINATOR"
+python3 main_vis.py \
+ --visualize "asml" \
+ --hh_run_dirs_exp_1 "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_gravitational_1731957092_20_iterations_10_steps_1731957092" \
+  --base_path "$BASE_PATH" \
+ --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
-# # Experiment 2.
-# python3 main.py \
-#   --experiment 2 \
-#   --base_path "$BASE_PATH" \
-#   --coordinator_config "$CONFIG_PATH_COORDINATOR"
+python3 main_vis.py \
+ --visualize "asml" \
+ --hh_run_dirs_exp_1 "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_swarm_dynamic_1731957092_20_iterations_10_steps_1731957092" \
+  --base_path "$BASE_PATH" \
+ --coordinator_config "$CONFIG_PATH_COORDINATOR"
