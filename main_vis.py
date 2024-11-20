@@ -1,3 +1,4 @@
+from sqlite3 import Time
 from turtle import color
 import matplotlib.pyplot as plt
 import json
@@ -11,6 +12,7 @@ import matplotlib.colors as mcolors
 
 import numpy as np
 import random
+import datetime
 import scipy.stats as st
 
 import warnings
@@ -73,9 +75,41 @@ def get_statistics(raw_data):
                     Med=np.median(raw_data),
                     MAD=st.median_abs_deviation(raw_data))
 
+def getConfig(directory_path):
+    filepath = Path(os.path.join(directory_path, "config.json"))
+    with open(filepath, 'r', encoding='utf-8') as json_file:
+        data = json.load(json_file)
+        dataf = data["file_details"]
+        # print(dataf["coordinator_config"])
+        # for x in dataf["coordinator_config"]["simulation_model"]["simulation_model_params"]:
+        #     print(x)
+        do_list = list(str(x["param_name"])+": "+str(x["configuration_pattern"][0]) for x in dataf["coordinator_config"]["simulation_model"]["simulation_model_params"])
+        do_string = ' // '.join(str(x) for x in do_list)
+        return {
+            "data": data,
+            "time": datetime.fromtimestamp(dataf["timestamp"]).strftime("%Y-%m-%d %H:%M"),
+            "server":   "Platform: "+str(dataf["coordinator_config"]["simulation_model"]["simulation_model_configuration"]["platform"]) + \
+                        " ("+str(dataf["coordinator_config"]["simulation_model"]["simulation_model_configuration"]["jobs"]) + " Jobs, " + \
+                            str(dataf["coordinator_config"]["simulation_model"]["simulation_model_configuration"]["job_cores"]) + " " +\
+                            str(dataf["coordinator_config"]["simulation_model"]["simulation_model_configuration"]["job_memory"]) + "GB) ",
+            "designobjectives":  do_string,
+            "hh":   "Search operator: "+str(dataf["search_operator_space_name"]) + \
+                    "\nSteps: "+str(data["paramaters"]["num_steps"]) + \
+                    " | Iterations: "+str(data["paramaters"]["num_iterations"]) + \
+                    " | Agents: "+str(data["paramaters"]["num_agents"]) + \
+                    " | Replicas: "+str(data["paramaters"]["num_replicas"]) + \
+                    "\nFitFunc: "+str(dataf["coordinator_config"]["fitness_config"]["fitness_function"]),
+            "hh_small":   str(dataf["search_operator_space_name"]) + \
+                    "\nSteps: "+str(data["paramaters"]["num_steps"]) + \
+                    " | Iterations: "+str(data["paramaters"]["num_iterations"]) + \
+                    " | Agents: "+str(data["paramaters"]["num_agents"]) + \
+                    " | Replicas: "+str(data["paramaters"]["num_replicas"]) 
+        }
+
 def quick_and_dirty_hh_multiplot(directory_path):
     all_historical_fitness = []
     mh = getMHfromDir(directory_path)
+    conf = getConfig(directory_path)
 
     # List all files in the directory
     for filename in os.listdir(directory_path):
@@ -83,7 +117,7 @@ def quick_and_dirty_hh_multiplot(directory_path):
         file_path = os.path.join(directory_path, filename)
 
         # Check if the file is a JSON file
-        if filename.endswith('.json') and os.path.isfile(file_path):
+        if filename.endswith('.json') and os.path.isfile(file_path) and not filename.endswith('config.json'):
             with open(file_path, 'r', encoding='utf-8') as json_file:
                 try:
                     # Load JSON content
@@ -113,7 +147,9 @@ def quick_and_dirty_hh_multiplot(directory_path):
 
     num_subplots = math.ceil(len(all_historical_fitness)/3 + 0.001) + 1
     fig, axs = plt.subplots(num_subplots, 1, figsize=(10, 6*num_subplots))
-
+    fig.text(0.01,0.975, conf["hh"])
+    fig.text(0.875,0.975, conf["time"])
+    fig.text(0.01,0.005, conf["server"])
 # Sort colors by hue, saturation, value and name.
 
     names = list(mcolors.CSS4_COLORS)
@@ -122,7 +158,7 @@ def quick_and_dirty_hh_multiplot(directory_path):
 
     for idx, fitness_values in enumerate(all_historical_fitness):
         ids = math.ceil((idx/3) + 0.001)
-        print(idx, ids/3,  math.ceil(idx/3),  math.ceil(idx/3) + 1)
+        # print(idx, ids/3,  math.ceil(idx/3),  math.ceil(idx/3) + 1)
         axs[0].plot(fitness_values['Med'], label=f'HH Step: {idx}', color=names[idx])
         axs[ids].plot(fitness_values['Med'], label=f'HH Step: {idx}', color=names[idx])
         axs[ids].plot(fitness_values['Min'], color=names[idx], linestyle = 'dotted')
@@ -151,14 +187,14 @@ def quick_and_dirty_hh_multiplot(directory_path):
 def quick_and_dirty_hh_boxplot(directory_path):
     all_historical_fitness = []
     mh = getMHfromDir(directory_path)
+    conf = getConfig(directory_path)
 
     num_files = 0
     for filename in os.listdir(directory_path):
         file_path = os.path.join(directory_path, filename)
-        if filename.endswith('.json') and os.path.isfile(file_path):
+        if filename.endswith('.json') and os.path.isfile(file_path) and not filename.endswith('config.json'):
             num_files += 1
 
-    print(num_files)
     fig, axs = plt.subplots(num_files, 1, figsize=(10, 6*num_files))
     names = list(mcolors.TABLEAU_COLORS)
     # List all files in the directory
@@ -169,7 +205,7 @@ def quick_and_dirty_hh_boxplot(directory_path):
         file_path = os.path.join(directory_path, filename)
 
         # Check if the file is a JSON file
-        if filename.endswith('.json') and os.path.isfile(file_path):
+        if filename.endswith('.json') and os.path.isfile(file_path) and not filename.endswith('config.json'):
             with open(file_path, 'r', encoding='utf-8') as json_file:
                 try:
                     # Load JSON content
@@ -203,7 +239,11 @@ def quick_and_dirty_hh_boxplot(directory_path):
 
     # Save the plot in the same directory
     plot_file_path = os.path.join(directory_path, mh+'_historical_fitness_boxplot.png')
-    fig.suptitle(mh)
+    fig.text(0.01,0.98, conf["hh"])
+    fig.text(0.875,0.98, conf["time"])
+    fig.text(0.01,0.005, conf["server"])
+    # fig.suptitle(mh)
+    axs[0].set_title(f'\nHH Step: 0')
     fig.tight_layout()
     fig.savefig(plot_file_path)
 
@@ -220,6 +260,7 @@ def quick_and_dirty_hh_boxplot_all(directory_path, fig = None):
     all_historical_fitness = []
     iteration_values = {}
     mh = getMHfromDir(directory_path)
+    conf = getConfig(directory_path)
 
     # List all files in the directory
     for filename in os.listdir(directory_path):
@@ -227,7 +268,7 @@ def quick_and_dirty_hh_boxplot_all(directory_path, fig = None):
         file_path = os.path.join(directory_path, filename)
 
         # Check if the file is a JSON file
-        if filename.endswith('.json') and os.path.isfile(file_path):
+        if filename.endswith('.json') and os.path.isfile(file_path) and not filename.endswith('config.json'):
             with open(file_path, 'r', encoding='utf-8') as json_file:
                 try:
                     # Load JSON content
@@ -246,14 +287,10 @@ def quick_and_dirty_hh_boxplot_all(directory_path, fig = None):
 
     i_col = 0
     plt.boxplot(iteration_values_list, showmeans=True)
-# Sort colors by hue, saturation, value and name.
-
-    names = list(mcolors.TABLEAU_COLORS)
-
-
     plt.xlabel('Iteration')
     plt.ylabel('Fitness')
-    plt.title(f'Boxplot of all HH steps combined\n{mh}')
+    plt.title(f'Boxplot of all HH steps combined\n{conf["hh_small"]} | {conf["time"]}')
+
     plt.legend()
 
     # Save the plot in the same directory

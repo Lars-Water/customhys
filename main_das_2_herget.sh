@@ -33,24 +33,24 @@ CONFIG_PATH_EXPERIMENT_1="${BASE_PATH}/config/experiment_1/experiment_2.json"
 
 python3 main_vis.py \
  --visualize "asml" \
- --hh_run_dirs_exp_1 "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_genetic_crossover_1731957092_20_iterations_10_steps_1731957092" \
+ --hh_run_dirs_exp_1 "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_genetic_crossover_1732116689_20_iterations_10_steps_1732116689" \
   --base_path "$BASE_PATH" \
  --coordinator_config "$CONFIG_PATH_COORDINATOR"
  
 python3 main_vis.py \
  --visualize "asml" \
- --hh_run_dirs_exp_1 "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_genetic_mutation_1731957092_20_iterations_10_steps_1731957092" \
+ --hh_run_dirs_exp_1 "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_genetic_mutation_1732116689_20_iterations_10_steps_1732116689" \
   --base_path "$BASE_PATH" \
  --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
 python3 main_vis.py \
  --visualize "asml" \
- --hh_run_dirs_exp_1 "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_gravitational_1731957092_20_iterations_10_steps_1731957092" \
+ --hh_run_dirs_exp_1 "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_gravitational_1732116689_20_iterations_10_steps_1732116689" \
   --base_path "$BASE_PATH" \
  --coordinator_config "$CONFIG_PATH_COORDINATOR"
 
 python3 main_vis.py \
  --visualize "asml" \
- --hh_run_dirs_exp_1 "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_swarm_dynamic_1731957092_20_iterations_10_steps_1731957092" \
+ --hh_run_dirs_exp_1 "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_swarm_dynamic_1732116689_20_iterations_10_steps_1732116689" \
   --base_path "$BASE_PATH" \
  --coordinator_config "$CONFIG_PATH_COORDINATOR"
