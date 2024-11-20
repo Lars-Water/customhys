@@ -122,23 +122,23 @@ def generate_asml_config(template_xml_file_path, design_point_xml_file_path, con
     # if len(configurations) != len(cores):
     #     raise ValueError('generate_asml_config: configurations and cores in xml are not the same length!')
     
+    # print(configurations)
     for configuration in configurations:
         param_name = configuration["param_name"]
         config_pattern = configuration["config_pattern"]
         value = configuration["value"]
         # print(config_pattern)
-        # print(configuration)
         elems_pattern = tree.findall(config_pattern[0])
         # print(configuration, len(elems_pattern))
-        # print(elems_pattern)
-        if param_name == "processor_freq":
+        # print(config_pattern[0])
+        if param_name.startswith("processor_freq"):
             elem = elems_pattern[config_pattern[1]] #%len(elems_pattern)
             elem.attrib["cost"] = str(value[1])
             if len(config_pattern) > 2:
                 elem.attrib[config_pattern[2]] = value[0]
             else:
                 elem.attrib["frequency"] = value[0]
-        elif param_name == "num_processor_cores_active":
+        elif param_name.startswith("num_processor_cores_active"):
             elem = elems_pattern[0]
             elem.attrib["cost"] = str(value[1])
             m = int(value[0])

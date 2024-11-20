@@ -30,6 +30,10 @@ def run_experiment(experiment_config, coordinator_params):
     # Create problem instance.
     heur_sim_coordinator.manual_normalization()
     min_wfpm_runtime, max_wfpm_runtime, min_cost, max_cost = heur_sim_coordinator.get_boundaries()
+    # min_wfpm_runtime = 2
+    # max_wfpm_runtime = 2 
+    # min_cost = 2
+    # max_cost = 2
 
     # Reset the execution times before starting the heuristic run.
     heur_sim_coordinator.coordinator_and_simulation_execution_time = 0
@@ -104,7 +108,7 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
             "timestamp": timestamp,
             "search_operator_space_name": search_operator_space_name,
             "template_ini_file_path": template_ini_file_path,
-            "coordinator_config": conf
+            "coordinator_config": conf.conf()
         }
     )
 

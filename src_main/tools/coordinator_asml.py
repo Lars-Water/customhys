@@ -327,24 +327,25 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
             # print(cost_df)
             cost = float(pd.to_numeric(cost_df['value']).sum())
 
-            if boundary == "min":
-                if self.min_wfpm_runtime:
-                    self.min_wfpm_runtime = min(self.min_wfpm_runtime, simtime_max) # wfpm_runtime
-                else:
-                    self.min_wfpm_runtime = simtime_max
-                if self.min_cost:
-                    self.min_cost = min(self.min_cost, cost) # wfpm_runtime
-                else:
-                    self.min_cost = cost
-            elif boundary == "max":
-                if self.max_wfpm_runtime:
-                    self.max_wfpm_runtime = max(self.max_wfpm_runtime, simtime_max) #wfpm_runtime
-                else:
-                    self.max_wfpm_runtime = simtime_max
-                if self.max_cost:
-                    self.max_cost = max(self.max_cost, cost) #wfpm_runtime
-                else:
-                    self.max_cost = cost
+            # print(parameter, boundary, simtime_max, cost)
+            # if boundary == "min":
+            if hasattr(self, "min_wfpm_runtime"):
+                self.min_wfpm_runtime = min(self.min_wfpm_runtime, simtime_max) # wfpm_runtime
+            else:
+                self.min_wfpm_runtime = simtime_max
+            if hasattr(self, "min_cost"):
+                self.min_cost = min(self.min_cost, cost) # wfpm_runtime
+            else:
+                self.min_cost = cost
+            # elif boundary == "max":
+            if hasattr(self, "max_wfpm_runtime"):
+                self.max_wfpm_runtime = max(self.max_wfpm_runtime, simtime_max) #wfpm_runtime
+            else:
+                self.max_wfpm_runtime = simtime_max
+            if hasattr(self, "max_cost"):
+                self.max_cost = max(self.max_cost, cost) #wfpm_runtime
+            else:
+                self.max_cost = cost
     
 
     def _check_normalization(self):
