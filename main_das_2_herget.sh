@@ -51,6 +51,6 @@ python3 main_vis.py \
 
 python3 main_vis.py \
  --visualize "asml" \
- --hh_run_dirs_exp_1 "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_swarm_dynamic_1732116689_20_iterations_10_steps_1732116689" \
+ --hh_run_dirs_exp_1 "/var/scratch/mherget/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_swarm_dynamic_1732116689_20_iterations_10_steps_1732116689" \
   --base_path "$BASE_PATH" \
  --coordinator_config "$CONFIG_PATH_COORDINATOR"

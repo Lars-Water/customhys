@@ -117,6 +117,7 @@ def quick_and_dirty_hh_multiplot(directory_path):
         file_path = os.path.join(directory_path, filename)
 
         # Check if the file is a JSON file
+        print(file_path)
         if filename.endswith('.json') and os.path.isfile(file_path) and not filename.endswith('config.json'):
             with open(file_path, 'r', encoding='utf-8') as json_file:
                 try:
@@ -203,6 +204,7 @@ def quick_and_dirty_hh_boxplot(directory_path):
     for filename in os.listdir(directory_path):
         # Construct full file path
         file_path = os.path.join(directory_path, filename)
+        print(file_path)
 
         # Check if the file is a JSON file
         if filename.endswith('.json') and os.path.isfile(file_path) and not filename.endswith('config.json'):
