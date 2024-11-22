@@ -106,7 +106,7 @@ def getConfig(directory_path):
                     " | Replicas: "+str(data["paramaters"]["num_replicas"]) 
         }
 
-def quick_and_dirty_hh_multiplot(directory_path):
+def quick_and_dirty_hh_multiplot(directory_path, result_dir):
     all_historical_fitness = []
     mh = getMHfromDir(directory_path)
     conf = getConfig(directory_path)
@@ -178,14 +178,14 @@ def quick_and_dirty_hh_multiplot(directory_path):
     axs[0].legend()
 
     # Save the plot in the same directory
-    plot_file_path = os.path.join(directory_path, mh+'_historical_fitness_plot.png')
+    plot_file_path = os.path.join(result_dir, mh+'_historical_fitness_plot.png')
 
     fig.tight_layout()
     fig.savefig(plot_file_path)
 
     print(f"Plot saved as {plot_file_path}")
 
-def quick_and_dirty_hh_boxplot(directory_path):
+def quick_and_dirty_hh_boxplot(directory_path, result_dir):
     all_historical_fitness = []
     mh = getMHfromDir(directory_path)
     conf = getConfig(directory_path)
@@ -240,7 +240,7 @@ def quick_and_dirty_hh_boxplot(directory_path):
         axs[i].set_ylim(ylim)
 
     # Save the plot in the same directory
-    plot_file_path = os.path.join(directory_path, mh+'_historical_fitness_boxplot.png')
+    plot_file_path = os.path.join(result_dir, mh+'_historical_fitness_boxplot.png')
     fig.text(0.01,0.98, conf["hh"])
     fig.text(0.875,0.98, conf["time"])
     fig.text(0.01,0.005, conf["server"])
@@ -258,7 +258,7 @@ def getMHfromDir(dir, repl="ASML-Faezeh_experiment_asml_"):
     if not (dirl.split("_")[1]).isnumeric():
         name += "_"+dirl.split("_")[1]
     return name
-def quick_and_dirty_hh_boxplot_all(directory_path, fig = None):
+def quick_and_dirty_hh_boxplot_all(directory_path, result_dir):
     all_historical_fitness = []
     iteration_values = {}
     mh = getMHfromDir(directory_path)
@@ -296,7 +296,7 @@ def quick_and_dirty_hh_boxplot_all(directory_path, fig = None):
     plt.legend()
 
     # Save the plot in the same directory
-    plot_file_path = os.path.join(directory_path, mh+'_historical_fitness_boxplot_all.png')
+    plot_file_path = os.path.join(result_dir, mh+'_historical_fitness_boxplot_all.png')
     plt.savefig(plot_file_path)
     plt.close()
 
@@ -351,15 +351,17 @@ def quick_and_dirty_save_hh_positions_to_xlsx(positions_data, rescale=False):
     positions_df.to_excel(excel_filename, index=False)
 
 
-def visualize_experiment_asml(hh_run_dirs_exp_1):
+def visualize_experiment_asml(hh_run_dirs_exp_1, result_dir = None):
+    if not result_dir:
+        result_dir = hh_run_dirs_exp_1
 
     for hh_run_dir_exp_1 in hh_run_dirs_exp_1:
         path_hh_run = Path(hh_run_dir_exp_1)
 
         # Visualize the results of Experiment 1 to a multiline plot of the different HH steps progressions.
-        quick_and_dirty_hh_multiplot(path_hh_run)
-        quick_and_dirty_hh_boxplot_all(path_hh_run)
-        quick_and_dirty_hh_boxplot(path_hh_run)
+        quick_and_dirty_hh_multiplot(path_hh_run, result_dir)
+        quick_and_dirty_hh_boxplot_all(path_hh_run, result_dir)
+        quick_and_dirty_hh_boxplot(path_hh_run, result_dir)
 
         # Visualize an abstraction of the most optimal network configuration determined with the hh run to an xlsx file.
         # backbones_pattern = re.compile(r"(\d+)_switches")
@@ -369,15 +371,17 @@ def visualize_experiment_asml(hh_run_dirs_exp_1):
         # collect_data.quick_and_dirty_save_hh_positions_to_xlsx(path_hh_run, nr_of_backbone_switches, nr_of_cable_types, rescale=True)
 
 
-def visualize_experiment_1(hh_run_dirs_exp_1):
+def visualize_experiment_1(hh_run_dirs_exp_1, result_dir = None):
+    if not result_dir:
+        result_dir = hh_run_dirs_exp_1
 
     for hh_run_dir_exp_1 in hh_run_dirs_exp_1:
         path_hh_run = Path(hh_run_dir_exp_1)
 
         # Visualize the results of Experiment 1 to a multiline plot of the different HH steps progressions.
-        quick_and_dirty_hh_multiplot(path_hh_run)
-        quick_and_dirty_hh_boxplot_all(path_hh_run)
-        quick_and_dirty_hh_boxplot(path_hh_run)
+        quick_and_dirty_hh_multiplot(path_hh_run, result_dir)
+        quick_and_dirty_hh_boxplot_all(path_hh_run, result_dir)
+        quick_and_dirty_hh_boxplot(path_hh_run, result_dir)
 
         # Visualize an abstraction of the most optimal network configuration determined with the hh run to an xlsx file.
         backbones_pattern = re.compile(r"(\d+)_switches")
@@ -424,13 +428,13 @@ def visualize_experiment_2(base_path, metaheuristics, hh_run_dirs_exp_2, nr_of_b
         design_space_plot (bool): The flag to indicate if design space determination is enabled.
         nr_of_backbone_switches (int): The number of backbone switches for the INET model.
 '''
-def main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, hh_run_dirs_exp_1, hh_run_dirs_exp_2, parameter_tuning, design_space_plot, nr_of_backbone_switches):
+def main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, hh_run_dirs_exp_1, hh_run_dirs_exp_2, parameter_tuning, design_space_plot, nr_of_backbone_switches, result_dir):
     print("##### Customhys version:" + str(customhys.__version__))
 
     if visualize == '1':
         visualize_experiment_1(hh_run_dirs_exp_1)
     elif visualize == 'asml':
-        visualize_experiment_asml(hh_run_dirs_exp_1)
+        visualize_experiment_asml(hh_run_dirs_exp_1, result_dir)
     elif visualize == '2':
         visualize_experiment_2(base_path, metaheuristics, hh_run_dirs_exp_2)
     elif visualize == 'all':
@@ -478,6 +482,7 @@ if __name__ == "__main__":
     parser.add_argument('--visualize', choices=['1', '2', 'asml', 'all'], required=False, help='Choose which experiment to visualize')
     parser.add_argument('--metaheuristics', nargs='+', required=False, help='List of metaheuristics to visualize. Checks the results folder of experiment 2 for the singular metaheuristic runs.')
     parser.add_argument("--hh_run_dirs_exp_1", nargs='+', required=False, help="List of HH run directories for Experiment 1.")
+    parser.add_argument("--result_dir", type=str, required=False, help="Result Dir")
     parser.add_argument("--hh_run_dirs_exp_2", nargs='+', required=False, help="List of HH run directories for Experiment 2.")
     parser.add_argument("--nr_sw", type=int, required=False, help="The number of backbone switches.")
     parser.add_argument("--base_path", type=str, required=True, help="Root of the project.")
@@ -492,6 +497,7 @@ if __name__ == "__main__":
     visualize = args.visualize
     metaheuristics = args.metaheuristics
     hh_run_dirs_exp_1 = args.hh_run_dirs_exp_1
+    result_dir = args.result_dir
     hh_run_dirs_exp_2 = args.hh_run_dirs_exp_2
     nr_of_backbone_switches = args.nr_sw
     base_path = Path(args.base_path)
@@ -526,4 +532,4 @@ if __name__ == "__main__":
     # # TODO: Check if design space configurations are provided if design space is enabled.
     # pass
 
-    main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, hh_run_dirs_exp_1, hh_run_dirs_exp_2, parameter_tuning, design_space_plot, nr_of_backbone_switches)
+    main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, hh_run_dirs_exp_1, hh_run_dirs_exp_2, parameter_tuning, design_space_plot, nr_of_backbone_switches, result_dir)
