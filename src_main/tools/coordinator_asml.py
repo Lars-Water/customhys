@@ -304,25 +304,17 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
                 val_boun = self.determine_boundary_value(uid, parameter, boundary)
                 self.logger.info(f"Determine the boundary value for the objective: {parameter} - boundary: {boundary} - value: {value} --> {val_boun}")
 
-            
-        if self.remove_design_point_configuration_dummy_path: 
-            self.logger.debug("Removing simulation run templates in dummy path.")
-            # print(""+str(self.sim_dummy_directory))
-            for sim_id in sim_ids:
-                fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern=self.remove_design_point_configuration_dummy_path_pattern+str(sim_id)+"*")
-        if self.remove_design_point_configuration_sims_path:
-            self.logger.debug("Removing simulation run templates in sims path.")
-            # print("sims_path "+str(self.sims_path))
-            if self.sims_path and self.sims_path is not None:
-                for sim_id in sim_ids:
-                    fo.remove_design_point_configurations_dummy_path(self.sims_path, pattern=str(sim_id))
-            # fo.remove_design_point_configurations_sims_path(self.sims_path)
-        if self.remove_sim_instance_experiments_folder:
-            self.logger.debug("Removing simulation instances from experiments folder.")
-            fo.remove_sim_instance_folders(self.data_path, uids)
 
+        if self.remove_design_point_configuration_dummy_path: 
+            
         sim_ids.clear()
+
+        if self.remove_design_point_configuration_dummy_path:
+            self.logger.debug("Removing simulation run templates in dummy path.")
+            fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
         
+        print("### manual_normalization 2", os.listdir(os.path.join(self.data_path, "results")))
+            
         self._check_normalization()
 
 

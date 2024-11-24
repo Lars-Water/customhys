@@ -17,7 +17,7 @@ class WorkflowConfig:
                  global_sim_results, global_sim_logs, global_sim_runtime,
                  design_queues,
                  uid_scheme,
-                 cluster_config, remove_sca=False):
+                 cluster_config, remove_sca=False, files_to_keep=[]):
 
         self.workflow_config = {}
         self.workflow_config["sims_path"] = sims_path
@@ -32,7 +32,10 @@ class WorkflowConfig:
         self.workflow_config["uid_scheme"] = uid_scheme
         self.workflow_config["design_point_queues"] = {}
         self.workflow_config["resource_controller"] = {}
-        self.workflow_config["output_handler"] = { "remove_sca": remove_sca }
+        self.workflow_config["output_handler"] = { 
+            "remove_sca": remove_sca ,
+            "files_to_keep": files_to_keep
+        }
 
         for design_point_queue_config in design_queues:
             self.add_design_point_queue(design_point_queue_config)
@@ -206,6 +209,7 @@ class OmnetSimConfig:
 
         self.omnet_config["make"]["opp_makemake"] = makemake_config
         self.omnet_config["make"]["verbose"] = make_verbose
+        self.omnet_config["make"]["ignoreWarnings"] = []
 
         self.omnet_config["simulation"]["ini"] = ini_file
         self.omnet_config["simulation"]["config"] = model_config

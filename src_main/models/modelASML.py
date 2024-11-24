@@ -68,7 +68,8 @@ class instanceASML(BP):
                     func_name=self.func_name,
                     dimensions=self.variable_num,
                     set_file_name_fitness_values=lambda x: self.set_file_name_fitness_values(x),
-                    get_file_name_fitness_values=lambda: self.get_file_name_fitness_values()
+                    get_file_name_fitness_values=lambda: self.get_file_name_fitness_values(),
+                    fitness_value_dir = self.fitness_value_dir
         )
 
     '''

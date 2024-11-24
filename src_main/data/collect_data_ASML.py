@@ -56,6 +56,6 @@ class DataCollectorASML(DataCollector):
         adjusted_cost = cost * self.weight_cost
 
         # Append the adjusted values to the design points metrics storage.
-        append_df = pd.DataFrame([[sim_uid, adjusted_wfpm, adjusted_cost]],
-                                columns=['SimulationID', 'AdjustedWFPM', 'AdjustedCost'])
+        append_df = pd.DataFrame([[sim_uid, wfpm, cost, adjusted_wfpm, adjusted_cost]],
+                                columns=['SimulationID', 'wfpm', 'cost', 'AdjustedWFPM', 'AdjustedCost'])
         append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)

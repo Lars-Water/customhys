@@ -115,3 +115,5 @@ bin/
 
 # Marius Models
 src_main/external/simulation_model/sims/faezeh_old/
+
+.python-version
