@@ -39,9 +39,11 @@ def remove_design_point_configurations_dummy_path(sim_dummy_directory, pattern="
     simulation_run_dir_pattern = os.path.join(sim_dummy_directory, pattern)
     matching_sim_dummy_dir = [path for path in glob.glob(simulation_run_dir_pattern) if os.path.isdir(path)]
     for directory in matching_sim_dummy_dir:
-        shutil.rmtree(directory)
+        if os.path.exists(directory):
+            shutil.rmtree(directory)
 
 
 def remove_design_point_configurations_sims_path(sims_path):
-    shutil.rmtree(sims_path)
+    if os.path.exists(sims_path):
+        shutil.rmtree(sims_path)
     os.makedirs(sims_path)

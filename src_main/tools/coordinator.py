@@ -301,8 +301,9 @@ class HeuristicSimulationCoordinator:
             if self.remove_design_point_configuration_sims_path:
                 self.logger.debug("Removing simulation run templates in sims path.")
                 # print("sims_path "+str(self.sims_path))
-                for sim_id in sim_ids:
-                    fo.remove_design_point_configurations_dummy_path(self.sims_path, pattern=str(sim_id))
+                if self.sims_path:
+                    for sim_id in sim_ids:
+                        fo.remove_design_point_configurations_dummy_path(self.sims_path, pattern=str(sim_id))
                 # fo.remove_design_point_configurations_sims_path(self.sims_path)
             if self.remove_sim_instance_experiments_folder:
                 self.logger.debug("Removing simulation instances from experiments folder.")
