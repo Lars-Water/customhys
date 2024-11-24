@@ -511,9 +511,27 @@ class Hyperheuristic:
         end_time = datetime.now()
 
         # Save this historical register, step = 0
-        if save_steps:
-            _save_step(0, dict(encoded_solution=best_solution, performance=best_performance,
-                               details=current_details), self.parameters, self.file_details, self.file_label)
+        if save_steps: 
+            search_operators = current_solution
+            if isinstance(current_solution[0], int) or isinstance(current_solution[0], np.int64):
+                search_operators = self.get_operators(current_solution)
+            _save_step(0, {
+                    'candidate':{
+                        'encoded_solution': current_solution,
+                        'performance': current_performance,
+                        'details': current_performance
+                    },
+                    "best": {
+                        'encoded_solution': current_solution,
+                        'performance': current_performance,
+                        'details': current_performance
+                    }
+                }, self.parameters, self.file_details, self.file_label,
+                solution={
+                    "encoded_solution": current_solution,
+                    "search_operators": search_operators
+                }
+            )
 
         # Step, stagnation counter and its maximum value
         step = 0
@@ -570,7 +588,7 @@ class Hyperheuristic:
 
                 # Add acceptance mark
                 if self.parameters['verbose']:
-                    print('A', end='')
+                    print('Accepted', end='')
 
             # # If the candidate solution is better or equal than the current best solution
             # if candidate_performance <= best_performance:
@@ -610,24 +628,40 @@ class Hyperheuristic:
                 # Update the best solution and its performance
                 best_solution = np.copy(candidate_solution)
                 best_performance = candidate_performance
+                best_details = candidate_details
 
                 # Reset the stagnation counter
                 stag_counter = 0
 
                 # Add improvement mark
                 if self.parameters['verbose']:
-                    print('+', end='')
+                    print(' + BestSolution', end='')
             else:
                 # Update the stagnation counter
                 stag_counter += 1
 
             # Save this information for every run
             if save_steps:
+                search_operators = candidate_solution
+                if isinstance(candidate_solution[0], int) or isinstance(candidate_solution[0], np.int64):
+                    search_operators = self.get_operators(candidate_solution)
                 _save_step(step, {
-                    'encoded_solution': candidate_solution,
-                    'performance': candidate_performance,
-                    'details': candidate_details
-                }, self.parameters, self.file_details, self.file_label)
+                        'candidate':{
+                            'encoded_solution': candidate_solution,
+                            'performance': candidate_performance,
+                            'details': candidate_details
+                        },
+                        "best": {
+                            'encoded_solution': best_solution,
+                            'performance': best_performance,
+                            'details': best_details
+                        }
+                    }, self.parameters, self.file_details, self.file_label,
+                    solution={
+                        "encoded_solution": candidate_solution,
+                        "search_operators": search_operators
+                    }
+                )
 
             historical_current.append(current_performance)
             historical_best.append(best_performance)
@@ -1191,7 +1225,7 @@ class Hyperheuristic:
                             'dimensions': f'-{self.problems[0]["dimensions"]}D-',
                             'population': f'-{self.parameters["num_agents"]}pop-',
                             'func_name': self.problems[0]['func_name']})
-            seqfitness, seqrep = _get_stored_sample_sequences(filters)
+            seqfitness, seqrep = _get_stored_sample_sequences(filters, self.file_details)
         else:
             # Generate sequences from dynamic solver
             prev_num_replicas = self.parameters['num_replicas']
@@ -1265,7 +1299,7 @@ class Hyperheuristic:
 
 # %% ADDITIONAL TOOLS
 
-def _save_step(step_number, variable_to_save, parameters, file_details, prefix=''):
+def _save_step(step_number, variable_to_save, parameters, file_details, prefix='', solution = None):
     """
     This method saves all the information corresponding to specific step.
     :param int step_number:
@@ -1281,11 +1315,18 @@ def _save_step(step_number, variable_to_save, parameters, file_details, prefix='
     # Get the current date
     now = datetime.now()
 
+    if file_details["coordinator_config"]["output_paths"]["steps_output_path"]:
+        folder_dir = file_details["coordinator_config"]["output_paths"]["steps_output_path"]
+    else:
+        folder_dir = "data_files/"
+    folder_dir = os.path.join(folder_dir, "raw")
+    os.makedirs(folder_dir, exist_ok=True)
+
     # Define the folder name
     if prefix != '':
-        folder_name = 'data_files/raw/' + prefix
+        folder_name = os.path.join(folder_dir, prefix)
     else:
-        folder_name = 'data_files/raw/' + 'Exp-' + now.strftime('%m_%d_%Y')
+        folder_name = os.path.join(folder_dir, 'Exp-' + now.strftime('%m_%d_%Y'))
 
     # Check if this path exists
     if not _check_path(folder_name):
@@ -1298,14 +1339,34 @@ def _save_step(step_number, variable_to_save, parameters, file_details, prefix='
                 "paramaters": parameters,
                 "file_details": file_details
             }, json_file)
+    
+    if solution is not None:
+        _save_encoded_solution(solution["encoded_solution"], solution["search_operators"], folder_name)
 
     # Create a new file for this step
     with open(folder_name + f'/{str(step_number)}-' + now.strftime('%m_%d_%Y_%H_%M_%S') + '.json', 'w',
               encoding='utf-8') as json_file:
         json.dump(variable_to_save, json_file, cls=jt.NumpyEncoder)
 
+def _save_encoded_solution(encoded_solution, search_operators, folder_name):
+    file_path = folder_name + "/solutions.json"
+    solutions = {}
+    if os.path.exists(file_path):
+        with open(file_path, 'r', encoding='utf-8') as json_file:
+            solutions = json.load(json_file)
 
-def _get_stored_sample_sequences(filters, folder_name='./data_files/sequences/'):
+    if isinstance(encoded_solution, (list, tuple, set, np.ndarray)):
+        for id, e_so in enumerate(encoded_solution):
+            solutions[str(e_so)] = search_operators[id]
+    
+
+    if isinstance(encoded_solution, int) or isinstance(encoded_solution, np.int64):
+        solutions[str(encoded_solution)] = search_operators
+    
+    with open(file_path, "w",  encoding='utf-8') as json_file:
+        json.dump(solutions, json_file)
+
+def _get_stored_sample_sequences(filters, file_details):
     """
     Search and read stored sequences that satisfy certain properties.
     :param dict filters:
@@ -1314,6 +1375,14 @@ def _get_stored_sample_sequences(filters, folder_name='./data_files/sequences/')
         Folder that stores the sequences files.
     :return list, list: Return the list of sequences with their respective fitness.
     """
+    
+    if file_details["coordinator_config"]["output_paths"]["steps_output_path"]:
+        folder_name = file_details["coordinator_config"]["output_paths"]["steps_output_path"]
+    else:
+        folder_name = "data_files/"
+    folder_name = os.path.join(folder_name, "sequences")
+    os.makedirs(folder_name, exist_ok=True)
+    
     if not _check_path(folder_name):
         return [], []
 
@@ -1357,7 +1426,7 @@ def _get_stored_sample_sequences(filters, folder_name='./data_files/sequences/')
     return seqfitness, seqrep
 
 
-def _save_sequences(file_name, sequences_to_save):
+def _save_sequences(file_name, sequences_to_save, file_details):
     """
     Save encoded sequences and its fitness to use them later to train ML models.
     :param str file_name: Name of the file where the sequences will be stored.
@@ -1365,7 +1434,12 @@ def _save_sequences(file_name, sequences_to_save):
     :return: None.
     """
     # Define the folder name
-    folder_name = 'data_files/sequences/'
+    if file_details["coordinator_config"]["output_paths"]["steps_output_path"]:
+        folder_name = file_details["coordinator_config"]["output_paths"]["steps_output_path"]
+    else:
+        folder_name = "data_files/"
+    folder_name = os.path.join(folder_name, "sequences")
+    os.makedirs(folder_name, exist_ok=True)
 
     # Check if this path exists
     if not _check_path(folder_name):
