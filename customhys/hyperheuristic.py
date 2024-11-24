@@ -507,6 +507,7 @@ class Hyperheuristic:
         # SELECTOR: Initialise the best solution and its performance
         best_solution = np.copy(current_solution)
         best_performance = current_performance
+        best_details = current_performance
 
         end_time = datetime.now()
 
@@ -1359,7 +1360,6 @@ def _save_encoded_solution(encoded_solution, search_operators, folder_name):
         for id, e_so in enumerate(encoded_solution):
             solutions[str(e_so)] = search_operators[id]
     
-
     if isinstance(encoded_solution, int) or isinstance(encoded_solution, np.int64):
         solutions[str(encoded_solution)] = search_operators
     
