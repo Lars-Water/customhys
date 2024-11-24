@@ -83,7 +83,7 @@ class HeuristicSimulationCoordinator:
         design_queues = [WorkflowConfig.create_design_point_queue_config(f'q{queue_id}', 0 if queue_id > 0 else 1, "FIFO") for queue_id in range(nr_of_design_queues+1)]
         cluster_config = self.create_relevant_cluster_config()
         self.workflow_config = WorkflowConfig(self.sims_path, "config", "run_sim", "results", "logs", "out",
-                            workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, design_queues, "uuid", cluster_config)
+                            workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, design_queues, "uuid", cluster_config,  remove_sca=False, files_to_keep=self.conf.tryGet("coordinator_functionalities", "sim_instance_output_files_to_keep"))
         self.config = self.workflow_config.conf()
         self.workflow_config.write_conf(workflow_config_file)
 
@@ -297,7 +297,7 @@ class HeuristicSimulationCoordinator:
                 # fo.remove_design_point_configurations_sims_path(self.sims_path)
             if self.remove_sim_instance_experiments_folder:
                 self.logger.debug("Removing simulation instances from experiments folder.")
-                # print("data_path "+str(self.data_path))
+                print("data_path "+str(self.data_path))
                 fo.remove_sim_instance_folders(self.data_path, uids)
 
             sim_ids.clear()

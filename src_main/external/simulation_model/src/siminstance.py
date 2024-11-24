@@ -351,6 +351,12 @@ class Siminstance:
         self.record_total_time_stat(("simulation", "simulation_time"), ("simulation", "simulation_start"), ("simulation", "simulation_end"))
         self.logger.info("Simulation took {:.4} seconds".format(self.stats.get_stat("simulation", "simulation_time")))
 
+        # if self.workflow_config["coordinator_functionalities"]["sim_instance_output_files_to_keep"]:
+        #     files_to_keep_list = self.workflow_config["coordinator_functionalities"]["sim_instance_output_files_to_keep"]
+        #     print(files_to_keep_list)
+        print("##### self.workflow_config", self.workflow_config)
+        print("##### self.files_to_keep", self.workflow_config["output_handler"]["files_to_keep"])
+
         # NOTE: Custom code by Lars. This is a temporary solution to the problem of the output being in a non-standard format.
         if self.transform_scalar_output:
             self.logger.info("Transforming scalar output to CSV-R format")

@@ -66,6 +66,7 @@ class OutputHandler:
 
     def clean_sim(self, sim_instance):
         sim_instance = self.__retrieve_results_data(sim_instance)
+        sim_instance = self.__retrieve_files_to_keep(sim_instance)
         sim_instance = self.__retrieve_runtime_data(sim_instance)
         sim_instance = self.__retrieve_logs_data(sim_instance)
         return sim_instance
@@ -80,6 +81,14 @@ class OutputHandler:
 
         self.logger.info("Moving {} at '{}' to '{}'".format(description, old, new))
         shutil.move(old, new)
+
+    def __copy_folder(self, old, new, description, id):
+        if (os.path.isdir(new)):
+            self.logger.info("Removing old {} folder for {}".format(description, id))
+            shutil.rmtree(new)
+
+        self.logger.info("Moving {} at '{}' to '{}'".format(description, old, new))
+        shutil.copytree(old, new)
 
     def __remove_folder(self, old, description, id):
         if (os.path.isdir(old)):
@@ -101,6 +110,27 @@ class OutputHandler:
 
         self.logger.info("Copying {} at '{}' to '{}'".format(description, old, new))
         shutil.copy2(old, new)
+
+        
+    def __retrieve_files_to_keep(self, sim_instance):
+        os.makedirs(self.sim_global_results_path(sim_instance), exist_ok=True)
+        sim_local_path = sim_instance.path
+        sim_global_results_path = self.sim_global_results_path(sim_instance)
+        self.logger.info("files_to_keep: {}".format(self.cnf.tryGet("output_handler", "files_to_keep")))
+
+        if self.cnf.tryGet("output_handler", "files_to_keep"):
+            for file in self.cnf.tryGet("output_handler", "files_to_keep"):
+                local_file_path = os.path.join(sim_local_path, file)
+                if os.path.exists(local_file_path):
+                    if os.path.isfile(local_file_path):
+                        global_file_path = os.path.join(sim_global_results_path, file)
+                        self.__copy_file(local_file_path, global_file_path, "Files_to_keep (File): "+str(file), sim_instance.uid)
+                    elif os.path.isdir(local_file_path):
+                        global_file_path = os.path.join(sim_global_results_path, file)
+                        self.__copy_folder(local_file_path, global_file_path, "Files_to_keep (Folder): "+str(file), sim_instance.uid)
+
+        return sim_instance
+
 
     def __retrieve_results_data(self, sim_instance):
         os.makedirs(self.sim_global_results_path(sim_instance), exist_ok=True)
