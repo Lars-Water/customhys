@@ -12,37 +12,38 @@
             "platform.xml"
         ]
     },
-    "results_path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/data/rawASML",
+    "results_path": "/var/scratch/mherget/hh/data/rawASML",
     "output_paths": {
-        "agents_fitness_values_path": "/var/scratch/mherget/design_points/agents_fitness",
-        "design_points_metrics_output": "/var/scratch/mherget/design_points"
+        "agents_fitness_values_path": "/var/scratch/mherget/hh/design_points/agents_fitness",
+        "steps_output_path": "/var/scratch/mherget/hh/mhs",
+        "design_points_metrics_output": "/var/scratch/mherget/hh/design_points"
     },
     "fitness_config": {
         "fitness_function": "wfpm",
-        "weight_wfpm": 0.75,
-        "weight_cost": 0.25
+        "weight_wfpm": 0.5,
+        "weight_cost": 0.5
     },
     "simulation_model": {
         "type": "ASML",
         "simulation_model_paths": {
             "omnetpp_base": "/var/scratch/mherget/omnet/omnetpp-6.0.1",
             "inet_path": "/var/scratch/mherget/omnet/inet4.5",
-            "experiments_path": "/var/scratch/mherget/experiments_asml",
-            "dummy_path": "/var/scratch/mherget/generated",
+            "experiments_path": "/var/scratch/mherget/hh/experiments_asml",
+            "dummy_path": "/var/scratch/mherget/hh/generated",
             "simulation_model_template_path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/faezeh_old/MultiHostDas6",
-            "simulation_model_generated_path": "/var/scratch/mherget/generated/custom_faezeh"
+            "simulation_model_generated_path": "/var/scratch/mherget/hh/generated/custom_faezeh"
         },
         "simulation_model_configuration": {
             "sim_model": "asml",
             "platform": "DAS",
-            "jobs": 1,
+            "jobs": 2,
             "job_cores": 64,
             "job_processes": 1,
             "job_memory": "120GB",
             "num_nodes": 1,
             "num_workers": 1,
             "threads_per_worker": 8,
-            "walltime": "100:0:0",
+            "walltime": "200:0:0",
             "oversubscribe": true
         },
         "simulation_model_params": [
