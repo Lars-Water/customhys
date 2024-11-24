@@ -286,6 +286,10 @@ class HeuristicSimulationCoordinator:
             self.logger.info("Locally storing the agents fitness values.")
             fitness_config = self.conf.tryGet("fitness_config")
             fitness_values = fitfunc(fitness_config, simulation_metrics)
+
+            if self.store_design_points_metrics_values:
+                self.data_collector.append_fitness_values_to_design_point_metrics(uids, fitness_values)
+            
             self.locally_store_agents_fitness_values(fitness_values, file_name_fitness_values)
 
             # End timer for simulation run.
@@ -784,7 +788,7 @@ class HeuristicSimulationCoordinator:
 
         # Remove the csv file.
         if self.remove_sim_instance_output:
-                self.remove_sim_instance_output_files(sim_uid, csv_file_path, folder_path)
+            self.remove_sim_instance_output_files(sim_uid, csv_file_path, folder_path)
 
         self.save_parameter_tuning_results(latency_df, packet_df, sim_uid, parameter_names)
 

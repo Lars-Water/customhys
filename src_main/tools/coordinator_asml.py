@@ -192,12 +192,10 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
 
             # Determine end-to-end delay statistics.
             simtime_df = df[df["name"].fillna("").str.endswith("#waverage")]
-            wfpm = float(simtime_df.loc[simtime_df['value'].idxmax()]['value'])
+            wfpm = pd.to_numeric(simtime_df.loc[simtime_df['value'].idxmax()]['value'], downcast='float')
 
             cost_df = df[df["name"].fillna("").str.endswith("#cost")]
-            cost = float(pd.to_numeric(cost_df['value']).sum())
-
-            #/ TODO ASML
+            cost = pd.to_numeric(cost_df['value'], downcast='float').sum()
 
             # Store design point metrics output.
             if self.store_design_points_metrics_values:
@@ -304,16 +302,12 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
                 val_boun = self.determine_boundary_value(uid, parameter, boundary)
                 self.logger.info(f"Determine the boundary value for the objective: {parameter} - boundary: {boundary} - value: {value} --> {val_boun}")
 
-
-        if self.remove_design_point_configuration_dummy_path: 
-            
         sim_ids.clear()
 
         if self.remove_design_point_configuration_dummy_path:
             self.logger.debug("Removing simulation run templates in dummy path.")
             fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
         
-        print("### manual_normalization 2", os.listdir(os.path.join(self.data_path, "results")))
             
         self._check_normalization()
 

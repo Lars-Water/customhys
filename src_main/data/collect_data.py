@@ -32,6 +32,7 @@ class DataCollector:
         self.weight_latency = weight_latency
         self.weight_cost = weight_cost
         self.dir_design_points_metrics_output = dir_design_points_metrics_output
+        self.heuristic_name = None
 
 
     def store_design_point_metrics(self, latency_df, cost_df, sim_uid, heuristic_name):
@@ -58,6 +59,20 @@ class DataCollector:
         append_df = pd.DataFrame([[sim_uid, adjusted_latency, adjusted_network_cost]],
                                 columns=['SimulationID', 'AdjustedLatency', 'AdjustedNetworkCost'])
         append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
+        self.heuristic_name = heuristic_name
+
+    def append_fitness_values_to_design_point_metrics(self, uids, fitness_values):
+        if self.heuristic_name is not None:
+            append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{self.heuristic_name}.csv")
+            df = pd.read_csv(append_design_points_metric_output_file, index_col="SimulationID")
+
+            for sim_uid, agent_id in uids.items():
+                fitness = fitness_values[agent_id]
+                df.at[sim_uid, "Fitness"] = fitness
+
+            df.to_csv(append_design_points_metric_output_file, index=True)
+
+
 
 
 def _natural_key(file_name):

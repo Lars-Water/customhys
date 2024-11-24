@@ -33,6 +33,7 @@ class DataCollectorASML(DataCollector):
         self.weight_wfpm = weight_wfpm
         self.weight_cost = weight_cost
         self.dir_design_points_metrics_output = dir_design_points_metrics_output
+        self.heuristic_name = None
 
 
     def store_design_point_metrics(self, wfpm, cost, sim_uid, heuristic_name):
@@ -59,3 +60,4 @@ class DataCollectorASML(DataCollector):
         append_df = pd.DataFrame([[sim_uid, wfpm, cost, adjusted_wfpm, adjusted_cost]],
                                 columns=['SimulationID', 'wfpm', 'cost', 'AdjustedWFPM', 'AdjustedCost'])
         append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
+        self.heuristic_name = heuristic_name
