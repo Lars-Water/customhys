@@ -12,7 +12,23 @@ def create_sim(workflow_config, id, dummy_sim_path, dummy_sim, config, pdes=None
 
     if os.path.exists(sim_folder):
         shutil.rmtree(sim_folder)
-    shutil.copytree(dummy_sim_folder, sim_folder)
+    shutil.copytree(dummy_sim_folder, sim_folder, symlinks=True)
+
+    with open(os.path.join(sim_folder, "id.txt"), "w") as fp:
+        fp.write("id: {}".format(id))
+    ##### Create copy of a dummy sim
+
+    config_file = workflow_config["local_sim_config"] + ".json"
+    config_path = os.path.join(sim_folder, config_file)
+
+    omnet_config = OmnetSimConfig(True, True, ini, config, "Cmdenv", time_limit=time_limit, pdes=pdes, libraries=libraries, ned_paths=ned_paths, metadata=None)
+    sim_instance_config = SiminstanceConfig("omnet", omnet_config)
+    sim_instance_config.write_conf(config_path)
+
+    return Siminstance(sim_folder, workflow_config)
+
+def create_sim_without_duplicating(workflow_config, id, dummy_sim_path, dummy_sim, config, pdes=None, ini="omnetpp.ini", libraries=None, ned_paths=None, time_limit=None, metadata=None):
+    sim_folder = os.path.join(dummy_sim_path, dummy_sim)
 
     with open(os.path.join(sim_folder, "id.txt"), "w") as fp:
         fp.write("id: {}".format(id))
@@ -121,7 +137,7 @@ def create_sim_inet_lans_dummy(workflow_config, dummy_sim_path, id, inet_base):
                  os.path.join(inet_base, "showcases"), os.path.join(inet_base, "tests", "validation"),
                  os.path.join(inet_base, "tests", "networks"), os.path.join(inet_base, "tutorials")]
 
-    return create_sim(workflow_config, id, dummy_sim_path, dummy_sim, config, time_limit=None, ini=ini, libraries=libraries, ned_paths=ned_paths)
+    return create_sim_without_duplicating(workflow_config, id, dummy_sim_path, dummy_sim, config, time_limit=None, ini=ini, libraries=libraries, ned_paths=ned_paths)
 
 def create_sim_inet_lans_dummy_parallel(workflow_config, dummy_sim_path, id, inet_base):
     dummy_sim = "custom_dummy" + f"_{str(id)}"
@@ -134,4 +150,4 @@ def create_sim_inet_lans_dummy_parallel(workflow_config, dummy_sim_path, id, ine
                  os.path.join(inet_base, "showcases"), os.path.join(inet_base, "tests", "validation"),
                  os.path.join(inet_base, "tests", "networks"), os.path.join(inet_base, "tutorials")]
 
-    return create_sim(workflow_config, id, dummy_sim_path, dummy_sim, config, time_limit=None, ini=ini, libraries=libraries, ned_paths=ned_paths)
+    return create_sim_without_duplicating(workflow_config, id, dummy_sim_path, dummy_sim, config, time_limit=None, ini=ini, libraries=libraries, ned_paths=ned_paths)
