@@ -663,9 +663,9 @@ class Hyperheuristic:
         rep = 0
         while rep < self.parameters['num_replicas']:
             # Call the metaheuristic
-            mh = Metaheuristic(self.problems[rep], 
+            mh = Metaheuristic(self.problems[rep],
                                 num_agents=self.parameters['num_agents'],
-                                num_iterations=self.num_iterations, 
+                                num_iterations=self.num_iterations,
                                 verbose=self.parameters['verbose_mh'])
 
             # %% INITIALISER PART
@@ -1032,11 +1032,11 @@ class Hyperheuristic:
                                self.parameters['num_agents'],
                                self.num_iterations,
                                verbose=self.parameters['verbose_mh'],
-                               finalised_positions_previous_step=finalised_positions_previous_step,  
+                               finalised_positions_previous_step=finalised_positions_previous_step,
                                pass_finalised_positions=self.pass_finalised_positions)
 
             # Run this metaheuristic
-            fns_mh.append(threading.Thread(target=mhs[i].run))
+            fns_mh.append(threading.Thread(target=mhs[i].run, args=(self.hh_step, self.file_label)))
 
         proc = []
         for p in fns_mh:
@@ -1051,7 +1051,7 @@ class Hyperheuristic:
             # Store the historical values from this run
             historical_data.append(mhs[i].historical)
 
-     
+
             # Read and store the solution obtained
             _temporal_position, _temporal_fitness = mhs[i].get_solution()
             fitness_data.append(_temporal_fitness)

@@ -331,11 +331,14 @@ class Population:
         :returns: None.
         """
         # NOTE: CUSTOM CHANGE BY LARS - THE FINALISED POSITIONS OF THE PREVIOUS STEP IN THE HH PROCESS. THIS IS USED TO PASS THE FINALISED POSITIONS OF THE PREVIOUS STEP TO THE NEXT STEP FOR INITIALIZING THE POSITIONS OF THE AGENTS.
-        if self.pass_finalised_positions:
-            best_positions_path = os.path.join(os.getcwd(), "data/raw/design_points/best_positions", f"{file_label}.csv")
+        best_positions_path = os.path.join(os.getcwd(), "data/raw/design_points/best_positions", f"{file_label}.csv")
+        if self.pass_finalised_positions and os.path.isfile(best_positions_path):
             best_positions_df = pd.read_csv(best_positions_path)
             best_positions = best_positions_df.tail(self.num_agents)
-            self.positions = self.finalised_positions_previous_step
+            best_positions = best_positions.drop(columns=["hh_step", "agent_id", "agent_fitness_value"])
+            best_positions_array = best_positions.to_numpy()
+            self.positions = best_positions_array
+            # self.positions = self.finalised_positions_previous_step
         elif scheme == 'vertex':
             self._positions = self._grid_matrix(self.num_dimensions, self.num_agents)
         else:
