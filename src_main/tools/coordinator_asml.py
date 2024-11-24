@@ -206,7 +206,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
 
             # Remove the csv file.
             if self.remove_sim_instance_output:
-                self.remove_sim_instance_output_files(csv_file_path, folder_path)
+                self.remove_sim_instance_output_files(sim_uid, csv_file_path, folder_path)
 
             fitness_values.append({
                 agent_id: {

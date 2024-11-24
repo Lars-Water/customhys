@@ -29,7 +29,6 @@
             "omnetpp_base": "/var/scratch/mherget/omnet/omnetpp-6.0.1",
             "inet_path": "/var/scratch/mherget/omnet/inet4.5",
             "experiments_path": "/var/scratch/mherget/experiments_asml",
-            "sims_path": "/var/scratch/mherget/sims",
             "dummy_path": "/var/scratch/mherget/generated",
             "simulation_model_template_path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/faezeh_old/MultiHostDas6",
             "simulation_model_generated_path": "/var/scratch/mherget/generated/custom_faezeh"

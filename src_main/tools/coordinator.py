@@ -505,7 +505,7 @@ class HeuristicSimulationCoordinator:
 
             # Remove the csv file.
             if self.remove_sim_instance_output:
-                self.remove_sim_instance_output_files(csv_file_path, folder_path)
+                self.remove_sim_instance_output_files(sim_uid, csv_file_path, folder_path)
 
             fitness_values.append({
                 agent_id: {
@@ -782,7 +782,7 @@ class HeuristicSimulationCoordinator:
 
         # Remove the csv file.
         if self.remove_sim_instance_output:
-                self.remove_sim_instance_output_files(csv_file_path, folder_path)
+                self.remove_sim_instance_output_files(sim_uid, csv_file_path, folder_path)
 
         self.save_parameter_tuning_results(latency_df, packet_df, sim_uid, parameter_names)
 
@@ -1035,7 +1035,7 @@ class HeuristicSimulationCoordinator:
     def create_dummy_parallel(self, *args, **kwargs):
         return create_sim_inet_lans_dummy_parallel(*args, **kwargs)
 
-    def remove_sim_instance_output_files(self, csv_file_path, folder_path):
+    def remove_sim_instance_output_files(self, sim_uid, csv_file_path, folder_path):
         self.logger.info(f"Removing the output file for simistance {sim_uid}")
         os.remove(csv_file_path)
 
