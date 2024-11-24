@@ -38,7 +38,7 @@ class Population:
 
     # Class initialisation
     # ------------------------------------------------------------------------
-    def __init__(self, boundaries, num_agents=30, is_constrained=True, finalised_positions_previous_step=None, pass_finalised_positions = False):
+    def __init__(self, problem, num_agents=30, finalised_positions_previous_step=None, pass_finalised_positions = False):
         """
         Return a population of size ``num_agents`` within a problem domain defined by ``boundaries``.
 
@@ -56,6 +56,13 @@ class Population:
             NOTE: CUSTOM CHANGE BY LARS - Flag that determines whether the finalised positions of the previous step should be used for agent initialization in the current step.
         :returns: population object.
         """
+        self.problem = problem
+        self.file_name_fitness_values = self.problem['get_file_name_fitness_values']()
+        boundaries = problem['boundaries']
+        if problem['is_constrained'] and problem['is_constrained'] is not None:
+            self.is_constrained = problem['is_constrained'] 
+        else:
+            self.is_constrained = True
         # Read number of variables or dimension
         if len(boundaries[0]) == len(boundaries[1]):
             self.num_dimensions = len(boundaries[0])
@@ -98,8 +105,6 @@ class Population:
         self.backup_fitness = np.full(self.num_agents, np.nan)
         self.backup_particular_best_positions = np.full((self.num_agents, self.num_dimensions), np.nan)
         self.backup_particular_best_fitness = np.full(self.num_agents, np.nan)
-
-        self.is_constrained = is_constrained
 
         # NOTE: CUSTOM CHANGE BY LARS - THE FINALISED POSITIONS OF THE PREVIOUS STEP IN THE HH PROCESS. THIS IS USED TO PASS THE FINALISED POSITIONS OF THE PREVIOUS STEP TO THE NEXT STEP FOR INITIALIZING THE POSITIONS OF THE AGENTS.
         self.finalised_positions_previous_step = finalised_positions_previous_step
@@ -277,7 +282,7 @@ class Population:
             self.global_best_position = np.copy(candidate_position)
             self.global_best_fitness = np.copy(candidate_fitness)
 
-    def evaluate_fitness(self, problem_function, file_name="fitness_values.json"):
+    def evaluate_fitness(self, problem_function):
         """
         Evaluate the population positions in the problem function.
 
@@ -299,8 +304,11 @@ class Population:
             problem_function(self.rescale_back(self.positions))
             # Build the path relative to the current working directory.
             current_working_dir = os.getcwd()
-            fitness_values_file_path = os.path.join(current_working_dir, "data/raw/agents_fitness", file_name)
-            # fitness_values_file_path = os.path.join("/home/larry/hyper-heuristic-dse-2.0/data/raw/agents_fitness", "fitness_values.json")
+            fitness_value_dir_path = os.path.join(current_working_dir, "data/raw/agents_fitness")
+            if problem.fitness_value_dir and problem.fitness_value_dir is not None:
+                fitness_value_dir_path = problem.fitness_value_dir
+            os.makedirs(fitness_value_dir, exist_ok=True)
+            fitness_values_file_path = os.path.join(fitness_value_dir_path, self.file_name_fitness_values)
             with open(fitness_values_file_path, "r") as fitness_values_file:
                 fitness_values = json.load(fitness_values_file)
                 for agent, fitness in fitness_values.items():
