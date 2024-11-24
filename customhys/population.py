@@ -305,8 +305,8 @@ class Population:
             # Build the path relative to the current working directory.
             current_working_dir = os.getcwd()
             fitness_value_dir_path = os.path.join(current_working_dir, "data/raw/agents_fitness")
-            if self.problem.fitness_value_dir and self.problem.fitness_value_dir is not None:
-                fitness_value_dir_path = self.problem.fitness_value_dir
+            if self.problem["fitness_value_dir"] and self.problem["fitness_value_dir"] is not None:
+                fitness_value_dir_path = self.problem["fitness_value_dir"]
             os.makedirs(fitness_value_dir_path, exist_ok=True)
             fitness_values_file_path = os.path.join(fitness_value_dir_path, self.file_name_fitness_values)
             with open(fitness_values_file_path, "r") as fitness_values_file:
