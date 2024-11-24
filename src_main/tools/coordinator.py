@@ -289,7 +289,7 @@ class HeuristicSimulationCoordinator:
                     fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_"+str(sim_id)+"*")
             if self.remove_design_point_configuration_sims_path:
                 self.logger.debug("Removing simulation run templates in sims path.")
-                if self.sims_path:
+                if self.sims_path and self.sims_path is not None:
                     for sim_id in sim_ids:
                         fo.remove_design_point_configurations_dummy_path(self.sims_path, pattern=str(sim_id))
                 # fo.remove_design_point_configurations_sims_path(self.sims_path)
