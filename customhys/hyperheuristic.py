@@ -21,6 +21,7 @@ from .metaheuristic import Metaheuristic
 from pathlib import Path
 
 import threading
+import os
 
 _using_tensorflow = False
 try:
@@ -47,7 +48,7 @@ class Hyperheuristic:
     collection from Operators to build metaheuristics using the Metaheuristic module.
     """
 
-    def __init__(self, heuristic_space='default.txt', problems=None, parameters=None, file_label='', weights_array=None, pass_finalised_positions=False):
+    def __init__(self, heuristic_space='default.txt', problems=None, parameters=None, file_label='', weights_array=None, pass_finalised_positions=False, file_details=None):
         """
         Create a hyper-heuristic process using a operator collection as heuristic space.
 
@@ -132,6 +133,7 @@ class Hyperheuristic:
         else:
             raise HyperheuristicError('Problem must be provided')
 
+
         # Read the heuristic space size and create the active set
         self.num_operators = len(self.heuristic_space)
         self.current_space = np.arange(self.num_operators)
@@ -143,6 +145,7 @@ class Hyperheuristic:
 
         # Initialise other parameters
         self.parameters = parameters
+        self.file_details = file_details
         self.file_label = file_label
 
         self.max_cardinality = None
@@ -154,6 +157,9 @@ class Hyperheuristic:
         self.pass_finalised_positions = pass_finalised_positions
         if self.pass_finalised_positions:
             self.collection_finalised_positions_previous_step = []
+
+
+        # _save_step(0, {}, self.parameters, self.file_details, self.file_label)
 
 
     def toggle_seq_as_meta(self, as_mh=None):
@@ -507,7 +513,7 @@ class Hyperheuristic:
         # Save this historical register, step = 0
         if save_steps:
             _save_step(0, dict(encoded_solution=best_solution, performance=best_performance,
-                               details=current_details), self.file_label)
+                               details=current_details), self.parameters, self.file_details, self.file_label)
 
         # Step, stagnation counter and its maximum value
         step = 0
@@ -621,7 +627,7 @@ class Hyperheuristic:
                     'encoded_solution': candidate_solution,
                     'performance': candidate_performance,
                     'details': candidate_details
-                }, self.file_label)
+                }, self.parameters, self.file_details, self.file_label)
 
             historical_current.append(current_performance)
             historical_best.append(best_performance)
@@ -794,6 +800,7 @@ class Hyperheuristic:
                                     sequence_per_rep=sequence_per_repetition,
                                     weight_matrix=self.weight_matrix
                                 )),
+                            self.parameters, self.file_details,
                            self.file_label)
 
             rep += 1
@@ -945,7 +952,8 @@ class Hyperheuristic:
                                     sequence_per_rep=sequence_per_repetition,
                                     weight_matrix=self.transition_matrix
                                 )),
-                           self.file_label)
+                            self.parameters, self.file_details,
+                            self.file_label)
 
         return fitness_per_repetition, sequence_per_repetition
 
@@ -1085,7 +1093,7 @@ class Hyperheuristic:
                     'encoded_solution': operator_id,
                     'performance': operator_performance,
                     'statistics': operator_details['statistics']
-                }, self.file_label)
+                }, self.parameters, self.file_details, self.file_label)
 
             # Print update
             if self.parameters['verbose']:
@@ -1116,7 +1124,7 @@ class Hyperheuristic:
                     'encoded_solution': operator_id,
                     'performance': operator_performance,
                     'statistics': operator_details['statistics']
-                }, self.file_label)
+                }, self.parameters, self.file_details, self.file_label)
 
             # Print update
             if self.parameters['verbose']:
@@ -1257,7 +1265,7 @@ class Hyperheuristic:
 
 # %% ADDITIONAL TOOLS
 
-def _save_step(step_number, variable_to_save, prefix=''):
+def _save_step(step_number, variable_to_save, parameters, file_details, prefix=''):
     """
     This method saves all the information corresponding to specific step.
     :param int step_number:
@@ -1282,6 +1290,14 @@ def _save_step(step_number, variable_to_save, prefix=''):
     # Check if this path exists
     if not _check_path(folder_name):
         _create_path(folder_name)
+
+    # Save settings for better visu
+    if not os.path.exists(folder_name + "/config.json"):
+        with open(folder_name + "/config.json", "w",  encoding='utf-8') as json_file:
+            json.dump({
+                "paramaters": parameters,
+                "file_details": file_details
+            }, json_file)
 
     # Create a new file for this step
     with open(folder_name + f'/{str(step_number)}-' + now.strftime('%m_%d_%Y_%H_%M_%S') + '.json', 'w',
