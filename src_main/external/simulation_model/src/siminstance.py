@@ -102,6 +102,7 @@ class Siminstance:
             self.logger.info("Defaulting to: 'opp_makemake -f'")
             make_make_command += ["-f"]
 
+        self.logger.info("MakeMake command:\n"+ " ".join(make_make_command))
         return make_make_command
 
     def __create_omnet_make_command(self):
@@ -112,10 +113,15 @@ class Siminstance:
             if (self.cnf.tryGet("omnet", "make", "verbose")):
                 self.logger.info("Make output will be verbose")
                 make_command += ["V=1"]
+            if (self.cnf.tryGet("omnet", "make", "ignoreWarnings")):
+                self.logger.info("Adding following ignore warnings to make command: " + ", ".join(self.cnf.tryGet("omnet", "make", "ignoreWarnings")))
+                for warning in self.cnf.tryGet("omnet", "make", "ignoreWarnings"):
+                    make_command += [warning]
         else:
             self.logger.warn("Omnet config has no specification for make")
             self.logger.info("Defaulting to: 'make'")
 
+        self.logger.info("Make command:\n"+ " ".join(make_command))
         return make_command
 
 
@@ -199,6 +205,7 @@ class Siminstance:
             ini = self.cnf.tryGet("omnet", "simulation", "ini")
             simulation_command += [os.path.join(self.path, ini)]
 
+        self.logger.info("Simulation command:\n"+ " ".join(simulation_command))
         return simulation_command
 
 
@@ -271,7 +278,6 @@ class Siminstance:
 
             self.stats.record_time_stat("compilation", "make_exec_start")
             make_output = subprocess.run(make_command, cwd=self.path, capture_output=True)
-            print(make_output)
             self.record_total_time_stat(("compilation", "make_exec_time"), ("compilation", "make_exec_start"), ("compilation", "make_exec_end"))
 
             self.stats.record_time_stat("compilation", "make_store_start")

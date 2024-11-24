@@ -208,7 +208,9 @@ class OmnetSimConfig:
         # makemake_config["out_path"] = workflow_config["local_sim_out"]
 
         self.omnet_config["make"]["opp_makemake"] = makemake_config
-        self.omnet_config["make"]["verbose"] = make_verbose
+        self.omnet_config["make"]["verbose"] = make_verbose        
+        self.omnet_config["make"]["ignoreWarnings"] = []
+
 
         self.omnet_config["simulation"]["ini"] = ini_file
         self.omnet_config["simulation"]["config"] = model_config
