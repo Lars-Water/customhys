@@ -39,7 +39,7 @@ def run_experiment(experiment_config, coordinator_params):
     fns_hh = []
     for search_operator_space_path, search_operator_space_name in zip(search_operator_space_paths, search_operator_space_names):
         fns_hh.append(threading.Thread(target=run_search_operator_space_path, args=(
-    experiment_config, search_operator_space_path, search_operator_space_name, nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator)))
+    experiment_config, search_operator_space_path, search_operator_space_name, nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator, coordinator_params)))
 
 
     # print(fns_hh)
@@ -55,7 +55,12 @@ def run_experiment(experiment_config, coordinator_params):
     print(save_runs)
     print("Finished Exp 1")
 
-def run_search_operator_space_path(experiment_config, search_operator_space_path, search_operator_space_name, nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator):
+def run_search_operator_space_path(experiment_config, search_operator_space_path, search_operator_space_name, nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator, coordinator_params):
+    base_path, coordinator_config_file_path, nr_of_agents, run_name = coordinator_params
+    coordinator_log_path = os.path.join(base_path, "data/logs/exp1")              
+    os.makedirs(coordinator_log_path, exist_ok=True)
+    conf = Config(coordinator_config_file_path, Path(coordinator_log_path), f"run_search_operator_space_path_{search_operator_space_name}")
+
     pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
         # Open a file in write mode ('w') and write the string
     with open("output.txt", "a") as file:
@@ -76,10 +81,11 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     nr_of_steps = experiment_config.tryGet('hh_parameters', 'num_steps')
     file_label = f"INET-LANS_{experiment_name}_{nr_of_iterations}_iterations_{nr_of_steps}_steps_{str(timestamp)}_{nr_of_backbone_switches}_switches"
 
+    agents_fitness_values_path = conf.tryGet("output_paths", "agents_fitness_values_path")
     probs = {}
     num_replicas = hh_parameters["num_replicas"] if hh_parameters["num_replicas"] > 0 else 1 
     for rep in range(num_replicas):
-        probs[rep] = component_config.create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator.simulation_run)
+        probs[rep] = component_config.create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator.simulation_run, agents_fitness_values_path)
         probs[rep]['set_file_name_fitness_values']("fitness_values_"+str(search_operator_space_name)+"_replica_"+str(rep)+".json")
         # print(probs[rep]['get_file_name_fitness_values']())
 

@@ -28,7 +28,8 @@ class instanceASML(BP):
                 global_optimum_solution,
                 func_name,
                 sim_run,
-                boundaries):
+                boundaries,
+                fitness_value_dir):
         super().__init__(variable_num)
         self.max_search_range = max_search_range
         self.min_search_range = min_search_range
@@ -46,6 +47,7 @@ class instanceASML(BP):
         # Determine min and max values for objectives
         self.boundaries = boundaries
         self.file_name_fitness_values="fitness_values.json"
+        self.fitness_value_dir = fitness_value_dir
 
 
     '''

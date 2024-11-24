@@ -71,7 +71,7 @@ def _format_metaheuristic(metaheuristic_operators):
     ]
 
 
-def create_problem_instanceASML(template_xml_file_path, max_wfpm, min_wfpm, min_cost, max_cost, design_point_sim_run):
+def create_problem_instanceASML(template_xml_file_path, max_wfpm, min_wfpm, min_cost, max_cost, design_point_sim_run, fitness_value_dir):
     template_file = ET.parse(template_xml_file_path)
 
     nr_of_processor_cores = len(template_file.findall('.//core[@frequency]'))
@@ -111,7 +111,8 @@ def create_problem_instanceASML(template_xml_file_path, max_wfpm, min_wfpm, min_
                     instance_config['optimal_fitness'],
                     'CQN',
                     design_point_sim_run,
-                    boundaries)
+                    boundaries,
+                    fitness_value_dir)
     
     return problem_instance.get_formatted_problem()
 
@@ -157,7 +158,7 @@ def generate_asml_config(template_xml_file_path, design_point_xml_file_path, con
 
     
 
-def create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, design_point_sim_run):
+def create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, design_point_sim_run, fitness_value_dir):
     """
     Create a problem instance for the CUSTOMHys framework.
 
@@ -196,7 +197,8 @@ def create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate,
         nr_of_backbone_switches,
         subnet_structure,
         design_point_sim_run,
-        boundaries
+        boundaries,
+        fitness_value_dir
     )
     return problem_instance.get_formatted_problem()
 

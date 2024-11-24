@@ -12,6 +12,9 @@ from src_main.data import collect_data
 
 
 def run_experiment(base_path, experiment_config, coordinator_config_file_path):
+    coordinator_log_path = os.path.join(base_path, "data/logs/exp2")              
+    os.makedirs(coordinator_log_path, exist_ok=True)
+    conf = Config(coordinator_config_file_path, Path(coordinator_log_path), f"run_search_operator_space_path_{search_operator_space_name}")
 
     # Define the number of agents and iterations for the coordinator and metaheuristics.
     nr_of_agents = experiment_config.tryGet('nr_of_agents')
@@ -29,7 +32,8 @@ def run_experiment(base_path, experiment_config, coordinator_config_file_path):
 
         # Create problem instance.
         min_datarate, max_datarate, min_cost, max_cost = heur_sim_coordinator.get_datarate_cost_boundaries()
-        prob = component_config.create_problem_instance(nr_of_backbones, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator.simulation_run)
+        agents_fitness_values_path = conf.tryGet("output_paths", "agents_fitness_values_path")
+        prob = component_config.create_problem_instance(nr_of_backbones, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator.simulation_run, agents_fitness_values_path)
 
         # Run the metaheuristics.
         base_path = os.getcwd()

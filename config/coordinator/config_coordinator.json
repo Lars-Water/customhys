@@ -49,6 +49,6 @@
         "weight_cost": 0.5
     },
     "heuristic_run_paths": {
-        "agents_fitness_values_relative_path": "data/raw/agents_fitness"
+        "agents_fitness_values_path": "/home/larry/hyper-heuristic-dse-2.0/data/raw/agents_fitness"
     }
 }

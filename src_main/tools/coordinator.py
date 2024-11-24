@@ -122,16 +122,18 @@ class HeuristicSimulationCoordinator:
         # TODO: Move more functionalities to data collector.
         # TODO: Define config file with a distinct segment for data collector?
         self.logger.info("Define the base paths and variables for simulation instance output functionalities.")
-        self.agents_fitness_dir_relative_path = self.conf.tryGet("output_paths", "agents_fitness_values_relative_path")
+        self.agents_fitness_dir_path = self.conf.tryGet("output_paths", "agents_fitness_values_path")
         self.sim_dummy_directory = self.conf.tryGet("simulation_model", "simulation_model_paths", "dummy_path")
         self.logger.info("Setting up the data collector.")
         dir_design_points_metrics_output = self.conf.tryGet("output_paths", "design_points_metrics_output")
+        if dir_design_points_metrics_output is None or not dir_design_points_metrics_output:
+            dir_design_points_metrics_output = os.path.join(self.data_path, "design_points_metrics")
         weight_latency = self.conf.tryGet("fitness_config", "weight_latency")
         weight_cost = self.conf.tryGet("fitness_config", "weight_cost")
         self.data_collector = DataCollector(weight_latency, weight_cost, dir_design_points_metrics_output)
 
         # clear out old agent finess files
-        shutil.rmtree(os.path.join(self._base_path, self.agents_fitness_dir_relative_path), ignore_errors=True)
+        shutil.rmtree(os.path.join(self._base_path, self.agents_fitness_dir_path), ignore_errors=True)
 
     def set_run_name(self, run_name):
         """
@@ -234,17 +236,16 @@ class HeuristicSimulationCoordinator:
         Returns:
             None
         """
-        self.logger.info(f"Storing fitness values locally at {self.agents_fitness_dir_relative_path}")
-        agents_fitness_dir = os.path.join(self._base_path, self.agents_fitness_dir_relative_path)
-        os.makedirs(agents_fitness_dir, exist_ok=True)
-        fitness_values_file_path = os.path.join(agents_fitness_dir, file_name_fitness_values)
+        self.logger.info(f"Storing fitness values locally at {self.agents_fitness_dir_path}")
+        os.makedirs(self.agents_fitness_dir_path, exist_ok=True)
+        fitness_values_file_path = os.path.join(self.agents_fitness_dir_path, file_name_fitness_values)
         fitness_values_file_path_old_nmbr = 0
         if os.path.exists(fitness_values_file_path):
             # Keep version of old locally stored fitness values
-            filenames =  [os.path.basename(x) for x in glob.glob(str(agents_fitness_dir)+"/"+Path(file_name_fitness_values).stem+"*")]
-            fitness_values_file_path_old_nmbr = max((int(filename.strip(file_name_fitness_values + "_")) if filename.strip(file_name_fitness_values + "_") else -1) for filename in filenames) + 1
-            fitness_values_file_path_old =  os.path.join(agents_fitness_dir, Path(fitness_values_file_path).stem + "_" + str(fitness_values_file_path_old_nmbr) + ".json")
-            shutil.copy2(fitness_values_file_path, fitness_values_file_path_old)
+            # filenames =  [os.path.basename(x) for x in glob.glob(str(agents_fitness_dir)+"/"+Path(file_name_fitness_values).stem+"*")]
+            # fitness_values_file_path_old_nmbr = max((int(filename.strip(file_name_fitness_values + "_")) if filename.strip(file_name_fitness_values + "_") else -1) for filename in filenames) + 1
+            # fitness_values_file_path_old =  os.path.join(agents_fitness_dir, Path(fitness_values_file_path).stem + "_" + str(fitness_values_file_path_old_nmbr) + ".json")
+            # shutil.copy2(fitness_values_file_path, fitness_values_file_path_old)
             os.remove(fitness_values_file_path)
         with open(fitness_values_file_path, 'w') as f:
             json.dump(fitness_values, f)

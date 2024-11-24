@@ -64,7 +64,6 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     base_path, coordinator_config_file_path, nr_of_agents, run_name = coordinator_params
     coordinator_log_path = os.path.join(base_path, "data/logs/exp_asml")              
     os.makedirs(coordinator_log_path, exist_ok=True)
-
     conf = Config(coordinator_config_file_path, Path(coordinator_log_path), f"run_search_operator_space_path_{search_operator_space_name}")
 
     pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
@@ -91,10 +90,11 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     num_replicas = hh_parameters["num_replicas"] if hh_parameters["num_replicas"] > 0 else 1 
     simulation_model_template_path = conf.tryGet("simulation_model", "simulation_model_paths", "simulation_model_template_path")
     template_ini_file_path = os.path.join(simulation_model_template_path, "platform.xml")
+    agents_fitness_values_path = conf.tryGet("output_paths", "agents_fitness_values_path")
     
 
     for rep in range(num_replicas):
-        probs[rep] = component_config.create_problem_instanceASML(template_ini_file_path, max_wfpm_runtime, min_wfpm_runtime, min_cost, max_cost, heur_sim_coordinator.simulation_run)
+        probs[rep] = component_config.create_problem_instanceASML(template_ini_file_path, max_wfpm_runtime, min_wfpm_runtime, min_cost, max_cost, heur_sim_coordinator.simulation_run, agents_fitness_values_path)
         probs[rep]['set_file_name_fitness_values']("fitness_values_"+str(search_operator_space_name)+"_replica_"+str(rep)+".json")
 
     hyp = hh.Hyperheuristic(
