@@ -9,8 +9,7 @@
         "store_design_points_metrics_values": true,
         "remove_sim_instance_output": true,
         "sim_instance_output_files_to_keep": [
-            "platform.xml",
-            "test/"
+            "platform.xml"
         ]
     },
     "results_path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/data/rawASML",

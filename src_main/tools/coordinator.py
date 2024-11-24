@@ -1046,4 +1046,4 @@ class HeuristicSimulationCoordinator:
             elif os.path.isdir(local_file_path):
                 shutil.rmtree(local_file_path)  # remove dir and all contains
             else:
-                raise ValueError("file {} is not a file or dir.".format(local_file_path))
+                self.logger.error("During removing sim instance ({}) output files: File {} is not a file or directory. Could not remove in {}.".format(sim_uid, local_file_path, folder_path))
