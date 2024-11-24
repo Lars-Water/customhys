@@ -28,24 +28,30 @@ class CustomFormatter(logging.Formatter):
         return s
 
 
-def logger(name, outfolder, print_stdout=False):
+def logger(name, outfolder, print_stdout=False, disabled=True):
     outputfile = os.path.join(outfolder, 'log_'+str(name)+'.txt')
     formatter = CustomFormatter(
         fmt='[ %(name)s  %(asctime)s  %(levelname)-8s ]  %(message)s',
         datefmt='%d-%m-%Y %H:%M:%S'
     )
 
-    handler = logging.FileHandler(outputfile, mode='w')
-    handler.setFormatter(formatter)
-
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
-    logger.addHandler(handler)
+    logger.disabled = disabled
+
+    print(name, outfolder, disabled)
+
+    if not disabled:
+        handler = logging.FileHandler(outputfile, mode='w')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+        print("Handler created for", name)
 
     if (print_stdout):
         screen_handler = logging.StreamHandler(stream=sys.stdout)
         screen_handler.setFormatter(formatter)
         logger.addHandler(screen_handler)
+
 
     return logger
 

@@ -55,7 +55,7 @@ class HeuristicSimulationCoordinator:
         # Set up the logger.
         coordinator_log_path = os.path.join(self._base_path, "data/logs/coordinator")
         os.makedirs(coordinator_log_path, exist_ok=True)
-        self.logger = logger("coordinator", coordinator_log_path)
+        self.logger = logger("coordinator", coordinator_log_path, disabled=False)
 
         self.logger.info("Reading coordinator config file.")
         self.conf = Config(coordinator_config_file_path, Path(coordinator_log_path), "coordinator_config_manager")
