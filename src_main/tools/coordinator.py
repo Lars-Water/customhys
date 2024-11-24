@@ -96,7 +96,8 @@ class HeuristicSimulationCoordinator:
         self.workflow_config.write_conf(workflow_config_file)
 
         self.logger.info("Setting up the Manager.")
-        self.manager = Manager(workflow_confiself.files_to_keepg_file, workflow_logs_folder)
+        self.manager = Manager(workflow_config_file, workflow_logs_folder) 
+
 
         # Define variables for coordinator functionalities.
 
