@@ -27,6 +27,7 @@ def run_experiment(experiment_config, coordinator_params):
     # Create the HeuristicSimulationCoordinator.
     base_path, coordinator_config_file_path, nr_of_agents, run_name = coordinator_params
     heur_sim_coordinator = coordinator_asml.HeuristicSimulationCoordinatorASML(base_path, coordinator_config_file_path, nr_of_agents, run_name, len(search_operator_space_names)*num_replicas) # noqa 501
+    heur_sim_coordinator.set_run_name("ASML_+"str(heur_sim_coordinator.time_stamp))
     # Create problem instance.
     heur_sim_coordinator.manual_normalization()
     min_wfpm_runtime, max_wfpm_runtime, min_cost, max_cost = heur_sim_coordinator.get_boundaries()

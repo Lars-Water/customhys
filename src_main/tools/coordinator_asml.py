@@ -168,7 +168,8 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
         for sim_uid, agent_id in uids.items():
 
             # TODO: Change scavetool output filename to something more descriptive.
-            csv_file_path = os.path.join(self.data_path, "results", sim_uid, "x.csv")
+            folder_path = os.path.join(self.data_path, "results", sim_uid)
+            csv_file_path = os.path.join(folder_path, "x.csv")
 
             # Todo: Check for raceconditions while results files are written by the workers, until then just wait before reading the file
             i_trys = 0
@@ -205,8 +206,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
 
             # Remove the csv file.
             if self.remove_sim_instance_output:
-                self.logger.info(f"Removing the output file for simistance {sim_uid}")
-                os.remove(csv_file_path)
+                self.remove_sim_instance_output_files(csv_file_path, folder_path)
 
             fitness_values.append({
                 agent_id: {

@@ -69,8 +69,8 @@ class HeuristicSimulationCoordinator:
         sim_model = self.conf.tryGet("simulation_model", "simulation_model_configuration", "sim_model")
         num_nodes = self.conf.tryGet("simulation_model", "simulation_model_configuration", "num_nodes")
         num_workers = self.conf.tryGet("simulation_model", "simulation_model_configuration", "num_workers")
-        time_stamp = time.strftime("%Y%m%d_%H%M%S")
-        self.data_path = os.path.join(experiments_path, "data", f"campaign_{sim_model}", f"n{str(num_nodes)}_w{str(num_workers)}_s{str(self._nr_of_sims)}", time_stamp)
+        self.time_stamp = time.strftime("%Y%m%d_%H%M%S")
+        self.data_path = os.path.join(experiments_path, "data", f"campaign_{sim_model}", f"n{str(num_nodes)}_w{str(num_workers)}_s{str(self._nr_of_sims)}", self.time_stamp)
 
         # Define params for configuration file creation.
         workflow_config_file = os.path.join(self.data_path, "config.json")
@@ -96,7 +96,7 @@ class HeuristicSimulationCoordinator:
         self.workflow_config.write_conf(workflow_config_file)
 
         self.logger.info("Setting up the Manager.")
-        self.manager = Manager(workflow_config_file, workflow_logs_folder)
+        self.manager = Manager(workflow_confiself.files_to_keepg_file, workflow_logs_folder)
 
         # Define variables for coordinator functionalities.
 
@@ -466,7 +466,8 @@ class HeuristicSimulationCoordinator:
         for sim_uid, agent_id in uids.items():
 
             # TODO: Change scavetool output filename to something more descriptive.
-            csv_file_path = os.path.join(self.data_path, "results", sim_uid, "x.csv")
+            folder_path = os.path.join(self.data_path, "results", sim_uid)
+            csv_file_path = os.path.join(folder_path, "x.csv")
 
             # Todo: Check for raceconditions while results files are written by the workers, until then just wait before reading the file
             i_trys = 0
@@ -503,8 +504,7 @@ class HeuristicSimulationCoordinator:
 
             # Remove the csv file.
             if self.remove_sim_instance_output:
-                self.logger.info(f"Removing the output file for simistance {sim_uid}")
-                os.remove(csv_file_path)
+                self.remove_sim_instance_output_files(csv_file_path, folder_path)
 
             fitness_values.append({
                 agent_id: {
@@ -770,7 +770,8 @@ class HeuristicSimulationCoordinator:
     '''
     def determine_sim_instance_parameter_tuning_results(self, sim_uid, parameter_names):
         # TODO: Change scavetool output filename to something more descriptive.
-        csv_file_path = os.path.join(self.data_path, "results", sim_uid, "x.csv")
+        folder_path = os.path.join(self.data_path, "results", sim_uid)
+        csv_file_path = os.path.join(folder_path, "x.csv")
         df = pd.read_csv(csv_file_path)
 
         # TODO: Make the following code more generic and less hardcoded.
@@ -780,8 +781,7 @@ class HeuristicSimulationCoordinator:
 
         # Remove the csv file.
         if self.remove_sim_instance_output:
-            self.logger.info(f"Removing the output file for simistance {sim_uid}")
-            os.remove(csv_file_path)
+                self.remove_sim_instance_output_files(csv_file_path, folder_path)
 
         self.save_parameter_tuning_results(latency_df, packet_df, sim_uid, parameter_names)
 
@@ -1033,3 +1033,16 @@ class HeuristicSimulationCoordinator:
 
     def create_dummy_parallel(self, *args, **kwargs):
         return create_sim_inet_lans_dummy_parallel(*args, **kwargs)
+
+    def remove_sim_instance_output_files(self, csv_file_path, folder_path):
+        self.logger.info(f"Removing the output file for simistance {sim_uid}")
+        os.remove(csv_file_path)
+
+        for file in self.files_to_keep:
+            local_file_path = os.path.join(folder_path, file)
+            if os.path.isfile(local_file_path) or os.path.islink(local_file_path):
+                os.remove(local_file_path)  # remove the file
+            elif os.path.isdir(local_file_path):
+                shutil.rmtree(local_file_path)  # remove dir and all contains
+            else:
+                raise ValueError("file {} is not a file or dir.".format(local_file_path))
