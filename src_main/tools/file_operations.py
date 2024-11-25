@@ -1,6 +1,10 @@
+from optparse import Values
 import os
 import shutil
 import glob
+from itertools import product
+from typing import List, Dict, Any
+
 
 def remove_sim_instance_folders(data_path, uids):
     """
@@ -45,7 +49,20 @@ def remove_design_point_configurations_dummy_path(sim_dummy_directory, pattern="
 
 
 
+
 def remove_design_point_configurations_sims_path(sims_path):
     if os.path.exists(sims_path):
         shutil.rmtree(sims_path)
     os.makedirs(sims_path)
+
+
+def generate_heuristic_space(search_operator_name: str, experiment_folder: str, config: Dict[str, Any]):
+    keys = config.keys()
+    values = config.values()
+    heuristic_configurations = product(*values)
+
+    search_operator_space_path = os.path.join(os.getcwd(), "config", experiment_folder, f"search_operator_space/{search_operator_name}.txt")
+    with open(search_operator_space_path, 'w') as f:
+        for configuration in heuristic_configurations:
+            *search_operator_values, selector = configuration
+            f.write(f"('{search_operator_name}', {dict(zip(keys, search_operator_values))}, '{selector}')\n")
