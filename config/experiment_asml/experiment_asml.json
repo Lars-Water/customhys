@@ -3,7 +3,7 @@
         "cardinality": 1,
         "cardinality_min": 1,
         "num_iterations": 20,
-        "num_agents": 32,
+        "num_agents": 16,
         "as_mh": true,
         "num_replicas": 4,
         "num_steps": 20,
@@ -24,15 +24,9 @@
     },
     "pass_finalised_positions": false,
     "search_operator_space_paths": [
-        "config/experiment_1/search_operator_space/firefly_dynamic.txt",
-        "config/experiment_1/search_operator_space/differential_mutation.txt",
-        "config/experiment_1/search_operator_space/swarm_dynamic.txt",
-        "config/experiment_1/search_operator_space/gravitational.txt"
+        "config/experiment_asml/search_operator_space/firefly_dynamic.txt"
     ],
     "search_operator_space_names": [
-        "firefly_dynamic",
-        "differential_mutation",
-        "swarm_dynamic",
-        "gravitational"
+        "firefly_dynamic"
     ]
 }

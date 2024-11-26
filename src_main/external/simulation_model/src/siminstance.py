@@ -362,6 +362,7 @@ class Siminstance:
             self.logger.info("Transforming scalar output to CSV-R format")
 
             scavetool_command = ["opp_scavetool", "export", "-F", "CSV-R", "-o", "x.csv", "*.sca"]
+            print("### ", scavetool_command)
             conversion_output = subprocess.run(scavetool_command, cwd=self.local_results_path, capture_output=True)
             self.string_to_file(conversion_output.stdout.decode("utf-8"), self.local_logs_path, "siminstance_{}_output_converion_stdout".format(self.uid))
             self.string_to_file(conversion_output.stderr.decode("utf-8"), self.local_logs_path, "siminstance_{}_output_converion_stderr".format(self.uid))

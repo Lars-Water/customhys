@@ -312,7 +312,11 @@ class HeuristicSimulationCoordinator:
                 # fo.remove_design_point_configurations_sims_path(self.sims_path)
             if self.remove_sim_instance_experiments_folder:
                 self.logger.debug("Removing simulation instances from experiments folder.")
-                fo.remove_sim_instance_folders(self.data_path, uids)
+                fo.remove_sim_instance_folders(self.data_path, uids,
+                                               self.remove_sim_instance_experiments_folder["logs"], 
+                                               self.remove_sim_instance_experiments_folder["results"], 
+                                               self.remove_sim_instance_experiments_folder["runtime"]
+                                            )
 
             sim_ids.clear()
             return 0
@@ -686,6 +690,14 @@ class HeuristicSimulationCoordinator:
         if self.remove_design_point_configuration_dummy_path:
             self.logger.debug("Removing simulation run templates in dummy path.")
             fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
+            
+        if self.remove_sim_instance_experiments_folder:
+            self.logger.debug("Removing simulation instances from experiments folder.")
+            fo.remove_sim_instance_folders(self.data_path, uids,
+                                            self.remove_sim_instance_experiments_folder["logs"], 
+                                            self.remove_sim_instance_experiments_folder["results"], 
+                                            self.remove_sim_instance_experiments_folder["runtime"]
+            )
 
         self._check_normalization()
 
