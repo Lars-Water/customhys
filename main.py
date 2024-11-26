@@ -19,6 +19,7 @@ import src_main.experiment_flows.experiment_1 as exp_1_flow
 import src_main.experiment_flows.experiment_2 as exp_2_flow
 from src_main.visualization import visualization
 from src_main.tools import file_operations as fo
+from src_main.tools import component_config as cc
 
 from setuptools import setup, find_packages
 
@@ -233,7 +234,22 @@ def create_ga_heurstic_space():
         "distribution": ['uniform', 'gaussian', 'levy'],
         "selector": ['greedy', 'probabilistic', 'metropolis', 'all', 'none']
     }
-    fo.generate_heuristic_space(search_operator_name=search_operator_name, experiment_folder=experiment_folder, config=possible_ga_default_param_values)
+    fo.generate_heuristic_space_cartesian_product(search_operator_name=search_operator_name, experiment_folder=experiment_folder, config=possible_ga_default_param_values)
+
+
+def create_ga_heuristic_space_lhs():
+    ga_parameter_bounds = {
+        "pairing": (['cost', 'rank', 'tournament_2_100', 'tournament_2_75', 'tournament_2_50', 'tournament_3_100', 'tournament_3_75', 'tournament_3_50', 'random', 'even-odd']),
+        "crossover": (['single', 'two', 'uniform', 'blend', 'linear_0.5_0.5']),
+        "mating_pool_factor": (0.1, 0.9),
+        "scale": (0.01, 1.0),
+        "elite_rate": (0.0, 0.9),
+        "mutation_rate": (0.1, 0.9),
+        "distribution": (['uniform', 'gaussian', 'levy']),
+        "selector": (['greedy', 'probabilistic', 'metropolis', 'all', 'none'])
+    }
+    ga_heuristic_space_samples = cc.lhs_mh_heuristic_space_generation(param_bounds=ga_parameter_bounds, n_samples=1000)
+    fo.generate_heuristic_space_lhs_sampling(search_operator_name="genetic_algorithm", experiment_folder="experiment_1", samples=ga_heuristic_space_samples)
 
 
 '''

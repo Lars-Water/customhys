@@ -56,7 +56,7 @@ def remove_design_point_configurations_sims_path(sims_path):
     os.makedirs(sims_path)
 
 
-def generate_heuristic_space(search_operator_name: str, experiment_folder: str, config: Dict[str, Any]):
+def generate_heuristic_space_cartesian_product(search_operator_name: str, experiment_folder: str, config: Dict[str, Any]):
     keys = config.keys()
     values = config.values()
     heuristic_configurations = product(*values)
@@ -66,3 +66,11 @@ def generate_heuristic_space(search_operator_name: str, experiment_folder: str, 
         for configuration in heuristic_configurations:
             *search_operator_values, selector = configuration
             f.write(f"('{search_operator_name}', {dict(zip(keys, search_operator_values))}, '{selector}')\n")
+
+
+def generate_heuristic_space_lhs_sampling(search_operator_name: str, experiment_folder: str, samples: List[Dict[str, Any]]):
+    search_operator_space_path = os.path.join(os.getcwd(), "config", experiment_folder, f"search_operator_space/{search_operator_name}_lhs.txt")
+    with open(search_operator_space_path, 'w') as f:
+        for sample in samples:
+            selector = sample.pop("selector")
+            f.write(f"('{search_operator_name}', {sample}, '{selector}')\n")
