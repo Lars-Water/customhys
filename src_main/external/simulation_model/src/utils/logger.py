@@ -39,7 +39,6 @@ def logger(name, outfolder, print_stdout=False, disabled=False):
     logger.setLevel(logging.DEBUG)
     logger.disabled = disabled
 
-
     if not disabled:
         handler = logging.FileHandler(outputfile, mode='w')
         handler.setFormatter(formatter)

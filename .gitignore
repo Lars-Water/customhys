@@ -101,6 +101,7 @@ bin/
 /data/processed
 /data/raw
 /data/sims
+/data_files/raw
 
 # exclude external models from source control
 /src/external

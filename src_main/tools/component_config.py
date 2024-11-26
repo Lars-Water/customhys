@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from scipy.stats import qmc
 
 from src_main.models import model, modelASML
 from src_main.tools.config_reader import Config
@@ -246,3 +247,62 @@ def _validate_inet_lans_config(config_data):
         if section not in config_data:
             raise ValueError(f"Missing required section: {section}")
     # Add more validation logic as needed
+
+
+def lhs_mh_heuristic_space_generation(param_bounds, n_samples):
+    """
+    Perform Latin Hypercube Sampling (LHS) for mixed parameter types (continuous and categorical).
+
+    Args:
+        param_bounds (dict): A dictionary where keys are parameter names and values are bounds:
+                             - For continuous: (min, max)
+                             - For categorical: A list of categories.
+        n_samples (int): Number of samples to generate.
+
+    Returns:
+        list[dict]: A list of sampled configurations, each represented as a dictionary.
+    """
+    # Helper functions
+    def is_categorical(bounds):
+        return isinstance(bounds, (list, tuple)) and all(isinstance(b, str) for b in bounds)
+
+    def scale_values(sample, bounds):
+        return qmc.scale(sample, [b[0] for b in bounds], [b[1] for b in bounds])
+
+    def map_categorical(value, categories):
+        return categories[int(round(value))]
+
+    # Separate bounds into categorical and continuous
+    continuous_bounds = []
+    categorical_indices = []  # Indices of categorical parameters
+    categorical_mappings = []  # Categorical bounds
+    param_names = list(param_bounds.keys())
+
+    for idx, bounds in enumerate(param_bounds.values()):
+        if is_categorical(bounds):
+            categorical_indices.append(idx)
+            categorical_mappings.append(bounds)
+            continuous_bounds.append((0, len(bounds) - 1))  # Encode as numeric range
+        else:
+            continuous_bounds.append(bounds)
+
+    # Initialize LHS sampler
+    sampler = qmc.LatinHypercube(d=len(param_bounds))
+    raw_sample = sampler.random(n=n_samples)
+
+    # Scale values
+    scaled_sample = scale_values(raw_sample, continuous_bounds)
+
+    # Construct final samples
+    final_samples = []
+    for row in scaled_sample:
+        configuration = {}
+        for idx, (param_name, value) in enumerate(zip(param_names, row)):
+            if idx in categorical_indices:  # Map categorical parameters
+                category_idx = categorical_indices.index(idx)  # Map to the correct categorical index
+                configuration[param_name] = map_categorical(value, categorical_mappings[category_idx])
+            else:  # Continuous parameters
+                configuration[param_name] = value
+        final_samples.append(configuration)
+
+    return final_samples
