@@ -51,6 +51,7 @@ class DataCollector:
         os.makedirs(self.dir_design_points_metrics_output, exist_ok=True)
         append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}.csv")
 
+
         # Determine weighted metric values.
         adjusted_latency = latency_df['mean'].mean() * self.weight_latency
         adjusted_network_cost = cost_df['value'].astype(float).sum() * self.weight_cost
@@ -59,18 +60,27 @@ class DataCollector:
         append_df = pd.DataFrame([[sim_uid, adjusted_latency, adjusted_network_cost]],
                                 columns=['SimulationID', 'AdjustedLatency', 'AdjustedNetworkCost'])
         append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
+        append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
         self.heuristic_name = heuristic_name
 
     def append_fitness_values_to_design_point_metrics(self, uids, fitness_values):
         if self.heuristic_name is not None:
             append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{self.heuristic_name}.csv")
-            df = pd.read_csv(append_design_points_metric_output_file, index_col="SimulationID")
+            df = pd.read_csv(append_design_points_metric_output_file)
+            df = df.set_index("SimulationID")
 
             for sim_uid, agent_id in uids.items():
                 fitness = fitness_values[agent_id]
                 df.at[sim_uid, "Fitness"] = fitness
 
             df.to_csv(append_design_points_metric_output_file, index=True)
+
+        data_fitness_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}_fitness_backup.csv")
+        for sim_uid, agent_id in uids.items():
+            fitness = fitness_values[agent_id]
+            data_df = pd.DataFrame([[sim_uid, fitness]],
+                            columns=['SimulationID', 'Fitness'])
+            data_df.to_csv(data_fitness_file, mode='a', header=not os.path.exists(data_fitness_file), index=False)
 
 
 

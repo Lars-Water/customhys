@@ -51,6 +51,7 @@ class DataCollectorASML(DataCollector):
         # Define the file output path.
         os.makedirs(self.dir_design_points_metrics_output, exist_ok=True)
         append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}.csv")
+        append_design_points_metric_output_file_backup = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}_backup.csv")
 
         # Determine weighted metric values._
         adjusted_wfpm = wfpm * self.weight_wfpm
@@ -60,4 +61,5 @@ class DataCollectorASML(DataCollector):
         append_df = pd.DataFrame([[sim_uid, wfpm, cost, adjusted_wfpm, adjusted_cost]],
                                 columns=['SimulationID', 'wfpm', 'cost', 'AdjustedWFPM', 'AdjustedCost'])
         append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
+        append_df.to_csv(append_design_points_metric_output_file_backup, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
         self.heuristic_name = heuristic_name
