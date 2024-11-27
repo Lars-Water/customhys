@@ -10,6 +10,10 @@
         "remove_sim_instance_output": false,
         "sim_instance_output_files_to_keep": [
             "platform.xml"
+        ],
+        "cache_only_finished_sim_instances": false,
+        "sim_instance_cached_files_evaluation": [
+            "platform.xml"
         ]
     },
     "results_path": "/home/herget/UvA-git/hh_local/rawASML",
@@ -56,15 +60,7 @@
                 "values": [
                     [8, 0],
                     [9, 1],
-                    [10, 2],
-                    [11, 3],
-                    [12, 4],
-                    [13, 5],
-                    [14, 6],
-                    [15, 7],
-                    [16, 8],
-                    [17, 9],
-                    [18, 10]
+                    [10, 2]
                 ]
             },
             {
@@ -77,32 +73,6 @@
                     [2, 1],
                     [3, 2],
                     [4, 3]
-                ]
-            },
-            {
-                "param_name": "processor_freq",
-                "ignore_normalization": false,
-                "configuration_pattern": [
-                    ".//core[@frequency]" 
-                ],
-                "values": [
-                    ["0.5", -1],
-                    ["0.6", -0.9],
-                    ["0.75", -0.65],
-                    ["0.8", -0.5],
-                    ["0.85", -0.4],
-                    ["0.9", -0.1],
-                    ["0.95", 0],
-                    ["1.0", 0],
-                    ["1.1", 0.1],
-                    ["1.05", 0.25],
-                    ["1.15", 0.4],
-                    ["1.2", 0.5],
-                    ["1.25", 0.65],
-                    ["1.4", 0.70],
-                    ["1.5", 0.75],
-                    ["1.75", 1],
-                    ["2.0", 1]
                 ]
             }
         ]
