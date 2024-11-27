@@ -21,6 +21,7 @@ class Siminstance:
     local_logs_path = None
     local_config_path = None
     workflow_config = None
+    hash = None
 
     stats = None
 
@@ -307,6 +308,13 @@ class Siminstance:
         with open(os.path.join(path, filename), 'w') as f:
             f.write(output)
 
+    def setCacheHash(self, hash):
+        self.hash = hash
+
+    def getCacheHash(self):
+        return self.hash
+
+
     def run(self):
         # TODO:
         # - Make sure compilation has been performed
@@ -362,7 +370,6 @@ class Siminstance:
             self.logger.info("Transforming scalar output to CSV-R format")
 
             scavetool_command = ["opp_scavetool", "export", "-F", "CSV-R", "-o", "x.csv", "*.sca"]
-            print("### ", scavetool_command)
             conversion_output = subprocess.run(scavetool_command, cwd=self.local_results_path, capture_output=True)
             self.string_to_file(conversion_output.stdout.decode("utf-8"), self.local_logs_path, "siminstance_{}_output_converion_stdout".format(self.uid))
             self.string_to_file(conversion_output.stderr.decode("utf-8"), self.local_logs_path, "siminstance_{}_output_converion_stderr".format(self.uid))

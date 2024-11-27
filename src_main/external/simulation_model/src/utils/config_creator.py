@@ -17,7 +17,9 @@ class WorkflowConfig:
                  global_sim_results, global_sim_logs, global_sim_runtime,
                  design_queues,
                  uid_scheme,
-                 cluster_config, remove_sca=False, files_to_keep=[]):
+                 cluster_config, remove_sca=False, 
+                 files_to_keep=[], cached_files_evaluation=[],
+                 cache_only_finished_sim_instances=True):
 
         self.workflow_config = {}
         self.workflow_config["sims_path"] = sims_path
@@ -35,6 +37,10 @@ class WorkflowConfig:
         self.workflow_config["output_handler"] = { 
             "remove_sca": remove_sca ,
             "files_to_keep": files_to_keep
+        }
+        self.workflow_config["cache"] = { 
+            "cache_only_finished_sim_instances": cache_only_finished_sim_instances,
+            "files": cached_files_evaluation
         }
 
         for design_point_queue_config in design_queues:

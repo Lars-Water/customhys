@@ -81,6 +81,14 @@ class HeuristicSimulationCoordinator:
         self.files_to_keep = []
         if self.conf.tryGet("coordinator_functionalities", "sim_instance_output_files_to_keep"):
             self.files_to_keep = self.conf.tryGet("coordinator_functionalities", "sim_instance_output_files_to_keep")
+            
+        self.cached_files_evaluation = []
+        if self.conf.tryGet("coordinator_functionalities", "sim_instance_cached_files_evaluation"):
+            self.cached_files_evaluation = self.conf.tryGet("coordinator_functionalities", "sim_instance_cached_files_evaluation")
+            
+        self.cache_only_finished_sim_instances=True
+        if self.conf.tryGet("coordinator_functionalities", "sim_instance_cached_files_evaluation"):
+            self.cache_only_finished_sim_instances = self.conf.tryGet("coordinator_functionalities", "cache_only_finished_sim_instances")
 
         self.logger.info("Setting up workflow configuration file.")
         self.sims_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "sims_path")
@@ -91,7 +99,9 @@ class HeuristicSimulationCoordinator:
             workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, 
             design_queues, "uuid", cluster_config,  
             remove_sca=False, 
-            files_to_keep=self.files_to_keep)
+            files_to_keep=self.files_to_keep,
+            cached_files_evaluation = self.cached_files_evaluation,
+            cache_only_finished_sim_instances = self.cache_only_finished_sim_instances,)
         self.config = self.workflow_config.conf()
         self.workflow_config.write_conf(workflow_config_file)
 

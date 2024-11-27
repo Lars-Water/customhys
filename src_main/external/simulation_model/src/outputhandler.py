@@ -63,6 +63,26 @@ class OutputHandler:
 
     def sim_global_runtime_exec_path(self, sim_instance):
         return os.path.join(self.sim_global_runtime_path(sim_instance), "sim_exec")
+    
+    def copy_sim_results(self, sim_instance_target, sim_instance_source):
+        sim_source_global_results_path = self.sim_global_results_path(sim_instance_source)
+        sim_target_global_results_path = self.sim_global_results_path(sim_instance_target)
+        self.logger.warn(sim_source_global_results_path)
+        self.logger.warn(sim_target_global_results_path)
+        self.__copy_folder(
+            sim_source_global_results_path, 
+            sim_target_global_results_path, 
+            "cached results", sim_instance_target.uid)
+        
+        self.output_json(
+            os.path.join(sim_target_global_results_path, "cachedResult.json"),
+            {
+                "info": "Cache already knows this configuration.",
+                "cached_simID":  sim_instance_source.uid
+            }
+        )
+        
+        return sim_instance_target
 
     def clean_sim(self, sim_instance):
         sim_instance = self.__retrieve_results_data(sim_instance)
@@ -87,7 +107,7 @@ class OutputHandler:
             self.logger.info("Removing old {} folder for {}".format(description, id))
             shutil.rmtree(new)
 
-        self.logger.info("Moving {} at '{}' to '{}'".format(description, old, new))
+        self.logger.info("Copying {} at '{}' to '{}'".format(description, old, new))
         shutil.copytree(old, new)
 
     def __remove_folder(self, old, description, id):

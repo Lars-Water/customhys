@@ -1,4 +1,5 @@
 import os
+import hashlib
 
 from enum import Enum
 from pathlib import Path
@@ -13,6 +14,7 @@ class SimStatus(Enum):
     WAITING = 0
     PROCESSING = 1
     FINISHED = 2
+    CACHED = 3
 
     @staticmethod
     def list_values():
@@ -32,6 +34,7 @@ class DesignPointCache:
     sims_path = None
     uids_status = None
     stats = None
+    cached_hashes = {}
 
     def __init__(self, config_path, logs_path):
         self.logs_path = logs_path
@@ -62,6 +65,7 @@ class DesignPointCache:
             return -1
 
     def __is_sim_status(self, sim_instance, sim_status):
+        self.logger.warn(f"is sim status {sim_instance.uid} // {self.__get_sim_status(sim_instance)} // {self.uids_status.keys()}")
         if self.__get_sim_status(sim_instance) == sim_status:
             return True
         else:
@@ -74,21 +78,26 @@ class DesignPointCache:
             raise Exception("Trying to set cache sim status to invalid state")
 
     def is_sim_waiting(self, sim_instance):
-        self.__is_sim_status(sim_instance, SimStatus.WAITING)
+        return self.__is_sim_status(sim_instance, SimStatus.WAITING)
 
     def is_sim_processing(self, sim_instance):
-        self.__is_sim_status(sim_instance, SimStatus.PROCESSING)
+        return self.__is_sim_status(sim_instance, SimStatus.PROCESSING)
 
     def is_sim_finished(self, sim_instance):
-        self.__is_sim_status(sim_instance, SimStatus.FINISHED)
+        return self.__is_sim_status(sim_instance, SimStatus.FINISHED)
 
     def set_sim_waiting(self, sim_instance):
         self.__set_sim_state(sim_instance, SimStatus.WAITING)
+
+    def set_sim_cached(self, sim_instance):
+        self.__set_sim_state(sim_instance, SimStatus.CACHED)
 
     def set_sim_processing(self, sim_instance):
         self.__set_sim_state(sim_instance, SimStatus.PROCESSING)
 
     def set_sim_finished(self, sim_instance):
+        if self.cnf.tryGet("cache", "cache_only_finished_sim_instances"):
+            self.cached_hashes[sim_instance.getCacheHash()] = sim_instance
         self.__set_sim_state(sim_instance, SimStatus.FINISHED)
 
     def set_sims_waiting(self, sim_instances):
@@ -120,10 +129,45 @@ class DesignPointCache:
 
     # Filter all sim_instances which are already in cache
     def filter_design_point_cache(self, sim_instances):
-        return [sim_instance for sim_instance in sim_instances if not self.__has_sim_status(sim_instance)]
+        cached_sim_instances = []
+        if self.cnf.tryGet("cache", "files") is not None and len(self.cnf.tryGet("cache", "files")) > 0:
+            for sim_instance in sim_instances:
+                hash = self.calc_design_point_hash_filelist(sim_instance, self.cnf.tryGet("cache", "files"))
+                if hash not in self.cached_hashes.keys():
+                    if not self.cnf.tryGet("cache", "cache_only_finished_sim_instances"):
+                        self.cached_hashes[hash] = sim_instance
+                    sim_instance.setCacheHash(hash)
+                else:
+                    cached_sim_instances.append([sim_instance, self.cached_hashes[hash]])
+                    self.set_sim_cached(sim_instance)
+
+
+        return [sim_instance for sim_instance in sim_instances if not self.__has_sim_status(sim_instance)], \
+                cached_sim_instances
+               
 
     def get_runtime_stats(self):
         return self.stats.get_stats_dict()
 
     def shutdown(self):
         return
+    
+    def calc_design_point_hash_single_file(self, sim_instance, filename):
+        file_path = os.path.join(sim_instance.path, filename)
+        hash = self.md5_file_list([file_path])
+        return hash
+    
+    def calc_design_point_hash_filelist(self, sim_instance, filenames):
+        file_paths = [os.path.join(sim_instance.path, filename) for filename in filenames]
+        hash = self.md5_file_list(file_paths)
+        return hash
+
+    
+    def md5_file_list(self, filenames):
+        hash = hashlib.md5()
+        for fn in filenames:
+            try:
+                hash.update(Path(fn).read_bytes())
+            except IsADirectoryError:
+                pass
+        return hash.digest()

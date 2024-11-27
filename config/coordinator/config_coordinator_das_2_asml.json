@@ -14,6 +14,10 @@
         "remove_sim_instance_output": false,
         "sim_instance_output_files_to_keep": [
             "platform.xml"
+        ],
+        "cache_only_finished_sim_instances": false,
+        "sim_instance_cached_files_evaluation": [
+            "platform.xml"
         ]
     },
     "results_path": "/var/scratch/mherget/hh/data/rawASML",
