@@ -35,6 +35,9 @@ class visuParetoSet:
         rawdf = pd.read_csv(file_path)
         rawdf = rawdf.dropna(subset=axis_names)
         rawdf['amount'] = 1
+        alldp = len(rawdf.index)
+
+        info = []
 
         if index_col is not None:
             rawdf['index_dupl'] = rawdf[index_col]
@@ -49,15 +52,16 @@ class visuParetoSet:
                 aggregation_functions[ax] =  'first'
             rawdf = rawdf.groupby(rawdf[fitness_col]).aggregate(aggregation_functions).reset_index()
         
-        if min_fitness_value != inf:
-            rawdf = rawdf[rawdf[fitness_col] <= min_fitness_value]
-
         if max_perc_design_points != 1.0 or max_number_design_points != inf:
             max_perc_design_points = min(max_perc_design_points, 1.)
             max_perc_design_points = max(max_perc_design_points, 0.)
             max_perc_design_points_calc = math.ceil(len(rawdf.index) * max_perc_design_points)
             rawdf = rawdf.sort_values(by=fitness_col).iloc[:min(len(rawdf.index),max_number_design_points, max_perc_design_points_calc)]
-        
+            info.append(f"{min(len(rawdf.index),max_number_design_points, max_perc_design_points_calc)}/{alldp} preselected DPs")
+
+        if min_fitness_value != inf:
+            rawdf = rawdf[rawdf[fitness_col] <= min_fitness_value]
+            info.append(f"Min Fitness: {min_fitness_value}")        
         
         df = pd.DataFrame({
             axis_names[0]: rawdf[axis_names[0]].to_numpy(),
@@ -73,6 +77,7 @@ class visuParetoSet:
             df = df.set_index(index_col)
 
         self.setParetoset(df, rawdf=rawdf)
+        return "(" + ", ".join(info) + ")"
 
     def setParetoset(self, df, sense=["min", "min"], rawdf=None):
         self.df = df
@@ -89,7 +94,8 @@ class visuParetoSet:
              x_axis_name=None, y_axis_name=None, 
              figsize=(6, 4), regression_Line=False,
              csv_all_filepath = None,
-             csv_efficient_filepath = None
+             csv_efficient_filepath = None,
+             info = None
         ):
         if self.axis_names and x_axis_name is None:
             x_axis_name = self.axis_names[0]
@@ -106,6 +112,8 @@ class visuParetoSet:
         plt.figure(figsize=figsize)
         plt.rc('text', usetex=True)
         title_tex = '{\\fontsize{20pt}{3em}\\selectfont{}'+title+'}\n{\\fontsize{12pt}{3em}\\selectfont{}Best '+str(len(self.df.index))+' Design Points}'
+        if info is not None:
+            title_tex += ' \n{\\fontsize{8pt}{3em}\\selectfont{}'+str(info)+'}'
         plt.title(r''+title_tex)
         # plt.title(f"\n{len(self.df.index)} DP",  fontsize='small')
 
@@ -141,7 +149,7 @@ class visuParetoSet:
                 y_reg, 
                 c='#ff7f0e',
                 alpha=0.5,
-                zorder=0,
+                zorder=10,
 
             )
 
@@ -167,12 +175,12 @@ class visuParetoSet:
                 self.df_paretoset.to_csv(csv_efficient_filepath, index=True)
 
 if __name__ == "__main__":
-    ps = visuParetoSet("")
+    ps = visuParetoSet()
 
-    ps.extractParetoset(
-        "/home/herget/UvA-git/hh_local/design_point_metrics_ASML_20241126_133237.csv", 
+    info = ps.extractParetoset(
+        "/home/herget/UvA-git/hh_local/design_point_metrics_ASML_20241127_113720.csv", 
         ["wfpm", "cost"],
-        max_number_design_points = 100,
+        # max_number_design_points = 100,
         max_perc_design_points = 0.5,
         min_fitness_value = 0.3,
         unifiyFitnessValues = False,
@@ -181,6 +189,7 @@ if __name__ == "__main__":
 
     ps.plot(
         "/home/herget/UvA-git/hh_local/pareto_front.png", 
-        csv_all_filepath="/home/herget/UvA-git/hh_local/all.csv",
-        csv_efficient_filepath="/home/herget/UvA-git/hh_local/efficient.csv"
+        regression_Line=False,
+        # csv_efficient_filepath="/home/herget/UvA-git/hh_local/efficient.csv"
+        info = info
     )
