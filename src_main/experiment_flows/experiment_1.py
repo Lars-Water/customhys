@@ -8,6 +8,7 @@ from src_main.external.customhys.customhys import hyperheuristic as hh
 from src_main.data import collect_data
 from src_main.tools import component_config
 from src_main.tools import coordinator
+from src.utils.config_reader import Config
 
 save_runs = []
 experiment_config = None
@@ -25,6 +26,7 @@ def run_experiment(experiment_config, coordinator_params):
     # Create the HeuristicSimulationCoordinator.
     base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches = coordinator_params
     heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches, len(search_operator_space_names)*num_replicas) # noqa 501
+    heur_sim_coordinator.set_run_name("INET_LANS_"+str(heur_sim_coordinator.time_stamp))
 
     # Create problem instance.
     heur_sim_coordinator.manual_normalization()
@@ -39,7 +41,7 @@ def run_experiment(experiment_config, coordinator_params):
     fns_hh = []
     for search_operator_space_path, search_operator_space_name in zip(search_operator_space_paths, search_operator_space_names):
         fns_hh.append(threading.Thread(target=run_search_operator_space_path, args=(
-    experiment_config, search_operator_space_path, search_operator_space_name, nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator)))
+    experiment_config, search_operator_space_path, search_operator_space_name, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator, coordinator_params)))
 
 
     # print(fns_hh)
@@ -55,7 +57,12 @@ def run_experiment(experiment_config, coordinator_params):
     print(save_runs)
     print("Finished Exp 1")
 
-def run_search_operator_space_path(experiment_config, search_operator_space_path, search_operator_space_name, nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator):
+def run_search_operator_space_path(experiment_config, search_operator_space_path, search_operator_space_name, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator, coordinator_params):
+    base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches = coordinator_params
+    coordinator_log_path = os.path.join(base_path, "data/logs/exp_1")              
+    os.makedirs(coordinator_log_path, exist_ok=True)
+    conf = Config(coordinator_config_file_path, Path(coordinator_log_path), f"run_search_operator_space_path_{search_operator_space_name}")
+
     pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
         # Open a file in write mode ('w') and write the string
     with open("output.txt", "a") as file:
@@ -78,8 +85,12 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
 
     probs = {}
     num_replicas = hh_parameters["num_replicas"] if hh_parameters["num_replicas"] > 0 else 1 
+    simulation_model_template_path = conf.tryGet("simulation_model", "simulation_model_paths", "simulation_model_template_path")
+    template_ini_file_path = os.path.join(simulation_model_template_path, "largeNet.ini")
+    agents_fitness_values_path = conf.tryGet("output_paths", "agents_fitness_values_path")
+
     for rep in range(num_replicas):
-        probs[rep] = component_config.create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator.simulation_run)
+        probs[rep] = component_config.create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator.simulation_run, agents_fitness_values_path)
         probs[rep]['set_file_name_fitness_values']("fitness_values_"+str(search_operator_space_name)+"_replica_"+str(rep)+".json")
         # print(probs[rep]['get_file_name_fitness_values']())
 
@@ -88,7 +99,15 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
         problems=probs,
         parameters=hh_parameters,
         file_label=file_label,
-        pass_finalised_positions=pass_finalised_positions
+        pass_finalised_positions=pass_finalised_positions,
+        file_details= {
+            "experiment_name": experiment_name,
+            "hh_parameters": hh_parameters,
+            "timestamp": timestamp,
+            "search_operator_space_name": search_operator_space_name,
+            "template_ini_file_path": template_ini_file_path,
+            "coordinator_config": conf.conf()
+        }
     )
 
 
@@ -105,7 +124,10 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     hh_run_meta_data = collect_data.calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator)
 
     # Save the heuristic run data.
-    save_run_path = os.path.join(os.getcwd(), "data/raw/results/experiment_1/", experiment_name)
+    results_path = os.path.join(os.getcwd(), "data/raw/results/experiment_1/")
+    if conf.tryGet("results_path") and conf.tryGet("results_path") is not None:
+        results_path = conf.tryGet("results_path")
+    save_run_path = os.path.join(results_path, experiment_name)
     collect_data.save_hh_run_meta_data(save_run_path, best_sol, best_perf, hist_curr, hist_best, hh_run_meta_data)
 
     print(f" ("+search_operator_space_name+") Best solution: "+str(best_sol))

@@ -13,6 +13,7 @@ class DesignPointQueue:
     logger = None
     cnf = None
     queue = None
+    queue_cached = []
     sorting_algo = None
     stats = None
 
@@ -35,6 +36,7 @@ class DesignPointQueue:
         self.cnf = Config(Path(config_path), Path(self.logs_path), "config_design_point_queue_{}".format(self.id))
 
         self.queue = []
+        self.queue_cached = []
 
         if (self.cnf.tryGet("design_point_queues")):
             self.logger.info("Design point queues config data present in config file")
@@ -131,6 +133,29 @@ class DesignPointQueue:
             return
         else:
             pass
+
+    def cached_insert(self, design_point):
+        if (self.sorting_algo == "FIFO"):
+            self.queue_cached.append(design_point)
+        else:
+            pass
+
+    def cached_insert_list(self, design_points):
+        if (self.sorting_algo == "FIFO"):
+            self.queue_cached += design_points
+        else:
+            pass
+
+    def cached_get_all(self):
+        tmp = self.queue_cached[:]
+        self.queue_cached = []
+        return tmp
+    
+    def has_chached(self):
+        return self.chached_amount() != 0
+    
+    def chached_amount(self):
+        return len(self.queue_cached)
 
     def get_runtime_stats(self):
         return self.stats.get_stats_dict()

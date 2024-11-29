@@ -122,10 +122,10 @@ class Manager:
 
     def __filter_cached_sim_instances(self, sim_instances):
         num_received = len(sim_instances)
-        sim_instances = self.design_point_cache.filter_design_point_cache(sim_instances)
+        sim_instances, cached_sim_instances = self.design_point_cache.filter_design_point_cache(sim_instances)
         num_not_in_cache = len(sim_instances)
         self.logger.info("Filtered {} sim instances based on cache".format(num_received - num_not_in_cache))
-        return sim_instances
+        return sim_instances, cached_sim_instances
 
     def __set_sim_instances_time_stat(self, sim_instances, *args):
         sims = []
@@ -148,8 +148,15 @@ class Manager:
             design_point_queue = self.__get_highest_prio_queue()
 
         sim_instances = self.__filter_unique_sim_instances(sim_instances)
-        sim_instances = self.__filter_cached_sim_instances(sim_instances)
+        sim_instances, cached_sim_instances = self.__filter_cached_sim_instances(sim_instances)
         self.stats.add_stat(len(sim_instances), "general", "num_dp_unique")
+        self.stats.add_stat(len(cached_sim_instances), "general", "num_dp_cached")
+        self.logger.warn("num_dp_cached+=" + str(len(cached_sim_instances))+" (total: "+str(self.stats.get_stat("general", "num_dp_cached"))+")")
+
+        if (len(cached_sim_instances) > 0):
+            design_point_queue.cached_insert_list(cached_sim_instances)
+        else:
+            self.logger.info("No cached sim instances to process")
 
         if (len(sim_instances) > 0):
             self.logger.info("Inserting sim instances ({}) in design point queue {}".format(len(sim_instances), queue_id))
@@ -229,7 +236,30 @@ class Manager:
 
         n = design_point_queue.size()
 
-        return self.evaluate_queue(queue_id, n=n)
+        sim_instances = self.evaluate_queue(queue_id, n=n)
+
+        # self.logger.warn(f"Evaluatring queue {queue_id}: {design_point_queue.has_chached()} {str(design_point_queue.chached_amount())}")
+
+        # Function returns true if all cached are currently processing, hence we wait until all are done
+        i = 0
+        while self.evaluate_cached_sims(design_point_queue) and design_point_queue.has_chached():
+            self.logger.warn(f"+++ {queue_id} Waiting {i}")
+            time.sleep(5)           
+            i += 1     
+        return sim_instances
+    
+    def evaluate_cached_sims(self, design_point_queue):
+        all_are_processing = 0
+        cached_sim_instances = design_point_queue.cached_get_all()
+        for cached_sim_instance in cached_sim_instances:
+            if self.design_point_cache.is_sim_finished(cached_sim_instance[1]):
+                tmp = self.output_handler.copy_sim_results(cached_sim_instance[0], cached_sim_instance[1])
+            elif self.design_point_cache.is_sim_processing(cached_sim_instance[1]):
+                design_point_queue.cached_insert(cached_sim_instance)
+                all_are_processing += 1
+            else:
+                design_point_queue.cached_insert(cached_sim_instance)
+        return (all_are_processing == design_point_queue.chached_amount() and design_point_queue.has_chached())
 
     # Waits for results
     def evaluate_queue(self, queue_id, n=1):
@@ -258,6 +288,8 @@ class Manager:
         self.design_point_cache.set_sims_finished(sim_instances)
         self.stats.add_stat(len(sim_instances), "general", "num_dp_finished")
         self.logger.warn("num_dp_finished+=" + str(len(sim_instances))+" (total: "+str(self.stats.get_stat("general", "num_dp_finished"))+")")
+
+        cached = self.evaluate_cached_sims(design_point_queue)      
 
         return sim_instances
 
@@ -318,6 +350,7 @@ class Manager:
         print("Number of design points received: {}".format(self.stats.get_stat("general", "num_dp")))
         print("Number of unique design points received: {}".format(self.stats.get_stat("general", "num_dp_unique")))
         print("Number of unique design points processed: {}".format(self.stats.get_stat("general", "num_dp_finished")))
+        print("Number of design points which were already cached: {}".format(self.stats.get_stat("general", "num_dp_cached")))
         print("Throughput unique design points: {:.3f} evaluations per second".format(self.stats.get_stat("general", "num_dp_finished")/(end_time - self.start_time)))
         print("Shutdown at {}".format(time.strftime("%H:%M:%S %d/%m/%Y", time.gmtime(end_time))))
 

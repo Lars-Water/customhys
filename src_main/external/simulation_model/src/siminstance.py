@@ -21,6 +21,7 @@ class Siminstance:
     local_logs_path = None
     local_config_path = None
     workflow_config = None
+    hash = None
 
     stats = None
 
@@ -102,6 +103,7 @@ class Siminstance:
             self.logger.info("Defaulting to: 'opp_makemake -f'")
             make_make_command += ["-f"]
 
+        self.logger.info("MakeMake command:\n"+ " ".join(make_make_command))
         return make_make_command
 
     def __create_omnet_make_command(self):
@@ -112,10 +114,15 @@ class Siminstance:
             if (self.cnf.tryGet("omnet", "make", "verbose")):
                 self.logger.info("Make output will be verbose")
                 make_command += ["V=1"]
+            if (self.cnf.tryGet("omnet", "make", "ignoreWarnings")):
+                self.logger.info("Adding following ignore warnings to make command: " + ", ".join(self.cnf.tryGet("omnet", "make", "ignoreWarnings")))
+                for warning in self.cnf.tryGet("omnet", "make", "ignoreWarnings"):
+                    make_command += [warning]
         else:
             self.logger.warn("Omnet config has no specification for make")
             self.logger.info("Defaulting to: 'make'")
 
+        self.logger.info("Make command:\n"+ " ".join(make_command))
         return make_command
 
 
@@ -174,6 +181,11 @@ class Siminstance:
             self.logger.info("Omnet will record eventlog")
             simulation_command += ["--record-eventlog"]
 
+        # # Todo fix True for other experiments
+        # if (self.cnf.tryGet("omnet", "simulation", "oversubscribe") or True):
+        #     self.logger.info("Omnet will oversubscribe")
+        #     simulation_command += ["--oversubscribe"]
+
         if (self.cnf.tryGet("omnet", "simulation", "pdes")):
             num_lps = self.cnf.tryGet("omnet", "simulation", "pdes", "num_lps")
             self.logger.info("Omnet execution will perform pdes with {} lps".format(num_lps))
@@ -194,6 +206,7 @@ class Siminstance:
             ini = self.cnf.tryGet("omnet", "simulation", "ini")
             simulation_command += [os.path.join(self.path, ini)]
 
+        self.logger.info("Simulation command:\n"+ " ".join(simulation_command))
         return simulation_command
 
 
@@ -279,7 +292,8 @@ class Siminstance:
                 self.logger.info("Make execution was successfull")
             else:
                 self.logger.warn("Make execution was not successfull")
-                raise Exception("Make execution was not successfull")
+                self.logger.warn(make_output)
+                raise Exception("Make execution was not successfull", make_output)
 
 
         else:
@@ -293,6 +307,13 @@ class Siminstance:
     def string_to_file(self, output, path, filename):
         with open(os.path.join(path, filename), 'w') as f:
             f.write(output)
+
+    def setCacheHash(self, hash):
+        self.hash = hash
+
+    def getCacheHash(self):
+        return self.hash
+
 
     def run(self):
         # TODO:
@@ -334,7 +355,8 @@ class Siminstance:
                 self.logger.info("Simulation execution was successfull")
             else:
                 self.logger.warn("Simulation execution was not successfull")
-                raise Exception("Simulation execution was not successfull")
+                self.logger.warn(simulation_output)
+                raise Exception("Simulation execution was not successfull",simulation_output)
 
         else:
             self.logger.warn("No supported simulator configuration data was found.")

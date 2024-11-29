@@ -28,7 +28,8 @@ class instance(BP):
                 global_optimum_solution,
                 func_name,
                 sim_run,
-                boundaries):
+                boundaries,
+                fitness_value_dir):
         super().__init__(variable_num)
         self.max_search_range = max_search_range
         self.min_search_range = min_search_range
@@ -46,6 +47,7 @@ class instance(BP):
         # Determine min and max values for objectives
         self.boundaries = boundaries
         self.file_name_fitness_values="fitness_values.json"
+        self.fitness_value_dir = fitness_value_dir
 
 
     '''
@@ -66,7 +68,8 @@ class instance(BP):
                     func_name=self.func_name,
                     dimensions=self.variable_num,
                     set_file_name_fitness_values=lambda x: self.set_file_name_fitness_values(x),
-                    get_file_name_fitness_values=lambda: self.get_file_name_fitness_values()
+                    get_file_name_fitness_values=lambda: self.get_file_name_fitness_values(),
+                    fitness_value_dir = self.fitness_value_dir
         )
 
     '''
@@ -105,22 +108,3 @@ class instance(BP):
         # self.logger.info("fitfunc fitness_values:"+str(fitness_values))
         return fitness_values
 
-
-'''
-    Generate a basic problem instance from a given simulation model
-    configuration and simulation run functionality.
-'''
-def generate_instance(variable_num, instance_config, sim_run, boundaries):
-    min_range = np.array([instance_config['boundaries'][key][0]
-                          for key in instance_config['boundaries']])
-    max_range = np.array([instance_config['boundaries'][key][1]
-                          for key in instance_config['boundaries']])
-
-    return instance(variable_num,
-                    min_range,
-                    max_range,
-                    instance_config['optimal_solution'],
-                    instance_config['optimal_fitness'],
-                    'CQN',
-                    sim_run,
-                    boundaries)

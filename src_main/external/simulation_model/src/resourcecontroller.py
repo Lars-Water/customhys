@@ -78,7 +78,12 @@ class ResourceController:
         while ((self.client.status == "running") and (len(self.client.scheduler_info()["workers"]) < num_workers)):
             time.sleep(0.1)
 
-        self.client.forward_logging()
+        try:
+            self.client.forward_logging()
+        except:
+            self.logger.error("Error whille client.forward_logging(). It is disabled.")
+            print("Error whille client.forward_logging(). It is disabled.")
+
         self.running_tasks = {}
 
     def __set_sim_instances_time_stat(self, sim_instances, *args):

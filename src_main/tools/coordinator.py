@@ -11,10 +11,11 @@ import pandas as pd
 import numpy as np
 import time
 import json
+import sys
 from pathlib import Path
 import glob
 import itertools
-from pathlib import Path
+
 
 from experiments import create_sim_custom_dummy, create_sim_inet_lans_dummy, create_sim_inet_lans_dummy_parallel
 from src.manager import Manager
@@ -54,7 +55,7 @@ class HeuristicSimulationCoordinator:
         # Set up the logger.
         coordinator_log_path = os.path.join(self._base_path, "data/logs/coordinator")
         os.makedirs(coordinator_log_path, exist_ok=True)
-        self.logger = logger("coordinator", coordinator_log_path)
+        self.logger = logger("coordinator", coordinator_log_path, disabled=False)
 
         self.logger.info("Reading coordinator config file.")
         self.conf = Config(coordinator_config_file_path, Path(coordinator_log_path), "coordinator_config_manager")
@@ -68,26 +69,45 @@ class HeuristicSimulationCoordinator:
         sim_model = self.conf.tryGet("simulation_model", "simulation_model_configuration", "sim_model")
         num_nodes = self.conf.tryGet("simulation_model", "simulation_model_configuration", "num_nodes")
         num_workers = self.conf.tryGet("simulation_model", "simulation_model_configuration", "num_workers")
-        time_stamp = time.strftime("%Y%m%d_%H%M%S")
-        self.data_path = os.path.join(experiments_path, "data", f"campaign_{sim_model}", f"n{str(num_nodes)}_w{str(num_workers)}_s{str(self._nr_of_sims)}", time_stamp)
+        self.time_stamp = time.strftime("%Y%m%d_%H%M%S")
+        self.data_path = os.path.join(experiments_path, "data", f"campaign_{sim_model}", f"n{str(num_nodes)}_w{str(num_workers)}_s{str(self._nr_of_sims)}", self.time_stamp)
 
         # Define params for configuration file creation.
         workflow_config_file = os.path.join(self.data_path, "config.json")
         workflow_results_folder = os.path.join(self.data_path, "results")
         workflow_logs_folder = os.path.join(self.data_path, "logs")
         workflow_runtime_folder = os.path.join(self.data_path, "runtime")
+        
+        self.files_to_keep = []
+        if self.conf.tryGet("coordinator_functionalities", "sim_instance_output_files_to_keep"):
+            self.files_to_keep = self.conf.tryGet("coordinator_functionalities", "sim_instance_output_files_to_keep")
+            
+        self.cached_files_evaluation = []
+        if self.conf.tryGet("coordinator_functionalities", "sim_instance_cached_files_evaluation"):
+            self.cached_files_evaluation = self.conf.tryGet("coordinator_functionalities", "sim_instance_cached_files_evaluation")
+            
+        self.cache_only_finished_sim_instances=True
+        if self.conf.tryGet("coordinator_functionalities", "sim_instance_cached_files_evaluation"):
+            self.cache_only_finished_sim_instances = self.conf.tryGet("coordinator_functionalities", "cache_only_finished_sim_instances")
 
         self.logger.info("Setting up workflow configuration file.")
         self.sims_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "sims_path")
         design_queues = [WorkflowConfig.create_design_point_queue_config(f'q{queue_id}', 0 if queue_id > 0 else 1, "FIFO") for queue_id in range(nr_of_design_queues+1)]
         cluster_config = self.create_relevant_cluster_config()
-        self.workflow_config = WorkflowConfig(self.sims_path, "config", "run_sim", "results", "logs", "out",
-                            workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, design_queues, "uuid", cluster_config)
+        self.workflow_config = WorkflowConfig(
+            self.sims_path, "config", "run_sim", "results", "logs", "out",
+            workflow_results_folder, workflow_logs_folder, workflow_runtime_folder, 
+            design_queues, "uuid", cluster_config,  
+            remove_sca=False, 
+            files_to_keep=self.files_to_keep,
+            cached_files_evaluation = self.cached_files_evaluation,
+            cache_only_finished_sim_instances = self.cache_only_finished_sim_instances,)
         self.config = self.workflow_config.conf()
         self.workflow_config.write_conf(workflow_config_file)
 
         self.logger.info("Setting up the Manager.")
-        self.manager = Manager(workflow_config_file, workflow_logs_folder)
+        self.manager = Manager(workflow_config_file, workflow_logs_folder) 
+
 
         # Define variables for coordinator functionalities.
 
@@ -103,6 +123,7 @@ class HeuristicSimulationCoordinator:
         self.remove_sim_instance_output = self.conf.tryGet("coordinator_functionalities", "remove_sim_instance_output")
         self.remove_sim_instance_experiments_folder = self.conf.tryGet("coordinator_functionalities", "remove_sim_instance_experiments_folder")
         self.remove_design_point_configuration_dummy_path = self.conf.tryGet("coordinator_functionalities", "remove_design_point_configuration_dummy_path")
+        self.remove_design_point_configuration_dummy_path_pattern = self.conf.tryGet("coordinator_functionalities", "remove_design_point_configuration_dummy_path_pattern") 
         self.remove_design_point_configuration_sims_path = self.conf.tryGet("coordinator_functionalities", "remove_design_point_configuration_sims_path")
 
         self.logger.info("Define the paths for the simulation model results.")
@@ -111,16 +132,18 @@ class HeuristicSimulationCoordinator:
         # TODO: Move more functionalities to data collector.
         # TODO: Define config file with a distinct segment for data collector?
         self.logger.info("Define the base paths and variables for simulation instance output functionalities.")
-        self.agents_fitness_dir_relative_path = self.conf.tryGet("output_paths", "agents_fitness_values_relative_path")
+        self.agents_fitness_dir_path = self.conf.tryGet("output_paths", "agents_fitness_values_path")
         self.sim_dummy_directory = self.conf.tryGet("simulation_model", "simulation_model_paths", "dummy_path")
         self.logger.info("Setting up the data collector.")
         dir_design_points_metrics_output = self.conf.tryGet("output_paths", "design_points_metrics_output")
+        if dir_design_points_metrics_output is None or not dir_design_points_metrics_output:
+            dir_design_points_metrics_output = os.path.join(self.data_path, "design_points_metrics")
         weight_latency = self.conf.tryGet("fitness_config", "weight_latency")
         weight_cost = self.conf.tryGet("fitness_config", "weight_cost")
         self.data_collector = DataCollector(weight_latency, weight_cost, dir_design_points_metrics_output)
 
         # clear out old agent finess files
-        shutil.rmtree(os.path.join(self._base_path, self.agents_fitness_dir_relative_path), ignore_errors=True)
+        shutil.rmtree(os.path.join(self._base_path, self.agents_fitness_dir_path), ignore_errors=True)
 
     def set_run_name(self, run_name):
         """
@@ -223,17 +246,16 @@ class HeuristicSimulationCoordinator:
         Returns:
             None
         """
-        self.logger.info(f"Storing fitness values locally at {self.agents_fitness_dir_relative_path}")
-        agents_fitness_dir = os.path.join(self._base_path, self.agents_fitness_dir_relative_path)
-        os.makedirs(agents_fitness_dir, exist_ok=True)
-        fitness_values_file_path = os.path.join(agents_fitness_dir, file_name_fitness_values)
+        self.logger.info(f"Storing fitness values locally at {self.agents_fitness_dir_path}")
+        os.makedirs(self.agents_fitness_dir_path, exist_ok=True)
+        fitness_values_file_path = os.path.join(self.agents_fitness_dir_path, file_name_fitness_values)
         fitness_values_file_path_old_nmbr = 0
         if os.path.exists(fitness_values_file_path):
             # Keep version of old locally stored fitness values
-            filenames =  [os.path.basename(x) for x in glob.glob(str(agents_fitness_dir)+"/"+Path(file_name_fitness_values).stem+"*")]
-            fitness_values_file_path_old_nmbr = max((int(filename.strip(file_name_fitness_values + "_")) if filename.strip(file_name_fitness_values + "_") else -1) for filename in filenames) + 1
-            fitness_values_file_path_old =  os.path.join(agents_fitness_dir, Path(fitness_values_file_path).stem + "_" + str(fitness_values_file_path_old_nmbr) + ".json")
-            shutil.copy2(fitness_values_file_path, fitness_values_file_path_old)
+            # filenames =  [os.path.basename(x) for x in glob.glob(str(agents_fitness_dir)+"/"+Path(file_name_fitness_values).stem+"*")]
+            # fitness_values_file_path_old_nmbr = max((int(filename.strip(file_name_fitness_values + "_")) if filename.strip(file_name_fitness_values + "_") else -1) for filename in filenames) + 1
+            # fitness_values_file_path_old =  os.path.join(agents_fitness_dir, Path(fitness_values_file_path).stem + "_" + str(fitness_values_file_path_old_nmbr) + ".json")
+            # shutil.copy2(fitness_values_file_path, fitness_values_file_path_old)
             os.remove(fitness_values_file_path)
         with open(fitness_values_file_path, 'w') as f:
             json.dump(fitness_values, f)
@@ -274,6 +296,10 @@ class HeuristicSimulationCoordinator:
             self.logger.info("Locally storing the agents fitness values.")
             fitness_config = self.conf.tryGet("fitness_config")
             fitness_values = fitfunc(fitness_config, simulation_metrics)
+
+            if self.store_design_points_metrics_values:
+                self.data_collector.append_fitness_values_to_design_point_metrics(uids, fitness_values)
+            
             self.locally_store_agents_fitness_values(fitness_values, file_name_fitness_values)
 
             # End timer for simulation run.
@@ -286,17 +312,21 @@ class HeuristicSimulationCoordinator:
                 self.logger.debug("Removing simulation run templates in dummy path.")
                 # print(""+str(self.sim_dummy_directory))
                 for sim_id in sim_ids:
-                    fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_"+str(sim_id)+"*")
+                    fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern=self.remove_design_point_configuration_dummy_path_pattern+str(sim_id)+"*")
             if self.remove_design_point_configuration_sims_path:
                 self.logger.debug("Removing simulation run templates in sims path.")
+                # print("sims_path "+str(self.sims_path))
                 if self.sims_path and self.sims_path is not None:
                     for sim_id in sim_ids:
                         fo.remove_design_point_configurations_dummy_path(self.sims_path, pattern=str(sim_id))
                 # fo.remove_design_point_configurations_sims_path(self.sims_path)
             if self.remove_sim_instance_experiments_folder:
                 self.logger.debug("Removing simulation instances from experiments folder.")
-                # print("data_path "+str(self.data_path))
-                fo.remove_sim_instance_folders(self.data_path, uids)
+                fo.remove_sim_instance_folders(self.data_path, uids,
+                                               self.remove_sim_instance_experiments_folder["logs"], 
+                                               self.remove_sim_instance_experiments_folder["results"], 
+                                               self.remove_sim_instance_experiments_folder["runtime"]
+                                            )
 
             sim_ids.clear()
             return 0
@@ -325,8 +355,7 @@ class HeuristicSimulationCoordinator:
 
             if self.remove_design_point_configuration_dummy_path:
                 self.logger.debug("Removing simulation run templates in dummy path.")
-                fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_*")
-
+                fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
             # self.logger.info("Fitness value: {}".format(fitness_value))
             return fitness_value[0]
 
@@ -458,7 +487,8 @@ class HeuristicSimulationCoordinator:
         for sim_uid, agent_id in uids.items():
 
             # TODO: Change scavetool output filename to something more descriptive.
-            csv_file_path = os.path.join(self.data_path, "results", sim_uid, "x.csv")
+            folder_path = os.path.join(self.data_path, "results", sim_uid)
+            csv_file_path = os.path.join(folder_path, "x.csv")
 
             # Todo: Check for raceconditions while results files are written by the workers, until then just wait before reading the file
             i_trys = 0
@@ -495,8 +525,7 @@ class HeuristicSimulationCoordinator:
 
             # Remove the csv file.
             if self.remove_sim_instance_output:
-                self.logger.info(f"Removing the output file for simistance {sim_uid}")
-                os.remove(csv_file_path)
+                self.remove_sim_instance_output_files(sim_uid, csv_file_path, folder_path)
 
             fitness_values.append({
                 agent_id: {
@@ -520,7 +549,7 @@ class HeuristicSimulationCoordinator:
             dict: A dictionary containing the UID of the evaluated simulation instance and its corresponding value.
         """
         start_time = time.time()
-        sim_instances = [create_sim_inet_lans_dummy(self.config, self.dummy_sim_path, uuid.uuid4(), self.inet_path) for _ in range(self._nr_of_sims)]
+        sim_instances = [self.create_dummy(self.config, self.dummy_sim_path, uuid.uuid4(), self.inet_path) for _ in range(self._nr_of_sims)]
 
         uid = sim_instances[0].uid
         if uid in self.uids:
@@ -565,7 +594,7 @@ class HeuristicSimulationCoordinator:
         self.logger.debug(f"(Queue: {queue_id}) Enqueing sim instances.")
 
         # Configuring siminstances.
-        sim_instances = [create_sim_inet_lans_dummy_parallel(self.config, self.dummy_sim_path, sim_id, self.inet_path) for sim_id in sim_ids]
+        sim_instances = [self.create_dummy_parallel(self.config, self.dummy_sim_path, sim_id, self.inet_path) for sim_id in sim_ids]
         uids = {sim_instance.uid: id for id, sim_instance in enumerate(sim_instances)}
 
         # Run the configured simulation model.
@@ -653,11 +682,8 @@ class HeuristicSimulationCoordinator:
                 sim_ids.append(sim_id)
                 sim_id_boundaries[parameter][boundary] = sim_id
 
-        # print(sim_id_boundaries)
         self.logger.info("Evaluating the generated simulation instances.")
         uids = self.run_multiple_simulation_configuration(sim_ids)
-        # print(sim_ids)
-        # print(uids)
 
         for parameter, boundaries_local in boundaries.items():
             for boundary in boundaries_local:
@@ -670,7 +696,15 @@ class HeuristicSimulationCoordinator:
 
         if self.remove_design_point_configuration_dummy_path:
             self.logger.debug("Removing simulation run templates in dummy path.")
-            fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_*")
+            fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
+            
+        if self.remove_sim_instance_experiments_folder:
+            self.logger.debug("Removing simulation instances from experiments folder.")
+            fo.remove_sim_instance_folders(self.data_path, uids,
+                                            self.remove_sim_instance_experiments_folder["logs"], 
+                                            self.remove_sim_instance_experiments_folder["results"], 
+                                            self.remove_sim_instance_experiments_folder["runtime"]
+            )
 
         self._check_normalization()
 
@@ -750,7 +784,7 @@ class HeuristicSimulationCoordinator:
         sim_ids.clear()
         if self.remove_design_point_configuration_dummy_path:
             self.logger.debug("Removing simulation run templates in dummy path.")
-            fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_*")
+            fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
 
 
     '''
@@ -762,7 +796,8 @@ class HeuristicSimulationCoordinator:
     '''
     def determine_sim_instance_parameter_tuning_results(self, sim_uid, parameter_names):
         # TODO: Change scavetool output filename to something more descriptive.
-        csv_file_path = os.path.join(self.data_path, "results", sim_uid, "x.csv")
+        folder_path = os.path.join(self.data_path, "results", sim_uid)
+        csv_file_path = os.path.join(folder_path, "x.csv")
         df = pd.read_csv(csv_file_path)
 
         # TODO: Make the following code more generic and less hardcoded.
@@ -772,8 +807,7 @@ class HeuristicSimulationCoordinator:
 
         # Remove the csv file.
         if self.remove_sim_instance_output:
-            self.logger.info(f"Removing the output file for simistance {sim_uid}")
-            os.remove(csv_file_path)
+            self.remove_sim_instance_output_files(sim_uid, csv_file_path, folder_path)
 
         self.save_parameter_tuning_results(latency_df, packet_df, sim_uid, parameter_names)
 
@@ -846,7 +880,7 @@ class HeuristicSimulationCoordinator:
         sim_ids.clear()
         if self.remove_design_point_configuration_dummy_path:
             self.logger.debug("Removing simulation run templates in dummy path.")
-            fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern="custom_dummy_*")
+            fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
 
 
     def determine_design_point_metrics(self, uids):
@@ -1015,5 +1049,26 @@ class HeuristicSimulationCoordinator:
         # Duplicate a new custom dummy sim directory and ignore the given filename.
         shutil.copytree(src_dir,
                         dest_dir,
-                        ignore=HeuristicSimulationCoordinator.ignore_file(file_to_ignore)
+                    ignore=HeuristicSimulationCoordinator.ignore_file(file_to_ignore),              
+                        symlinks=True
         )
+
+
+    def create_dummy(self, *args, **kwargs):
+        return create_sim_inet_lans_dummy(*args, **kwargs)
+
+    def create_dummy_parallel(self, *args, **kwargs):
+        return create_sim_inet_lans_dummy_parallel(*args, **kwargs)
+
+    def remove_sim_instance_output_files(self, sim_uid, csv_file_path, folder_path):
+        self.logger.info(f"Removing the output file for simistance {sim_uid}")
+        os.remove(csv_file_path)
+
+        for file in self.files_to_keep:
+            local_file_path = os.path.join(folder_path, file)
+            if os.path.isfile(local_file_path) or os.path.islink(local_file_path):
+                os.remove(local_file_path)  # remove the file
+            elif os.path.isdir(local_file_path):
+                shutil.rmtree(local_file_path)  # remove dir and all contains
+            else:
+                self.logger.error("During removing sim instance ({}) output files: File {} is not a file or directory. Could not remove in {}.".format(sim_uid, local_file_path, folder_path))

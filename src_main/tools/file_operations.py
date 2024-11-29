@@ -5,8 +5,7 @@ import glob
 from itertools import product
 from typing import List, Dict, Any
 
-
-def remove_sim_instance_folders(data_path, uids):
+def remove_sim_instance_folders(data_path, uids, logs=True, results=True, runtime=True):
     """
     Remove simulation instance folders.
 
@@ -25,18 +24,21 @@ def remove_sim_instance_folders(data_path, uids):
         logs_sim_instance_path = os.path.join(data_path, "logs", uid)
         results_sim_instance_path = os.path.join(data_path, "results", uid)
         runtime_sim_instance_path = os.path.join(data_path, "runtime", uid)
-        if os.path.exists(logs_sim_instance_path):
-            shutil.rmtree(logs_sim_instance_path)
-        else:
-            print(f"Simulation instance folder {logs_sim_instance_path} does not exist.")
-        if os.path.exists(results_sim_instance_path):
-            shutil.rmtree(results_sim_instance_path)
-        else:
-            print(f"Simulation instance folder {results_sim_instance_path} does not exist.")
-        if os.path.exists(runtime_sim_instance_path):
-            shutil.rmtree(runtime_sim_instance_path)
-        else:
-            print(f"Simulation instance folder {runtime_sim_instance_path} does not exist.")
+        if logs:
+            if os.path.exists(logs_sim_instance_path):
+                shutil.rmtree(logs_sim_instance_path)
+            else:
+                print(f"Simulation instance folder {logs_sim_instance_path} does not exist.")
+        if results:
+            if os.path.exists(results_sim_instance_path):
+                shutil.rmtree(results_sim_instance_path)
+            else:
+                print(f"Simulation instance folder {results_sim_instance_path} does not exist.")
+        if runtime:
+            if os.path.exists(runtime_sim_instance_path):
+                shutil.rmtree(runtime_sim_instance_path)
+            else:
+                print(f"Simulation instance folder {runtime_sim_instance_path} does not exist.")
 
 
 def remove_design_point_configurations_dummy_path(sim_dummy_directory, pattern="custom_dummy_*"):
