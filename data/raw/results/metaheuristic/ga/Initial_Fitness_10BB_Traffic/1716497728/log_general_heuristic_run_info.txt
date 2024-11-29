@@ -1,9 +1,0 @@
-[ general_heuristic_run_info  27-05-2024 17:44:36  INFO     ]  Default config file: /home/larry/hyper-heuristic-dse-2.0/src_main/tools/default.cfg
-[ general_heuristic_run_info  27-05-2024 17:44:36  INFO     ]  Using config file: /home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/ga/Initial_Fitness_10BB_Traffic/1716497728/general.json
-[ general_heuristic_run_info  27-05-2024 17:44:36  INFO     ]  Loading config file: /home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/ga/Initial_Fitness_10BB_Traffic/1716497728/general.json
-[ general_heuristic_run_info  27-05-2024 17:44:37  INFO     ]  Default config file: /home/larry/hyper-heuristic-dse-2.0/src_main/tools/default.cfg
-[ general_heuristic_run_info  27-05-2024 17:44:37  INFO     ]  Using config file: /home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/pso/Initial_Fitness_10BB_Traffic/1715007178/general.json
-[ general_heuristic_run_info  27-05-2024 17:44:37  INFO     ]  Loading config file: /home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/pso/Initial_Fitness_10BB_Traffic/1715007178/general.json
-[ general_heuristic_run_info  27-05-2024 17:44:37  INFO     ]  Default config file: /home/larry/hyper-heuristic-dse-2.0/src_main/tools/default.cfg
-[ general_heuristic_run_info  27-05-2024 17:44:37  INFO     ]  Using config file: /home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/pso/Initial_Fitness_10BB_Traffic/1716414804/general.json
-[ general_heuristic_run_info  27-05-2024 17:44:37  INFO     ]  Loading config file: /home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/pso/Initial_Fitness_10BB_Traffic/1716414804/general.json

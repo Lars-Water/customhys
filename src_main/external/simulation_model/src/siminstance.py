@@ -103,7 +103,7 @@ class Siminstance:
             self.logger.info("Defaulting to: 'opp_makemake -f'")
             make_make_command += ["-f"]
 
-        self.logger.info("MakeMake command:\n"+ " ".join(make_make_command))
+        self.logger.debug("MakeMake command:\n"+ " ".join(make_make_command))
         return make_make_command
 
     def __create_omnet_make_command(self):
@@ -206,7 +206,7 @@ class Siminstance:
             ini = self.cnf.tryGet("omnet", "simulation", "ini")
             simulation_command += [os.path.join(self.path, ini)]
 
-        self.logger.info("Simulation command:\n"+ " ".join(simulation_command))
+        self.logger.debug("Simulation command:\n"+ " ".join(simulation_command))
         return simulation_command
 
 
@@ -291,8 +291,8 @@ class Siminstance:
             if (make_output.returncode == 0):
                 self.logger.info("Make execution was successfull")
             else:
-                self.logger.warn("Make execution was not successfull")
-                self.logger.warn(make_output)
+                self.logger.error("Make execution was not successfull")
+                self.logger.error(make_output)
                 raise Exception("Make execution was not successfull", make_output)
 
 
@@ -354,8 +354,8 @@ class Siminstance:
             if (simulation_output.returncode == 0):
                 self.logger.info("Simulation execution was successfull")
             else:
-                self.logger.warn("Simulation execution was not successfull")
-                self.logger.warn(simulation_output)
+                self.logger.error("Simulation execution was not successfull")
+                self.logger.error(simulation_output)
                 raise Exception("Simulation execution was not successfull",simulation_output)
 
         else:

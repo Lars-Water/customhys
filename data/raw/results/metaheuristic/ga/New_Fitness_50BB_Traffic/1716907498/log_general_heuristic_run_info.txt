@@ -1,6 +1,0 @@
-[ general_heuristic_run_info  28-05-2024 19:32:26  INFO     ]  Default config file: /home/larry/hyper-heuristic-dse-2.0/src_main/tools/default.cfg
-[ general_heuristic_run_info  28-05-2024 19:32:26  INFO     ]  Using config file: /home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/ga/New_Fitness_50BB_Traffic/1716907498/general.json
-[ general_heuristic_run_info  28-05-2024 19:32:26  INFO     ]  Loading config file: /home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/ga/New_Fitness_50BB_Traffic/1716907498/general.json
-[ general_heuristic_run_info  28-05-2024 19:32:29  INFO     ]  Default config file: /home/larry/hyper-heuristic-dse-2.0/src_main/tools/default.cfg
-[ general_heuristic_run_info  28-05-2024 19:32:29  INFO     ]  Using config file: /home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/pso/New_Fitness_50BB_Traffic/1716910206/general.json
-[ general_heuristic_run_info  28-05-2024 19:32:29  INFO     ]  Loading config file: /home/larry/hyper-heuristic-dse-2.0/data/raw/results/metaheuristic/pso/New_Fitness_50BB_Traffic/1716910206/general.json

@@ -4,6 +4,7 @@ import pandas as pd
 import math
 import re
 import customhys
+import sys
 
 import warnings
 import os
@@ -13,17 +14,19 @@ import argparse
 
 from src_main.tools.config_reader import Config
 import src_main.tools.coordinator as coordinator
-import src_main.models.model as model
 from src_main.data import collect_data
 import src_main.experiment_flows.experiment_1 as exp_1_flow
 import src_main.experiment_flows.experiment_2 as exp_2_flow
+import src_main.experiment_flows.experiment_asml as exp_asml_flow
 from src_main.visualization import visualization
 from src_main.tools import file_operations as fo
 from src_main.tools import component_config as cc
 
 from setuptools import setup, find_packages
+from pathlib import Path
 
-
+sys.path.insert(0, Path(__file__).parent.as_posix())
+sys.path.append("./src_main/external/simulation_model")
 
 def _determine_nr_backbones_from_filename(filename, regex_pattern):
     # Extract the number of backbone switches from the filename.
@@ -103,7 +106,7 @@ def quick_and_dirty_save_hh_positions_to_xlsx(positions_data, rescale=False):
     #     },
     #     "Mutation": {
     #         "Worst": [0.8780304846360898, -0.14801329468295543, 1.0, -1.0, 1.0, -0.20760664152155742, -0.8951827222199404, 1.0, -0.984147903039928, 0.5052307225405274, 1.0, 0.7786464267846626, -0.006065930295061457, 1.0, 0.6208766423201626, 0.2164402805520613, -1.0, 0.9878813808156709, 0.04195814581862991, 0.7073550515314794, -0.21287011254492025, -0.37768889236564823, -0.22003297222362278, 0.41833818796137506, 0.8823060731557683, -1.0, -0.5848192831050554, 1.0, -0.2561359834996587, 0.6960346585696137, 0.8804528465407852, -0.8603167955316208, 0.8204781437552305, 0.6752474775012427, 1.0, 0.6275423819653142, 0.5003755372381242, 0.3108594269415752, 1.0, 1.0, 0.765382366442193, 0.0981731051220682, -1.0, -0.9108737334386574, 1.0, 0.1308995922956561, 1.0, 0.5376809015014428, -0.4464633858023343],
-    #         "Best": [0.2157217896233122, 0.176161917180303, 0.22428213624462798, 0.26097361955998893, 0.13242016813744445, 0.29714647347870055, 0.26070003858194857, 0.3196619503960391, -0.006550178809794147, -0.4050617865524412, -0.19839901091449277, 0.15033326369428313, 0.4410518540070826, 0.1419747045355958, -0.33918087322837076, -0.37866783979222746, 0.35139493729358606, -0.06512893444272679, 0.4929665070648653, -0.32631485397910975, -0.2586680058335703, 0.36672089007117914, 0.15267407614569736, 0.04040558864838986, 0.17733627635259233, 0.31138192424564193, 0.11606148412806104, -0.20858192304033332, -0.4703803658788259, -0.038867514542623494, 0.3069319411036457, 0.021735986430112163, -0.0862773020165339, -0.16999683217497735, 0.2703109650075741, 0.3751748497839407, 0.05456819493753087, -0.2846079727797437, 0.13760517998407426, 0.42302287726118054, 0.33399182173675296, 0.3484579819323045, 0.3863687461900332, -0.43287427312381577, 0.09570411180960953, 0.10588584542002424, -0.28289634665104946, 0.10134087612190809, 0.016664389274043796]
+    #         "Best": [0.2157217896233122, 0.176161917180303, 0.22428213624462798, 0.26097361955998893, 0.13242016813744445, 0.29714647347870055, 0.26070003858194857, 0.3196619503960391, -0.006550178809794147, -0.4050617865524412, -0.19839901091449277, 0.15033326369428313, 0.4410518540070826, 0.1419747045355958, -0.33918087322837076, -0.37866783979222746, 0.35139493729358606, -0.06512893444272679, 0.4929665070648653, -0.32631485397910975, -0.2586680058335703, 0.36672089007117914, 0.15267407614569736, 0.04040558864838986, 0.17733627635259233, 0.31138192424564193, 0.11606148412806104, -0.20858192304033332, -0.4703803658788259, -0.038867514542623494, 0.3069319411036457, 0.021735986430112163, -0.0862773020165339, -0.16999683217497735, 0.2703109650075741, 0.3751748497839407, 0.05456819493753087, -0.2846079727797437, 0.13760517998407426, 0.42302287726118054, 0.33399182173675296, 0.3484579819323045, 0.3863687461900332, -0.43287427312381577, 0.09570411180960953, 0.10588584542002424, -0.28289634665104946, 0.10134087612190809, 0.016664 as logutil389274043796]
 
     #     },
     #     "Crossover": {
@@ -132,6 +135,21 @@ def quick_and_dirty_save_hh_positions_to_xlsx(positions_data, rescale=False):
     excel_filename = 'rescaled_positions.xlsx'
     positions_df.to_excel(excel_filename, index=False)
 
+
+def experiment_asml(base_path, coordinator_config_file_path):
+    # Set up the experiment_1 configuration object.
+    experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_asml/experiment_asml.json"))
+    experiment_1_log_path = os.path.join(base_path, "data/logs/experiments/experiment_asml")
+    os.makedirs(experiment_1_log_path, exist_ok=True)
+    config_manager_filename = f"experiment_asml_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    experiment_1_config = Config(experiment_1_config_file_path, Path(experiment_1_log_path), config_manager_filename)
+    # TODO: Change this naming flow, because it goes from main, to coordinator, to data collector.
+    nr_of_agents = experiment_1_config.tryGet("hh_parameters", "num_agents")
+    run_name = "experiment_asml"
+    coordinator_params = (base_path, coordinator_config_file_path, nr_of_agents, run_name)
+
+    # Run Experiment 1.
+    exp_asml_flow.run_experiment(experiment_1_config, coordinator_params)
 
 def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches):
     """
@@ -266,12 +284,13 @@ def create_ga_heuristic_space_lhs():
 '''
 def main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, hh_run_dirs_exp_1, hh_run_dirs_exp_2, parameter_tuning, design_space_plot, nr_of_backbone_switches):
     print("##### Customhys version:" + str(customhys.__version__))
-
     # Run the requested experiments.
     if experiment == '1':
         experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
     elif experiment == '2':
         experiment_2(base_path, coordinator_config_file_path)
+    elif experiment == 'asml':
+        experiment_asml(base_path, coordinator_config_file_path)
     elif experiment == 'all':
         experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
         experiment_2(base_path, coordinator_config_file_path)
@@ -321,7 +340,7 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, exp
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run the heuristic simulation workflow.")
-    parser.add_argument('--experiment', choices=['1', '2', 'all'], required=False, help='Choose which experiment to run')
+    parser.add_argument('--experiment', choices=['1', '2', 'asml', 'all'], required=False, help='Choose which experiment to run')
     parser.add_argument('--visualize', choices=['1', '2', 'all'], required=False, help='Choose which experiment to visualize')
     parser.add_argument('--metaheuristics', nargs='+', required=False, help='List of metaheuristics to visualize. Checks the results folder of experiment 2 for the singular metaheuristic runs.')
     parser.add_argument("--hh_run_dirs_exp_1", nargs='+', required=False, help="List of HH run directories for Experiment 1.")

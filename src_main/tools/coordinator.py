@@ -105,8 +105,15 @@ class HeuristicSimulationCoordinator:
         self.config = self.workflow_config.conf()
         self.workflow_config.write_conf(workflow_config_file)
 
+        self.logger.info("Define the paths for the simulation model results.")
+        self.results_path = self.conf.tryGet("results_path")
+
         self.logger.info("Setting up the Manager.")
-        self.manager = Manager(workflow_config_file, workflow_logs_folder) 
+        self.manager = Manager(
+            workflow_config_file, 
+            workflow_logs_folder, 
+            stats_file = os.path.join(self.results_path, self._run_name + "_stats.json")
+        ) 
 
 
         # Define variables for coordinator functionalities.
@@ -125,9 +132,6 @@ class HeuristicSimulationCoordinator:
         self.remove_design_point_configuration_dummy_path = self.conf.tryGet("coordinator_functionalities", "remove_design_point_configuration_dummy_path")
         self.remove_design_point_configuration_dummy_path_pattern = self.conf.tryGet("coordinator_functionalities", "remove_design_point_configuration_dummy_path_pattern") 
         self.remove_design_point_configuration_sims_path = self.conf.tryGet("coordinator_functionalities", "remove_design_point_configuration_sims_path")
-
-        self.logger.info("Define the paths for the simulation model results.")
-        self.results_path = self.conf.tryGet("results_path")
 
         # TODO: Move more functionalities to data collector.
         # TODO: Define config file with a distinct segment for data collector?
@@ -155,6 +159,7 @@ class HeuristicSimulationCoordinator:
         if not isinstance(run_name, str):
             raise ValueError("Run name must be a string.")
         self._run_name = run_name
+        self.manager.set_stats_file(os.path.join(self.results_path, self._run_name + "_stats.json")) 
         self.logger.info(f"Run name set to {self._run_name}")
 
 
@@ -271,7 +276,7 @@ class HeuristicSimulationCoordinator:
         Returns:
             The fitness value of the simulation run.
     '''
-    def simulation_run(self, fitfunc, config_values, file_name_fitness_values="fitness_values.json"):
+    def simulation_run(self, fitfunc, config_values, file_name_fitness_values="fitness_values.json", step_iteration_data={'step': -1, 'iteration': -1}):
 
         # Start timer for simulation run.
         start_time = time.time()
@@ -288,7 +293,7 @@ class HeuristicSimulationCoordinator:
                 self.generate_design_point(sim_id, agent_configuration)
 
             self.logger.info("Run the generated simulation instances.")
-            uids = self.run_multiple_simulation_configuration(sim_ids, file_name_fitness_values)
+            uids = self.run_multiple_simulation_configuration(sim_ids, file_name_fitness_values, step_iteration_data = step_iteration_data)
 
             self.logger.info("Collect the simulation stats from the simulation instances runs.\n"+str(uids.keys()))
             simulation_metrics = self.obtain_simulation_stats(uids)
@@ -339,7 +344,7 @@ class HeuristicSimulationCoordinator:
             self.generate_design_point(sim_id, configurations)
 
             # Run the simulation model.
-            uid = self.run_single_simulation_configuration()
+            uid = self.run_single_simulation_configuration(step_iteration_data = step_iteration_data)
 
             # Collect the simulation stats from the simulation run.
             simulation_metrics = self.obtain_simulation_stats(uid)
@@ -538,7 +543,7 @@ class HeuristicSimulationCoordinator:
         return fitness_values
 
 
-    def run_single_simulation_configuration(self):
+    def run_single_simulation_configuration(self, step_iteration_data={'step': -2, 'iteration': -2}):
         """
         Runs a single simulation configuration.
 
@@ -558,7 +563,7 @@ class HeuristicSimulationCoordinator:
             self.uids.append(uid)
 
         # Run the configured simulation model.
-        self.manager.enqueue_tasks(sim_instances)
+        self.manager.enqueue_tasks(sim_instances, metadata=step_iteration_data)
 
         # TEMP: Check uid handling
         evaluated_sim_instances = self.manager.evaluate_all()
@@ -573,7 +578,7 @@ class HeuristicSimulationCoordinator:
         return {uid: 0}
 
 
-    def run_multiple_simulation_configuration(self, sim_ids, file_name_fitness_values="fitness_values.json"):
+    def run_multiple_simulation_configuration(self, sim_ids, file_name_fitness_values="fitness_values.json", step_iteration_data={'step': -1, 'iteration': -1}):
         """
         Run multiple simulation configurations.
 
@@ -598,7 +603,7 @@ class HeuristicSimulationCoordinator:
         uids = {sim_instance.uid: id for id, sim_instance in enumerate(sim_instances)}
 
         # Run the configured simulation model.
-        self.manager.enqueue_tasks(sim_instances, queue_id=queue_id)
+        self.manager.enqueue_tasks(sim_instances, queue_id=queue_id, metadata=step_iteration_data)
 
         self.logger.debug(f"(Queue: {queue_id}) Evaluating simulation instances: {uids} with sim ids: {sim_ids}")
 
@@ -683,7 +688,7 @@ class HeuristicSimulationCoordinator:
                 sim_id_boundaries[parameter][boundary] = sim_id
 
         self.logger.info("Evaluating the generated simulation instances.")
-        uids = self.run_multiple_simulation_configuration(sim_ids)
+        uids = self.run_multiple_simulation_configuration(sim_ids, step_iteration_data = ["manual_normalization"])
 
         for parameter, boundaries_local in boundaries.items():
             for boundary in boundaries_local:
@@ -775,7 +780,7 @@ class HeuristicSimulationCoordinator:
                 )
 
         self.logger.info("Evaluating the generated simulation instances.")
-        uids = self.run_multiple_simulation_configuration(sim_ids)
+        uids = self.run_multiple_simulation_configuration(sim_ids, step_iteration_data = ["parameter_tuning_workflow"])
 
         self.logger.info("Saving the parameter tuning results for the simulation instances.")
         for sim_uid in uids.keys():
@@ -873,7 +878,7 @@ class HeuristicSimulationCoordinator:
             )
 
         self.logger.info("Evaluating every possible design point.")
-        uids = self.run_multiple_simulation_configuration(sim_ids)
+        uids = self.run_multiple_simulation_configuration(sim_ids, step_iteration_data = ["determine_design_space"])
 
         self.determine_design_point_metrics(uids)
 

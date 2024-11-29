@@ -1,0 +1,32 @@
+{
+    "hh_parameters": {
+        "cardinality": 1,
+        "cardinality_min": 1,
+        "num_iterations": 20,
+        "num_agents": 64,
+        "as_mh": true,
+        "num_replicas": 3,
+        "num_steps": 30,
+        "stagnation_percentage": 0.37,
+        "max_temperature": 100,
+        "min_temperature": 1e-6,
+        "cooling_rate": 1e-3,
+        "temperature_scheme": "fast",
+        "acceptance_scheme": "exponential",
+        "allow_weight_matrix": true,
+        "trial_overflow": false,
+        "learnt_dataset": null,
+        "repeat_operators": false,
+        "verbose": true,
+        "verbose_mh": false,
+        "learning_portion": 0.37,
+        "solver": "static"
+    },
+    "pass_finalised_positions": false,
+    "search_operator_space_paths": [
+        "config/experiment_1/search_operator_space/swarm_dynamic.txt"
+    ],
+    "search_operator_space_names": [
+        "swarm_dynamic"
+    ]
+}

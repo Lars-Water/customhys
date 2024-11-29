@@ -1,3 +1,0 @@
-[ config_sim_cache  27-02-2024 23:38:44  INFO     ]  Default config file: /home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/src/utils/default.cfg
-[ config_sim_cache  27-02-2024 23:38:44  INFO     ]  Using config file: /home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20240227_233842/config.json
-[ config_sim_cache  27-02-2024 23:38:44  INFO     ]  Loading config file: /home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/experiments/data/campaign_custom/n1_w1_s1/20240227_233842/config.json

@@ -1,13 +1,19 @@
 import time
+import os
+import json
 
 class Stats:
     stats = None
 
-    def __init__(self, pre_stats=None):
+    def __init__(self, pre_stats=None, file_path=None):
         if pre_stats and isinstance(pre_stats, dict):
             self.stats = pre_stats
         else:
             self.stats = {}
+        self.file_path = file_path
+
+    def set_file_path(self, file_path):
+        self.file_path = file_path
 
     @staticmethod
     def merge_dicts(dict1, dict2, path=None):
@@ -92,3 +98,16 @@ class Stats:
 
     def get_stats_dict(self):
         return self.stats
+
+    def write_stats_to_file(self, file_path=None):
+        if file_path is None:
+            file_path = self.file_path
+        elif self.file_path is None:
+            self.file_path = file_path
+        else:
+            raise ValueError("No file path set for writing statistic file.")
+        os.makedirs(os.path.dirname(file_path), exist_ok=True)
+        stats_file = self.stats
+        stats_file["time_of_save"] = time.time()
+        with open(file_path, "w",  encoding='utf-8') as json_file:
+            json.dump(self.stats, json_file)

@@ -150,4 +150,37 @@ def create_sim_inet_lans_dummy_parallel(workflow_config, dummy_sim_path, id, ine
                  os.path.join(inet_base, "showcases"), os.path.join(inet_base, "tests", "validation"),
                  os.path.join(inet_base, "tests", "networks"), os.path.join(inet_base, "tutorials")]
 
+    print(dummy_sim_path, dummy_sim)
+
+    return create_sim_without_duplicating(workflow_config, id, dummy_sim_path, dummy_sim, config, time_limit=None, ini=ini, libraries=libraries, ned_paths=ned_paths)
+
+
+def create_sim_asml(workflow_config, dummy_sim_path, id, inet_base):
+    dummy_sim = "custom_faezeh"
+    config = "General"
+    ini = "omnetpp.ini"
+
+    libraries = []
+    ned_paths = []
+    # libraries = [os.path.join(inet_base, "src", "INET")]
+
+    # ned_paths = [os.path.join(inet_base, "src"), os.path.join(inet_base, "examples"),
+    #              os.path.join(inet_base, "showcases"), os.path.join(inet_base, "tests", "validation"),
+    #              os.path.join(inet_base, "tests", "networks"), os.path.join(inet_base, "tutorials")]
+
+    return create_sim_without_duplicating(workflow_config, id, dummy_sim_path, dummy_sim, config, time_limit=None, ini=ini, libraries=libraries, ned_paths=ned_paths)
+
+def create_sim_asml_parallel(workflow_config, dummy_sim_path, id, inet_base):
+    dummy_sim = "custom_faezeh" + f"_{str(id)}"
+    config = "General"
+    ini = "omnetpp.ini"
+
+    libraries = []
+    ned_paths = []
+    # libraries = [os.path.join(inet_base, "src", "INET")]
+
+    # ned_paths = [os.path.join(inet_base, "src"), os.path.join(inet_base, "examples"),
+    #              os.path.join(inet_base, "showcases"), os.path.join(inet_base, "tests", "validation"),
+    #              os.path.join(inet_base, "tests", "networks"), os.path.join(inet_base, "tutorials")]
+
     return create_sim_without_duplicating(workflow_config, id, dummy_sim_path, dummy_sim, config, time_limit=None, ini=ini, libraries=libraries, ned_paths=ned_paths)
