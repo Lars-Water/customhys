@@ -293,7 +293,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
                 sim_ids.append(sim_id)
                 sim_id_boundaries[parameter][boundary] = sim_id
         self.logger.info("Evaluating the generated simulation instances.")
-        uids = self.run_multiple_simulation_configuration(sim_ids)
+        uids = self.run_multiple_simulation_configuration(sim_ids, step_iteration_data = ["manual_normalization"])
 
         for parameter, boundaries_local in boundaries.items():
             for boundary in boundaries_local["values"]:

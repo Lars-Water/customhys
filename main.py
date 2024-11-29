@@ -14,7 +14,6 @@ import argparse
 
 from src_main.tools.config_reader import Config
 import src_main.tools.coordinator as coordinator
-import src_main.models.model as model
 from src_main.data import collect_data
 import src_main.experiment_flows.experiment_1 as exp_1_flow
 import src_main.experiment_flows.experiment_2 as exp_2_flow

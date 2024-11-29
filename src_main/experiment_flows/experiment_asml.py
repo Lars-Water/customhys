@@ -95,7 +95,8 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
 
     for rep in range(num_replicas):
         probs[rep] = component_config.create_problem_instanceASML(template_ini_file_path, max_wfpm_runtime, min_wfpm_runtime, min_cost, max_cost, heur_sim_coordinator.simulation_run, agents_fitness_values_path)
-        probs[rep]['set_file_name_fitness_values']("fitness_values_"+str(search_operator_space_name)+"_replica_"+str(rep)+".json")
+        probs[rep]['set_file_name_fitness_values']("fitness_values_"+str(search_operator_space_name)+"_replica_"+str(rep)+".json")        
+        probs[rep]['set_search_operator_space_name'](str(search_operator_space_name))
 
     hyp = hh.Hyperheuristic(
         heuristic_space=heuristic_space,

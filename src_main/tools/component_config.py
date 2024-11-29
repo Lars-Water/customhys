@@ -2,7 +2,7 @@ import os
 from pathlib import Path
 from scipy.stats import qmc
 
-from src_main.models import model, modelASML
+from src_main.models import modelINET, modelASML
 from src_main.tools.config_reader import Config
 import numpy as np
 
@@ -200,7 +200,7 @@ def create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate,
     max_range = np.array([subnet_structure['boundaries'][key][1]
                           for key in subnet_structure['boundaries']])
     
-    problem_instance = model.instance(
+    problem_instance = model.instanceINET(
         nr_of_backbone_switches,
         min_range,
         max_range,

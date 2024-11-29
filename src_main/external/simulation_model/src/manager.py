@@ -21,8 +21,11 @@ class Manager:
     start_time = None
     stats = None
 
-    def __init__(self, config_path, logs_path):
-        self.stats = Stats()
+    def __init__(self, config_path, logs_path, stats_file=None):
+        if stats_file is None:
+            stats_file = os.path.join(logs_path, "statistics.json")
+        self.stats_file = stats_file
+        self.stats = Stats(file_path=self.stats_file)
         self.stats.record_time_stat("general", "environment_start")
         self.start_time = time.time()
         os.makedirs(logs_path, exist_ok=True)
@@ -31,6 +34,7 @@ class Manager:
         self.logger.info("Reading in config file: {}".format(config_path))
         self.cnf = Config(Path(config_path), Path(logs_path), "config_manager")
         self.num_task_completed = 0
+
 
         self.logger.info("Creating design point queue(s)")
         self.design_point_queues = {}
@@ -63,6 +67,10 @@ class Manager:
         self.logger.info("Creating sim cache")
         self.design_point_cache = DesignPointCache(config_path, logs_path)
 
+    def set_stats_file(self, stats_file):
+        self.stats_file = stats_file
+        self.stats.set_file_path(self.stats_file)
+        
     def __has_queue(self, queue_id):
         return queue_id in self.design_point_queues.keys()
 
@@ -137,7 +145,7 @@ class Manager:
     def get_runtime_stats(self):
         return self.stats.get_stats_dict()
 
-    def enqueue_tasks(self, sim_instances, queue_id=None):
+    def enqueue_tasks(self, sim_instances, queue_id=None, metadata=None):
         self.logger.info("Manager received sim instances ({})".format(len(sim_instances)))
         self.stats.add_stat(len(sim_instances), "general", "num_dp")
         sim_instances = self.__set_sim_instances_time_stat(sim_instances, "general", "environment_entry")
@@ -152,6 +160,13 @@ class Manager:
         self.stats.add_stat(len(sim_instances), "general", "num_dp_unique")
         self.stats.add_stat(len(cached_sim_instances), "general", "num_dp_cached")
         self.logger.warn("num_dp_cached+=" + str(len(cached_sim_instances))+" (total: "+str(self.stats.get_stat("general", "num_dp_cached"))+")")
+        
+        if metadata is not None:
+            if type(metadata) == dict:
+                metadata = self._combineDictToList(metadata)
+            if type(metadata) == list:
+                self.stats.add_stat(len(cached_sim_instances), "metadata", *metadata, "num_dp_cached")
+                self.stats.add_stat(len(sim_instances), "metadata", *metadata, "num_dp_unique")
 
         if (len(cached_sim_instances) > 0):
             design_point_queue.cached_insert_list(cached_sim_instances)
@@ -166,6 +181,8 @@ class Manager:
             self.design_point_cache.set_sims_waiting(sim_instances)
         else:
             self.logger.info("No sim instances to enqueue")
+
+        self.stats.write_stats_to_file()
 
     # Does not wait for results
     def submit_queue_all(self, queue_id):
@@ -354,5 +371,24 @@ class Manager:
         print("Throughput unique design points: {:.3f} evaluations per second".format(self.stats.get_stat("general", "num_dp_finished")/(end_time - self.start_time)))
         print("Shutdown at {}".format(time.strftime("%H:%M:%S %d/%m/%Y", time.gmtime(end_time))))
 
+        self.stats.write_stats_to_file()
+    
+    def _combineDictToList(self, metadata, delimiter="_", oldkey=None):
+        ret_list = []
+        for key in metadata.keys():
+            val = metadata[key]
+            if oldkey is not None:
+                key = str(oldkey)+delimiter+str(key)
+            if type(val) == dict:
+                val = self._combineDictToList(val, delimiter, key)
+                ret_list += val
+            elif type(val) == list:
+                val = [str(key)+delimiter+str(x) for x in val]
+                ret_list += val
+            elif val == None:
+                ret_list.append(str(key))
+            else:
+                ret_list.append(str(key)+delimiter+str(val))
+        return ret_list
 
 # TODO: add dequeue, wait_for, get_results, etc. functions
