@@ -55,6 +55,7 @@ class Metaheuristic:
         # Read the problem function
         self.finalisation_conditions = None
         self._problem_function = problem['function']
+        self.problem = problem
 
         # NOTE: CUSTOM BY LARS - PASSING THE PREVIOUS STEP FINALISED AGENT POSITIONS IF PROVIDED
         # Create population
@@ -88,7 +89,7 @@ class Metaheuristic:
         self.pass_finalised_positions = pass_finalised_positions
 
 
-    def apply_initialiser(self, file_label=None):
+    def apply_initialiser(self, hh_step=None, file_label=None):
         """
         :parameter str file_label: Optional
             NOTE: CUSTOM CHANGE BY LARS - File label to use for saving design point data.
@@ -101,6 +102,7 @@ class Metaheuristic:
         self.pop.initialise_positions(self.initial_scheme, file_label)  # Default: random
 
         # Evaluate fitness values
+        self.problem['set_step_iteration_data'](hh_step, self.pop.iteration)
         self.pop.evaluate_fitness(self._problem_function)
 
         # Update population, particular, and global
@@ -108,7 +110,7 @@ class Metaheuristic:
         self.pop.update_positions('particular', 'all')
         self.pop.update_positions('global', 'greedy')
 
-    def apply_search_operator(self, perturbator, selector):
+    def apply_search_operator(self, perturbator, selector, hh_step=None):
         # Split operator
         operator_name, operator_params = perturbator.split('(')
 
@@ -116,6 +118,7 @@ class Metaheuristic:
         exec('Operators.' + operator_name + '(self.pop,' + operator_params)
 
         # Evaluate fitness values
+        self.problem['set_step_iteration_data'](hh_step, self.pop.iteration)
         self.pop.evaluate_fitness(self._problem_function)
 
         # Update population
@@ -140,7 +143,7 @@ class Metaheuristic:
             raise Operators.OperatorsError("There are not perturbator or selector!")
 
         # Apply initialiser / Random Sampling
-        self.apply_initialiser(file_label)
+        self.apply_initialiser(hh_step=hh_step, file_label =file_label)
 
         # TODO: Save design points in CSV file.
 
@@ -163,7 +166,7 @@ class Metaheuristic:
             for perturbator, selector in zip(self.perturbators, self.selectors):
 
                 # Apply the corresponding search operator
-                self.apply_search_operator(perturbator, selector)
+                self.apply_search_operator(perturbator, selector, hh_step=hh_step)
 
                 # Update historical variables
                 self.update_historicals()
