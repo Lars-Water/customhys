@@ -51,6 +51,7 @@
         "simulation_model_params": [
             {
                 "param_name": "datarate",
+                "ignore_normalization": false,
                 "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.datarate",
                 "values": [
                     "10Mbps",
@@ -61,6 +62,7 @@
             },
             {
                 "param_name": "cost",
+                "ignore_normalization": false,
                 "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.cost",
                 "values": [
                     1,
@@ -71,6 +73,7 @@
             },
             {
                 "param_name": "cable_colour",
+                "ignore_normalization": true,
                 "configuration_pattern": "**.switchBB[__switch_index].ethg$o[__gate_index].channel.display-string",
                 "values": [
                     "ls=red,3,s;",

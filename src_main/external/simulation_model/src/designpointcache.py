@@ -42,7 +42,7 @@ class DesignPointCache:
 
         self.stats = Stats()
 
-        self.logger = logger("sim_cache", Path(self.logs_path))
+        self.logger = logger("sim_cache", Path(self.logs_path), disabled=False)
 
         self.logger.info("Reading in config file: {}".format(config_path))
         self.cnf = Config(Path(config_path), Path(self.logs_path), "config_sim_cache")

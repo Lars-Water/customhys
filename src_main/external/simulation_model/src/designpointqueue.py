@@ -28,7 +28,7 @@ class DesignPointQueue:
         self.logs_path = logs_path
         os.makedirs(self.logs_path, exist_ok=True)
 
-        self.logger = logger("design_point_queue_{}".format(self.id), Path(self.logs_path))
+        self.logger = logger("design_point_queue_{}".format(self.id), Path(self.logs_path), disabled=False)
 
         self.logger.info("ID of design point queue: {}".format(self.id))
 

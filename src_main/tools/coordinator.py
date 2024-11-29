@@ -648,9 +648,9 @@ class HeuristicSimulationCoordinator:
         # Determine the minimal and maximal parameter values for the simulation model parameters.
         simulation_model_params = self.conf.tryGet("simulation_model", "simulation_model_params")
         boundaries = {}
-        for simulation_model_param in simulation_model_params:
-            parameter_name = simulation_model_param['param_name']
-            if parameter_name != "cable_colour":
+        for ids, simulation_model_param in enumerate(simulation_model_params):
+            ignore_normalization = simulation_model_param['ignore_normalization']
+            if not ignore_normalization:
                 boundaries[simulation_model_param['param_name']] = {
                     "max": simulation_model_param['values'][-1],
                     "min": simulation_model_param['values'][0]

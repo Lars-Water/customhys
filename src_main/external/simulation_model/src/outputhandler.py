@@ -23,7 +23,7 @@ class OutputHandler:
 
         self.stats = Stats()
 
-        self.logger = logger("output_handler", Path(self.logs_path))
+        self.logger = logger("output_handler", Path(self.logs_path), disabled=False)
 
         self.logger.info("Reading in config file: {}".format(self.config_path))
         self.cnf = Config(Path(self.config_path), Path(self.logs_path), "config_output_handler")
