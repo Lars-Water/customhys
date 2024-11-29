@@ -15,71 +15,15 @@ from sklearn.pipeline import make_pipeline
 from pathlib import Path
 import matplotlib.pyplot as plt
 
+from visualization_base import visuBase
 
-class visuParetoSet:
+
+
+class visuParetoSet(visuBase):
     def __init__(self):
-        self.df = None
-        self.rawdf = None
-    
+        super().__init__()
 
-    def extractParetoset(self, 
-                         file_path, 
-                         axis_names, 
-                         index_col=None, fitness_col="Fitness", 
-                         min_fitness_value=inf, 
-                         max_number_design_points=inf, max_perc_design_points=1.0,
-                         unifiyFitnessValues=False
-        ):
-        self.axis_names = axis_names
-        self.index_col = index_col
-        rawdf = pd.read_csv(file_path)
-        rawdf = rawdf.dropna(subset=axis_names)
-        rawdf['amount'] = 1
-        alldp = len(rawdf.index)
-
-        info = []
-
-        if index_col is not None:
-            rawdf['index_dupl'] = rawdf[index_col]
-
-        if unifiyFitnessValues:
-            aggregation_functions = {
-                'amount': 'count',
-                index_col: tuple,
-                'index_dupl': 'first'
-            }
-            for ax in axis_names:
-                aggregation_functions[ax] =  'first'
-            rawdf = rawdf.groupby(rawdf[fitness_col]).aggregate(aggregation_functions).reset_index()
-        
-        if max_perc_design_points != 1.0 or max_number_design_points != inf:
-            max_perc_design_points = min(max_perc_design_points, 1.)
-            max_perc_design_points = max(max_perc_design_points, 0.)
-            max_perc_design_points_calc = math.ceil(len(rawdf.index) * max_perc_design_points)
-            rawdf = rawdf.sort_values(by=fitness_col).iloc[:min(len(rawdf.index),max_number_design_points, max_perc_design_points_calc)]
-            info.append(f"{min(len(rawdf.index),max_number_design_points, max_perc_design_points_calc)}/{alldp} preselected DPs")
-
-        if min_fitness_value != inf:
-            rawdf = rawdf[rawdf[fitness_col] <= min_fitness_value]
-            info.append(f"Min Fitness: {min_fitness_value}")        
-        
-        df = pd.DataFrame({
-            axis_names[0]: rawdf[axis_names[0]].to_numpy(),
-            axis_names[1]: rawdf[axis_names[1]].to_numpy()
-        })
-        if index_col is not None:
-            if unifiyFitnessValues:
-                rawdf = rawdf.rename(columns={index_col: f'{index_col}_grouped', 'index_dupl': index_col})
-            else:
-                rawdf = rawdf.drop(columns=['index_dupl'])
-            df[index_col] = rawdf[index_col].to_numpy()
-            rawdf = rawdf.set_index(index_col)
-            df = df.set_index(index_col)
-
-        self.setParetoset(df, rawdf=rawdf)
-        return "(" + ", ".join(info) + ")"
-
-    def setParetoset(self, df, sense=["min", "min"], rawdf=None):
+    def setData(self, df, sense=["min", "min"], rawdf=None):
         self.df = df
         self.rawdf = rawdf
         mask = paretoset(self.df, sense=sense)
@@ -94,27 +38,13 @@ class visuParetoSet:
              x_axis_name=None, y_axis_name=None, 
              figsize=(6, 4), regression_Line=False,
              csv_all_filepath = None,
-             csv_efficient_filepath = None,
+             csv_efficient_filepath = None, copy_efficient_solution_path_dir = None,
              info = None
         ):
-        if self.axis_names and x_axis_name is None:
-            x_axis_name = self.axis_names[0]
-        if self.axis_names and y_axis_name is None:
-            y_axis_name = self.axis_names[1]
-        if not self.axis_names and (y_axis_name is None or x_axis_name is None):
-            raise ValueError("Global axis_names or x_axis_name/y_axis_name has not been set.")
-        
-        if label_x is None:
-            label_x = str(x_axis_name)
-        if label_y is None:
-            label_y = str(y_axis_name)
-             
-        plt.figure(figsize=figsize)
-        plt.rc('text', usetex=True)
-        title_tex = '{\\fontsize{20pt}{3em}\\selectfont{}'+title+'}\n{\\fontsize{12pt}{3em}\\selectfont{}Best '+str(len(self.df.index))+' Design Points}'
-        if info is not None:
-            title_tex += ' \n{\\fontsize{8pt}{3em}\\selectfont{}'+str(info)+'}'
-        plt.title(r''+title_tex)
+
+        plt, x_axis_name, y_axis_name = self._plt(title, label_x, label_y, x_axis_name, y_axis_name, figsize, info)
+ 
+       
         # plt.title(f"\n{len(self.df.index)} DP",  fontsize='small')
 
         plt.scatter(
@@ -153,36 +83,38 @@ class visuParetoSet:
 
             )
 
-        plt.legend()
-        plt.xlabel(label_x)
-        plt.ylabel(label_y)
-        plt.grid(True, alpha=0.5, ls="--", zorder=0)
+
         plt.tight_layout()
+        plt.legend()
         plt.savefig(filepath, dpi=150)
 
-        if csv_all_filepath is not None:
-            if self.rawdf is not None:
-                self.rawdf.filter(items=list(self.df.index.values), axis=0) \
-                          .to_csv(csv_all_filepath, index=True, index_label=self.index_col)
-            else:
-                self.df.to_csv(csv_all_filepath, index=True)
+        path_efficient_solutions = os.path.join(os.path.dirname(filepath), "efficient_solutions")
+        if copy_efficient_solution_path_dir is not None:
+            self.copySimulationsFiles(
+                list(self.df.index.values), 
+                copy_efficient_solution_path_dir, 
+                path_efficient_solutions
+            )
 
-        if csv_efficient_filepath is not None:
-            if self.rawdf is not None:
-                self.rawdf.filter(items=list(self.df_paretoset.index.values), axis=0) \
-                          .to_csv(csv_efficient_filepath, index=True, index_label=self.index_col)
-            else:
-                self.df_paretoset.to_csv(csv_efficient_filepath, index=True)
+        if csv_efficient_filepath is not None or copy_efficient_solution_path_dir is not None:
+            path = csv_efficient_filepath 
+            if csv_efficient_filepath is None:
+                path = path_efficient_solutions
+            self.exportDataToCSV(path, self.df_paretoset)
+
+        if csv_all_filepath is not None:
+            self.exportDataToCSV(csv_all_filepath, self.df)
+
 
 if __name__ == "__main__":
     ps = visuParetoSet()
 
-    info = ps.extractParetoset(
-        "/home/herget/UvA-git/hh_local/design_point_metrics_ASML_20241127_113720.csv", 
+    info = ps.extractData(
+        "/home/herget/UvA-git/hh_local/design_point_metrics_ASML_20241127_193140.csv", 
         ["wfpm", "cost"],
         # max_number_design_points = 100,
-        max_perc_design_points = 0.5,
-        min_fitness_value = 0.3,
+        # max_perc_design_points = 0.25,d
+        #min_fitness_value = 0.2,
         unifiyFitnessValues = False,
         index_col="SimulationID"
     )
@@ -191,5 +123,6 @@ if __name__ == "__main__":
         "/home/herget/UvA-git/hh_local/pareto_front.png", 
         regression_Line=False,
         # csv_efficient_filepath="/home/herget/UvA-git/hh_local/efficient.csv"
-        info = info
+        info = info,
+        # copy_efficient_solution_path_dir="/home/herget/UvA-git/hh_local/experiments_asml/data/campaign_asml/n1_w2_s2/20241127_191153/results"
     )

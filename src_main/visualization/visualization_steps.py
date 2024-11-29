@@ -6,7 +6,7 @@ from matplotlib import axis
 import numpy as np
 import pandas as pd
 import math 
-import datetime
+from datetime import datetime
 import scipy.stats as st
 import random
 import matplotlib.colors as mcolors
@@ -30,6 +30,7 @@ class visuSteps:
         else:
             self.result_dir = result_dir
         self.conf = self.getConfig()
+        print(self.conf["data"])
     
     def getConfig(self):
         filepath = Path(os.path.join(self.directory_path, "config.json"))
@@ -56,6 +57,7 @@ class visuSteps:
                         "\nSteps: "+str(data["paramaters"]["num_steps"]) + \
                         " | Iterations: "+str(data["paramaters"]["num_iterations"]) + \
                         " | Agents: "+str(data["paramaters"]["num_agents"]) + \
+                 
                         " | Replicas: "+str(data["paramaters"]["num_replicas"]) 
             }
     def get_statistics(self, raw_data):
@@ -77,7 +79,7 @@ class visuSteps:
         
     def plot_hh_multiplot(self):
         all_historical_fitness = []
-        mh = self.conf["data"]["search_operator_space_name"]
+        mh = self.conf["data"]["file_details"]["search_operator_space_name"]
 
         # List all files in the directory
         for filename in os.listdir(self.directory_path):
@@ -85,31 +87,34 @@ class visuSteps:
             file_path = os.path.join(self.directory_path, filename)
 
             # Check if the file is a JSON file
-            if filename.endswith('.json') and os.path.isfile(file_path) and not filename.endswith('config.json'):
+            if filename.endswith('.json') and os.path.isfile(file_path) and not filename.endswith('config.json') and not filename.endswith("solutions.json"):
                 with open(file_path, 'r', encoding='utf-8') as json_file:
                     try:
                         # Load JSON content
                         data = json.load(json_file)
                         rep_values = {}
-                        for replica in data['details']['historical']:
-                            # print(replica['fitness'])
-                            for i in range(len(replica['fitness'])):
-                                if not i in rep_values:
-                                    rep_values[i] = []
-                                rep_values[i].append(replica['fitness'][i])
-                            i_rap = len(replica['fitness'])
-                        historical_values_stats = {
-                            "Med": [],
-                            "Min": [],
-                            "Max": []
-                        }
-                        for i in range(i_rap):
-                            stats =  self.get_statistics(rep_values[i])
-                            historical_values_stats["Med"].append(stats["Med"])
-                            historical_values_stats["Min"].append(stats["Med"]-(stats["IQR"]/2))
-                            historical_values_stats["Max"].append(stats["Med"]+(stats["IQR"]/2))
-                        historical_fitness = historical_values_stats
-                        all_historical_fitness.append(historical_fitness)
+                        print(data)
+                        if type(data["candidate"]['details']) == dict:
+                            for replica in data["candidate"]['details']['historical']:
+                                # print(replica['fitness'])
+                                for i in range(len(replica['fitness'])):
+                                    if not i in rep_values:
+                                        rep_values[i] = []
+                                    rep_values[i].append(replica['fitness'][i])
+                                i_rap = len(replica['fitness'])
+
+                            historical_values_stats = {
+                                "Med": [],
+                                "Min": [],
+                                "Max": []
+                            }
+                            for i in range(i_rap):
+                                stats =  self.get_statistics(rep_values[i])
+                                historical_values_stats["Med"].append(stats["Med"])
+                                historical_values_stats["Min"].append(stats["Med"]-(stats["IQR"]/2))
+                                historical_values_stats["Max"].append(stats["Med"]+(stats["IQR"]/2))
+                            historical_fitness = historical_values_stats
+                            all_historical_fitness.append(historical_fitness)
                     except json.JSONDecodeError as e:
                         print(f"Error reading {file_path}: {e}")
 
@@ -153,12 +158,12 @@ class visuSteps:
         print(f"plot_hh_multiplot: Plot saved as {plot_file_path}")
     
     def plot_hh_boxplot(self):
-        mh = self.conf["data"]["search_operator_space_name"]
+        mh = self.conf["data"]["file_details"]["search_operator_space_name"]
 
         num_files = 0
         for filename in os.listdir(self.directory_path):
             file_path = os.path.join(self.directory_path, filename)
-            if filename.endswith('.json') and os.path.isfile(file_path) and not filename.endswith('config.json'):
+            if filename.endswith('.json') and os.path.isfile(file_path) and not filename.endswith('config.json') and not filename.endswith("solutions.json"):
                 num_files += 1
 
         fig, axs = plt.subplots(num_files, 1, figsize=(10, 6*num_files))
@@ -171,29 +176,32 @@ class visuSteps:
             file_path = os.path.join(self.directory_path, filename)
 
             # Check if the file is a JSON file
-            if filename.endswith('.json') and os.path.isfile(file_path) and not filename.endswith('config.json'):
+            if filename.endswith('.json') and os.path.isfile(file_path) and not filename.endswith('config.json') and not filename.endswith("solutions.json"):
                 with open(file_path, 'r', encoding='utf-8') as json_file:
                     try:
                         # Load JSON content
                         data = json.load(json_file)
                         iteration_value_step = {}
-                        for replica in data['details']['historical']:
-                            for i in range(len(replica['fitness'])):
-                                if not i in iteration_value_step:
-                                    iteration_value_step[i] = []
-                                iteration_value_step[i].append(replica['fitness'][i])
-                        iteration_value_step_list.append(list(iteration_value_step.values()))
-                        i_step +=1
+                        if type(data["candidate"]['details']) == dict:
+                            for replica in data["candidate"]['details']['historical']:
+                                for i in range(len(replica['fitness'])):
+                                    if not i in iteration_value_step:
+                                        iteration_value_step[i] = []
+                                    iteration_value_step[i].append(replica['fitness'][i])
+                            iteration_value_step_list.append(list(iteration_value_step.values()))
+                            i_step +=1
                         
                     except json.JSONDecodeError as e:
                         print(f"Error reading {file_path}: {e}")
 
     # Sort colors by hue, saturation, value and name.
         result = []
+        print(iteration_value_step_list)
         for inner_list in iteration_value_step_list:
             for inner in inner_list:
                 result.append(min(inner))
                 result.append(max(inner))
+        print(result)
         ylim = [min(result), max(result)]
 
 
@@ -216,7 +224,7 @@ class visuSteps:
 
     def plot_hh_boxplot_all(self):
         iteration_values = {}
-        mh = self.conf["data"]["search_operator_space_name"]
+        mh = self.conf["data"]["file_details"]["search_operator_space_name"]
 
         # List all files in the directory
         for filename in os.listdir(self.directory_path):
@@ -224,16 +232,17 @@ class visuSteps:
             file_path = os.path.join(self.directory_path, filename)
 
             # Check if the file is a JSON file
-            if filename.endswith('.json') and os.path.isfile(file_path) and not filename.endswith('config.json'):
+            if filename.endswith('.json') and os.path.isfile(file_path) and not filename.endswith('config.json') and not filename.endswith("solutions.json"):
                 with open(file_path, 'r', encoding='utf-8') as json_file:
                     try:
                         # Load JSON content
                         data = json.load(json_file)
-                        for replica in data['details']['historical']:
-                            for i in range(len(replica['fitness'])):
-                                if not i in iteration_values:
-                                    iteration_values[i] = []
-                                iteration_values[i].append(replica['fitness'][i])
+                        if type(data["candidate"]['details']) == dict:
+                            for replica in data["candidate"]['details']['historical']:
+                                for i in range(len(replica['fitness'])):
+                                    if not i in iteration_values:
+                                        iteration_values[i] = []
+                                    iteration_values[i].append(replica['fitness'][i])
                     except json.JSONDecodeError as e:
                         print(f"Error reading {file_path}: {e}")
 
@@ -263,6 +272,6 @@ class visuSteps:
 
 
 if __name__ == "__main__":
-    ps = visuSteps("", "")
+    ps = visuSteps("/home/herget/UvA-git/hh_local/ASML-Faezeh_experiment_asml_firefly_dynamic_1732732391_20_iterations_30_steps_1732732391", "/home/herget/UvA-git/hh_local/ASML-Faezeh_experiment_asml_firefly_dynamic_1732732391_20_iterations_30_steps_1732732391")
 
     ps.plot()
