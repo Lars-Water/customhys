@@ -2,11 +2,11 @@
     "hh_parameters": {
         "cardinality": 1,
         "cardinality_min": 1,
-        "num_iterations": 10,
+        "num_iterations": 20,
         "num_agents": 16,
         "as_mh": true,
         "num_replicas": 4,
-        "num_steps": 10,
+        "num_steps": 30,
         "stagnation_percentage": 0.37,
         "max_temperature": 100,
         "min_temperature": 1e-6,
@@ -24,9 +24,9 @@
     },
     "pass_finalised_positions": false,
     "search_operator_space_paths": [
-        "config/experiment_1/search_operator_space/gravitational.txt"
+        "config/experiment_1/search_operator_space/swarm_dynamic.txt"
     ],
     "search_operator_space_names": [
-        "gravitational"
+        "swarm_dynamic"
     ]
 }

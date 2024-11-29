@@ -69,6 +69,10 @@ class HeuristicSimulationCoordinator:
         sim_model = self.conf.tryGet("simulation_model", "simulation_model_configuration", "sim_model")
         num_nodes = self.conf.tryGet("simulation_model", "simulation_model_configuration", "num_nodes")
         num_workers = self.conf.tryGet("simulation_model", "simulation_model_configuration", "num_workers")
+        if self.conf.tryGet("simulation_model", "simulation_model_configuration", "platform") == "DAS":
+            num_nodes = self.conf.tryGet("simulation_model", "simulation_model_configuration", "jobs")
+            num_workers = self.conf.tryGet("simulation_model", "simulation_model_configuration", "job_cores")*self.conf.tryGet("simulation_model", "simulation_model_configuration", "job_processes")
+
         self.time_stamp = time.strftime("%Y%m%d_%H%M%S")
         self.data_path = os.path.join(experiments_path, "data", f"campaign_{sim_model}", f"n{str(num_nodes)}_w{str(num_workers)}_s{str(self._nr_of_sims)}", self.time_stamp)
 
