@@ -15,17 +15,17 @@
         "sim_instance_output_files_to_keep": [
             "platform.xml"
         ],
-        "cache_only_finished_sim_instances": false,
+        "cache_only_finished_sim_instances": true,
         "sim_instance_cached_files_evaluation": [
             "platform.xml"
         ]
     },
-    "results_path": "/var/scratch/mherget/hh/data/rawASML",
+    "results_path": "/var/scratch/mherget/hh_2/data/rawASML",
     "output_paths": {
-        "agents_fitness_values_path": "/var/scratch/mherget/hh/design_points/agents_fitness",
-        "steps_output_path": "/var/scratch/mherget/hh/mhs",
-        "design_points_metrics_output": "/var/scratch/mherget/hh/design_points",
-        "general_files": "/var/scratch/mherget/hh"
+        "agents_fitness_values_path": "/var/scratch/mherget/hh_2/design_points/agents_fitness",
+        "steps_output_path": "/var/scratch/mherget/hh_2/mhs",
+        "design_points_metrics_output": "/var/scratch/mherget/hh_2/design_points",
+        "general_files": "/var/scratch/mherget/hh_2"
     },
     "fitness_config": {
         "fitness_function": "wfpm",
@@ -37,15 +37,15 @@
         "simulation_model_paths": {
             "omnetpp_base": "/var/scratch/mherget/omnet/omnetpp-6.0.1",
             "inet_path": "/var/scratch/mherget/omnet/inet4.5",
-            "experiments_path": "/var/scratch/mherget/hh/experiments_asml",
-            "dummy_path": "/var/scratch/mherget/hh/generated",
+            "experiments_path": "/var/scratch/mherget/hh_2/experiments_asml",
+            "dummy_path": "/var/scratch/mherget/hh_2/generated",
             "simulation_model_template_path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/faezeh_old/MultiHostDas6",
-            "simulation_model_generated_path": "/var/scratch/mherget/hh/generated/custom_faezeh"
+            "simulation_model_generated_path": "/var/scratch/mherget/hh_2/generated/custom_faezeh"
         },
         "simulation_model_configuration": {
             "sim_model": "asml",
             "platform": "DAS",
-            "jobs": 1,
+            "jobs": 2,
             "job_cores": 64,
             "job_processes": 1,
             "job_memory": "120GB",

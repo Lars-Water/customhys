@@ -137,6 +137,7 @@ class DesignPointCache:
                     if not self.cnf.tryGet("cache", "cache_only_finished_sim_instances"):
                         self.cached_hashes[hash] = sim_instance
                     sim_instance.setCacheHash(hash)
+                    self.logger.info(f"New simulation config found with hash: {hash} (ID: {sim_instance.uid})")
                 else:
                     cached_sim_instances.append([sim_instance, self.cached_hashes[hash]])
                     self.set_sim_cached(sim_instance)

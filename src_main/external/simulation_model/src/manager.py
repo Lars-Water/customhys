@@ -151,6 +151,7 @@ class Manager:
         sim_instances, cached_sim_instances = self.__filter_cached_sim_instances(sim_instances)
         self.stats.add_stat(len(sim_instances), "general", "num_dp_unique")
         self.stats.add_stat(len(cached_sim_instances), "general", "num_dp_cached")
+        self.logger.warn("num_dp_cached+=" + str(len(cached_sim_instances))+" (total: "+str(self.stats.get_stat("general", "num_dp_cached"))+")")
 
         if (len(cached_sim_instances) > 0):
             design_point_queue.cached_insert_list(cached_sim_instances)
