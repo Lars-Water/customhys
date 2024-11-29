@@ -27,7 +27,7 @@
             "largeNet.ini"
         ]
     },
-    "results_path": "/var/scratch/mherget/hh_exp1/data/rawASML",
+    "results_path": "/var/scratch/mherget/hh_exp1/data/raw",
     "output_paths": {
         "agents_fitness_values_path": "/var/scratch/mherget/hh_exp1/design_points/agents_fitness",
         "steps_output_path": "/var/scratch/mherget/hh_exp1/mhs",
@@ -44,7 +44,7 @@
         "simulation_model_paths": {
             "omnetpp_base": "/var/scratch/mherget/omnet/omnetpp-6.0.1",
             "inet_path": "/var/scratch/mherget/omnet/inet4.5",
-            "experiments_path": "/var/scratch/mherget/hh_exp1/experiments_asml",
+            "experiments_path": "/var/scratch/mherget/hh_exp1/experiments_inet",
             "dummy_path": "/var/scratch/mherget/hh_exp1/generated",
             "simulation_model_template_path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/dummy_sim_lans",
             "simulation_model_generated_path": "/var/scratch/mherget/hh_exp1/generated/custom_dummy"
