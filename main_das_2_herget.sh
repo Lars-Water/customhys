@@ -7,7 +7,7 @@ eval "$(/home/mherget/miniconda3/bin/conda shell.bash hook)"
 BASE_PATH="/home/herget/UvA-git/hyper-heuristic-dse-2.0"
 
 # Specify the path to the coordinator configuration file here
-CONFIG_PATH_COORDINATOR="${BASE_PATH}/config/coordinator/config_coordinator_local_asml.json"
+CONFIG_PATH_COORDINATOR="${BASE_PATH}/config/coordinator/config_coordinator_das_2_herget_exp1.json"
 
 # Define PYTHONPATH to Herman's framework.
 export PYTHONPATH="${PYTHONPATH}:${BASE_PATH}/src_main/external/simulation_model"
@@ -26,41 +26,10 @@ cd ${BASE_PATH}
 eval "ulimit -n 262000"
 ulimit -n 262000
 
-
 # EXPERIMENT PIPELINES
 
 python3 main.py \
- --experiment asml \
+ --experiment 1 \
+ --nr_sw  50 \
  --base_path "$BASE_PATH" \
  --coordinator_config "$CONFIG_PATH_COORDINATOR"
-
-# python3 main_vis.py \
-#  --visualize "asml" \
-#  --hh_run_dirs_exp_1 "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_genetic_crossover_1732116689_20_iterations_10_steps_1732116689"\
-#     "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_genetic_mutation_1732116689_20_iterations_10_steps_1732116689"\
-#     "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_gravitational_1732116689_20_iterations_10_steps_1732116689"\
-#     "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/raw/ASML-Faezeh_experiment_asml_swarm_dynamic_1732116689_20_iterations_10_steps_1732116689"\
-#  --result_dir "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/graphs" \
-#   --base_path "$BASE_PATH" \
-#  --coordinator_config "$CONFIG_PATH_COORDINATOR"
- 
-# python3 main_vis.py \
-#  --visualize "asml" \
-#  --hh_run_dirs_exp_1  \
-#  --result_dir "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/graphs" \
-#   --base_path "$BASE_PATH" \
-#  --coordinator_config "$CONFIG_PATH_COORDINATOR"
-
-# python3 main_vis.py \
-#  --visualize "asml" \
-#  --hh_run_dirs_exp_1  \
-#  --result_dir "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/graphs" \
-#   --base_path "$BASE_PATH" \
-#  --coordinator_config "$CONFIG_PATH_COORDINATOR"
-
-# python3 main_vis.py \
-#  --visualize "asml" \
-#  --hh_run_dirs_exp_1  \
-#  --result_dir "/home/herget/UvA-git/hyper-heuristic-dse-2.0/data_files/graphs" \
-#   --base_path "$BASE_PATH" \
-#  --coordinator_config "$CONFIG_PATH_COORDINATOR"

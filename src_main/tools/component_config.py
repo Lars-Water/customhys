@@ -70,6 +70,7 @@ def _format_metaheuristic(metaheuristic_operators):
         )
         for metaheuristic_operator in metaheuristic_operators
     ]
+    
 
 
 def create_problem_instanceASML(template_xml_file_path, max_wfpm, min_wfpm, min_cost, max_cost, design_point_sim_run, fitness_value_dir):
@@ -182,7 +183,6 @@ def create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate,
     subnet_structure["optimal_solution"] = [0.9] * nr_of_backbone_switches,
     subnet_structure["optimal_fitness"] = 0.0
 
-    # TODO: Initialize model object from here instead of calling the generate_instance method.
     # Create a problem instance from the formulation.
     boundaries = {
         "datarate": {
@@ -194,13 +194,24 @@ def create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate,
             "min": min_cost
         }
     }
-    problem_instance = model.generate_instance(
+
+    min_range = np.array([subnet_structure['boundaries'][key][0]
+                          for key in subnet_structure['boundaries']])
+    max_range = np.array([subnet_structure['boundaries'][key][1]
+                          for key in subnet_structure['boundaries']])
+    
+    problem_instance = model.instance(
         nr_of_backbone_switches,
-        subnet_structure,
+        min_range,
+        max_range,
+        subnet_structure['optimal_solution'],
+        subnet_structure['optimal_fitness'],
+        'CQN',
         design_point_sim_run,
         boundaries,
         fitness_value_dir
     )
+    
     return problem_instance.get_formatted_problem()
 
 

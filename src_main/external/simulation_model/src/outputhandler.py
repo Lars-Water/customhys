@@ -67,8 +67,6 @@ class OutputHandler:
     def copy_sim_results(self, sim_instance_target, sim_instance_source):
         sim_source_global_results_path = self.sim_global_results_path(sim_instance_source)
         sim_target_global_results_path = self.sim_global_results_path(sim_instance_target)
-        self.logger.warn(sim_source_global_results_path)
-        self.logger.warn(sim_target_global_results_path)
         self.__copy_folder(
             sim_source_global_results_path, 
             sim_target_global_results_path, 
