@@ -32,7 +32,7 @@ class ResourceController:
 
         self.stats = Stats()
 
-        self.logger = logger("resource_controller", Path(self.logs_path))
+        self.logger = logger("resource_controller", Path(self.logs_path), disabled=False)
 
         self.logger.info("Reading in config file: " + str(config_path))
         self.cnf = Config(Path(config_path), Path(self.logs_path), "config_resource_controller")

@@ -26,7 +26,7 @@ class Manager:
         self.stats.record_time_stat("general", "environment_start")
         self.start_time = time.time()
         os.makedirs(logs_path, exist_ok=True)
-        self.logger = logger("manager", Path(logs_path))
+        self.logger = logger("manager", Path(logs_path), disabled=False)
 
         self.logger.info("Reading in config file: {}".format(config_path))
         self.cnf = Config(Path(config_path), Path(logs_path), "config_manager")
