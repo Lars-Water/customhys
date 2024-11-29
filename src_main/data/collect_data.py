@@ -79,7 +79,7 @@ class DataCollector:
 
                 df.to_csv(append_design_points_metric_output_file, index=True)
             except Exception as error:
-                print("An exception occurred in collectData.append_fitness_values_to_design_point_metrics:", type(error).__name__, ". The experiment will continue and a manual match has to be done manually.") 
+                print("### ERROR: An exception occurred in collectData.append_fitness_values_to_design_point_metrics:", type(error).__name__, ". The experiment will continue and a manual match has to be done manually.") 
                 print(error)
 
         if self.heuristic_name is None:
