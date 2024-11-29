@@ -58,7 +58,7 @@ class Metaheuristic:
 
         # NOTE: CUSTOM BY LARS - PASSING THE PREVIOUS STEP FINALISED AGENT POSITIONS IF PROVIDED
         # Create population
-        self.pop = Population(problem['boundaries'], num_agents, problem['is_constrained'], finalised_positions_previous_step=finalised_positions_previous_step, pass_finalised_positions=pass_finalised_positions)
+        self.pop = Population(problem, num_agents, finalised_positions_previous_step=finalised_positions_previous_step, pass_finalised_positions=pass_finalised_positions)
 
         # Check and read the search_operators
         if search_operators:
@@ -84,9 +84,6 @@ class Metaheuristic:
         # Set the initial scheme
         self.initial_scheme = initial_scheme
 
-        # Set file_name_fitness_values
-        self.file_name_fitness_values = problem['get_file_name_fitness_values']()
-
         # NOTE: CUSTOM CHANGE BY LARS - Set the flag for passing finalised positions.
         self.pass_finalised_positions = pass_finalised_positions
 
@@ -104,7 +101,7 @@ class Metaheuristic:
         self.pop.initialise_positions(self.initial_scheme, file_label)  # Default: random
 
         # Evaluate fitness values
-        self.pop.evaluate_fitness(self._problem_function, self.file_name_fitness_values)
+        self.pop.evaluate_fitness(self._problem_function)
 
         # Update population, particular, and global
         self.pop.update_positions('population', 'all')  # Default
@@ -119,7 +116,7 @@ class Metaheuristic:
         exec('Operators.' + operator_name + '(self.pop,' + operator_params)
 
         # Evaluate fitness values
-        self.pop.evaluate_fitness(self._problem_function, self.file_name_fitness_values)
+        self.pop.evaluate_fitness(self._problem_function)
 
         # Update population
         if selector in __selectors__:
