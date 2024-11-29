@@ -12,14 +12,27 @@
         "remove_design_point_configuration_dummy_path": true,
         "remove_design_point_configuration_dummy_path_pattern": "custom_dummy_",
         "remove_design_point_configuration_sims_path": true,
-        "remove_sim_instance_experiments_folder": true,
-        "remove_sim_instance_output": true,
-        "store_design_points_metrics_values": true
+        "store_design_points_metrics_values": true,
+        "remove_sim_instance_experiments_folder": {
+            "logs": true,
+            "runtime": true,
+            "results": false
+        },
+        "remove_sim_instance_output": false,
+        "sim_instance_output_files_to_keep": [
+            "platform.xml"
+        ],
+        "cache_only_finished_sim_instances": true,
+        "sim_instance_cached_files_evaluation": [
+            "platform.xml"
+        ]
     },
     "results_path": "/home/lvdwater/hyper-heuristic-dse-2.0/data/raw",
     "output_paths": {
         "agents_fitness_values_path": "/var/scratch/lvdwater/design_points/agents_fitness",
-        "design_points_metrics_output": "/var/scratch/lvdwater/design_points"
+        "design_points_metrics_output": "/var/scratch/lvdwater/design_points",
+        "steps_output_path": "/var/scratch/lvdwater/design_points/mhs",
+        "general_files": "/var/scratch/mherget/design_points"
     },
     "fitness_config": {
         "fitness_function": "latency_cost",
@@ -27,11 +40,11 @@
         "weight_cost": 0.5
     },
     "simulation_model": {
+        "type": "INET",
         "simulation_model_paths": {
             "omnetpp_base": "/var/scratch/lvdwater/omnetpp-6.0.1",
             "inet_path": "/var/scratch/lvdwater/inet4.5",
             "experiments_path": "/var/scratch/lvdwater/experiments_2",
-            "sims_path": "/var/scratch/lvdwater/sims_2",
             "dummy_path": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims_2",
             "simulation_model_template_path": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims_2/dummy_sim_lans",
             "simulation_model_generated_path": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims_2/custom_dummy"
