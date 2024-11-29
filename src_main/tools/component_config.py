@@ -200,7 +200,7 @@ def create_problem_instance(nr_of_backbone_switches, max_datarate, min_datarate,
     max_range = np.array([subnet_structure['boundaries'][key][1]
                           for key in subnet_structure['boundaries']])
     
-    problem_instance = model.instanceINET(
+    problem_instance = modelINET.instanceINET(
         nr_of_backbone_switches,
         min_range,
         max_range,
