@@ -65,7 +65,7 @@ class DesignPointCache:
             return -1
 
     def __is_sim_status(self, sim_instance, sim_status):
-        self.logger.warn(f"is sim status {sim_instance.uid} // {self.__get_sim_status(sim_instance)} // {self.uids_status.keys()}")
+        self.logger.debug(f"is sim status {sim_instance.uid} // {self.__get_sim_status(sim_instance)} // {self.uids_status.keys()}")
         if self.__get_sim_status(sim_instance) == sim_status:
             return True
         else:
@@ -137,7 +137,7 @@ class DesignPointCache:
                     if not self.cnf.tryGet("cache", "cache_only_finished_sim_instances"):
                         self.cached_hashes[hash] = sim_instance
                     sim_instance.setCacheHash(hash)
-                    self.logger.info(f"New simulation config found with hash: {hash} (ID: {sim_instance.uid})")
+                    self.logger.debug(f"New simulation config found with hash: {hash} (ID: {sim_instance.uid})")
                 else:
                     cached_sim_instances.append([sim_instance, self.cached_hashes[hash]])
                     self.set_sim_cached(sim_instance)

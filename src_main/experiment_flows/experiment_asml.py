@@ -68,8 +68,8 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
 
     pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
         # Open a file in write mode ('w') and write the string
-    with open("output.txt", "a") as file:
-        file.write(f"Running {search_operator_space_path} - {search_operator_space_name}")
+    # with open("output.txt", "a") as file:
+    #     file.write(f"Running {search_operator_space_path} - {search_operator_space_name}")
 
     # Get the current Unix timestamp
     timestamp = int(time.time())
@@ -127,8 +127,10 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     hh_run_meta_data = collect_data.calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator)
 
     # Save the heuristic run data.
-    save_run_path = os.path.join(os.getcwd(), "data/raw/results/experiment_1/", experiment_name)
-    collect_data.save_hh_run_meta_data(save_run_path, best_sol, best_perf, hist_curr, hist_best, hh_run_meta_data)
+    results_path = os.path.join(os.getcwd(), "data/raw/results/experiment_1/")
+    if conf.tryGet("results_path") and conf.tryGet("results_path") is not None:
+        results_path = conf.tryGet("results_path")
+    save_run_path = os.path.join(results_path, experiment_name)
 
     print(f" ("+search_operator_space_name+") Best solution: "+str(best_sol))
     print(f" ("+search_operator_space_name+") Best performance: "+str(best_perf))
