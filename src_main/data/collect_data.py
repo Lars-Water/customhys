@@ -68,15 +68,19 @@ class DataCollector:
 
     def append_fitness_values_to_design_point_metrics(self, uids, fitness_values):
         if self.heuristic_name is not None and self.heuristic_name != "":
-            append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{self.heuristic_name}.csv")
-            df = pd.read_csv(append_design_points_metric_output_file)
-            df = df.set_index("SimulationID")
+            try:
+                append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{self.heuristic_name}.csv")
+                df = pd.read_csv(append_design_points_metric_output_file)
+                df = df.set_index("SimulationID")
 
-            for sim_uid, agent_id in uids.items():
-                fitness = fitness_values[agent_id]
-                df.at[sim_uid, "Fitness"] = fitness
+                for sim_uid, agent_id in uids.items():
+                    fitness = fitness_values[agent_id]
+                    df.at[sim_uid, "Fitness"] = fitness
 
-            df.to_csv(append_design_points_metric_output_file, index=True)
+                df.to_csv(append_design_points_metric_output_file, index=True)
+            except Exception as error:
+                print("An exception occurred in collectData.append_fitness_values_to_design_point_metrics:", type(error).__name__, ". The experiment will continue and a manual match has to be done manually.") 
+                print(error)
 
         if self.heuristic_name is None:
             self.heuristic_name = ""

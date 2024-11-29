@@ -24,9 +24,13 @@
     },
     "pass_finalised_positions": false,
     "search_operator_space_paths": [
-        "config/experiment_1/search_operator_space/swarm_dynamic.txt"
+        "config/experiment_1/search_operator_space/swarm_dynamic.txt",
+        "config/experiment_1/search_operator_space/gravitational.txt",
+        "config/experiment_asml/search_operator_space/firefly_dynamic.txt"
     ],
     "search_operator_space_names": [
-        "swarm_dynamic"
+        "swarm_dynamic",
+        "gravitational",
+        "firefly_dynamic"
     ]
 }
