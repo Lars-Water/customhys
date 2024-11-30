@@ -27,18 +27,18 @@ def remove_sim_instance_folders(data_path, uids, logs=True, results=True, runtim
         if logs:
             if os.path.exists(logs_sim_instance_path):
                 shutil.rmtree(logs_sim_instance_path)
-            else:
-                print(f"Simulation instance folder {logs_sim_instance_path} does not exist.")
+            # else:
+            #     print(f"Simulation instance folder {logs_sim_instance_path} does not exist.")
         if results:
             if os.path.exists(results_sim_instance_path):
                 shutil.rmtree(results_sim_instance_path)
-            else:
-                print(f"Simulation instance folder {results_sim_instance_path} does not exist.")
+            # else:
+            #     print(f"Simulation instance folder {results_sim_instance_path} does not exist.")
         if runtime:
             if os.path.exists(runtime_sim_instance_path):
                 shutil.rmtree(runtime_sim_instance_path)
-            else:
-                print(f"Simulation instance folder {runtime_sim_instance_path} does not exist.")
+            # else:
+            #     print(f"Simulation instance folder {runtime_sim_instance_path} does not exist.")
 
 
 def remove_design_point_configurations_dummy_path(sim_dummy_directory, pattern="custom_dummy_*"):

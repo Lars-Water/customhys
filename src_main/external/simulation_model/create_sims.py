@@ -150,8 +150,6 @@ def create_sim_inet_lans_dummy_parallel(workflow_config, dummy_sim_path, id, ine
                  os.path.join(inet_base, "showcases"), os.path.join(inet_base, "tests", "validation"),
                  os.path.join(inet_base, "tests", "networks"), os.path.join(inet_base, "tutorials")]
 
-    print(dummy_sim_path, dummy_sim)
-
     return create_sim_without_duplicating(workflow_config, id, dummy_sim_path, dummy_sim, config, time_limit=None, ini=ini, libraries=libraries, ned_paths=ned_paths)
 
 
