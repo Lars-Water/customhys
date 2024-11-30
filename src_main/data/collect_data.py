@@ -8,6 +8,7 @@ import glob
 from datetime import datetime
 import time
 from pathlib import Path
+from threading import Lock
 
 from src_main.tools.config_reader import Config
 from src_main.visualization import visualization
@@ -33,6 +34,9 @@ class DataCollector:
         self.weight_cost = weight_cost
         self.dir_design_points_metrics_output = dir_design_points_metrics_output
         self.heuristic_name = None
+        self.lock_main = Lock()
+        self.lock_main_backup = Lock()
+        self.lock_fitnss_backup = Lock()
 
 
     def store_design_point_metrics(self, latency_df, cost_df, sim_uid, heuristic_name):
@@ -48,6 +52,7 @@ class DataCollector:
             None
         """
         # Define the file output path.
+        self.heuristic_name = heuristic_name
         os.makedirs(self.dir_design_points_metrics_output, exist_ok=True)
         append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}.csv")
         append_design_points_metric_output_file_backup = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}_backup.csv")
@@ -62,22 +67,24 @@ class DataCollector:
         # Append the adjusted values to the design points metrics storage.
         append_df = pd.DataFrame([[sim_uid, adjusted_latency, adjusted_network_cost, latency, cost]],
                                 columns=['SimulationID', 'AdjustedLatency', 'AdjustedNetworkCost', 'Latency', 'NetworkCost'])
-        append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
-        append_df.to_csv(append_design_points_metric_output_file_backup, mode='a', header=not os.path.exists(append_design_points_metric_output_file_backup), index=False)
-        self.heuristic_name = heuristic_name
+        with self.lock_main:
+            append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
+        with self.lock_main_backup:
+            append_df.to_csv(append_design_points_metric_output_file_backup, mode='a', header=not os.path.exists(append_design_points_metric_output_file_backup), index=False)
 
     def append_fitness_values_to_design_point_metrics(self, uids, fitness_values):
         if self.heuristic_name is not None and self.heuristic_name != "":
             try:
                 append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{self.heuristic_name}.csv")
-                df = pd.read_csv(append_design_points_metric_output_file)
-                df = df.set_index("SimulationID")
+                with self.lock_main:
+                    df = pd.read_csv(append_design_points_metric_output_file)
+                    df = df.set_index("SimulationID")
 
-                for sim_uid, agent_id in uids.items():
-                    fitness = fitness_values[agent_id]
-                    df.at[sim_uid, "Fitness"] = fitness
+                    for sim_uid, agent_id in uids.items():
+                        fitness = fitness_values[agent_id]
+                        df.at[sim_uid, "Fitness"] = fitness
 
-                df.to_csv(append_design_points_metric_output_file, index=True)
+                    df.to_csv(append_design_points_metric_output_file, index=True)
             except Exception as error:
                 print("### ERROR: An exception occurred in collectData.append_fitness_values_to_design_point_metrics:", type(error).__name__, ". The experiment will continue and a manual match has to be done manually.") 
                 print(error)
@@ -89,7 +96,8 @@ class DataCollector:
             fitness = fitness_values[agent_id]
             data_df = pd.DataFrame([[sim_uid, fitness]],
                             columns=['SimulationID', 'Fitness'])
-            data_df.to_csv(data_fitness_file, mode='a', header=not os.path.exists(data_fitness_file), index=False)
+            with self.lock_fitnss_backup:
+                data_df.to_csv(data_fitness_file, mode='a', header=not os.path.exists(data_fitness_file), index=False)
 
 
 
