@@ -33,6 +33,6 @@ ulimit -n 262000
 
 python3 main.py \
  --experiment 1 \
- --nr_sw  50 \
+ --nr_sw 150 \
  --base_path "$BASE_PATH" \
  --coordinator_config "$CONFIG_PATH_COORDINATOR"
