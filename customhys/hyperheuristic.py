@@ -48,7 +48,7 @@ class Hyperheuristic:
     collection from Operators to build metaheuristics using the Metaheuristic module.
     """
 
-    def __init__(self, heuristic_space='default.txt', problems=None, parameters=None, file_label='', weights_array=None, pass_finalised_positions=False, file_details=None):
+    def __init__(self, heuristic_space='default.txt', problems=None, parameters=None, file_label='', weights_array=None, pass_finalised_positions=False, file_details=None, heur_coordinator=None, search_operator_space_name = None):
         """
         Create a hyper-heuristic process using a operator collection as heuristic space.
 
@@ -130,8 +130,16 @@ class Hyperheuristic:
         # Read the problem
         if problems:
             self.problems = problems
+        elif heur_coordinator is not None and search_operator_space_name is not None:
+            self.heur_coordinator = heur_coordinator
+            self.problemspace = self.heur_coordinator.problemspace
+            if self.problemspace.has_problem_space(search_operator_space_name):
+                self.problems = self.problemspace.get_problems(search_operator_space_name)
+            else:
+                err = f'Heuristic coordinator does not have {search_operator_space_name} problem space or its empty.'
+                raise HyperheuristicError(err)
         else:
-            raise HyperheuristicError('Problem must be provided')
+            raise HyperheuristicError('Problems or a heuristic coordinator and search_operator_space_name must be provided.')
 
 
         # Read the heuristic space size and create the active set
