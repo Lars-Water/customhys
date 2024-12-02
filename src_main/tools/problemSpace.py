@@ -19,6 +19,7 @@ class ProblemSpace:
         self.logger = logger("ProblemSpace", log_path, disabled=False)
         self.conf = Config(coordinator_config_file_path, log_path, "coordinator_config_manager")
         self._problems = {}    
+        self.logger.info("Setting up ProblemSpace.")
     
     def create_problems(self, problems_space_name, num_replicas, create_problem_instance_func, *args, **kwargs):
         assert callable(create_problem_instance_func)
@@ -38,7 +39,7 @@ class ProblemSpace:
     def create_and_append_problem(self, problems_space_name, create_problem_instance_func, *args, **kwargs):
         assert callable(create_problem_instance_func)
 
-        if hasattr(self._problems, problems_space_name):
+        if self._problems.has_problem_space(problems_space_name):
             probs = self._problems[problems_space_name]
             replica_id = max(self._problems[problems_space_name].keys()) + 1
         else:
@@ -54,16 +55,16 @@ class ProblemSpace:
         return probs
 
     def remove_problem(self, problems_space_name, replica_id=None):
-        if hasattr(self._problems, problems_space_name):
+        if self._problems.has_problem_space(problems_space_name):
             if replica_id is None:
                 replica_id = max(self._problems[problems_space_name].keys())
-            if hasattr(self._problems[problems_space_name], replica_id):
+            if replica_id in self._problems[problems_space_name].keys():
                 self.logger.info(f"Removing problem {replica_id} of {problems_space_name}.")
                 del self._problems[problems_space_name][replica_id]
 
 
     def has_problem_space(self, problems_space_name):
-        if hasattr(self._problems, problems_space_name):
+        if problems_space_name in self._problems.keys():
             return len(self._problems[problems_space_name]) > 0
         else:
             return  False

@@ -151,7 +151,7 @@ class HeuristicSimulationCoordinatorBase:
             self.dir_design_points_metrics_output = os.path.join(self.data_path, "design_points_metrics")
 
         self.createDataCollector()
-        self.problemSpace = ProblemSpace(self.coordinator_config_file_path, self.log_path)
+        self.problemspace = ProblemSpace(self.coordinator_config_file_path, self.log_path)
 
 
         # clear out old agent finess files

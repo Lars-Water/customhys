@@ -28,7 +28,7 @@ def run_experiment(experiment_config, coordinator_params):
     base_path, coordinator_config_file_path, nr_of_agents, run_name = coordinator_params
     heur_sim_coordinator = coordinator_asml.HeuristicSimulationCoordinatorASML(base_path, coordinator_config_file_path, nr_of_agents, run_name, len(search_operator_space_names)*num_replicas) # noqa 501
     heur_sim_coordinator.set_run_name("ASML_"+str(heur_sim_coordinator.time_stamp))
-    # Create problem instance.
+
     heur_sim_coordinator.manual_normalization()
     min_wfpm_runtime, max_wfpm_runtime, min_cost, max_cost = heur_sim_coordinator.get_boundaries()
     # min_wfpm_runtime = 2
@@ -93,8 +93,9 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     template_file_path = os.path.join(simulation_model_template_path, "platform.xml")
     agents_fitness_values_path = conf.tryGet("output_paths", "agents_fitness_values_path")
     
-    heur_sim_coordinator.problemSpace.create_problems(search_operator_space_name, num_replicas, component_config.create_problem_instanceASML, template_file_path, max_wfpm_runtime, min_wfpm_runtime, min_cost, max_cost, heur_sim_coordinator.simulation_run, agents_fitness_values_path)
+    heur_sim_coordinator.problemspace.create_problems(search_operator_space_name, num_replicas, component_config.create_problem_instanceASML, template_file_path, max_wfpm_runtime, min_wfpm_runtime, min_cost, max_cost, heur_sim_coordinator.simulation_run, agents_fitness_values_path)
 
+    print(heur_sim_coordinator.problemspace)
     hyp = hh.Hyperheuristic(
         heuristic_space=heuristic_space,
         # problems=probs,
