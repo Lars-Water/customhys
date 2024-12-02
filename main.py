@@ -14,7 +14,7 @@ import argparse
 
 from src_main.tools.config_reader import Config
 import src_main.tools.coordinator_inet as coordinator_inet
-from src_main.data import collect_data
+from src_main.data import collect_data_INET
 import src_main.experiment_flows.experiment_1 as exp_1_flow
 import src_main.experiment_flows.experiment_2 as exp_2_flow
 import src_main.experiment_flows.experiment_asml as exp_asml_flow
@@ -227,7 +227,7 @@ def visualize_experiment_1(hh_run_dirs_exp_1):
         nr_of_backbone_switches = _determine_nr_backbones_from_filename(hh_run_dir_exp_1, backbones_pattern)
         # TODO: Allow a dynamic way of determining the number of cables used in the hh run; e.g. config file, or file label of the hh run path.
         nr_of_cable_types = 4
-        collect_data.quick_and_dirty_save_hh_positions_to_xlsx(path_hh_run, nr_of_backbone_switches, nr_of_cable_types, rescale=True)
+        collect_data_INET.quick_and_dirty_save_hh_positions_to_xlsx(path_hh_run, nr_of_backbone_switches, nr_of_cable_types, rescale=True)
 
 
 def visualize_experiment_2(base_path, metaheuristics, hh_run_dirs_exp_2, nr_of_backbone_switches=20):
@@ -246,9 +246,9 @@ def visualize_experiment_2(base_path, metaheuristics, hh_run_dirs_exp_2, nr_of_b
         nr_of_cable_types = 4
 
         # Visualize an abstraction of the most optimal network configuration determined with the hh run to an xlsx file.
-        collect_data.quick_and_dirty_save_hh_positions_to_xlsx(path_hh_run, nr_of_backbone_switches, nr_of_cable_types, rescale=True)
+        collect_data_INET.quick_and_dirty_save_hh_positions_to_xlsx(path_hh_run, nr_of_backbone_switches, nr_of_cable_types, rescale=True)
 
-        fitness_values = collect_data.quick_and_dirty_collect_hh_fitness_for_every_step(path_hh_run)
+        fitness_values = collect_data_INET.quick_and_dirty_collect_hh_fitness_for_every_step(path_hh_run)
         hh_runs_fitness_values.append({"fitness_values": fitness_values,"nr_of_backbone_switches": nr_of_backbone_switches})
 
     # Visualize the results of Experiment 2 to a multiline plot of the different HH runs in different network sizes.
@@ -325,7 +325,7 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, exp
     #     nr_of_backbone_switches = 50
     #     nr_of_cable_types = 4
     #     hh_run_path = Path(os.path.join(os.getcwd(), "data_files/raw/INET-LANS_experiment_2_200_subsequent_positions_1721088383"))
-    #     collect_data.quick_and_dirty_save_hh_positions_to_xlsx(hh_run_path, nr_of_backbone_switches, nr_of_cable_types, rescale=True)
+    #     collect_data_INET.quick_and_dirty_save_hh_positions_to_xlsx(hh_run_path, nr_of_backbone_switches, nr_of_cable_types, rescale=True)
 
     #     heuristic_run_log_path = os.path.join(base_path, "data/logs/heuristic_run/")
     #     os.makedirs(heuristic_run_log_path, exist_ok=True)
@@ -336,7 +336,7 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, exp
     #     nr_of_iterations = heuristic_run_config.tryGet("nr_of_iterations")
 
     #     # Visualisation of metaheuristic runs.
-    #     collect_data.vizualize_mh_runs(nr_of_backbone_switches)
+    #     collect_data_INET.vizualize_mh_runs(nr_of_backbone_switches)
 
         # # TODO: Quick and dirty Manual removal of directories to prevent memory clogging.
         # experiments_directory_path = Path("/var/scratch/lvdwater/experiments/data/campaign_custom/n1_w1_s16")

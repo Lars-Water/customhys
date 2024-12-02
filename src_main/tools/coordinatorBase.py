@@ -1,9 +1,9 @@
 from src_main.tools.logger import logger, setLevelLogger
-from src_main.data.collect_data import DataCollector
 import src_main.tools.component_config as component_config
 import src_main.tools.file_operations as fo
 from src_main.tools.config_reader import Config
 from src_main.tools.problemSpace import ProblemSpace
+from src_main.tools.searchOperatorSpace import SearchOperatorSpace
 
 import os
 import glob
@@ -27,7 +27,7 @@ import uuid
 
 
 class HeuristicSimulationCoordinatorBase:
-    problemspace = None
+    search_operator_spaces = None
 
     def __del__(self):
         if hasattr(self, "manager"):
@@ -41,12 +41,14 @@ class HeuristicSimulationCoordinatorBase:
             coordinator_config_file_path: The path to the configuration file of the coordinator.
             nr_of_agents: The number of agents to run the simulation model with.
     '''
-    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, run_name=None,  nr_of_design_queues=0):
+    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, run_name=None,  nr_of_design_queues=0, experiment_config=None):
         self._base_path = base_path
         self._nr_of_agents = nr_of_agents
         self._nr_of_sims = nr_of_agents
         self._nr_of_design_queues = nr_of_design_queues
         self._run_name = run_name
+        if experiment_config is not None:
+            self._experiment_config = experiment_config
 
         # Predefine the parameters for the execution times.
         self.coordinator_and_simulation_execution_time = 0
@@ -151,7 +153,7 @@ class HeuristicSimulationCoordinatorBase:
             self.dir_design_points_metrics_output = os.path.join(self.data_path, "design_points_metrics")
 
         self.createDataCollector()
-        self.problemspace = ProblemSpace(self.coordinator_config_file_path, self.log_path)
+        self.search_operator_spaces = SearchOperatorSpace(self.coordinator_config_file_path, self.log_path)
 
 
         # clear out old agent finess files

@@ -16,9 +16,9 @@ import src_main.tools.component_config as component_config
 import src_main.data.sim_configurations as sim_configurations
 
 
-class DataCollector:
+class DataCollectorBase:
 
-    def __init__(self, weight_latency, weight_cost, dir_design_points_metrics_output):
+    def __init__(self, dir_design_points_metrics_output):
         """
         Initialize the CollectData object.
 
@@ -30,8 +30,6 @@ class DataCollector:
         Returns:
             None
         """
-        self.weight_latency = weight_latency
-        self.weight_cost = weight_cost
         self.dir_design_points_metrics_output = dir_design_points_metrics_output
         self.heuristic_name = None
         self.lock_main = Lock()
@@ -39,7 +37,7 @@ class DataCollector:
         self.lock_fitness_backup = Lock()
 
 
-    def store_design_point_metrics(self, latency_df, cost_df, sim_uid, heuristic_name):
+    def _store_design_point_metrics_df(self, heuristic_name, append_df):
         """
         Stores the design point metrics in a CSV file.
 
@@ -57,16 +55,6 @@ class DataCollector:
         append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}.csv")
         append_design_points_metric_output_file_backup = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}_backup.csv")
 
-        latency = latency_df['mean'].mean()
-        cost = cost_df['value'].astype(float).sum()
-
-        # Determine weighted metric values.
-        adjusted_latency = latency * self.weight_latency
-        adjusted_network_cost = cost * self.weight_cost
-
-        # Append the adjusted values to the design points metrics storage.
-        append_df = pd.DataFrame([[sim_uid, adjusted_latency, adjusted_network_cost, latency, cost]],
-                                columns=['SimulationID', 'AdjustedLatency', 'AdjustedNetworkCost', 'Latency', 'NetworkCost'])
         with self.lock_main:
             append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
         with self.lock_main_backup:

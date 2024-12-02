@@ -8,7 +8,7 @@ from src_main.tools import component_config
 from src_main.tools.config_reader import Config
 from src_main.tools import coordinator_inet
 
-from src_main.data import collect_data
+from src_main.data import collect_data_INET
 
 
 def run_experiment(base_path, experiment_config, coordinator_config_file_path):
@@ -70,11 +70,11 @@ def _run_mh(metaheuristic_path, nr_of_agents, nr_of_iterations, prob, base_path,
     met.run()
     end_time = time.time()
 
-    heuristic_run_meta_data = collect_data.calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator)
+    heuristic_run_meta_data = collect_data_INET.calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator)
 
     # Save the heuristic run data.
     save_run_path = os.path.join(base_path, "data/raw/results/experiment_2/metaheuristics/", metaheuristic_name)
-    collect_data.collect_mh_run(met, save_run_path, nr_of_backbones, nr_of_agents, nr_of_iterations, heuristic_run_meta_data)
+    collect_data_INET.collect_mh_run(met, save_run_path, nr_of_backbones, nr_of_agents, nr_of_iterations, heuristic_run_meta_data)
 
 
 def _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones, pass_finalised_positions):
@@ -131,11 +131,11 @@ def _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones, pass
     # End timer for the heuristic run.
     end_time = time.time()
 
-    hh_run_meta_data = collect_data.calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator)
+    hh_run_meta_data = collect_data_INET.calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator)
 
     # Save the heuristic run data.
     save_run_path = os.path.join(os.getcwd(), "data/raw/results/experiment_2/", f"hh_{search_operator_space_name}")
-    collect_data.save_hh_run_meta_data(save_run_path, best_sol, best_perf, hist_curr, hist_best, hh_run_meta_data)
+    collect_data_INET.save_hh_run_meta_data(save_run_path, best_sol, best_perf, hist_curr, hist_best, hh_run_meta_data)
 
     print(f"Best solution: {best_sol}")
     print(f"Best performance: {best_perf}")

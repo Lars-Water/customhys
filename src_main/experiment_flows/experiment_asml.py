@@ -5,7 +5,7 @@ from pathlib import Path
 
 from src_main.external.customhys.customhys import hyperheuristic as hh
 
-from src_main.data import collect_data
+from src_main.data import collect_data_INET
 from src_main.tools import component_config
 from src_main.tools import coordinator_asml
 from src_main.tools.config_reader import Config
@@ -17,8 +17,7 @@ def run_experiment(experiment_config, coordinator_params):
     '''
         Experimental run of tuning the parameters of any provided search operators.
     '''
-    search_operator_space_paths = experiment_config.tryGet('search_operator_space_paths')
-    search_operator_space_names = experiment_config.tryGet('search_operator_space_names')
+    search_operators_spaces = experiment_config.tryGet('search_operators', 'spaces')
     pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
     hh_parameters = experiment_config.tryGet('hh_parameters')
     num_replicas = hh_parameters["num_replicas"] if hh_parameters["num_replicas"] > 0 else 1 
@@ -26,7 +25,7 @@ def run_experiment(experiment_config, coordinator_params):
     
     # Create the HeuristicSimulationCoordinator.
     base_path, coordinator_config_file_path, nr_of_agents, run_name = coordinator_params
-    heur_sim_coordinator = coordinator_asml.HeuristicSimulationCoordinatorASML(base_path, coordinator_config_file_path, nr_of_agents, run_name, len(search_operator_space_names)*num_replicas) # noqa 501
+    heur_sim_coordinator = coordinator_asml.HeuristicSimulationCoordinatorASML(base_path, coordinator_config_file_path, nr_of_agents, run_name, len(search_operators_spaces.keys())*num_replicas) # noqa 501
     heur_sim_coordinator.set_run_name("ASML_"+str(heur_sim_coordinator.time_stamp))
 
     heur_sim_coordinator.manual_normalization()
@@ -42,7 +41,9 @@ def run_experiment(experiment_config, coordinator_params):
     
 
     fns_hh = []
-    for search_operator_space_path, search_operator_space_name in zip(search_operator_space_paths, search_operator_space_names):
+    for search_operator_space_name in search_operators_spaces.keys():
+        space = search_operators_spaces[search_operator_space_name]
+        search_operator_space_path = space["path"]
         fns_hh.append(threading.Thread(target=run_search_operator_space_path, args=(
     experiment_config, search_operator_space_path, search_operator_space_name, max_wfpm_runtime, min_wfpm_runtime, min_cost, max_cost, heur_sim_coordinator, coordinator_params)))
 
@@ -93,9 +94,9 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     template_file_path = os.path.join(simulation_model_template_path, "platform.xml")
     agents_fitness_values_path = conf.tryGet("output_paths", "agents_fitness_values_path")
     
-    heur_sim_coordinator.problemspace.create_problems(search_operator_space_name, num_replicas, component_config.create_problem_instanceASML, template_file_path, max_wfpm_runtime, min_wfpm_runtime, min_cost, max_cost, heur_sim_coordinator.simulation_run, agents_fitness_values_path)
+    heur_sim_coordinator.search_operator_spaces.create_problems(search_operator_space_name, num_replicas, component_config.create_problem_instanceASML, template_file_path, max_wfpm_runtime, min_wfpm_runtime, min_cost, max_cost, heur_sim_coordinator.simulation_run, agents_fitness_values_path)
 
-    print(heur_sim_coordinator.problemspace)
+    print(heur_sim_coordinator.search_operator_spaces)
     hyp = hh.Hyperheuristic(
         heuristic_space=heuristic_space,
         # problems=probs,
@@ -125,7 +126,7 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     # End timer for the heuristic run.
     end_time = time.time()
 
-    hh_run_meta_data = collect_data.calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator)
+    hh_run_meta_data = collect_data_INET.calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator)
 
     # Save the heuristic run data.
     results_path = os.path.join(os.getcwd(), "data/raw/results/experiment_1/")

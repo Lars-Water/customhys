@@ -14,9 +14,9 @@ from src_main.visualization import visualization
 import src_main.tools.component_config as component_config
 import src_main.data.sim_configurations as sim_configurations
 
-from .collect_data import DataCollector
+from .collect_dataBase import DataCollectorBase
 
-class DataCollectorASML(DataCollector):
+class DataCollectorASML(DataCollectorBase):
 
     def __init__(self, weight_wfpm, weight_cost, dir_design_points_metrics_output):
         """
@@ -30,28 +30,12 @@ class DataCollectorASML(DataCollector):
         Returns:
             None
         """
+        super().__init__(dir_design_points_metrics_output)
         self.weight_wfpm = weight_wfpm
         self.weight_cost = weight_cost
-        self.dir_design_points_metrics_output = dir_design_points_metrics_output
-        self.heuristic_name = None
 
 
     def store_design_point_metrics(self, wfpm, cost, sim_uid, heuristic_name):
-        """
-        Stores the design point metrics in a CSV file.
-
-        Args:
-            latency_df (pandas.DataFrame): DataFrame containing latency values.
-            cost_df (pandas.DataFrame): DataFrame containing cost values.
-            sim_uid (str): Unique identifier for the simulation.
-
-        Returns:
-            None
-        """
-        # Define the file output path.
-        os.makedirs(self.dir_design_points_metrics_output, exist_ok=True)
-        append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}.csv")
-        append_design_points_metric_output_file_backup = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}_backup.csv")
 
         # Determine weighted metric values._
         adjusted_wfpm = wfpm * self.weight_wfpm
@@ -61,8 +45,4 @@ class DataCollectorASML(DataCollector):
         append_df = pd.DataFrame([[sim_uid, wfpm, cost, adjusted_wfpm, adjusted_cost]],
                                 columns=['SimulationID', 'wfpm', 'cost', 'AdjustedWFPM', 'AdjustedCost'])
         
-        with self.lock_main:
-            append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
-        with self.lock_main_backup:
-            append_df.to_csv(append_design_points_metric_output_file_backup, mode='a', header=not os.path.exists(append_design_points_metric_output_file_backup), index=False)
-        self.heuristic_name = heuristic_name
+        self._store_design_point_metrics_df(heuristic_name, append_df)

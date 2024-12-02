@@ -1,5 +1,5 @@
 from src_main.tools.logger import logger, setLevelLogger
-from src_main.data.collect_data import DataCollector
+from src_main.data.collect_data_INET import DataCollectorINET
 import src_main.tools.component_config as component_config
 import src_main.tools.file_operations as fo
 
@@ -47,7 +47,7 @@ class HeuristicSimulationCoordinatorINET(HeuristicSimulationCoordinatorBase):
     def createDataCollector(self):
         weight_latency = self.conf.tryGet("fitness_config", "weight_latency")
         weight_cost = self.conf.tryGet("fitness_config", "weight_cost")
-        self.data_collector = DataCollector(weight_latency, weight_cost, self.dir_design_points_metrics_output)
+        self.data_collector = DataCollectorINET(weight_latency, weight_cost, self.dir_design_points_metrics_output)
 
 
     def set_nr_of_backbone_switches(self, nr_of_backbone_switches):

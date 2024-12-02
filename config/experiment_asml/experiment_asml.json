@@ -22,11 +22,13 @@
         "learning_portion": 0.37,
         "solver": "static"
     },
-    "pass_finalised_positions": false,
-    "search_operator_space_paths": [
-        "config/experiment_1/search_operator_space/swarm_dynamic.txt"
-    ],
-    "search_operator_space_names": [
-        "swarm_dynamic"
-    ]
+    "search_operators": {
+        "optimize_utilization": true,
+        "spaces": {
+            "swarm_dynamic": {
+                "path": "config/experiment_1/search_operator_space/swarm_dynamic.txt"
+            }
+        }
+    },
+    "pass_finalised_positions": false
 }

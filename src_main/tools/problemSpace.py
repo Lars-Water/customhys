@@ -15,63 +15,57 @@ import glob
 import itertools
 
 class ProblemSpace:
-    def __init__(self, coordinator_config_file_path, log_path):
-        self.logger = logger("ProblemSpace", log_path, disabled=False)
-        self.conf = Config(coordinator_config_file_path, log_path, "coordinator_config_manager")
+    def __init__(self, problem_space_name, coordinator_config_file_path, log_path):
+        self.logger = logger(f"problemSpace_{problem_space_name}", log_path, disabled=False)
+        self.conf = Config(coordinator_config_file_path, log_path, f"problemSpace_{problem_space_name}_config")
+        self.problem_space_name = problem_space_name
+        
+        self.logger.info(f"Setting up problem space {self.problem_space_name}.")
         self._problems = {}    
-        self.logger.info("Setting up ProblemSpace.")
     
-    def create_problems(self, problems_space_name, num_replicas, create_problem_instance_func, *args, **kwargs):
+    def create_problems(self, num_replicas, create_problem_instance_func, *args, **kwargs):
         assert callable(create_problem_instance_func)
 
         probs = {}
         num_replicas = num_replicas if num_replicas > 0 else 1 
 
-        self.logger.info(f"Creating {num_replicas} problems for {problems_space_name}.")
+        self.logger.info(f"Creating {num_replicas} problems.")
         for rep in range(num_replicas):
-            probs[rep] = create_problem_instance_func(*args, **kwargs)
-            probs[rep]['set_file_name_fitness_values']("fitness_values_"+str(problems_space_name)+"_replica_"+str(rep)+".json")        
-            probs[rep]['set_space_name'](str(problems_space_name))
+            self._problems[rep] = create_problem_instance_func(*args, **kwargs)
+            self._problems[rep]['set_file_name_fitness_values']("fitness_values_"+str(self.problem_space_name)+"_replica_"+str(rep)+".json")        
+            self._problems[rep]['set_space_name'](str(self.problem_space_name))
 
-        self._problems[problems_space_name] = probs
-        return probs
+        return self._problems
 
-    def create_and_append_problem(self, problems_space_name, create_problem_instance_func, *args, **kwargs):
+    def create_and_append_problem(self, create_problem_instance_func, *args, **kwargs):
         assert callable(create_problem_instance_func)
 
-        if self._problems.has_problem_space(problems_space_name):
-            probs = self._problems[problems_space_name]
-            replica_id = max(self._problems[problems_space_name].keys()) + 1
+        if self.has_problems():
+            replica_id = max(self._problems.keys()) + 1
         else:
-            probs = {}
             replica_id = 0
 
-        self.logger.info(f"Creating 1 problem for {problems_space_name} and appending it.")
-        probs[replica_id] = create_problem_instance_func(*args, **kwargs)
-        probs[replica_id]['set_file_name_fitness_values']("fitness_values_"+str(problems_space_name)+"_replica_"+str(replica_id)+".json")        
-        probs[replica_id]['set_space_name'](str(problems_space_name))
+        self.logger.info(f"Creating 1 problem and appending it.")
+        self._problems[replica_id] = create_problem_instance_func(*args, **kwargs)
+        self._problems[replica_id]['set_file_name_fitness_values']("fitness_values_"+str(self.problem_space_name)+"_replica_"+str(replica_id)+".json")        
+        self._problems[replica_id]['set_space_name'](str(self.problem_space_name))
 
-        self._problems[problems_space_name] = probs
-        return probs
+        return self._problems
 
-    def remove_problem(self, problems_space_name, replica_id=None):
-        if self._problems.has_problem_space(problems_space_name):
+    def remove_problem(self, replica_id=None):
+        if self.has_problems():
             if replica_id is None:
-                replica_id = max(self._problems[problems_space_name].keys())
-            if replica_id in self._problems[problems_space_name].keys():
-                self.logger.info(f"Removing problem {replica_id} of {problems_space_name}.")
-                del self._problems[problems_space_name][replica_id]
+                replica_id = max(self._problems.keys())
+            if replica_id in self._problems.keys():
+                self.logger.info(f"Removing problem {replica_id}.")
+                del self._problems[replica_id]
 
+    def has_problems(self):
+        return len(self._problems) > 0
 
-    def has_problem_space(self, problems_space_name):
-        if problems_space_name in self._problems.keys():
-            return len(self._problems[problems_space_name]) > 0
+    def get_problems(self):
+        if self.has_problems():
+            return self._problems
         else:
-            return  False
-
-    def get_problems(self, problems_space_name):
-        if self.has_problem_space(problems_space_name):
-            return self._problems[problems_space_name]
-        else:
-            self.logger.warn(f"get_problems: The problem space {problems_space_name} does not exist or does not have any problems associated.")
-            return []
+            self.logger.warn(f"get_problems: The problem space does not have any problems associated.")
+            return {}

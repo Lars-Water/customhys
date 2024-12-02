@@ -28,8 +28,8 @@ from .coordinatorBase import HeuristicSimulationCoordinatorBase
 
 class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
 
-    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, run_name=None, nr_of_design_queues=0):
-        super().__init__(base_path, coordinator_config_file_path, nr_of_agents,run_name=run_name, nr_of_design_queues=nr_of_design_queues)
+    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, run_name=None, nr_of_design_queues=0, experiment_config=None):
+        super().__init__(base_path, coordinator_config_file_path, nr_of_agents,run_name=run_name, nr_of_design_queues=nr_of_design_queues, experiment_config=experiment_config)
                 
         self.template_xml_file_path = os.path.join(self.simulation_model_template_path, "platform.xml")
         self.setNumberOfCoresWithFrequencies()
