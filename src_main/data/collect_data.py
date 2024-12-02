@@ -36,7 +36,7 @@ class DataCollector:
         self.heuristic_name = None
         self.lock_main = Lock()
         self.lock_main_backup = Lock()
-        self.lock_fitnss_backup = Lock()
+        self.lock_fitness_backup = Lock()
 
 
     def store_design_point_metrics(self, latency_df, cost_df, sim_uid, heuristic_name):
@@ -96,7 +96,7 @@ class DataCollector:
             fitness = fitness_values[agent_id]
             data_df = pd.DataFrame([[sim_uid, fitness]],
                             columns=['SimulationID', 'Fitness'])
-            with self.lock_fitnss_backup:
+            with self.lock_fitness_backup:
                 data_df.to_csv(data_fitness_file, mode='a', header=not os.path.exists(data_fitness_file), index=False)
 
 
