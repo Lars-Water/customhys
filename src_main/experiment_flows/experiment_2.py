@@ -17,7 +17,7 @@ def run_experiment(base_path, experiment_config, coordinator_config_file_path):
     if log_path is None:
         log_path = os.path.join(base_path, "data/logs/")
 
-    coordinator_log_path = Path(os.path.join(self.log_path, "exp2"))
+    coordinator_log_path = Path(os.path.join(log_path, "exp2"))
     conf.createLogger(coordinator_log_path, f"run_search_operator_space_path_{search_operator_space_name}")
 
     # Define the number of agents and iterations for the coordinator and metaheuristics.
