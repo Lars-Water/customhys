@@ -20,7 +20,9 @@
     "output_paths": {
         "agents_fitness_values_path": "/home/herget/UvA-git/hh_local/design_points/agents_fitness",
         "steps_output_path": "/home/herget/UvA-git/hh_local/mhs",
-        "design_points_metrics_output": "/home/herget/UvA-git/hh_local/design_points"
+        "design_points_metrics_output": "/home/herget/UvA-git/hh_local/design_points",
+        "general_files": "/home/herget/UvA-git/hh_local/",
+        "log_files": "/home/herget/UvA-git/hh_local/data/logs"
     },
     "fitness_config": {
         "fitness_function": "wfpm",
@@ -33,7 +35,7 @@
             "omnetpp_base": "/home/herget/omnet/omnetpp-6.0.1",
             "inet_path": "/home/herget/omnet/omnet-projects/inet4.5",
             "experiments_path": "/home/herget/UvA-git/hh_local/experiments_asml",
-            "dummy_path": "/home/herget/UvA-git/hh_local/generated",
+            "generated_path": "/home/herget/UvA-git/hh_local/generated",
             "simulation_model_template_path": "/home/herget/UvA-git/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/faezeh_old/MultiHostDas6",
             "simulation_model_generated_path": "/home/herget/UvA-git/hh_local/generated/custom_faezeh"
         },

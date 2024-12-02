@@ -7,7 +7,7 @@ from src_main.external.customhys.customhys import hyperheuristic as hh
 
 from src_main.data import collect_data
 from src_main.tools import component_config
-from src_main.tools import coordinator
+from src_main.tools import coordinator_inet
 from src.utils.config_reader import Config
 
 save_runs = []
@@ -25,12 +25,12 @@ def run_experiment(experiment_config, coordinator_params):
 
     # Create the HeuristicSimulationCoordinator.
     base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches = coordinator_params
-    heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches, len(search_operator_space_names)*num_replicas) # noqa 501
+    heur_sim_coordinator = coordinator_inet.HeuristicSimulationCoordinatorINET(base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches, len(search_operator_space_names)*num_replicas) # noqa 501
     heur_sim_coordinator.set_run_name("INET_LANS_"+str(heur_sim_coordinator.time_stamp))
 
     # Create problem instance.
     heur_sim_coordinator.manual_normalization()
-    min_datarate, max_datarate, min_cost, max_cost = heur_sim_coordinator.get_datarate_cost_boundaries()
+    min_datarate, max_datarate, min_cost, max_cost = heur_sim_coordinator.get_boundaries()
 
 
     # Reset the execution times before starting the heuristic run.
@@ -59,14 +59,16 @@ def run_experiment(experiment_config, coordinator_params):
 
 def run_search_operator_space_path(experiment_config, search_operator_space_path, search_operator_space_name, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator, coordinator_params):
     base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches = coordinator_params
-    coordinator_log_path = os.path.join(base_path, "data/logs/exp_1")              
-    os.makedirs(coordinator_log_path, exist_ok=True)
-    conf = Config(coordinator_config_file_path, Path(coordinator_log_path), f"run_search_operator_space_path_{search_operator_space_name}")
 
+    conf = Config(coordinator_config_file_path, name = f"run_search_operator_space_path_{search_operator_space_name}")
+    log_path = conf.tryGet("output_paths", "log_files")
+    if log_path is None:
+        log_path = os.path.join(base_path, "data/logs/")
+
+    coordinator_log_path = Path(os.path.join(self.log_path, "exp1"))
+    conf.createLogger(coordinator_log_path, f"run_search_operator_space_path_{search_operator_space_name}")
+            
     pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
-        # Open a file in write mode ('w') and write the string
-    with open("output.txt", "a") as file:
-        file.write(f"Running {search_operator_space_path} - {search_operator_space_name}")
 
     # Get the current Unix timestamp
     timestamp = int(time.time())

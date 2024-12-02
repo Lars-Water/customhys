@@ -6,21 +6,25 @@ from src_main.external.customhys.customhys import metaheuristic as mh
 
 from src_main.tools import component_config
 from src_main.tools.config_reader import Config
-from src_main.tools import coordinator
+from src_main.tools import coordinator_inet
 
 from src_main.data import collect_data
 
 
 def run_experiment(base_path, experiment_config, coordinator_config_file_path):
-    coordinator_log_path = os.path.join(base_path, "data/logs/exp2")              
-    os.makedirs(coordinator_log_path, exist_ok=True)
-    conf = Config(coordinator_config_file_path, Path(coordinator_log_path), f"run_search_operator_space_path_{search_operator_space_name}")
+    conf = Config(coordinator_config_file_path, name = f"run_search_operator_space_path_{search_operator_space_name}")
+    log_path = conf.tryGet("output_paths", "log_files")
+    if log_path is None:
+        log_path = os.path.join(base_path, "data/logs/")
+
+    coordinator_log_path = Path(os.path.join(self.log_path, "exp2"))
+    conf.createLogger(coordinator_log_path, f"run_search_operator_space_path_{search_operator_space_name}")
 
     # Define the number of agents and iterations for the coordinator and metaheuristics.
     nr_of_agents = experiment_config.tryGet('nr_of_agents')
     nr_of_iterations = experiment_config.tryGet('nr_of_iterations')
     nrs_of_backbones = experiment_config.tryGet('nr_of_backbones')
-    heur_sim_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, nr_of_agents) # noqa 501
+    heur_sim_coordinator = coordinator_inet.HeuristicSimulationCoordinatorINET(base_path, coordinator_config_file_path, nr_of_agents) # noqa 501
 
     pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
 
@@ -31,7 +35,7 @@ def run_experiment(base_path, experiment_config, coordinator_config_file_path):
         heur_sim_coordinator.manual_normalization()
 
         # Create problem instance.
-        min_datarate, max_datarate, min_cost, max_cost = heur_sim_coordinator.get_datarate_cost_boundaries()
+        min_datarate, max_datarate, min_cost, max_cost = heur_sim_coordinator.get_boundaries()
         agents_fitness_values_path = conf.tryGet("output_paths", "agents_fitness_values_path")
         prob = component_config.create_problem_instance(nr_of_backbones, max_datarate, min_datarate, max_cost, min_cost, heur_sim_coordinator.simulation_run, agents_fitness_values_path)
 

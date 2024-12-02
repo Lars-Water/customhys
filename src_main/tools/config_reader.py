@@ -15,14 +15,26 @@ class Config:
     configFilePath: PosixPath = None
     _config = None
 
-    def __init__(self, configFilePath: PosixPath, outputfolderpath: PosixPath, name: str):
-        self.logger = logger.logger(name, outputfolderpath)
+    def __init__(self, configFilePath: PosixPath, outputfolderpath = None, name: str = None):
+        if outputfolderpath is not None and name is not None:
+            self.logger = logger.logger(name, outputfolderpath)
+        elif name is not None:
+            self.logger = logger.loggerSTDOUT(name)
+        else:
+            self.logger = logger.loggerSTDOUT("Config")
+
         self.logger.info("Default config file: "+str(self.defaultFile))
         if os.path.exists(configFilePath) and os.path.isfile(configFilePath):
             self.configFilePath = configFilePath
             self.logger.info("Using config file: "+str(self.configFilePath))
         else:
             self.configFilePath = self.defaultFile
+        self.readConfig(self.configFilePath)
+
+    def createLogger(self, outputfolderpath: PosixPath, name: str):
+        self.logger = logger.logger(name, outputfolderpath)
+        self.logger.info("Init logger later then init()")
+        self.logger.info("Reread config file.")
         self.readConfig(self.configFilePath)
 
     def readConfig(self, configFilePath: PosixPath = defaultFile):

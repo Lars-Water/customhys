@@ -62,14 +62,16 @@ def run_experiment(experiment_config, coordinator_params):
 
 def run_search_operator_space_path(experiment_config, search_operator_space_path, search_operator_space_name, max_wfpm_runtime, min_wfpm_runtime, min_cost, max_cost, heur_sim_coordinator, coordinator_params):
     base_path, coordinator_config_file_path, nr_of_agents, run_name = coordinator_params
-    coordinator_log_path = os.path.join(base_path, "data/logs/exp_asml")              
-    os.makedirs(coordinator_log_path, exist_ok=True)
-    conf = Config(coordinator_config_file_path, Path(coordinator_log_path), f"run_search_operator_space_path_{search_operator_space_name}")
+
+    conf = Config(coordinator_config_file_path, name = f"run_search_operator_space_path_{search_operator_space_name}")
+    log_path = conf.tryGet("output_paths", "log_files")
+    if log_path is None:
+        log_path = os.path.join(base_path, "data/logs/")
+
+    coordinator_log_path = Path(os.path.join(self.log_path, "exp_asml"))
+    conf.createLogger(coordinator_log_path, f"run_search_operator_space_path_{search_operator_space_name}")
 
     pass_finalised_positions = experiment_config.tryGet('pass_finalised_positions')
-        # Open a file in write mode ('w') and write the string
-    # with open("output.txt", "a") as file:
-    #     file.write(f"Running {search_operator_space_path} - {search_operator_space_name}")
 
     # Get the current Unix timestamp
     timestamp = int(time.time())
@@ -89,12 +91,12 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     probs = {}
     num_replicas = hh_parameters["num_replicas"] if hh_parameters["num_replicas"] > 0 else 1 
     simulation_model_template_path = conf.tryGet("simulation_model", "simulation_model_paths", "simulation_model_template_path")
-    template_ini_file_path = os.path.join(simulation_model_template_path, "platform.xml")
+    template_file_path = os.path.join(simulation_model_template_path, "platform.xml")
     agents_fitness_values_path = conf.tryGet("output_paths", "agents_fitness_values_path")
     
 
     for rep in range(num_replicas):
-        probs[rep] = component_config.create_problem_instanceASML(template_ini_file_path, max_wfpm_runtime, min_wfpm_runtime, min_cost, max_cost, heur_sim_coordinator.simulation_run, agents_fitness_values_path)
+        probs[rep] = component_config.create_problem_instanceASML(template_file_path, max_wfpm_runtime, min_wfpm_runtime, min_cost, max_cost, heur_sim_coordinator.simulation_run, agents_fitness_values_path)
         probs[rep]['set_file_name_fitness_values']("fitness_values_"+str(search_operator_space_name)+"_replica_"+str(rep)+".json")        
         probs[rep]['set_search_operator_space_name'](str(search_operator_space_name))
 
@@ -109,7 +111,7 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
             "hh_parameters": hh_parameters,
             "timestamp": timestamp,
             "search_operator_space_name": search_operator_space_name,
-            "template_ini_file_path": template_ini_file_path,
+            "template_file_path": template_file_path,
             "coordinator_config": conf.conf()
         }
     )

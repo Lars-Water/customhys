@@ -467,10 +467,10 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, exp
         # remove_directory(sims_directory_path)
 
     # elif parameter_tuning:
-    #     parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
+    #     parameter_tuning_coordinator = coordinator_inet.HeuristicSimulationCoordinatorINET(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
     #     parameter_tuning_coordinator.parameter_tuning_workflow()
     # elif design_space_plot:
-    #     design_space_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
+    #     design_space_coordinator = coordinator_inet.HeuristicSimulationCoordinatorINET(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
     #     design_space_coordinator.determine_design_space()
 
     return

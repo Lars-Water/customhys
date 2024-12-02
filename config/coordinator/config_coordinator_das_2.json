@@ -32,7 +32,8 @@
         "agents_fitness_values_path": "/var/scratch/lvdwater/design_points/agents_fitness",
         "design_points_metrics_output": "/var/scratch/lvdwater/design_points",
         "steps_output_path": "/var/scratch/lvdwater/design_points/mhs",
-        "general_files": "/var/scratch/mherget/design_points"
+        "general_files": "/var/scratch/lvdwater/design_points",
+        "log_files": "/var/scratch/lvdwater/data/logs"
     },
     "fitness_config": {
         "fitness_function": "latency_cost",
@@ -45,7 +46,7 @@
             "omnetpp_base": "/var/scratch/lvdwater/omnetpp-6.0.1",
             "inet_path": "/var/scratch/lvdwater/inet4.5",
             "experiments_path": "/var/scratch/lvdwater/experiments_2",
-            "dummy_path": "/var/scratch/lvdwater/experiments_2/generated",
+            "generated_path": "/var/scratch/lvdwater/experiments_2/generated",
             "simulation_model_template_path": "/home/lvdwater/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims_2/dummy_sim_lans",
             "simulation_model_generated_path": "/var/scratch/lvdwater/experiments_2/generated/custom_dummy"
         },

@@ -13,7 +13,7 @@ from pathlib import Path
 import argparse
 
 from src_main.tools.config_reader import Config
-import src_main.tools.coordinator as coordinator
+import src_main.tools.coordinator_inet as coordinator_inet
 from src_main.data import collect_data
 import src_main.experiment_flows.experiment_1 as exp_1_flow
 import src_main.experiment_flows.experiment_2 as exp_2_flow
@@ -137,10 +137,14 @@ def quick_and_dirty_save_hh_positions_to_xlsx(positions_data, rescale=False):
 
 
 def experiment_asml(base_path, coordinator_config_file_path):
-    # Set up the experiment_1 configuration object.
+    conf = Config(coordinator_config_file_path, name = "main_conf_logPath")
+    log_path = conf.tryGet("output_paths", "log_files")
+    if log_path is None:
+        log_path = os.path.join(base_path, "data/logs/")
+
     experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_asml/experiment_asml.json"))
-    experiment_1_log_path = os.path.join(base_path, "data/logs/experiments/experiment_asml")
-    os.makedirs(experiment_1_log_path, exist_ok=True)
+    experiment_1_log_path = os.path.join(log_path, "experiments/experiment_asml")
+
     config_manager_filename = f"experiment_asml_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
     experiment_1_config = Config(experiment_1_config_file_path, Path(experiment_1_log_path), config_manager_filename)
     # TODO: Change this naming flow, because it goes from main, to coordinator, to data collector.
@@ -162,11 +166,18 @@ def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switche
     None
     """
     # Set up the experiment_1 configuration object.
+    conf = Config(coordinator_config_file_path, name = "main_conf_logPath")
+    log_path = conf.tryGet("output_paths", "log_files")
+    if log_path is None:
+        log_path = os.path.join(base_path, "data/logs/")
+
+        
     experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_1/experiment_1.json"))
-    experiment_1_log_path = os.path.join(base_path, "data/logs/experiments/experiment_1")
-    os.makedirs(experiment_1_log_path, exist_ok=True)
-    config_manager_filename = f"experiment_1_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    experiment_1_log_path = os.path.join(log_path, "experiments/experiment_1")
+    config_manager_filename =f"experiment_1_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
     experiment_1_config = Config(experiment_1_config_file_path, Path(experiment_1_log_path), config_manager_filename)
+
     # TODO: Change this naming flow, because it goes from main, to coordinator, to data collector.
     nr_of_agents = experiment_1_config.tryGet("hh_parameters", "num_agents")
     run_name = "experiment_1"
@@ -187,10 +198,15 @@ def experiment_2(base_path, coordinator_config_file_path):
     Returns:
         None
     """
+    conf = Config(coordinator_config_file_path, name = "main_conf_logPath")
+    log_path = conf.tryGet("output_paths", "log_files")
+    if log_path is None:
+        log_path = os.path.join(base_path, "data/logs/")
+
     # Set up the experiment_2 configuration object.
     experiment_2_config_file_path = Path(os.path.join(base_path, "config/experiment_2/experiment_2.json"))
-    experiment_2_log_path = os.path.join(base_path, "data/logs/experiments/experiment_2")
-    os.makedirs(experiment_2_log_path, exist_ok=True)
+    experiment_2_log_path = os.path.join(log_path, "experiments/experiment_2")
+
     config_manager_filename = f"experiment_2_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
     experiment_2_config = Config(experiment_2_config_file_path, Path(experiment_2_log_path), config_manager_filename)
 
@@ -329,10 +345,10 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, exp
         # remove_directory(sims_directory_path)
 
     # elif parameter_tuning:
-    #     parameter_tuning_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
+    #     parameter_tuning_coordinator = coordinator_inet.HeuristicSimulationCoordinatorINET(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
     #     parameter_tuning_coordinator.parameter_tuning_workflow()
     # elif design_space_plot:
-    #     design_space_coordinator = coordinator.HeuristicSimulationCoordinator(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
+    #     design_space_coordinator = coordinator_inet.HeuristicSimulationCoordinatorINET(base_path, coordinator_config_file_path, None, nr_of_backbone_switches) # noqa 501
     #     design_space_coordinator.determine_design_space()
 
     return

@@ -23,26 +23,22 @@ from src.utils.config_creator import WorkflowConfig
 
 import uuid
 
-from .coordinator import HeuristicSimulationCoordinator
+from .coordinatorBase import HeuristicSimulationCoordinatorBase
 
 
-class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
+class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
 
     def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, run_name=None, nr_of_design_queues=0):
         super().__init__(base_path, coordinator_config_file_path, nr_of_agents,run_name=run_name, nr_of_design_queues=nr_of_design_queues)
-        
-        
-        # TODO ASML
-        dir_design_points_metrics_output = self.conf.tryGet("output_paths", "design_points_metrics_output")
-        weight_wfpm = self.conf.tryGet("fitness_config", "weight_wfpm")
-        weight_cost= self.conf.tryGet("fitness_config", "weight_wfpm")
-        self.data_collector = DataCollectorASML(weight_wfpm, weight_cost, dir_design_points_metrics_output)
-
-        
+                
         self.template_xml_file_path = os.path.join(self.simulation_model_template_path, "platform.xml")
         self.setNumberOfCoresWithFrequencies()
-        # self.setNumberOfCoresWithActive()
 
+        # self.setNumberOfCoresWithActive()
+    def createDataCollector(self):
+        weight_wfpm = self.conf.tryGet("fitness_config", "weight_wfpm")
+        weight_cost= self.conf.tryGet("fitness_config", "weight_wfpm")
+        self.data_collector = DataCollectorASML(weight_wfpm, weight_cost, self.dir_design_points_metrics_output)
 
     def setNumberOfCoresWithFrequencies(self):
         tree = ET.parse(self.template_xml_file_path)
@@ -218,7 +214,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
 
 
     def get_boundaries(self):
-        self.logger.info("get_datarate_cost_boundaries: \n" +
+        self.logger.info("get_boundaries: \n" +
                             "self.min_wfpm_runtime: " + str(self.min_wfpm_runtime) + "\n" +
                             "self.max_wfpm_runtime: " + str(self.max_wfpm_runtime) +"\n" +
                             "self.min_cost_runtime: " + str(self.min_cost) + "\n" +
@@ -306,7 +302,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinator):
 
         if self.remove_design_point_configuration_dummy_path:
             self.logger.debug("Removing simulation run templates in dummy path.")
-            fo.remove_design_point_configurations_dummy_path(self.sim_dummy_directory, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
+            fo.remove_design_point_configurations_dummy_path(self.generated_path, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
             
         if self.remove_sim_instance_experiments_folder:
             self.logger.debug("Removing simulation instances from experiments folder.")
