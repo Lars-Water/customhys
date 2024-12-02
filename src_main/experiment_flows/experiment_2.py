@@ -99,7 +99,7 @@ def _run_hh(experiment_config, prob, heur_sim_coordinator, nr_of_backbones, pass
     for rep in range(num_replicas):
         probs[rep] = prob
         probs[rep]['set_file_name_fitness_values']("fitness_values_"+str(search_operator_space_name)+"_replica_"+str(rep)+".json")
-        probs[rep]['set_search_operator_space_name'](str(search_operator_space_name))
+        probs[rep]['set_space_name'](str(search_operator_space_name))
         # print(probs[rep]['get_file_name_fitness_values']())
 
     hyp = hh.Hyperheuristic(

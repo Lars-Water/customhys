@@ -88,21 +88,18 @@ def run_search_operator_space_path(experiment_config, search_operator_space_path
     nr_of_steps = experiment_config.tryGet('hh_parameters', 'num_steps')
     file_label = f"ASML-Faezeh_{experiment_name}_{nr_of_iterations}_iterations_{nr_of_steps}_steps_{str(timestamp)}"
 
-    probs = {}
     num_replicas = hh_parameters["num_replicas"] if hh_parameters["num_replicas"] > 0 else 1 
     simulation_model_template_path = conf.tryGet("simulation_model", "simulation_model_paths", "simulation_model_template_path")
     template_file_path = os.path.join(simulation_model_template_path, "platform.xml")
     agents_fitness_values_path = conf.tryGet("output_paths", "agents_fitness_values_path")
     
-
-    for rep in range(num_replicas):
-        probs[rep] = component_config.create_problem_instanceASML(template_file_path, max_wfpm_runtime, min_wfpm_runtime, min_cost, max_cost, heur_sim_coordinator.simulation_run, agents_fitness_values_path)
-        probs[rep]['set_file_name_fitness_values']("fitness_values_"+str(search_operator_space_name)+"_replica_"+str(rep)+".json")        
-        probs[rep]['set_search_operator_space_name'](str(search_operator_space_name))
+    heur_sim_coordinator.problemSpace.create_problems(search_operator_space_name, num_replicas, component_config.create_problem_instanceASML, template_file_path, max_wfpm_runtime, min_wfpm_runtime, min_cost, max_cost, heur_sim_coordinator.simulation_run, agents_fitness_values_path)
 
     hyp = hh.Hyperheuristic(
         heuristic_space=heuristic_space,
-        problems=probs,
+        # problems=probs,
+        heur_coordinator=heur_sim_coordinator,
+        search_operator_space_name=search_operator_space_name,
         parameters=hh_parameters,
         file_label=file_label,
         pass_finalised_positions=pass_finalised_positions,

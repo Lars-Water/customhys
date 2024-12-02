@@ -55,9 +55,9 @@ class instanceBase(BP):
     '''
         Set file name for local fitness values file for running multiple HH/MH at once
     '''
-    def set_search_operator_space_name(self, search_operator_space_name):
-        self.search_operator_space_name = search_operator_space_name
-        self.step_iteration_data["problem"] = search_operator_space_name
+    def set_space_name(self, space_name):
+        self.space_name = space_name
+        self.step_iteration_data["problem"] = space_name
 
     def set_file_name_fitness_values(self, file_name_fitness_values):
         self.file_name_fitness_values = file_name_fitness_values
@@ -82,7 +82,7 @@ class instanceBase(BP):
                     features=self.get_features(fts=fts),
                     func_name=self.func_name,
                     dimensions=self.variable_num,
-                    set_search_operator_space_name=lambda x: self.set_search_operator_space_name(x),
+                    set_space_name=lambda x: self.set_space_name(x),
                     set_file_name_fitness_values=lambda x: self.set_file_name_fitness_values(x),
                     get_file_name_fitness_values=lambda: self.get_file_name_fitness_values(),
                     fitness_value_dir = self.fitness_value_dir,

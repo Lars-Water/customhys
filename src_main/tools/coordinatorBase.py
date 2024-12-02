@@ -3,6 +3,7 @@ from src_main.data.collect_data import DataCollector
 import src_main.tools.component_config as component_config
 import src_main.tools.file_operations as fo
 from src_main.tools.config_reader import Config
+from src_main.tools.problemSpace import ProblemSpace
 
 import os
 import glob
@@ -26,6 +27,7 @@ import uuid
 
 
 class HeuristicSimulationCoordinatorBase:
+    problemspace = None
 
     def __del__(self):
         if hasattr(self, "manager"):
@@ -53,6 +55,7 @@ class HeuristicSimulationCoordinatorBase:
         self.uids = []
         self.queues = {}
 
+        self.coordinator_config_file_path = coordinator_config_file_path
         self.conf = Config(coordinator_config_file_path, name = "coordinator_config_manager")
         self.log_path = self.conf.tryGet("output_paths", "log_files")
         if self.log_path is None:
@@ -148,6 +151,7 @@ class HeuristicSimulationCoordinatorBase:
             self.dir_design_points_metrics_output = os.path.join(self.data_path, "design_points_metrics")
 
         self.createDataCollector()
+        self.problemSpace = ProblemSpace(self.coordinator_config_file_path, self.log_path)
 
 
         # clear out old agent finess files
@@ -500,3 +504,4 @@ class HeuristicSimulationCoordinatorBase:
                         ignore=self.ignore_file(file_to_ignore),              
                         symlinks=True
         )
+
