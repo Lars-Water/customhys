@@ -27,8 +27,23 @@ class CustomFormatter(logging.Formatter):
         )
         return s
 
+def loggerSTDOUT(name):
+    formatter = CustomFormatter(
+        fmt='[ %(name)s  %(asctime)s  %(levelname)-8s ]  %(message)s',
+        datefmt='%d-%m-%Y %H:%M:%S'
+    )
+
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
+
+    screen_handler = logging.StreamHandler(stream=sys.stdout)
+    screen_handler.setFormatter(formatter)
+    logger.addHandler(screen_handler)
+
+    return logger
 
 def logger(name, outfolder, print_stdout=False, disabled=False):
+    os.makedirs(outfolder, exist_ok=True)
     outputfile = os.path.join(outfolder, 'log_'+str(name)+'.txt')
     formatter = CustomFormatter(
         fmt='[ %(name)s  %(asctime)s  %(levelname)-8s ]  %(message)s',
