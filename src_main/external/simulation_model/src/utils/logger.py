@@ -34,7 +34,7 @@ def loggerSTDOUT(name):
     )
 
     logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
+    logger.setLevel(logging.INFO)
 
     screen_handler = logging.StreamHandler(stream=sys.stdout)
     screen_handler.setFormatter(formatter)
@@ -53,6 +53,7 @@ def logger(name, outfolder, print_stdout=False, disabled=False):
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
     logger.disabled = disabled
+    logger.handlers.clear()
 
     if not disabled:
         handler = logging.FileHandler(outputfile, mode='w')

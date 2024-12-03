@@ -17,11 +17,14 @@ import sys
 from pathlib import Path
 import glob
 import itertools
+from threading import Lock
+import math
 
 
 from experiments import create_sim_custom_dummy, create_sim_inet_lans_dummy, create_sim_inet_lans_dummy_parallel
 from src.manager import Manager
 from src.utils.config_creator import WorkflowConfig
+from src_main.external.customhys.customhys import hyperheuristic as hh
 
 import uuid
 
@@ -154,6 +157,9 @@ class HeuristicSimulationCoordinatorBase:
 
         self.createDataCollector()
         self.search_operator_spaces = SearchOperatorSpace(self.coordinator_config_file_path, self.log_path)
+        self.hypers = {}
+        self.first_hyper_deactivated = False
+        self.lock_hypers = Lock()
 
 
         # clear out old agent finess files
@@ -264,7 +270,7 @@ class HeuristicSimulationCoordinatorBase:
             self.logger.info("Run the generated simulation instances.")
             uids = self.run_multiple_simulation_configuration(sim_ids, file_name_fitness_values, step_iteration_data = step_iteration_data)
 
-            self.logger.info("Collect the simulation stats from the simulation instances runs.\n"+str(uids.keys()))
+            self.logger.debug("Collect the simulation stats from the simulation instances runs.\n"+str(uids.keys()))
             simulation_metrics = self.obtain_simulation_stats(uids)
 
             self.logger.info("Locally storing the agents fitness values.")
@@ -506,4 +512,165 @@ class HeuristicSimulationCoordinatorBase:
                         ignore=self.ignore_file(file_to_ignore),              
                         symlinks=True
         )
+
+
+    def hh(self, heuristic_space, search_operator_space_name, hh_parameters, file_label, pass_finalised_positions, timestamp, template_file_path, experiment_name):
+        self.hypers[search_operator_space_name] = {
+            "hh": hh.Hyperheuristic(
+                heuristic_space=heuristic_space,
+                # problems=probs,
+                heur_coordinator=self,
+                search_operator_space_name=search_operator_space_name,
+                parameters=hh_parameters,
+                file_label=file_label,
+                pass_finalised_positions=pass_finalised_positions,
+                file_details= {
+                    "experiment_name": experiment_name,
+                    "hh_parameters": hh_parameters,
+                    "timestamp": timestamp,
+                    "search_operator_space_name": search_operator_space_name,
+                    "template_file_path": template_file_path,
+                    "coordinator_config": self.conf.conf()
+                }
+            ),
+            "enabled": True,
+            "steps": {},
+            "best": {
+                "step": 0
+            }
+        }
+
+
+        # Start timer for the heuristic run.
+        start_time = time.time()
+
+        # Start hyper-heuristic run.
+        best_sol, best_perf, hist_curr, hist_best = self.hypers[search_operator_space_name]["hh"].solve()
+
+        # End timer for the heuristic run.
+        end_time = time.time()
+
+        hh_run_meta_data = collect_data_INET.calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator)
+
+        # Save the heuristic run data.
+        results_path = os.path.join(os.getcwd(), "data/raw/results/", experiment_name)
+        if self.conf.tryGet("results_path") and self.conf.tryGet("results_path") is not None:
+            results_path = self.conf.tryGet("results_path")
+        save_run_path = os.path.join(results_path, experiment_name)
+
+        print(f" ("+search_operator_space_name+") Best solution: "+str(best_sol))
+        print(f" ("+search_operator_space_name+") Best performance: "+str(best_perf))
+        print(f" ("+search_operator_space_name+") Best history: "+str(hist_best))
+        print(f" ("+search_operator_space_name+") Current history: "+str(hist_curr))
+
+        return {
+            "hh": {
+                "experiment_name": experiment_name,
+                "best_solution": best_sol,
+                "best_performance": best_perf,
+                "current_history": hist_curr,
+                "best_history": hist_best
+            }
+        }
+        
+    def hh_checkFinalization(self, 
+                             search_operator_space_name,  
+                             step, 
+                             stag_counter,
+                             best_performance,
+                             current_performance):
+        with self.lock_hypers:
+            finalize = not self.hypers[search_operator_space_name]["enabled"]
+            self.hypers[search_operator_space_name]["best"] = {
+                "step": step,
+                "performance": best_performance
+            }
+            self.hypers[search_operator_space_name]["steps"][step] = {
+                "performance": current_performance,
+                "best": best_performance
+            }
+            if self._experiment_config is not None:  
+                minimum_amount_of_hhs = self._experiment_config.tryGet("search_operators", "minimum_amount_of_hhs")
+                enabled_hypers = self._hh_get_num_enabled_hyper()
+                if enabled_hypers <= minimum_amount_of_hhs:
+                    # If HH is amoung the last ones then keep it running 
+                    finalize = False
+                else:
+                    # Otherwise disable worst performing one after minimum 
+                    evaluate_after_steps = self._experiment_config.tryGet("search_operators", "evaluate_after_steps")
+                    print(evaluate_after_steps >= step and (step % evaluate_after_steps) == 0)
+                    if evaluate_after_steps >= step and (step % evaluate_after_steps) == 0:
+                        finalize = finalize or self._hh_is_worst_hyper(search_operator_space_name, step)
+            self.logger.info(f"hh_checkFinalization for {search_operator_space_name} (Step: {step}, stag_counter: {stag_counter}):\n{self.hypers[search_operator_space_name]}")
+            self.logger.info(f"finalize for {search_operator_space_name}: {finalize}")
+            return finalize
+
+    def _hh_is_worst_hyper(self, search_operator_space_name, step):
+        evaluate_after_steps = self._experiment_config.tryGet("search_operators", "evaluate_after_steps")
+        worst_perf = -1
+        worst_name = None
+        self.logger.info(f'_hh_is_worst_hyper ({search_operator_space_name}): {step}')
+        for name, hyper in self.hypers.items():
+            # If any hh has not done enough steps yet, let all keep running
+            if hyper["enabled"]:
+                if hyper["best"]["step"] < evaluate_after_steps:
+                    return False
+                # elif step in hyper["steps"]: # TODO MORGEN
+                    # if hyper["steps"][step]["best"] > worst_perf:
+                else:
+                    if hyper["best"]["performance"] > worst_perf:
+                        self.logger.info(f'Found a new worst: worst_perf: {worst_perf}, perf: {hyper["best"]["performance"]}, name: {name}')
+                        worst_perf = hyper["best"]["performance"]
+                        worst_name = name
+        # If its the worst performing: disable
+        if search_operator_space_name == worst_name:
+            self.first_hyper_deactivated = True
+            return True
+        # Check whether one has been deactivate so far: If not, deactive it.
+        # This needs to be done, so that after all HH achieved the minmum steps, one get deactivated before the next iteration is done
+        elif not self.first_hyper_deactivated and worst_name is not None:
+            self.logger.info(f"First hyper will be deactivated: {worst_name}")
+            self.hypers[worst_name]["enabled"] = False
+            self.first_hyper_deactivated = True
+        return False
+    
+    def _hh_get_num_enabled_hyper(self):
+        enabled_hypers = 0
+        for search_operator_space_name, hyper in self.hypers.items():
+            if hyper["enabled"]:
+                enabled_hypers += 1
+        return enabled_hypers
+
+    def hh_disable_hh_and_distribute_Resources(self, search_operator_space_name):
+        with self.lock_hypers:
+            self.hypers[search_operator_space_name]["enabled"] = False
+            self.hypers[search_operator_space_name]["stopped"] = time.time()
+
+            if self._experiment_config is not None:
+                optimize_utilization = self._experiment_config.tryGet("search_operators", "optimize_utilization")
+                if optimize_utilization:
+                    avail_agents = self.hypers[search_operator_space_name]["hh"].get_num_agents()
+                    enabled_hypers = self._hh_get_num_enabled_hyper()
+                    avail_agents_per_hyper = math.floor(avail_agents/enabled_hypers)
+
+                    self.logger.info(f"distribute_Resources: Hyper Heuristic {search_operator_space_name} is finalized and its {avail_agents} will be distributed to the remaining {enabled_hypers} Hyper Heuristics ({avail_agents_per_hyper} per HH).")
+                    json_out = {
+                        "hypers": self.hypers
+                    }
+
+                    for search_operator_space_name, hyper in self.hypers.items():
+                        if hyper["enabled"]:
+                            hyper["hh"].give_avail_agents_for_next_step(avail_agents_per_hyper)
+                        json_out[search_operator_space_name] = {
+                            "num_agents": hyper["hh"].get_num_agents(),
+                            "avail_agents_per_hyper": avail_agents_per_hyper
+                        }
+                        del json_out["hypers"][search_operator_space_name]["hh"]
+                
+                    with open(os.path.join(self.results_path, "hh_hyper.json") , "w") as fp:
+                        json.dump(json_out, fp, indent=4)
+
+
+
+    
 

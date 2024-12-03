@@ -195,7 +195,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
 
             # Store design point metrics output.
             if self.store_design_points_metrics_values:
-                self.logger.info(f"Storing metrics output values for siminstance {sim_uid}.")
+                self.logger.debug(f"Storing metrics output values for siminstance {sim_uid}.")
                 self.data_collector.store_design_point_metrics(wfpm, cost, sim_uid, self._run_name)
 
             # Remove the csv file.

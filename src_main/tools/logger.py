@@ -53,6 +53,7 @@ def logger(name, outfolder, print_stdout=False, disabled=False):
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
     logger.disabled = disabled
+    logger.handlers.clear()
 
     if not disabled:
         handler = logging.FileHandler(outputfile, mode='w')
