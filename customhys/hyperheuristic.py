@@ -48,7 +48,7 @@ class Hyperheuristic:
     collection from Operators to build metaheuristics using the Metaheuristic module.
     """
 
-    def __init__(self, heuristic_space='default.txt', problems=None, parameters=None, file_label='', weights_array=None, pass_finalised_positions=False, file_details=None, heur_coordinator=None, search_operator_space_name = None):
+    def __init__(self, heuristic_space='default.txt', problems=None, parameters=None, file_label='', weights_array=None, pass_finalised_positions=False, file_details=None, heur_coordinator=None, search_operator_space_name = None, updateMHProgress = None):
         """
         Create a hyper-heuristic process using a operator collection as heuristic space.
 
@@ -169,6 +169,7 @@ class Hyperheuristic:
         self.pass_finalised_positions = pass_finalised_positions
         if self.pass_finalised_positions:
             self.collection_finalised_positions_previous_step = []
+        self.updateMHProgress = updateMHProgress
 
 
         # _save_step(0, {}, self.parameters, self.file_details, self.file_label)
@@ -1109,7 +1110,8 @@ class Hyperheuristic:
                                self.num_iterations,
                                verbose=self.parameters['verbose_mh'],
                                finalised_positions_previous_step=finalised_positions_previous_step,
-                               pass_finalised_positions=self.pass_finalised_positions)
+                               pass_finalised_positions=self.pass_finalised_positions,
+                               updateProgress=self.updateMHProgress if i == (self.parameters['num_replicas']-1) else None)
 
             # Run this metaheuristic
             fns_mh.append(threading.Thread(target=mhs[i].run, args=(self.hh_step, self.file_label)))

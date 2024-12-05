@@ -25,7 +25,7 @@ class Metaheuristic:
         search operators from op, and it is based on a population from Population.
     """
     def __init__(self, problem, search_operators=None, num_agents: int = 30, num_iterations: int = 100,
-                 initial_scheme: str = 'random', verbose: bool = False, finalised_positions_previous_step = None,  pass_finalised_positions = False):
+                 initial_scheme: str = 'random', verbose: bool = False, finalised_positions_previous_step = None,  pass_finalised_positions = False, updateProgress=None):
         """
         Create a population-based metaheuristic by employing different simple search operators.
 
@@ -87,6 +87,9 @@ class Metaheuristic:
 
         # NOTE: CUSTOM CHANGE BY LARS - Set the flag for passing finalised positions.
         self.pass_finalised_positions = pass_finalised_positions
+        self.updateProgress = None
+        if updateProgress is not None:
+            self.updateProgress = updateProgress
 
 
     def apply_initialiser(self, hh_step=None, file_label=None):
@@ -142,6 +145,9 @@ class Metaheuristic:
         if (not self.perturbators) or (not self.selectors):
             raise Operators.OperatorsError("There are not perturbator or selector!")
 
+        if self.updateProgress is not None:
+            self.updateProgress["start"]()
+
         # Apply initialiser / Random Sampling
         self.apply_initialiser(hh_step=hh_step, file_label =file_label)
 
@@ -174,6 +180,9 @@ class Metaheuristic:
             # Verbose (if so) some information
             self._verbose('Iteration: {}\npop. radius: {}'.format(self.pop.iteration, self.historical['radius'][-1]))
             self._verbose(self.pop.get_state())
+
+            if self.updateProgress is not None:
+                self.updateProgress["advance"](1)
 
             # TODO: Save design points in CSV file.
 
