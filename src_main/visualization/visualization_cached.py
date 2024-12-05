@@ -31,8 +31,12 @@ class visuSimulations(visuBase):
         exp_name = str(exp_name.split("/")[-1])
         exp_name = exp_name.split("_stats")[0]
 
-        td = timedelta(seconds=math.floor(data["general"]["environment_time"]))
-        info = [f'Total: {data["general"]["num_dp"]}', f'Cached: {data["general"]["num_dp_cached"]}', f'Runtime: {td}', f"Exp: {exp_name}"]
+        info = [f'Total: {data["general"]["num_dp"]}', f'Cached: {data["general"]["num_dp_cached"]}']
+        if "environment_time" in data["general"]:
+            td = timedelta(seconds=math.floor(data["general"]["environment_time"]))
+            info.append(f'Runtime: {td}')
+            
+        info.append(f"Exp: {exp_name}")
 
         steps_cached = {}
         steps_cached_problems = {}
@@ -100,7 +104,7 @@ if __name__ == "__main__":
     ps = visuSimulations("")
 
     info = ps.extractData(
-        "/home/herget/UvA-git/hh_local/ASML_20241203_015958_stats.json"
+        "/home/herget/UvA-git/hh_local/ASML_20241205_031752_stats.json"
     )
 
     ps.plotCachedperStep(
