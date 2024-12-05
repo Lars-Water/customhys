@@ -2,10 +2,10 @@
     "hh_parameters": {
         "cardinality": 1,
         "cardinality_min": 1,
-        "num_iterations": 1,
-        "num_agents": 8,
+        "num_iterations": 10,
+        "num_agents": 16,
         "as_mh": true,
-        "num_replicas": 1,
+        "num_replicas": 4,
         "num_steps": 30,
         "stagnation_percentage": 0.37,
         "max_temperature": 100,
@@ -29,16 +29,16 @@
         "sync_steps_of_hhs": true,
         "spaces": {
             "swarm_dynamic": {
-                "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_1/search_operator_space/swarm_dynamic.txt"
+                "path": "config/experiment_1/search_operator_space/swarm_dynamic.txt"
             }
             ,"gravitational": {
-                "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_1/search_operator_space/gravitational.txt"
+                "path": "config/experiment_1/search_operator_space/gravitational.txt"
             }
             ,"firefly_dynamic": {
-                "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml/search_operator_space/firefly_dynamic.txt"
+                "path": "config/experiment_asml/search_operator_space/firefly_dynamic.txt"
             }
             ,"genetic_mutation": {
-                "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_1/search_operator_space/genetic_mutation.txt"
+                "path": "config/experiment_1/search_operator_space/genetic_mutation.txt"
             }
         }
     },

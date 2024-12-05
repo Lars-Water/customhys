@@ -1,7 +1,9 @@
 from src_main.tools.logger import logger, setLevelLogger
 from src_main.data.collect_data_ASML import DataCollectorASML
+from src_main.tools.hyperheuristicBase import HyperHeuristicBase
 import src_main.tools.component_config as component_config
 import src_main.tools.file_operations as fo
+
 
 import os
 import glob
@@ -28,17 +30,38 @@ from .coordinatorBase import HeuristicSimulationCoordinatorBase
 
 class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
 
-    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, run_name=None, nr_of_design_queues=0, experiment_config=None):
-        super().__init__(base_path, coordinator_config_file_path, nr_of_agents,run_name=run_name, nr_of_design_queues=nr_of_design_queues, experiment_config=experiment_config)
-                
-        self.template_xml_file_path = os.path.join(self.simulation_model_template_path, "platform.xml")
+    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, run_name=None, nr_of_design_queues=0, experiment_config=None, normalize=True):
+        super().__init__(base_path, coordinator_config_file_path, nr_of_agents, run_name=run_name, nr_of_design_queues=nr_of_design_queues, experiment_config=experiment_config, normalize=normalize)
         self.setNumberOfCoresWithFrequencies()
 
+        self.min_wfpm_runtime = 157455.0
+        self.max_wfpm_runtime = 179489.0
+        self.min_cost = -23.0
+        self.max_cost = 46.0
+
         # self.setNumberOfCoresWithActive()
+
+    def problemInstanceFunc(self):
+        return component_config.create_problem_instanceASML
+
     def createDataCollector(self):
         weight_wfpm = self.conf.tryGet("fitness_config", "weight_wfpm")
         weight_cost= self.conf.tryGet("fitness_config", "weight_wfpm")
         self.data_collector = DataCollectorASML(weight_wfpm, weight_cost, self.dir_design_points_metrics_output)
+    
+    def createHyperHeuristicBase(self):
+        self.template_xml_file_path = os.path.join(self.simulation_model_template_path, "platform.xml")
+        self.hh_base = HyperHeuristicBase(
+            self,
+            self._base_path,
+            self.coordinator_config_file_path,
+            self._experiment_config,
+            self.template_xml_file_path,
+            self.log_path,
+            "ASML-Faezeh",
+            "experiments_asml",
+            self._run_name
+        )
 
     def setNumberOfCoresWithFrequencies(self):
         tree = ET.parse(self.template_xml_file_path)
@@ -214,12 +237,6 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
 
 
     def get_boundaries(self):
-        self.logger.info("get_boundaries: \n" +
-                            "self.min_wfpm_runtime: " + str(self.min_wfpm_runtime) + "\n" +
-                            "self.max_wfpm_runtime: " + str(self.max_wfpm_runtime) +"\n" +
-                            "self.min_cost_runtime: " + str(self.min_cost) + "\n" +
-                            "self.max_cost_runtime: " + str(self.max_cost) 
-        )
         return self.min_wfpm_runtime, self.max_wfpm_runtime, self.min_cost, self.max_cost
 
     def manual_normalization(self):
@@ -314,6 +331,12 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
         
             
         self._check_normalization()
+        self.logger.info("Boundaries: \n" +
+            "self.min_wfpm_runtime: " + str(self.min_wfpm_runtime) + "\n" +
+            "self.max_wfpm_runtime: " + str(self.max_wfpm_runtime) +"\n" +
+            "self.min_cost: " + str(self.min_cost) + "\n" +
+            "self.max_cost: " + str(self.max_cost) 
+        )
 
 
     def determine_boundary_value(self, sim_uid, parameter, boundary):

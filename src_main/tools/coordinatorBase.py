@@ -4,6 +4,9 @@ import src_main.tools.file_operations as fo
 from src_main.tools.config_reader import Config
 from src_main.tools.problemSpace import ProblemSpace
 from src_main.tools.searchOperatorSpace import SearchOperatorSpace
+from src_main.tools.hyperheuristicBase import HyperHeuristicBase
+
+from src_main.data import collect_data_INET
 
 import os
 import glob
@@ -30,7 +33,7 @@ import uuid
 
 
 class HeuristicSimulationCoordinatorBase:
-    search_operator_spaces = None
+    hh_base = None
 
     def __del__(self):
         if hasattr(self, "manager"):
@@ -44,12 +47,13 @@ class HeuristicSimulationCoordinatorBase:
             coordinator_config_file_path: The path to the configuration file of the coordinator.
             nr_of_agents: The number of agents to run the simulation model with.
     '''
-    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, run_name=None,  nr_of_design_queues=0, experiment_config=None):
+    def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, run_name=None,  nr_of_design_queues=0, experiment_config=None, normalize=True): 
         self._base_path = base_path
         self._nr_of_agents = nr_of_agents
         self._nr_of_sims = nr_of_agents
         self._nr_of_design_queues = nr_of_design_queues
         self._run_name = run_name
+        self._normalize = normalize
         if experiment_config is not None:
             self._experiment_config = experiment_config
 
@@ -83,8 +87,9 @@ class HeuristicSimulationCoordinatorBase:
             num_nodes = self.conf.tryGet("simulation_model", "simulation_model_configuration", "jobs")
             num_workers = self.conf.tryGet("simulation_model", "simulation_model_configuration", "job_cores")*self.conf.tryGet("simulation_model", "simulation_model_configuration", "job_processes")
 
-        self.time_stamp = time.strftime("%Y%m%d_%H%M%S")
-        self.data_path = os.path.join(experiments_path, "data", f"campaign_{sim_model}", f"n{str(num_nodes)}_w{str(num_workers)}_s{str(self._nr_of_sims)}", self.time_stamp)
+        self.timestamp = time.strftime("%Y%m%d_%H%M%S")
+        self.timestamp_int = int(time.time()) 
+        self.data_path = os.path.join(experiments_path, "data", f"campaign_{sim_model}", f"n{str(num_nodes)}_w{str(num_workers)}_s{str(self._nr_of_sims)}", self.timestamp)
 
         # Define params for configuration file creation.
         workflow_config_file = os.path.join(self.data_path, "config.json")
@@ -156,10 +161,8 @@ class HeuristicSimulationCoordinatorBase:
             self.dir_design_points_metrics_output = os.path.join(self.data_path, "design_points_metrics")
 
         self.createDataCollector()
-        self.search_operator_spaces = SearchOperatorSpace(self.coordinator_config_file_path, self.log_path)
-        self.hypers = {}
-        self.first_hyper_deactivated = False
-        self.lock_hypers = Lock()
+        self.createHyperHeuristicBase()
+
 
 
         # clear out old agent finess files
@@ -167,6 +170,22 @@ class HeuristicSimulationCoordinatorBase:
 
     def createDataCollector(self):
         raise NotImplementedError("You need to implement a data collector creator (createDataCollector()).")
+
+    def createHyperHeuristicBase(self):
+        raise NotImplementedError("You need to implement a HyperHeuristic Base (createHyperHeuristicBase()).")
+
+    def problemInstanceFunc(self):
+        raise NotImplementedError("You need to set a problem instance creator (problemInstanceFunc()) which returns a problem instance function.")
+
+    def run(self):
+        if self._normalize:
+            self.logger.info("Start manual normalization.")
+            self.manual_normalization()
+        else:
+            self.logger.warn("Normalization is skipped!")
+        self.coordinator_and_simulation_execution_time = 0
+        self.simulation_execution_time = 0
+        return self.hh_base.run_multi_threaded()
 
     def set_run_name(self, run_name):
         """
@@ -512,165 +531,3 @@ class HeuristicSimulationCoordinatorBase:
                         ignore=self.ignore_file(file_to_ignore),              
                         symlinks=True
         )
-
-
-    def hh(self, heuristic_space, search_operator_space_name, hh_parameters, file_label, pass_finalised_positions, timestamp, template_file_path, experiment_name):
-        self.hypers[search_operator_space_name] = {
-            "hh": hh.Hyperheuristic(
-                heuristic_space=heuristic_space,
-                # problems=probs,
-                heur_coordinator=self,
-                search_operator_space_name=search_operator_space_name,
-                parameters=hh_parameters,
-                file_label=file_label,
-                pass_finalised_positions=pass_finalised_positions,
-                file_details= {
-                    "experiment_name": experiment_name,
-                    "hh_parameters": hh_parameters,
-                    "timestamp": timestamp,
-                    "search_operator_space_name": search_operator_space_name,
-                    "template_file_path": template_file_path,
-                    "coordinator_config": self.conf.conf()
-                }
-            ),
-            "enabled": True,
-            "steps": {},
-            "best": {
-                "step": 0
-            }
-        }
-
-
-        # Start timer for the heuristic run.
-        start_time = time.time()
-
-        # Start hyper-heuristic run.
-        best_sol, best_perf, hist_curr, hist_best = self.hypers[search_operator_space_name]["hh"].solve()
-
-        # End timer for the heuristic run.
-        end_time = time.time()
-
-        hh_run_meta_data = collect_data_INET.calculate_distinct_simulation_components(start_time, end_time, heur_sim_coordinator)
-
-        # Save the heuristic run data.
-        results_path = os.path.join(os.getcwd(), "data/raw/results/", experiment_name)
-        if self.conf.tryGet("results_path") and self.conf.tryGet("results_path") is not None:
-            results_path = self.conf.tryGet("results_path")
-        save_run_path = os.path.join(results_path, experiment_name)
-
-        print(f" ("+search_operator_space_name+") Best solution: "+str(best_sol))
-        print(f" ("+search_operator_space_name+") Best performance: "+str(best_perf))
-        print(f" ("+search_operator_space_name+") Best history: "+str(hist_best))
-        print(f" ("+search_operator_space_name+") Current history: "+str(hist_curr))
-
-        return {
-            "hh": {
-                "experiment_name": experiment_name,
-                "best_solution": best_sol,
-                "best_performance": best_perf,
-                "current_history": hist_curr,
-                "best_history": hist_best
-            }
-        }
-        
-    def hh_checkFinalization(self, 
-                             search_operator_space_name,  
-                             step, 
-                             stag_counter,
-                             best_performance,
-                             current_performance):
-        with self.lock_hypers:
-            finalize = not self.hypers[search_operator_space_name]["enabled"]
-            self.hypers[search_operator_space_name]["best"] = {
-                "step": step,
-                "performance": best_performance
-            }
-            self.hypers[search_operator_space_name]["steps"][step] = {
-                "performance": current_performance,
-                "best": best_performance
-            }
-            if self._experiment_config is not None:  
-                minimum_amount_of_hhs = self._experiment_config.tryGet("search_operators", "minimum_amount_of_hhs")
-                enabled_hypers = self._hh_get_num_enabled_hyper()
-                if enabled_hypers <= minimum_amount_of_hhs:
-                    # If HH is amoung the last ones then keep it running 
-                    finalize = False
-                else:
-                    # Otherwise disable worst performing one after minimum 
-                    evaluate_after_steps = self._experiment_config.tryGet("search_operators", "evaluate_after_steps")
-                    print(evaluate_after_steps >= step and (step % evaluate_after_steps) == 0)
-                    if evaluate_after_steps >= step and (step % evaluate_after_steps) == 0:
-                        finalize = finalize or self._hh_is_worst_hyper(search_operator_space_name, step)
-            self.logger.info(f"hh_checkFinalization for {search_operator_space_name} (Step: {step}, stag_counter: {stag_counter}):\n{self.hypers[search_operator_space_name]}")
-            self.logger.info(f"finalize for {search_operator_space_name}: {finalize}")
-            return finalize
-
-    def _hh_is_worst_hyper(self, search_operator_space_name, step):
-        evaluate_after_steps = self._experiment_config.tryGet("search_operators", "evaluate_after_steps")
-        worst_perf = -1
-        worst_name = None
-        self.logger.info(f'_hh_is_worst_hyper ({search_operator_space_name}): {step}')
-        for name, hyper in self.hypers.items():
-            # If any hh has not done enough steps yet, let all keep running
-            if hyper["enabled"]:
-                if hyper["best"]["step"] < evaluate_after_steps:
-                    return False
-                # elif step in hyper["steps"]: # TODO MORGEN
-                    # if hyper["steps"][step]["best"] > worst_perf:
-                else:
-                    if hyper["best"]["performance"] > worst_perf:
-                        self.logger.info(f'Found a new worst: worst_perf: {worst_perf}, perf: {hyper["best"]["performance"]}, name: {name}')
-                        worst_perf = hyper["best"]["performance"]
-                        worst_name = name
-        # If its the worst performing: disable
-        if search_operator_space_name == worst_name:
-            self.first_hyper_deactivated = True
-            return True
-        # Check whether one has been deactivate so far: If not, deactive it.
-        # This needs to be done, so that after all HH achieved the minmum steps, one get deactivated before the next iteration is done
-        elif not self.first_hyper_deactivated and worst_name is not None:
-            self.logger.info(f"First hyper will be deactivated: {worst_name}")
-            self.hypers[worst_name]["enabled"] = False
-            self.first_hyper_deactivated = True
-        return False
-    
-    def _hh_get_num_enabled_hyper(self):
-        enabled_hypers = 0
-        for search_operator_space_name, hyper in self.hypers.items():
-            if hyper["enabled"]:
-                enabled_hypers += 1
-        return enabled_hypers
-
-    def hh_disable_hh_and_distribute_Resources(self, search_operator_space_name):
-        with self.lock_hypers:
-            self.hypers[search_operator_space_name]["enabled"] = False
-            self.hypers[search_operator_space_name]["stopped"] = time.time()
-
-            if self._experiment_config is not None:
-                optimize_utilization = self._experiment_config.tryGet("search_operators", "optimize_utilization")
-                if optimize_utilization:
-                    avail_agents = self.hypers[search_operator_space_name]["hh"].get_num_agents()
-                    enabled_hypers = self._hh_get_num_enabled_hyper()
-                    avail_agents_per_hyper = math.floor(avail_agents/enabled_hypers)
-
-                    self.logger.info(f"distribute_Resources: Hyper Heuristic {search_operator_space_name} is finalized and its {avail_agents} will be distributed to the remaining {enabled_hypers} Hyper Heuristics ({avail_agents_per_hyper} per HH).")
-                    json_out = {
-                        "hypers": self.hypers
-                    }
-
-                    for search_operator_space_name, hyper in self.hypers.items():
-                        if hyper["enabled"]:
-                            hyper["hh"].give_avail_agents_for_next_step(avail_agents_per_hyper)
-                        json_out[search_operator_space_name] = {
-                            "num_agents": hyper["hh"].get_num_agents(),
-                            "avail_agents_per_hyper": avail_agents_per_hyper
-                        }
-                        del json_out["hypers"][search_operator_space_name]["hh"]
-                
-                    with open(os.path.join(self.results_path, "hh_hyper.json") , "w") as fp:
-                        json.dump(json_out, fp, indent=4)
-
-
-
-    
-
