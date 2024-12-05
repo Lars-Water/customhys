@@ -208,7 +208,7 @@ class HyperHeuristicBase:
         # and only if we are the correct step interval
         self.logger.debug(f"hh_checkFinalization for {search_operator_space_name} (Step: {step}, stag_counter: {stag_counter}):\n{self.hypers[search_operator_space_name]}") # DEBUG
         enabled_hypers = self._get_num_enabled_hyper()
-        if enabled_hypers > self.minimum_amount_of_hhs and self._is_evaluation_time(step):
+        if int(enabled_hypers) > int(self.minimum_amount_of_hhs) and self._is_evaluation_time(step):
             # If the check should always use the same step (sync_steps_of_hhs) then we need all HHs to reach this point, otherwise we check with the best we can 
             if self.sync_steps_of_hhs:
                 self.logger.info(f"{search_operator_space_name} is waiting to check the extra finalization critera (synced). (Step: {step}, stag_counter: {stag_counter})")
