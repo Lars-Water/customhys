@@ -19,9 +19,9 @@ class Config:
         if outputfolderpath is not None and name is not None:
             self.logger = logger.logger(name, outputfolderpath)
         elif name is not None:
-            self.logger = logger.loggerSTDOUT(name)
+            self.logger = logger.loggerRICH(name)
         else:
-            self.logger = logger.loggerSTDOUT("Config")
+            self.logger = logger.loggerRICH("Config")
 
         self.logger.info("Default config file: "+str(self.defaultFile))
         if os.path.exists(configFilePath) and os.path.isfile(configFilePath):

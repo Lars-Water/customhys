@@ -44,7 +44,7 @@ class HyperHeuristicBase:
         coordinator_log_path = Path(os.path.join(self.log_path, "coordinator"))
 
         self.conf = Config(coordinator_config_file_path, outputfolderpath=coordinator_log_path, name="HyperHeuristicBase_config")
-        self.logger = logger("HyperHeuristicBase", coordinator_log_path, print_stdout=True, disabled=False)
+        self.logger = logger("HyperHeuristicBase", coordinator_log_path, rich_handler=True, disabled=False)
 
         # Set logger level.
         logger_lvl = self.conf.tryGet("logger_lvl")
@@ -102,8 +102,8 @@ class HyperHeuristicBase:
         with prog.Progress(
                 prog.SpinnerColumn(),
                 prog.TextColumn("[progress.description]{task.description}", justify="right"),
+                prog.TextColumn("[progress.percentage]{task.completed}/{task.total}", justify="right"),
                 prog.BarColumn(),
-                prog.TextColumn("[progress.percentage]{task.completed}/{task.total}"),
                 prog.TimeElapsedColumn(),
             ) as progress:
             self.progress = progress
@@ -116,10 +116,11 @@ class HyperHeuristicBase:
                     self.progress.add_task(
                         f"[bold]{search_operator_space_name}[/bold] Step", 
                         total=self.nr_of_steps,
-                        start=False
+                        start=False,
+                        completed=-1
                     ),
                     self.progress.add_task(
-                        f"Iter", total=self.nr_of_iterations,
+                        f"Iter", total=self.nr_of_iterations*self.num_replicas,
                         start=False
                     )
                 ]
@@ -135,6 +136,8 @@ class HyperHeuristicBase:
                 
             for bar in all_bars:
                 self.progress.start_task(bar)
+            
+            self.logger.info(f"Start {len(self.threads)} threads.")
 
             for search_operator_space_name, proc in self.threads.items():
                 proc.start()
@@ -194,9 +197,13 @@ class HyperHeuristicBase:
             },
             "progress_bar": {
                 "advance": lambda x: self.progress.update(bar_steps, advance=x),
+                "set_completed": lambda x: self.progress.update(bar_steps, completed=x),
                 "finish": lambda x: self.progress.update(bar_steps, total=x, completed=x),
+                "pause": lambda: self.progress.stop_task(bar_steps),
+                "start": lambda: self.progress.start_task(bar_steps),
             }
         }
+        
 
 
         # Start timer for the heuristic run.
@@ -236,7 +243,7 @@ class HyperHeuristicBase:
         # First order of business: Update our own data for comparisions
         # Lock: see below - tldr: avoid edge case
         with self.lock_hypers:
-            self.hypers[search_operator_space_name]["progress_bar"]["advance"](1)
+            self.hypers[search_operator_space_name]["progress_bar"]["set_completed"](int(step))
             self.hypers[search_operator_space_name]["best"] = {
                 "step": step,
                 "performance": best_performance
@@ -253,7 +260,9 @@ class HyperHeuristicBase:
             # If the check should always use the same step (sync_steps_of_hhs) then we need all HHs to reach this point, otherwise we check with the best we can 
             if self.sync_steps_of_hhs:
                 self.logger.info(f"{search_operator_space_name} is waiting to check the extra finalization critera (synced). (Step: {step}, stag_counter: {stag_counter})")
+                self.hypers[search_operator_space_name]["progress_bar"]["pause"]()
                 self.barrier.wait()
+                self.hypers[search_operator_space_name]["progress_bar"]["start"]()
                 finalize = self._checkFinalization_internal(search_operator_space_name, step, stag_counter, best_performance, current_performance)
             else: 
                 # Lock is used, that only one HH at a time can be deactivated

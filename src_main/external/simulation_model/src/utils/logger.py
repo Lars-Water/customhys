@@ -1,6 +1,7 @@
 import logging
 import sys
 import os
+from rich.logging import RichHandler
 
 logging.Formatter.format
 
@@ -34,7 +35,7 @@ def loggerSTDOUT(name):
     )
 
     logger = logging.getLogger(name)
-    logger.setLevel(logging.INFO)
+    logger.setLevel(logging.DEBUG)
 
     screen_handler = logging.StreamHandler(stream=sys.stdout)
     screen_handler.setFormatter(formatter)
@@ -42,7 +43,20 @@ def loggerSTDOUT(name):
 
     return logger
 
-def logger(name, outfolder, print_stdout=False, disabled=False):
+def loggerRICH(name):
+    formatter = CustomFormatter(
+        fmt='[ %(name)s  %(asctime)s  %(levelname)-8s ]  %(message)s',
+        datefmt='%d-%m-%Y %H:%M:%S'
+    )
+
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+
+    logger.addHandler(RichHandler(level="NOTSET"))
+
+    return logger
+
+def logger(name, outfolder, print_stdout=False, rich_handler=False, disabled=False):
     os.makedirs(outfolder, exist_ok=True)
     outputfile = os.path.join(outfolder, 'log_'+str(name)+'.txt')
     formatter = CustomFormatter(
@@ -64,6 +78,10 @@ def logger(name, outfolder, print_stdout=False, disabled=False):
         screen_handler = logging.StreamHandler(stream=sys.stdout)
         screen_handler.setFormatter(formatter)
         logger.addHandler(screen_handler)
+
+    if rich_handler:
+        logger.addHandler(RichHandler(level="NOTSET"))
+
 
 
     return logger
