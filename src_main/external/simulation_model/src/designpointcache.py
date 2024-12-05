@@ -65,7 +65,7 @@ class DesignPointCache:
             return -1
 
     def __is_sim_status(self, sim_instance, sim_status):
-        self.logger.debug(f"is sim status {sim_instance.uid} // {self.__get_sim_status(sim_instance)} // {self.uids_status.keys()}")
+        # self.logger.debug(f"is sim status {sim_instance.uid} // {self.__get_sim_status(sim_instance)} // {self.uids_status.keys()}")
         if self.__get_sim_status(sim_instance) == sim_status:
             return True
         else:
@@ -97,7 +97,7 @@ class DesignPointCache:
 
     def set_sim_finished(self, sim_instance):
         if self.cnf.tryGet("cache", "cache_only_finished_sim_instances"):
-            self.cached_hashes[sim_instance.getCacheHash()] = sim_instance
+            self._set_hash_sim(sim_instance.getCacheHash(), sim_instance)
         self.__set_sim_state(sim_instance, SimStatus.FINISHED)
 
     def set_sims_waiting(self, sim_instances):
@@ -135,7 +135,7 @@ class DesignPointCache:
                 hash = self.calc_design_point_hash_filelist(sim_instance, self.cnf.tryGet("cache", "files"))
                 if hash not in self.cached_hashes.keys():
                     if not self.cnf.tryGet("cache", "cache_only_finished_sim_instances"):
-                        self.cached_hashes[hash] = sim_instance
+                        self._set_hash_sim(hash, sim_instance)
                     sim_instance.setCacheHash(hash)
                     self.logger.debug(f"New simulation config found with hash: {hash} (ID: {sim_instance.uid})")
                 else:
@@ -152,6 +152,9 @@ class DesignPointCache:
 
     def shutdown(self):
         return
+
+    def _set_hash_sim(self, hash, sim_instance):
+        self.cached_hashes[hash] = sim_instance
     
     def calc_design_point_hash_single_file(self, sim_instance, filename):
         file_path = os.path.join(sim_instance.path, filename)

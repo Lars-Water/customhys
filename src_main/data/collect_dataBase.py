@@ -36,7 +36,11 @@ class DataCollectorBase:
         self.lock_main_backup = Lock()
         self.lock_fitness_backup = Lock()
 
+        self.metricsDF = pd.DataFrame(columns=['SimulationID'])
+        self.metricsDF = self.metricsDF.set_index("SimulationID")
 
+
+    # TODO Lots of file IO. Change to Datrframe that periodically saves to file.
     def _store_design_point_metrics_df(self, heuristic_name, append_df):
         """
         Stores the design point metrics in a CSV file.
@@ -50,21 +54,27 @@ class DataCollectorBase:
             None
         """
         # Define the file output path.
-        self.heuristic_name = heuristic_name
-        os.makedirs(self.dir_design_points_metrics_output, exist_ok=True)
-        append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}.csv")
-        append_design_points_metric_output_file_backup = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}_backup.csv")
-
         with self.lock_main:
-            append_df.to_csv(append_design_points_metric_output_file, mode='a', header=not os.path.exists(append_design_points_metric_output_file), index=False)
+            self.heuristic_name = heuristic_name
+            os.makedirs(self.dir_design_points_metrics_output, exist_ok=True)
+            append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}.csv")
+            append_design_points_metric_output_file_backup = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}_backup.csv")
+
+            append_df = append_df.set_index("SimulationID")
+            if os.path.exists(append_design_points_metric_output_file):
+                df = pd.read_csv(append_design_points_metric_output_file)
+                df = df.set_index("SimulationID")
+                append_df = pd.concat([append_df, df], axis=0).groupby("SimulationID").first()
+
+            append_df.to_csv(append_design_points_metric_output_file, index=True)
         with self.lock_main_backup:
-            append_df.to_csv(append_design_points_metric_output_file_backup, mode='a', header=not os.path.exists(append_design_points_metric_output_file_backup), index=False)
+            append_df.to_csv(append_design_points_metric_output_file_backup, mode='a', header=not os.path.exists(append_design_points_metric_output_file_backup), index=True)
 
     def append_fitness_values_to_design_point_metrics(self, uids, fitness_values):
-        if self.heuristic_name is not None and self.heuristic_name != "":
-            try:
-                append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{self.heuristic_name}.csv")
-                with self.lock_main:
+        with self.lock_main:
+            if self.heuristic_name is not None and self.heuristic_name != "":
+                try:
+                    append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{self.heuristic_name}.csv")
                     df = pd.read_csv(append_design_points_metric_output_file)
                     df = df.set_index("SimulationID")
 
@@ -73,9 +83,9 @@ class DataCollectorBase:
                         df.at[sim_uid, "Fitness"] = fitness
 
                     df.to_csv(append_design_points_metric_output_file, index=True)
-            except Exception as error:
-                print("### ERROR: An exception occurred in collectData.append_fitness_values_to_design_point_metrics:", type(error).__name__, ". The experiment will continue and a manual match has to be done manually.") 
-                print(error)
+                except Exception as error:
+                    print("### ERROR: An exception occurred in collectData.append_fitness_values_to_design_point_metrics:", type(error).__name__, ". The experiment will continue and a manual match has to be done manually.") 
+                    print(error)
 
         if self.heuristic_name is None:
             self.heuristic_name = ""
@@ -87,8 +97,45 @@ class DataCollectorBase:
             with self.lock_fitness_backup:
                 data_df.to_csv(data_fitness_file, mode='a', header=not os.path.exists(data_fitness_file), index=False)
 
+    def append_caching_status_to_design_point_metrics(self, uids, cached):
+        with self.lock_main:
+            if self.heuristic_name is not None and self.heuristic_name != "":
+                append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{self.heuristic_name}.csv")
+                if os.path.exists(append_design_points_metric_output_file):
+                    df = pd.read_csv(append_design_points_metric_output_file)
+                else:
+                    df = pd.DataFrame(columns=['SimulationID'])
 
+                df = df.set_index("SimulationID")
+                for sim_uid in uids:
+                    df.at[sim_uid, "Cached"] = cached
+                    df.at[sim_uid, "Cached2"] = cached
 
+                if "Cached" in df.columns:
+                    with pd.option_context('future.no_silent_downcasting', True):
+                        df['Cached'] = df['Cached'].fillna(0).astype('bool')
+                df.to_csv(append_design_points_metric_output_file, index=True)
+
+    def append_fitness_and_hh_data_to_design_point_metrics(self, uids, fitness_values, search_operator, step, iteration):
+        with self.lock_main:
+            if self.heuristic_name is not None and self.heuristic_name != "":
+                append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{self.heuristic_name}.csv")
+                df = pd.read_csv(append_design_points_metric_output_file)
+                df = df.set_index("SimulationID")
+
+                for sim_uid, agent_id in uids.items():
+                    df.at[sim_uid, "Fitness"] = fitness_values[agent_id]
+                    df.at[sim_uid, "SearchOperator"] = search_operator
+                    df.at[sim_uid, "step"] = step
+                    df.at[sim_uid, "iteration"] = iteration
+
+                df.to_csv(append_design_points_metric_output_file, index=True)
+
+    def _save_to_csv(self):
+        if self.heuristic_name is not None and self.heuristic_name != "":
+            append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{self.heuristic_name}.csv")
+            
+            self.metrics.to_csv(append_design_points_metric_output_file, index=True)
 
 def _natural_key(file_name):
     """

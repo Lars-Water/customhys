@@ -201,6 +201,7 @@ class HyperHeuristicBase:
                 "finish": lambda x: self.progress.update(bar_steps, total=x, completed=x),
                 "pause": lambda: self.progress.stop_task(bar_steps),
                 "start": lambda: self.progress.start_task(bar_steps),
+                "remove_iter": lambda: self.progress_bar.remove_task(bar_iter)
             }
         }
         
@@ -260,9 +261,9 @@ class HyperHeuristicBase:
             # If the check should always use the same step (sync_steps_of_hhs) then we need all HHs to reach this point, otherwise we check with the best we can 
             if self.sync_steps_of_hhs:
                 self.logger.info(f"{search_operator_space_name} is waiting to check the extra finalization critera (synced). (Step: {step}, stag_counter: {stag_counter})")
-                self.hypers[search_operator_space_name]["progress_bar"]["pause"]()
+                # self.hypers[search_operator_space_name]["progress_bar"]["pause"]()
                 self.barrier.wait()
-                self.hypers[search_operator_space_name]["progress_bar"]["start"]()
+                # self.hypers[search_operator_space_name]["progress_bar"]["start"]()
                 finalize = self._checkFinalization_internal(search_operator_space_name, step, stag_counter, best_performance, current_performance)
             else: 
                 # Lock is used, that only one HH at a time can be deactivated
@@ -343,6 +344,7 @@ class HyperHeuristicBase:
             self.hypers[search_operator_space_name]["enabled"] = False
             self.hypers[search_operator_space_name]["stopped"] = time.time()
             self.hypers[search_operator_space_name]["progress_bar"]["finish"](step)
+            self.hypers[search_operator_space_name]["progress_bar"]["remove_iter"]()
 
             # Adjust barrier:
             enabled_hypers = self._get_num_enabled_hyper()

@@ -16,7 +16,7 @@ class OutputHandler:
     config_path = None
     stats = None
 
-    def __init__(self, config_path, logs_path):
+    def __init__(self, config_path, logs_path, collect_data = None):
         self.logs_path = logs_path
         self.config_path = config_path
         os.makedirs(self.logs_path, exist_ok=True)
@@ -42,6 +42,8 @@ class OutputHandler:
         self.global_runtime = self.cnf.tryGet("global_sim_runtime")
         os.makedirs(self.global_runtime, exist_ok=True)
         self.logger.info("Global runtime path: {}".format(self.global_runtime))
+
+        self.collect_data = collect_data
 
     def sim_global_results_path(self, sim_instance):
         return os.path.join(self.global_results, str(sim_instance.uid))
@@ -79,6 +81,7 @@ class OutputHandler:
                 "cached_simID":  sim_instance_source.uid
             }
         )
+        
         
         return sim_instance_target
 

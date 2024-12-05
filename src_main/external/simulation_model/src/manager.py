@@ -21,7 +21,7 @@ class Manager:
     start_time = None
     stats = None
 
-    def __init__(self, config_path, logs_path, stats_file=None):
+    def __init__(self, config_path, logs_path, stats_file=None, data_collector = None):
         if stats_file is None:
             stats_file = os.path.join(logs_path, "statistics.json")
         self.stats_file = stats_file
@@ -38,6 +38,7 @@ class Manager:
 
         self.logger.info("Creating design point queue(s)")
         self.design_point_queues = {}
+        self.data_collector = data_collector
 
         if self.cnf.tryGet("design_point_queues"):
             for design_point_queue_id in self.cnf.tryGet("design_point_queues").keys():
@@ -70,6 +71,10 @@ class Manager:
     def set_stats_file(self, stats_file):
         self.stats_file = stats_file
         self.stats.set_file_path(self.stats_file)
+        
+        
+    def set_data_collector(self, data_collector):
+        self.data_collector = data_collector
         
     def __has_queue(self, queue_id):
         return queue_id in self.design_point_queues.keys()
@@ -268,6 +273,8 @@ class Manager:
     def evaluate_cached_sims(self, design_point_queue):
         all_are_processing = 0
         cached_sim_instances = design_point_queue.cached_get_all()
+        if self.data_collector:
+            self.data_collector.append_caching_status_to_design_point_metrics([sim[0].uid for sim in cached_sim_instances], True)
         for cached_sim_instance in cached_sim_instances:
             if self.design_point_cache.is_sim_finished(cached_sim_instance[1]):
                 tmp = self.output_handler.copy_sim_results(cached_sim_instance[0], cached_sim_instance[1])

@@ -162,6 +162,7 @@ class HeuristicSimulationCoordinatorBase:
 
         self.createDataCollector()
         self.createHyperHeuristicBase()
+        self.manager.set_data_collector(self.data_collector)
 
 
 
@@ -297,7 +298,15 @@ class HeuristicSimulationCoordinatorBase:
             fitness_values = fitfunc(fitness_config, simulation_metrics)
 
             if self.store_design_points_metrics_values:
-                self.data_collector.append_fitness_values_to_design_point_metrics(uids, fitness_values)
+                # self.data_collector.append_fitness_values_to_design_point_metrics(uids, fitness_values)
+                print("problem" in step_iteration_data, step_iteration_data["problem"])
+                self.data_collector.append_fitness_and_hh_data_to_design_point_metrics(
+                    uids, 
+                    fitness_values,
+                    step_iteration_data["problem"] if "problem" in step_iteration_data else None,
+                    step_iteration_data["step"],
+                    step_iteration_data["iteration"]
+                )
             
             self.locally_store_agents_fitness_values(fitness_values, file_name_fitness_values)
 
