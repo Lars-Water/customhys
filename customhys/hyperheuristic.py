@@ -131,12 +131,13 @@ class Hyperheuristic:
         if problems:
             self.problems = problems
         elif heur_coordinator is not None and search_operator_space_name is not None:
+            self.search_operator_space_name = search_operator_space_name
             self.heur_coordinator = heur_coordinator
-            self.problemspace = self.heur_coordinator.problemspace
-            if self.problemspace.has_problem_space(search_operator_space_name):
-                self.problems = self.problemspace.get_problems(search_operator_space_name)
+            self.search_operator_spaces = self.heur_coordinator.hh_base.search_operator_spaces
+            if self.search_operator_spaces.has_problems(search_operator_space_name):
+                self.problems = self.search_operator_spaces.get_problems(search_operator_space_name)
             else:
-                err = f'Heuristic coordinator does not have {search_operator_space_name} problem space or its empty.'
+                err = f'Heuristic coordinator does not have {search_operator_space_name} problem space or no problems are associated with it.'
                 raise HyperheuristicError(err)
         else:
             raise HyperheuristicError('Problems or a heuristic coordinator and search_operator_space_name must be provided.')
@@ -153,6 +154,9 @@ class Hyperheuristic:
 
         # Initialise other parameters
         self.parameters = parameters
+        self.num_agents = self.parameters['num_agents']
+        self.num_agents_avail = None
+
         self.file_details = file_details
         self.file_label = file_label
 
@@ -169,6 +173,14 @@ class Hyperheuristic:
 
         # _save_step(0, {}, self.parameters, self.file_details, self.file_label)
 
+    def get_num_agents(self):
+        return self.num_agents
+
+    def give_avail_agents_for_next_step(self, num_agents_avail):
+        new_num_agents = num_agents_avail + self.num_agents
+        if new_num_agents > self.num_agents:
+            self.num_agents_avail = new_num_agents
+        return self.num_agents_avail
 
     def toggle_seq_as_meta(self, as_mh=None):
         if as_mh is None:
@@ -458,15 +470,36 @@ class Hyperheuristic:
     def __stagnation_check(self, stag_counter):
         return stag_counter > (self.parameters['stagnation_percentage'] * self.parameters['num_steps'])
 
+    def _check_finalisation_criteria(self, step, stag_counter, *args):
+        return  (step >= self.parameters['num_steps']) or \
+                (self.__stagnation_check(stag_counter) and not self.parameters['trial_overflow']) or \
+                (any([var < 0.0 for var in args]))
+
     def _check_finalisation(self, step, stag_counter, *args):
         """
         General finalisation approach implemented for the methodology working as a hyper-heuristic. It mainly depends on
         `step` (current iteration number) and `stag_counter` (current stagnation iteration number). There are other
          variables that can be considered such as `temperature`. These additional variables must be args[0] < 0.0.
         """
-        return (step >= self.parameters['num_steps']) or (
-                self.__stagnation_check(stag_counter) and not self.parameters['trial_overflow']) or \
-            (any([var < 0.0 for var in args]))
+        if self.num_agents_avail is not None:
+            self.num_agents = self.num_agents_avail
+            self.num_agents_avail = None
+
+        finalize = self._check_finalisation_criteria(step, stag_counter, *args)
+
+        if self.heur_coordinator is not None:
+            finalize =  finalize or self.heur_coordinator.hh_base.hh_checkFinalization(
+                            self.search_operator_space_name,
+                            step, 
+                            stag_counter,
+                            self.best_performance,
+                            self.current_performance
+                        )
+                        
+            if finalize:
+                self.heur_coordinator.hh_base.hh_disable_hh_and_distribute_Resources(self.search_operator_space_name, step)
+
+        return finalize
 
     def get_operators(self, sequence):
         return [self.heuristic_space[index] for index in sequence]
@@ -505,17 +538,17 @@ class Hyperheuristic:
         current_solution = self._obtain_candidate_solution()
 
         # Evaluate this solution
-        current_performance, current_details = self.evaluate_candidate_solution(current_solution)
+        self.current_performance, current_details = self.evaluate_candidate_solution(current_solution)
 
         # Initialise some additional variables
-        initial_energy = np.abs(current_performance) + 1
-        historical_current = [current_performance]
-        historical_best = [current_performance]
+        initial_energy = np.abs(self.current_performance) + 1
+        historical_current = [self.current_performance]
+        historical_best = [self.current_performance]
 
         # SELECTOR: Initialise the best solution and its performance
         best_solution = np.copy(current_solution)
-        best_performance = current_performance
-        best_details = current_performance
+        self.best_performance = self.current_performance
+        best_details = self.current_performance
 
         end_time = datetime.now()
 
@@ -527,13 +560,13 @@ class Hyperheuristic:
             _save_step(0, {
                     'candidate':{
                         'encoded_solution': current_solution,
-                        'performance': current_performance,
-                        'details': current_performance
+                        'performance': self.current_performance,
+                        'details': self.current_performance
                     },
                     "best": {
                         'encoded_solution': current_solution,
-                        'performance': current_performance,
-                        'details': current_performance
+                        'performance': self.current_performance,
+                        'details': self.current_performance
                     }
                 }, self.parameters, self.file_details, self.file_label,
                 solution={
@@ -552,7 +585,7 @@ class Hyperheuristic:
         if self.parameters['verbose']:
             print('{} time: {} :: Step: {:4d}, Action: {:12s}, Temp: {:.2e}, Card: {:3d}, Perf: {:.2e} [Initial]'.format(
                 self.file_label, (end_time - start_time)
-, step, 'None', temperature, len(current_solution), current_performance))
+, step, 'None', temperature, len(current_solution), self.current_performance))
 
         # Perform a metaheuristic (now, Simulated Annealing) as hyper-heuristic process
         while not self._check_finalisation(step, stag_counter,
@@ -585,26 +618,26 @@ class Hyperheuristic:
                 print('{} time: {} :: Step: {:4d}, Action: {:12s}, Temp: {:.2e}, Card: {:3d}, '.format(
                     self.file_label, (end_time - start_time), step, action, temperature, len(candidate_solution)) +
                       'candPerf: {:.2e}, currPerf: {:.2e}, bestPerf: {:.2e}'.format(
-                          candidate_performance, current_performance, best_performance), end=' ')
+                          candidate_performance, self.current_performance, self.best_performance), end=' ')
 
             # Accept the current solution using a given acceptance_scheme
-            if self._check_acceptance(candidate_performance - current_performance, self.parameters['acceptance_scheme'],
+            if self._check_acceptance(candidate_performance - self.current_performance, self.parameters['acceptance_scheme'],
                                       temperature, initial_energy):
 
                 # Update the current solution and its performance
                 current_solution = np.copy(candidate_solution)
-                current_performance = candidate_performance
+                self.current_performance = candidate_performance
 
                 # Add acceptance mark
                 if self.parameters['verbose']:
                     print('Accepted', end='')
 
             # # If the candidate solution is better or equal than the current best solution
-            # if candidate_performance <= best_performance:
+            # if candidate_performance <= self.best_performance:
 
             #     # Update the best solution and its performance
             #     best_solution = np.copy(candidate_solution)
-            #     best_performance = candidate_performance
+            #     self.best_performance = candidate_performance
 
             #     # Reset the stagnation counter
             #     stag_counter = 0
@@ -613,7 +646,7 @@ class Hyperheuristic:
             #     if save_steps:
             #         _save_step(step, {
             #             'encoded_solution': best_solution,
-            #             'performance': best_performance,
+            #             'performance': self.best_performance,
             #             'details': candidate_details
             #         }, self.file_label)
 
@@ -624,19 +657,19 @@ class Hyperheuristic:
             #     # Update the stagnation counter
             #     stag_counter += 1
 
-            # historical_current.append(current_performance)
-            # historical_best.append(best_performance)
+            # historical_current.append(self.current_performance)
+            # historical_best.append(self.best_performance)
             # # Add ending mark
             # if self.parameters['verbose']:
             #     print('')
 
             # NOTE: Custom code that saves every step, and not only those with better solutions.
             # If the candidate solution is better or equal than the current best solution
-            if candidate_performance <= best_performance:
+            if candidate_performance <= self.best_performance:
 
                 # Update the best solution and its performance
                 best_solution = np.copy(candidate_solution)
-                best_performance = candidate_performance
+                self.best_performance = candidate_performance
                 best_details = candidate_details
 
                 # Reset the stagnation counter
@@ -662,7 +695,7 @@ class Hyperheuristic:
                         },
                         "best": {
                             'encoded_solution': best_solution,
-                            'performance': best_performance,
+                            'performance': self.best_performance,
                             'details': best_details
                         }
                     }, self.parameters, self.file_details, self.file_label,
@@ -672,8 +705,8 @@ class Hyperheuristic:
                     }
                 )
 
-            historical_current.append(current_performance)
-            historical_best.append(best_performance)
+            historical_current.append(self.current_performance)
+            historical_best.append(self.best_performance)
 
             # Add ending mark
             if self.parameters['verbose']:
@@ -681,10 +714,10 @@ class Hyperheuristic:
 
         # Print the best one
         if self.parameters['verbose']:
-            print('\nBEST --> Perf: {}, e-Sol: {}'.format(best_performance, best_solution))
+            print('\nBEST --> Perf: {}, e-Sol: {}'.format(self.best_performance, best_solution))
 
         # Return the best solution found and its details
-        return best_solution, best_performance, historical_current, historical_best
+        return best_solution, self.best_performance, historical_current, historical_best
 
 # Todo add threaded replica evaluation
     def _solve_dynamic(self, save_steps=True):
@@ -707,7 +740,7 @@ class Hyperheuristic:
         while rep < self.parameters['num_replicas']:
             # Call the metaheuristic
             mh = Metaheuristic(self.problems[rep],
-                                num_agents=self.parameters['num_agents'],
+                                num_agents=self.num_agents,
                                 num_iterations=self.num_iterations,
                                 verbose=self.parameters['verbose_mh'])
 
@@ -885,7 +918,7 @@ class Hyperheuristic:
             # Metaheuristic
             mh = Metaheuristic(
                 self.problems[rep],
-                num_agents=self.parameters['num_agents'],
+                num_agents=self.num_agents,
                 num_iterations=self.num_iterations,
                 verbose=self.parameters['verbose_mh'])
 
@@ -1072,7 +1105,7 @@ class Hyperheuristic:
             # Call the metaheuristic
             mhs[i] = Metaheuristic(self.problems[i],
                                search_operators,
-                               self.parameters['num_agents'],
+                               self.num_agents,
                                self.num_iterations,
                                verbose=self.parameters['verbose_mh'],
                                finalised_positions_previous_step=finalised_positions_previous_step,
