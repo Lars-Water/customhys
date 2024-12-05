@@ -57,7 +57,8 @@ class visuBase:
             aggregation_functions = {
                 'amount': 'count',
                 index_col: tuple,
-                'index_dupl': 'first'
+                'index_dupl': 'first',
+                'Cached': 'count',
             }
             for ax in axis_names:
                 aggregation_functions[ax] =  'first'

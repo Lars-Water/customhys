@@ -22,7 +22,7 @@ class visuSimulations(visuBase):
         super().__init__()
         self.simulationResultsDirPath = simulationResultsDirPath
         
-    def extractData(self, file_path):
+    def extractDataStats(self, file_path):
 
         with open(file_path, 'r', encoding='utf-8') as json_file:
             data = json.load(json_file)
@@ -87,7 +87,6 @@ class visuSimulations(visuBase):
         x_axis_name, y_axis_name = self._plt_axis_names(x_axis_name, y_axis_name)
                      
         localDF = self.df
-
         plt, x_axis_name, y_axis_name = self._plt(title, label_x, label_y, x_axis_name, y_axis_name, figsize, info)
 
         plt.plot(localDF['cached'], label=f'Combined')
@@ -99,17 +98,57 @@ class visuSimulations(visuBase):
         # plt.show()
         plt.savefig(filepath, dpi=150)
 
+    def plotFitnessHistogram(self, 
+             filepath,
+             title="Cached DPs Distribution", 
+             x_axis_name=None,
+             figsize=(6, 4),
+             info = None, bins_multiplicator =1
+        ):
+        x_axis_name, y_axis_name = self._plt_axis_names(x_axis_name)
+
+        print(self.rawdf)
+                     
+        localDF = self.rawdf.loc[self.rawdf.Cached]
+        info = ", ".join([f'Total: {len(self.rawdf)}', f'Cached: {len(localDF)}'])
+
+        plt.figure(figsize=figsize)
+        plt.rc('text', usetex=True)
+
+        bins = math.ceil( \
+            bins_multiplicator * 100 * ( \
+                round(localDF[x_axis_name].max(), 2) \
+                - round(localDF[x_axis_name].min(), 2 \
+            )) \
+        )
+        ax = sns.displot(localDF[x_axis_name], bins=bins, kde=True)
+        ax.set(title= r''+self._plt_title_tex(title, info, localDF))
+        ax.tight_layout()
+        ax.savefig(filepath, dpi=150)
 
 if __name__ == "__main__":
     ps = visuSimulations("")
 
-    info = ps.extractData(
-        "/home/herget/UvA-git/hh_local/ASML_20241205_031752_stats.json"
+    info = ps.extractDataStats(
+        "/home/herget/UvA-git/hh_local/hh_test_05_12_22_53/data/rawASML/ASML_20241205_201227_stats.json"
     )
 
     ps.plotCachedperStep(
-        "/home/herget/UvA-git/hh_local/cached_histogram.png", 
+        "/home/herget/UvA-git/hh_local/cached_line.png", 
         info = info,
         x_axis_name = 'Steps',
         y_axis_name = 'Number of cached DPs',
+    )
+
+    info = ps.extractData(
+        "/home/herget/UvA-git/hh_local/hh_test_05_12_22_53/design_points/design_point_metrics_ASML_20241205_201227.csv",
+        ["wfpm", "cost"],
+        index_col="SimulationID"
+    )
+
+    ps.plotFitnessHistogram(
+        "/home/herget/UvA-git/hh_local/cached_histogram.png", 
+        info = info,
+        x_axis_name = 'Fitness',
+        # bins_multiplicator=10
     )
