@@ -154,11 +154,11 @@ class visuBase:
         return plt, x_axis_name, y_axis_name
     
     def _plt_axis_names(self, x_axis_name=None, y_axis_name=None):
-        if self.axis_names and x_axis_name is None:
+        if hasattr(self, "axis_names") and x_axis_name is None:
             x_axis_name = self.axis_names[0]
-        if self.axis_names and y_axis_name is None:
+        if hasattr(self, "axis_names") and y_axis_name is None:
             y_axis_name = self.axis_names[1]
-        if not self.axis_names and (y_axis_name is None or x_axis_name is None):
+        if not hasattr(self, "axis_names") and (y_axis_name is None or x_axis_name is None):
             raise ValueError("Global axis_names or x_axis_name/y_axis_name has not been set.")
         return x_axis_name, y_axis_name
     
