@@ -54,6 +54,7 @@ class HyperHeuristicBase:
 
         self.lock_hypers = threading.Lock()
         self.hypers = {}
+        self._tasks_time_so_far = {}
         self.first_hyper_deactivated = False
         self.threads = {}
         self.procs = []
@@ -201,9 +202,16 @@ class HyperHeuristicBase:
                 "finish": lambda x: self.progress.update(bar_steps, total=x, completed=x),
                 "pause": lambda: self.progress.stop_task(bar_steps),
                 "start": lambda: self.progress.start_task(bar_steps),
-                "remove_iter": lambda: self.progress_bar.remove_task(bar_iter)
+                "remove_iter": lambda: self.progress.remove_task(bar_iter)
             }
         }
+
+        # self.progress.start_task(bar_steps)
+        # time.sleep(2)
+
+        # self._task_pause(bar_steps)
+        # time.sleep(4)
+        # self._task_resume(bar_steps)
         
 
 
@@ -233,6 +241,26 @@ class HyperHeuristicBase:
             "run_meta_data": hh_run_meta_data
         })
         
+    def _task_pause(self, taskid):
+        self._tasks_time_so_far[taskid] = self.progress._tasks[taskid].elapsed
+        self.logger.warn(f"PAUSE {taskid}: {self._tasks_time_so_far[taskid] }")
+        self.progress.stop_task(taskid)
+
+    def _task_resume(self, taskid):
+        time_so_far = self._tasks_time_so_far[taskid]
+        # del self._tasks_time_so_far[taskid]
+        completed = self.progress._tasks[taskid].completed +10
+        self.progress._tasks[taskid].elapsed
+        self.progress.reset(taskid, completed=completed)
+        self.logger.warn(f"RESUME {taskid}: {time_so_far}, {completed}")
+        time.sleep(5)
+        # self.progress.update(taskid, elapsed=time_so_far)
+        self.logger.warn(f"+++ RESUME {taskid}: {self.progress._tasks[taskid].elapsed}, {time_so_far}")
+        self.progress.refresh()
+        # self.progress.start_task(taskid)
+        time.sleep(15)
+        self.logger.warn(f"### RESUME {taskid}: {self.progress._tasks[taskid].elapsed}, {completed}")
+
     # All functions starting with "hh" are use by the hyperheuristic.py from customhys
     def hh_checkFinalization(self, 
                              search_operator_space_name,  
@@ -241,6 +269,7 @@ class HyperHeuristicBase:
                              best_performance,
                              current_performance):
         finalize = False
+        reas = []
         # First order of business: Update our own data for comparisions
         # Lock: see below - tldr: avoid edge case
         with self.lock_hypers:
@@ -264,17 +293,17 @@ class HyperHeuristicBase:
                 # self.hypers[search_operator_space_name]["progress_bar"]["pause"]()
                 self.barrier.wait()
                 # self.hypers[search_operator_space_name]["progress_bar"]["start"]()
-                finalize = self._checkFinalization_internal(search_operator_space_name, step, stag_counter, best_performance, current_performance)
+                finalize, reas = self._checkFinalization_internal(search_operator_space_name, step, stag_counter, best_performance, current_performance)
             else: 
                 # Lock is used, that only one HH at a time can be deactivated
                 # edge case: one HH upates its best value while another one is deactivating a HH
                 with self.lock_hypers:
-                    finalize = self._checkFinalization_internal(search_operator_space_name, step, stag_counter, best_performance, current_performance)
+                    finalize, reas = self._checkFinalization_internal(search_operator_space_name, step, stag_counter, best_performance, current_performance)
             self.logger.info(f"The extra finalize check for {search_operator_space_name} returns: {finalize}.") # DEBUG
         else:
             self.logger.debug(f"{search_operator_space_name} - Step: {step} - No extra check done")
         
-        return finalize
+        return finalize, reas
 
     def _checkFinalization_internal(self, 
                              search_operator_space_name,  
@@ -282,12 +311,18 @@ class HyperHeuristicBase:
                              stag_counter,
                              best_performance,
                              current_performance):
+        reas = []
         finalize = not self.hypers[search_operator_space_name]["enabled"]
+        if finalize:
+            reas.append("HH1")
         if self.experiment_config is not None:  
             if self._is_evaluation_time(step):
-                finalize =  finalize or \
-                            self._is_worst_hyper(search_operator_space_name, step)
-        return finalize
+                finalize_is_worst = self._is_worst_hyper(search_operator_space_name, step)
+                if finalize_is_worst:
+                    reas.append("HH2")
+                finalize =  finalize or finalize_is_worst
+                            
+        return finalize, reas
     
     def _is_evaluation_time(self, step):
         return self.evaluate_after_steps <= step and (step % self.evaluate_after_steps) == 0
@@ -339,7 +374,7 @@ class HyperHeuristicBase:
             self.first_hyper_deactivated = True
         return False
 
-    def hh_disable_hh_and_distribute_Resources(self, search_operator_space_name, step):
+    def hh_disable_hh_and_distribute_Resources(self, search_operator_space_name, step, finalize_reason = []):
         with self.lock_hypers:
             self.hypers[search_operator_space_name]["enabled"] = False
             self.hypers[search_operator_space_name]["stopped"] = time.time()
@@ -363,11 +398,12 @@ class HyperHeuristicBase:
                     if extra_avail_agents > 0:
                         best_hyper_text = f" Since there are {extra_avail_agents} agents which cannot be fairly distributed, those will be given to the currently best performaning Hyper Heuristic {best_hyper}."
 
-                    self.logger.info(f"distribute_Resources: Hyper Heuristic {search_operator_space_name} is finalized and its {avail_agents} available agents will be distributed to the remaining {enabled_hypers} Hyper Heuristics ({avail_agents_per_hyper} per HH).{best_hyper_text}\n\n")
+                    self.logger.info(f"distribute_Resources: Hyper Heuristic {search_operator_space_name} is finalized and its {avail_agents} available agents will be distributed to the remaining {enabled_hypers} Hyper Heuristics ({avail_agents_per_hyper} per HH).{best_hyper_text}\nReasons: {', '.join(finalize_reason)}\n")
 
                     # json_out is used to write a file for better documentation
                     json_out = {
                         "step": step,
+                        "finalize_reason": finalize_reason,
                     }
 
                     for hyper_space_name, hyper in self.hypers.items():

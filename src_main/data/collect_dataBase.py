@@ -17,8 +17,16 @@ import src_main.data.sim_configurations as sim_configurations
 
 
 class DataCollectorBase:
+    def __del__(self):
+        self._save_to_csv(force=True)
 
-    def __init__(self, dir_design_points_metrics_output):
+    def __init__(self, 
+                 dir_design_points_metrics_output, 
+                 heuristic_name=None,
+                 index_col = ['SimulationID'], 
+                 save_every_x_seconds = 15, 
+                 save_every_x_entries=100
+                ):
         """
         Initialize the CollectData object.
 
@@ -31,112 +39,107 @@ class DataCollectorBase:
             None
         """
         self.dir_design_points_metrics_output = dir_design_points_metrics_output
-        self.heuristic_name = None
-        self.lock_main = Lock()
-        self.lock_main_backup = Lock()
-        self.lock_fitness_backup = Lock()
+        os.makedirs(self.dir_design_points_metrics_output, exist_ok=True)
+        self.heuristic_name = heuristic_name
+        self.lock_metricsDF = Lock()
+        self.lock_csv = Lock()
+        self.lock_csv_backup = Lock()
 
-        self.metricsDF = pd.DataFrame(columns=['SimulationID'])
-        self.metricsDF = self.metricsDF.set_index("SimulationID")
+        self.metricsDF = pd.DataFrame(columns=index_col)
+        self.metricsDF = self.metricsDF.set_index(index_col)
+        self.last_save_time = time.time()
+        self.last_save_length = 0
+        self.save_every_x_seconds = save_every_x_seconds
+        self.save_every_x_entries = save_every_x_entries
+
+        self.metrics_defaults = {}
 
 
-    # TODO Lots of file IO. Change to Datrframe that periodically saves to file.
     def _store_design_point_metrics_df(self, heuristic_name, append_df):
-        """
-        Stores the design point metrics in a CSV file.
-
-        Args:
-            latency_df (pandas.DataFrame): DataFrame containing latency values.
-            cost_df (pandas.DataFrame): DataFrame containing cost values.
-            sim_uid (str): Unique identifier for the simulation.
-
-        Returns:
-            None
-        """
-        # Define the file output path.
-        with self.lock_main:
-            self.heuristic_name = heuristic_name
-            os.makedirs(self.dir_design_points_metrics_output, exist_ok=True)
-            append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}.csv")
-            append_design_points_metric_output_file_backup = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}_backup.csv")
-
+        self.heuristic_name = heuristic_name
+        with self.lock_metricsDF:
             append_df = append_df.set_index("SimulationID")
-            if os.path.exists(append_design_points_metric_output_file):
-                df = pd.read_csv(append_design_points_metric_output_file)
-                df = df.set_index("SimulationID")
-                append_df = pd.concat([append_df, df], axis=0).groupby("SimulationID").first()
-
-            append_df.to_csv(append_design_points_metric_output_file, index=True)
-        with self.lock_main_backup:
+            self.metricsDF = pd.concat([self.metricsDF, append_df], axis=0).groupby("SimulationID").first()
+        
+        # Backup stays to be sure
+        with self.lock_csv_backup:
+            append_design_points_metric_output_file_backup = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{heuristic_name}_backup.csv")
             append_df.to_csv(append_design_points_metric_output_file_backup, mode='a', header=not os.path.exists(append_design_points_metric_output_file_backup), index=True)
-
-    def append_fitness_values_to_design_point_metrics(self, uids, fitness_values):
-        with self.lock_main:
-            if self.heuristic_name is not None and self.heuristic_name != "":
-                try:
-                    append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{self.heuristic_name}.csv")
-                    df = pd.read_csv(append_design_points_metric_output_file)
-                    df = df.set_index("SimulationID")
-
-                    for sim_uid, agent_id in uids.items():
-                        fitness = fitness_values[agent_id]
-                        df.at[sim_uid, "Fitness"] = fitness
-
-                    df.to_csv(append_design_points_metric_output_file, index=True)
-                except Exception as error:
-                    print("### ERROR: An exception occurred in collectData.append_fitness_values_to_design_point_metrics:", type(error).__name__, ". The experiment will continue and a manual match has to be done manually.") 
-                    print(error)
-
-        if self.heuristic_name is None:
-            self.heuristic_name = ""
-        data_fitness_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{self.heuristic_name}_fitness_backup.csv")
-        for sim_uid, agent_id in uids.items():
-            fitness = fitness_values[agent_id]
-            data_df = pd.DataFrame([[sim_uid, fitness]],
-                            columns=['SimulationID', 'Fitness'])
-            with self.lock_fitness_backup:
-                data_df.to_csv(data_fitness_file, mode='a', header=not os.path.exists(data_fitness_file), index=False)
+        
+        self._save_to_csv()
 
     def append_caching_status_to_design_point_metrics(self, uids, cached):
-        with self.lock_main:
-            if self.heuristic_name is not None and self.heuristic_name != "":
-                append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{self.heuristic_name}.csv")
-                if os.path.exists(append_design_points_metric_output_file):
-                    df = pd.read_csv(append_design_points_metric_output_file)
-                else:
-                    df = pd.DataFrame(columns=['SimulationID'])
+        self.metrics_defaults["Cached"] = {
+            "default": False,
+            "type": 'bool'
+        }
 
-                df = df.set_index("SimulationID")
-                for sim_uid in uids:
-                    df.at[sim_uid, "Cached"] = cached
-                    df.at[sim_uid, "Cached2"] = cached
-
-                if "Cached" in df.columns:
-                    with pd.option_context('future.no_silent_downcasting', True):
-                        df['Cached'] = df['Cached'].fillna(0).astype('bool')
-                df.to_csv(append_design_points_metric_output_file, index=True)
+        with self.lock_metricsDF:
+            for sim_uid in uids:
+                self.metricsDF.at[sim_uid, "Cached"] = cached
+        
+        self._save_to_csv()
 
     def append_fitness_and_hh_data_to_design_point_metrics(self, uids, fitness_values, search_operator, step, iteration):
-        with self.lock_main:
-            if self.heuristic_name is not None and self.heuristic_name != "":
-                append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{self.heuristic_name}.csv")
-                df = pd.read_csv(append_design_points_metric_output_file)
-                df = df.set_index("SimulationID")
+        with self.lock_metricsDF:
+            for sim_uid, agent_id in uids.items():
+                self.metricsDF.at[sim_uid, "Fitness"] = fitness_values[agent_id]
+                self.metricsDF.at[sim_uid, "SearchOperator"] = search_operator
+                self.metricsDF.at[sim_uid, "step"] = step
+                self.metricsDF.at[sim_uid, "iteration"] = iteration
+        
+        self._save_to_csv()
 
-                for sim_uid, agent_id in uids.items():
-                    df.at[sim_uid, "Fitness"] = fitness_values[agent_id]
-                    df.at[sim_uid, "SearchOperator"] = search_operator
-                    df.at[sim_uid, "step"] = step
-                    df.at[sim_uid, "iteration"] = iteration
-
-                df.to_csv(append_design_points_metric_output_file, index=True)
-
-    def _save_to_csv(self):
+    def _save_to_csv(self, force=False):
         if self.heuristic_name is not None and self.heuristic_name != "":
-            append_design_points_metric_output_file = os.path.join(self.dir_design_points_metrics_output, f"design_point_metrics_{self.heuristic_name}.csv")
-            
-            self.metrics.to_csv(append_design_points_metric_output_file, index=True)
+            if force or \
+              (time.time()-self.last_save_time) >= self.save_every_x_seconds or \
+              (len(self.metricsDF.index)-self.last_save_length) >= self.save_every_x_entries:
+                with self.lock_csv:
+                    design_points_metric_output_file = os.path.join(
+                        self.dir_design_points_metrics_output, 
+                        f"design_point_metrics_{self.heuristic_name}.csv"
+                    )
+                    self._set_metricsDF_defaults()
+                    with self.lock_metricsDF:
+                        self.metricsDF.to_csv(design_points_metric_output_file, index=True)
 
+                    self.last_save_time = time.time()
+                    self.last_save_length = len(self.metricsDF.index)
+
+                    if (time.time()-self.last_save_time) >= self.save_every_x_seconds:
+                        print("Saved because of time: ", (time.time()-self.last_save_time))
+                        print("length diff", (len(self.metricsDF.index)-self.last_save_length))
+
+                    elif (len(self.metricsDF.index)-self.last_save_length) >= self.save_every_x_entries:
+                        print("Saved because of length: ", (len(self.metricsDF.index)-self.last_save_length))
+                        print("time diff", (time.time()-self.last_save_time))
+        elif force:
+            with self.lock_csv:
+                os.makedirs(self.dir_design_points_metrics_output, exist_ok=True)
+                
+                design_points_metric_output_file = os.path.join(
+                    self.dir_design_points_metrics_output, 
+                    f"design_point_metrics_forced.csv"
+                )
+
+                self._set_metricsDF_defaults()
+                self.metricsDF.to_csv(design_points_metric_output_file, index=True)
+
+    def _set_metricsDF_defaults(self):
+        with self.lock_metricsDF:
+            for key, val in self.metrics_defaults.items():
+                if key in self.metricsDF.columns:
+                    with pd.option_context('future.no_silent_downcasting', True):
+                        if type(val) == dict and "type" in val.keys() and "default" in val.keys():
+                            self.metricsDF[key] = self.metricsDF[key].fillna(val["default"]).astype(val["type"])
+                        if type(val) == dict and "default" in val.keys():
+                            self.metricsDF[key] = self.metricsDF[key].fillna(val["default"])
+                        else:
+                            self.metricsDF[key] = self.metricsDF[key].fillna(val)
+
+            
+        
 def _natural_key(file_name):
     """
     Generate a key for natural sorting of file names.
