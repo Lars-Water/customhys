@@ -175,7 +175,7 @@ class Hyperheuristic:
         # _save_step(0, {}, self.parameters, self.file_details, self.file_label)
 
     def get_num_agents(self):
-        return self.num_agents
+        return self.num_agents * self.parameters['num_replicas']
 
     def give_avail_agents_for_next_step(self, num_agents_avail):
         new_num_agents = num_agents_avail + self.num_agents
@@ -472,9 +472,18 @@ class Hyperheuristic:
         return stag_counter > (self.parameters['stagnation_percentage'] * self.parameters['num_steps'])
 
     def _check_finalisation_criteria(self, step, stag_counter, *args):
-        return  (step >= self.parameters['num_steps']) or \
-                (self.__stagnation_check(stag_counter) and not self.parameters['trial_overflow']) or \
-                (any([var < 0.0 for var in args]))
+        finalize_1 = step >= self.parameters['num_steps']
+        finalize_2 = self.__stagnation_check(stag_counter) and not self.parameters['trial_overflow']
+        finalize_3 = any([var < 0.0 for var in args])
+        reas = []
+        if finalize_1: 
+            reas.append("CHYS1")
+        if finalize_2: 
+            reas.append("CHYS2")
+        if finalize_3: 
+            reas.append("CHYS3")
+        
+        return finalize_1 or finalize_2 or finalize_3, reas
 
     def _check_finalisation(self, step, stag_counter, *args):
         """
@@ -486,19 +495,21 @@ class Hyperheuristic:
             self.num_agents = self.num_agents_avail
             self.num_agents_avail = None
 
-        finalize = self._check_finalisation_criteria(step, stag_counter, *args)
+        finalize, finalize_reason = self._check_finalisation_criteria(step, stag_counter, *args)
 
         if self.heur_coordinator is not None:
-            finalize =  finalize or self.heur_coordinator.hh_base.hh_checkFinalization(
+            finalize_heur, finalize_reason_heur = self.heur_coordinator.hh_base.hh_checkFinalization(
                             self.search_operator_space_name,
                             step, 
                             stag_counter,
                             self.best_performance,
                             self.current_performance
                         )
+            finalize_reason += finalize_reason_heur
+            finalize = finalize or finalize_heur
                         
             if finalize:
-                self.heur_coordinator.hh_base.hh_disable_hh_and_distribute_Resources(self.search_operator_space_name, step)
+                self.heur_coordinator.hh_base.hh_disable_hh_and_distribute_Resources(self.search_operator_space_name, step, finalize_reason)
 
         return finalize
 
