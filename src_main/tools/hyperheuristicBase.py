@@ -21,6 +21,8 @@ import itertools
 import threading
 import copy
 import math
+# from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn, TextColumn, BarColumn
+import rich.progress as prog
 from tqdm import tqdm
 
 from experiments import create_sim_custom_dummy, create_sim_inet_lans_dummy, create_sim_inet_lans_dummy_parallel
@@ -96,25 +98,52 @@ class HyperHeuristicBase:
         self.barrier = threading.Barrier(len(self.search_operators_spaces.keys()))
         
     def run_multi_threaded(self):
-        for search_operator_space_name in self.search_operators_spaces.keys():
-            space = self.search_operators_spaces[search_operator_space_name]
-            search_operator_space_path = space["path"]
-            self.threads[search_operator_space_name] = threading.Thread(
-                target=self.hh_thread, 
-                args=(
-                    search_operator_space_name,
-                    search_operator_space_path,
-                )
-            )
+        # with Progress() as progress:
+        with prog.Progress(
+                prog.SpinnerColumn(),
+                prog.TextColumn("[progress.description]{task.description}", justify="right"),
+                prog.BarColumn(),
+                prog.TextColumn("[progress.percentage]{task.completed}/{task.total}"),
+                prog.TimeElapsedColumn(),
+            ) as progress:
+            self.progress = progress
+            all_bars = []
 
-        for search_operator_space_name, proc in self.threads.items():
-            proc.start()
-            self.procs.append(proc)
+            for search_operator_space_name in self.search_operators_spaces.keys():
+                space = self.search_operators_spaces[search_operator_space_name]
+                search_operator_space_path = space["path"]
+                bars = [
+                    self.progress.add_task(
+                        f"[bold]{search_operator_space_name}[/bold] Step", 
+                        total=self.nr_of_steps,
+                        start=False
+                    ),
+                    self.progress.add_task(
+                        f"Iter", total=self.nr_of_iterations,
+                        start=False
+                    )
+                ]
+                all_bars += bars
+                self.threads[search_operator_space_name] = threading.Thread(
+                    target=self.hh_thread, 
+                    args=(
+                        search_operator_space_name,
+                        search_operator_space_path,
+                        bars
+                    )
+                )       
+                
+            for bar in all_bars:
+                self.progress.start_task(bar)
 
-        for p in self.procs:
-            p.join()
+            for search_operator_space_name, proc in self.threads.items():
+                proc.start()
+                self.procs.append(proc)
 
-    def hh_thread(self, search_operator_space_name, search_operator_space_path):
+            for p in self.procs:
+                p.join()
+
+    def hh_thread(self, search_operator_space_name, search_operator_space_path, bars):
         # print("##### ("+search_operator_space_name+") Starting thread")
         self.logger.info(f'Starting thread for {search_operator_space_name}.')
         self.logger.debug(f' search_operator_space_name: {search_operator_space_name}\nself.num_replicas: {self.num_replicas}\nself.heur_coordinator.problemInstanceFunc(): {self.heur_coordinator.problemInstanceFunc()}\nself.template_file_path: {self.template_file_path}\n*self.heur_coordinator.get_boundaries(): {self.heur_coordinator.get_boundaries()}\nself.heur_coordinator.simulation_run: {self.heur_coordinator.simulation_run}\nself.agents_fitness_values_path: {self.agents_fitness_values_path}')
@@ -132,7 +161,9 @@ class HyperHeuristicBase:
         experiment_name = f"{self.experiment_name_base}_{search_operator_space_name}_{str(self.timestamp)}"
         file_label = f"{self.file_label_base}_{search_operator_space_name}_{self.nr_of_iterations}_iterations_{self.nr_of_steps}_steps_{str(self.timestamp)}"
 
-
+        
+        bar_steps = bars[0]
+        bar_iter = bars[1]
         self.hypers[search_operator_space_name] = {
             "hh": hh.Hyperheuristic(
                 heuristic_space=heuristic_space,
@@ -142,6 +173,10 @@ class HyperHeuristicBase:
                 parameters=self.hh_parameters,
                 file_label=file_label,
                 pass_finalised_positions=self.pass_finalised_positions,
+                updateMHProgress={ 
+                    "advance": lambda x: self.progress.update(bar_iter, advance=x),
+                    "start": lambda: self.progress.reset(bar_iter),
+                },
                 file_details= {
                     "experiment_name": experiment_name,
                     "hh_parameters": self.hh_parameters,
@@ -156,8 +191,13 @@ class HyperHeuristicBase:
             "steps": {},
             "best": {
                 "step": 0
+            },
+            "progress_bar": {
+                "advance": lambda x: self.progress.update(bar_steps, advance=x),
+                "finish": lambda x: self.progress.update(bar_steps, total=x, completed=x),
             }
         }
+
 
         # Start timer for the heuristic run.
         start_time = time.time()
@@ -196,6 +236,7 @@ class HyperHeuristicBase:
         # First order of business: Update our own data for comparisions
         # Lock: see below - tldr: avoid edge case
         with self.lock_hypers:
+            self.hypers[search_operator_space_name]["progress_bar"]["advance"](1)
             self.hypers[search_operator_space_name]["best"] = {
                 "step": step,
                 "performance": best_performance
@@ -292,6 +333,7 @@ class HyperHeuristicBase:
         with self.lock_hypers:
             self.hypers[search_operator_space_name]["enabled"] = False
             self.hypers[search_operator_space_name]["stopped"] = time.time()
+            self.hypers[search_operator_space_name]["progress_bar"]["finish"](step)
 
             # Adjust barrier:
             enabled_hypers = self._get_num_enabled_hyper()
@@ -331,7 +373,7 @@ class HyperHeuristicBase:
                         }
                         # Do not use the HH object
                         for key, val in hyper.items():
-                            if key != "hh":
+                            if key not in ["hh", "progress_bar"]:
                                 json_out[hyper_space_name]["hyper"][key] = val
 
                     

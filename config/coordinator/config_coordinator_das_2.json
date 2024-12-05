@@ -53,7 +53,7 @@
         "simulation_model_configuration": {
             "sim_model": "custom",
             "platform": "DAS",
-            "jobs": 2,
+            "jobs": 1,
             "job_cores": 64,
             "job_processes": 1,
             "job_memory": "120GB",
