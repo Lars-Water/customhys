@@ -18,10 +18,13 @@ from sklearn.pipeline import make_pipeline
 
 from pathlib import Path
 import matplotlib.pyplot as plt
+from visualization_base import visuBase
 
 
-class visuSteps:
-    def __init__(self, directory_path, result_dir=None):
+class visuSteps(visuBase):
+    def __init__(self, directory_path, result_dir=None, reason_dir=None):
+        super().__init__()
+        self.reason_dir = reason_dir
         self.df = None
         self.rawdf = None
         self.directory_path = directory_path
@@ -30,7 +33,6 @@ class visuSteps:
         else:
             self.result_dir = result_dir
         self.conf = self.getConfig()
-        print(self.conf["data"])
     
     def getConfig(self):
         filepath = Path(os.path.join(self.directory_path, "config.json"))
@@ -41,7 +43,7 @@ class visuSteps:
             do_string = ' // '.join(str(x) for x in do_list)
             return {
                 "data": data,
-                "time": datetime.fromtimestamp(dataf["timestamp"]).strftime("%Y-%m-%d %H:%M"),
+                "time": datetime.fromtimestamp(dataf["timestamp_int"]).strftime("%Y-%m-%d %H:%M"),
                 "server":   "Platform: "+str(dataf["coordinator_config"]["simulation_model"]["simulation_model_configuration"]["platform"]) + \
                             " ("+str(dataf["coordinator_config"]["simulation_model"]["simulation_model_configuration"]["jobs"]) + " Jobs, " + \
                                 str(dataf["coordinator_config"]["simulation_model"]["simulation_model_configuration"]["job_cores"]) + " " +\
@@ -77,7 +79,7 @@ class visuSteps:
                         Med=np.median(raw_data),
                         MAD=st.median_abs_deviation(raw_data))
         
-    def plot_hh_multiplot(self):
+    def plot_hh_multiplot(self, plot_file_path=None):
         all_historical_fitness = []
         mh = self.conf["data"]["file_details"]["search_operator_space_name"]
 
@@ -93,7 +95,6 @@ class visuSteps:
                         # Load JSON content
                         data = json.load(json_file)
                         rep_values = {}
-                        print(data)
                         if type(data["candidate"]['details']) == dict:
                             for replica in data["candidate"]['details']['historical']:
                                 # print(replica['fitness'])
@@ -150,14 +151,17 @@ class visuSteps:
         axs[0].legend()
 
         # Save the plot in the same directory
-        plot_file_path = os.path.join(self.result_dir, mh+'_historical_fitness_plot.png')
+        if plot_file_path == None:
+            plot_file_path = os.path.join(self.result_dir, mh+'_historical_fitness_plot.png')
+        else: 
+            plot_file_path = plot_file_path
 
         fig.tight_layout()
         fig.savefig(plot_file_path)
 
         print(f"plot_hh_multiplot: Plot saved as {plot_file_path}")
     
-    def plot_hh_boxplot(self):
+    def plot_hh_boxplot(self, plot_file_path=None):
         mh = self.conf["data"]["file_details"]["search_operator_space_name"]
 
         num_files = 0
@@ -196,12 +200,12 @@ class visuSteps:
 
     # Sort colors by hue, saturation, value and name.
         result = []
-        print(iteration_value_step_list)
+        # print(iteration_value_step_list)
         for inner_list in iteration_value_step_list:
             for inner in inner_list:
                 result.append(min(inner))
                 result.append(max(inner))
-        print(result)
+        # print(result)
         ylim = [min(result), max(result)]
 
 
@@ -211,7 +215,11 @@ class visuSteps:
             axs[i].set_ylim(ylim)
 
         # Save the plot in the same directory
-        plot_file_path = os.path.join(self.result_dir, mh+'_historical_fitness_boxplot.png')
+        if plot_file_path == None:
+            plot_file_path = os.path.join(self.result_dir, mh+'_historical_fitness_boxplot.png')        
+        else: 
+            plot_file_path = plot_file_path
+
         fig.text(0.01,0.98, self.conf["hh"])
         fig.text(0.875,0.98, self.conf["time"])
         fig.text(0.01,0.005, self.conf["server"])
@@ -222,7 +230,7 @@ class visuSteps:
 
         print(f"plot_hh_boxplot: Plot saved as {plot_file_path}")
 
-    def plot_hh_boxplot_all(self):
+    def plot_hh_boxplot_all(self, plot_file_path=None):
         iteration_values = {}
         mh = self.conf["data"]["file_details"]["search_operator_space_name"]
 
@@ -259,11 +267,103 @@ class visuSteps:
         plt.legend()
 
         # Save the plot in the same directory
-        plot_file_path = os.path.join(self.result_dir, mh+'_historical_fitness_boxplot_all.png')
+        if plot_file_path == None:
+            plot_file_path = os.path.join(self.result_dir, mh+'_historical_fitness_boxplot_all.png')
+        else: 
+            plot_file_path = plot_file_path
+
         plt.savefig(plot_file_path)
         plt.close()
 
         print(f"plot_hh_boxplot_all: Plot saved as {plot_file_path}")
+
+    def _plt_title_tex(self, title, info, df = None):
+        if df is None:
+            df = self.df
+        title_tex = '{\\fontsize{20pt}{3em}\\selectfont{}'+title+'}'
+        if info is not None:
+            title_tex += ' \n{\\fontsize{8pt}{3em}\\selectfont{}'+str(info)+'}'
+        return title_tex
+    
+    def plot_line_best(self, 
+                       reason_dir, 
+                       plot_file_path=None,  
+                       figsize=(6, 4),
+                       info = None
+                    ):
+        x_axis_name = "Step"
+        y_axis_name = "Fitness"
+        x_axis_name, y_axis_name = self._plt_axis_names(x_axis_name, y_axis_name)
+                     
+        title = "Performance"
+        plt, x_axis_name, y_axis_name = self._plt(title, x_axis_name, y_axis_name, x_axis_name, y_axis_name, figsize, info)
+
+        reasons = self.readDynamicSelectionReasons(reason_dir)
+        ymax = 0
+        names = list(mcolors.TABLEAU_COLORS)
+        i = 0
+        for search_operator, reason in reasons.items():
+            df = pd.DataFrame(reason["steps"]).transpose()
+            plt.plot(df["performance"], color=names[i], linestyle = 'dotted')
+            plt.plot(df["best"], label=f"{search_operator}", color=names[i])
+            ymax = max(ymax, max(df["performance"]))
+            ymax = max(ymax, max(df["best"]))
+            i += 1
+
+        self.plot_Reasons(reason_dir, plt, ymax)
+
+        plt.legend()
+        plt.tight_layout()
+        # plt.show()
+        if plot_file_path == None:
+            plot_file_path = os.path.join(self.result_dir, 'hh_performance_line.png')
+        else: 
+            plot_file_path = plot_file_path
+        plt.savefig(plot_file_path, dpi=150)
+        print(f"plot_line_best: Plot saved as {plot_file_path}")
+    
+    def plot_agents(self, 
+                       reason_dir, 
+                       plot_file_path=None,  
+                       figsize=(6, 4),
+                       info = None
+                    ):
+        x_axis_name = "Step"
+        y_axis_name = "Fitness"
+        x_axis_name, y_axis_name = self._plt_axis_names(x_axis_name, y_axis_name)
+                     
+        title = "Performance"
+        plt, x_axis_name, y_axis_name = self._plt(title, x_axis_name, y_axis_name, x_axis_name, y_axis_name, figsize, info)
+
+        reasons = self.readDynamicSelectionReasons(reason_dir)
+        print(reasons)
+        agents_nums = {}
+        for search_operator, reason in reasons.items():
+            agents_nums[search_operator] = {
+                    
+            }
+        ymax = 0
+        names = list(mcolors.TABLEAU_COLORS)
+        i = 0
+        for search_operator, reason in reasons.items():
+            df = pd.DataFrame(reason["steps"]).transpose()
+            plt.plot(df["performance"], color=names[i], linestyle = 'dotted')
+            plt.plot(df["best"], label=f"{search_operator}", color=names[i])
+            ymax = max(ymax, max(df["performance"]))
+            ymax = max(ymax, max(df["best"]))
+            i += 1
+
+        self.plot_Reasons(reason_dir, plt, ymax)
+
+        plt.legend()
+        plt.tight_layout()
+        # plt.show()
+        if plot_file_path == None:
+            plot_file_path = os.path.join(self.result_dir, 'hh_performance_line.png')
+        else: 
+            plot_file_path = plot_file_path
+        plt.savefig(plot_file_path, dpi=150)
+        print(f"plot_line_best: Plot saved as {plot_file_path}")
 
     def plot(self):
         self.plot_hh_multiplot()

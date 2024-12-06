@@ -17,19 +17,17 @@ import matplotlib.pyplot as plt
 from datetime import timedelta
 from visualization_base import visuBase
 
-class visuSimulations(visuBase):
-    def __init__(self, simulationResultsDirPath):
+class visuCached(visuBase):
+    def __init__(self, reason_dir=None):
         super().__init__()
-        self.simulationResultsDirPath = simulationResultsDirPath
+        self.reason_dir = reason_dir
         
     def extractDataStats(self, file_path):
 
         with open(file_path, 'r', encoding='utf-8') as json_file:
             data = json.load(json_file)
         
-        exp_name = str(file_path)
-        exp_name = str(exp_name.split("/")[-1])
-        exp_name = exp_name.split("_stats")[0]
+        exp_name = str(str(file_path).split("/")[-1]).split("_stats")[0]
 
         info = [f'Total: {data["general"]["num_dp"]}', f'Cached: {data["general"]["num_dp_cached"]}']
         if "environment_time" in data["general"]:
@@ -93,10 +91,16 @@ class visuSimulations(visuBase):
         for column_name, column in self.rawdf.items():
             plt.plot(column, label=column_name)
 
+
+        if self.reason_dir:
+            self.plot_Reasons(self.reason_dir, plt, max(localDF['cached']))
+
         plt.legend()
         plt.tight_layout()
         # plt.show()
         plt.savefig(filepath, dpi=150)
+        print(f"plotCachedperStep: Plot saved as {filepath}")
+
 
     def plotFitnessHistogram(self, 
              filepath,
@@ -107,8 +111,6 @@ class visuSimulations(visuBase):
         ):
         x_axis_name, y_axis_name = self._plt_axis_names(x_axis_name)
 
-        print(self.rawdf)
-                     
         localDF = self.rawdf.loc[self.rawdf.Cached]
         info = ", ".join([f'Total: {len(self.rawdf)}', f'Cached: {len(localDF)}'])
 
@@ -125,9 +127,10 @@ class visuSimulations(visuBase):
         ax.set(title= r''+self._plt_title_tex(title, info, localDF))
         ax.tight_layout()
         ax.savefig(filepath, dpi=150)
+        print(f"plotFitnessHistogram: Plot saved as {filepath}")
 
 if __name__ == "__main__":
-    ps = visuSimulations("")
+    ps = visuCached("")
 
     info = ps.extractDataStats(
         "/home/herget/UvA-git/hh_local/hh_test_05_12_22_53/data/rawASML/ASML_20241205_201227_stats.json"

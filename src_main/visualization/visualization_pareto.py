@@ -87,6 +87,7 @@ class visuParetoSet(visuBase):
         plt.tight_layout()
         plt.legend()
         plt.savefig(filepath, dpi=150)
+        print(f"plotParetoset: Plot saved as {filepath}")
 
         path_efficient_solutions = os.path.join(os.path.dirname(filepath), "efficient_solutions")
         if copy_efficient_solution_path_dir is not None:

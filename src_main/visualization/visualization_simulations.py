@@ -50,6 +50,7 @@ class visuSimulations(visuBase):
 
         plt.tight_layout()
         plt.savefig(filepath, dpi=150)
+        print(f"plotFitnessDistribution: Plot saved as {filepath}")
 
     def plotFitnessHistogram(self, 
              filepath,
@@ -74,6 +75,7 @@ class visuSimulations(visuBase):
         ax.set(title= r''+self._plt_title_tex(title, info, localDF))
         ax.tight_layout()
         ax.savefig(filepath, dpi=150)
+        print(f"plotFitnessHistogram: Plot saved as {filepath}")
 
 
 if __name__ == "__main__":
