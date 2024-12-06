@@ -397,7 +397,7 @@ def save_json(variable_to_save, file_name=None, suffix=None):
 
     # Create the new file
     with open('./{}{}.json'.format(file_name, suffix), 'w', encoding='utf-8') as json_file:
-        json.dump(variable_to_save, json_file, cls=NumpyEncoder)
+        json.dump(variable_to_save, json_file, cls=NumpyEncoder, indent=4)
 
 
 def read_json(data_file):

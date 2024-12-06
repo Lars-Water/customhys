@@ -1395,7 +1395,7 @@ def _save_step(step_number, variable_to_save, parameters, file_details, prefix='
             json.dump({
                 "paramaters": parameters,
                 "file_details": file_details
-            }, json_file)
+            }, json_file, indent=4)
     
     if solution is not None:
         _save_encoded_solution(solution["encoded_solution"], solution["search_operators"], folder_name)
@@ -1403,7 +1403,7 @@ def _save_step(step_number, variable_to_save, parameters, file_details, prefix='
     # Create a new file for this step
     with open(folder_name + f'/{str(step_number)}-' + now.strftime('%m_%d_%Y_%H_%M_%S') + '.json', 'w',
               encoding='utf-8') as json_file:
-        json.dump(variable_to_save, json_file, cls=jt.NumpyEncoder)
+        json.dump(variable_to_save, json_file, cls=jt.NumpyEncoder, indent=4)
 
 def _save_encoded_solution(encoded_solution, search_operators, folder_name):
     file_path = folder_name + "/solutions.json"
@@ -1420,7 +1420,7 @@ def _save_encoded_solution(encoded_solution, search_operators, folder_name):
         solutions[str(encoded_solution)] = search_operators
     
     with open(file_path, "w",  encoding='utf-8') as json_file:
-        json.dump(solutions, json_file)
+        json.dump(solutions, json_file, indent=4)
 
 def _get_stored_sample_sequences(filters, file_details):
     """
@@ -1503,7 +1503,7 @@ def _save_sequences(file_name, sequences_to_save, file_details):
 
     # Overwrite or create file to store the sequences along its respective fitness
     with open(folder_name + f'{file_name}.json', 'w', encoding='utf-8') as json_file:
-        json.dump(sequences_to_save, json_file, cls=jt.NumpyEncoder)
+        json.dump(sequences_to_save, json_file, cls=jt.NumpyEncoder, indent=4)
 
 
 class HyperheuristicError(Exception):
