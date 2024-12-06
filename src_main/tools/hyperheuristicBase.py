@@ -196,6 +196,10 @@ class HyperHeuristicBase:
             "best": {
                 "step": 0
             },
+            "waiting_for_sync": {
+                "total": 0,
+                "in_step": {}
+            },
             "progress_bar": {
                 "advance": lambda x: self.progress.update(bar_steps, advance=x),
                 "set_completed": lambda x: self.progress.update(bar_steps, completed=x),
@@ -280,7 +284,8 @@ class HyperHeuristicBase:
             }
             self.hypers[search_operator_space_name]["steps"][step] = {
                 "performance": current_performance,
-                "best": best_performance
+                "best": best_performance,
+                "num_agents": self.hypers[search_operator_space_name]["hh"].get_num_agents()
             }
         # Do not check if we are already at the minimum amount of HHs
         # and only if we are the correct step interval
@@ -291,7 +296,11 @@ class HyperHeuristicBase:
             if self.sync_steps_of_hhs:
                 self.logger.info(f"{search_operator_space_name} is waiting to check the extra finalization critera (synced). (Step: {step}, stag_counter: {stag_counter})")
                 # self.hypers[search_operator_space_name]["progress_bar"]["pause"]()
+                start_wait = time.time()
                 self.barrier.wait()
+                wait_time = time.time() - start_wait
+                self.hypers[search_operator_space_name]["waiting_for_sync"]["total"] += wait_time
+                self.hypers[search_operator_space_name]["waiting_for_sync"]["in_step"][step] = wait_time
                 # self.hypers[search_operator_space_name]["progress_bar"]["start"]()
                 finalize, reas = self._checkFinalization_internal(search_operator_space_name, step, stag_counter, best_performance, current_performance)
             else: 
@@ -378,6 +387,7 @@ class HyperHeuristicBase:
         with self.lock_hypers:
             self.hypers[search_operator_space_name]["enabled"] = False
             self.hypers[search_operator_space_name]["stopped"] = time.time()
+            self.hypers[search_operator_space_name]["finalize_reason"] = finalize_reason
             self.hypers[search_operator_space_name]["progress_bar"]["finish"](step)
             self.hypers[search_operator_space_name]["progress_bar"]["remove_iter"]()
 
@@ -390,20 +400,25 @@ class HyperHeuristicBase:
                 if optimize_utilization:
                     # Split available agents from deactivated HH to the rest
                     avail_agents = self.hypers[search_operator_space_name]["hh"].get_num_agents()
-                    avail_agents_per_hyper = math.floor(avail_agents/enabled_hypers)
+                    avail_agents_per_hyper = 0
+                    extra_avail_agents = 0
+                    if enabled_hypers > 0:
+                        avail_agents_per_hyper = math.floor(avail_agents/enabled_hypers)
                     # Sometimes this cannot be distribute fairly. So we give the extra ones to the so far best performing HH
-                    extra_avail_agents = avail_agents - avail_agents_per_hyper * enabled_hypers
-                    best_hyper = self._best_hyper()
-                    best_hyper_text = ""
-                    if extra_avail_agents > 0:
-                        best_hyper_text = f" Since there are {extra_avail_agents} agents which cannot be fairly distributed, those will be given to the currently best performaning Hyper Heuristic {best_hyper}."
+                        extra_avail_agents = avail_agents - avail_agents_per_hyper * enabled_hypers
+                        best_hyper = self._best_hyper()
+                        best_hyper_text = ""
+                        if extra_avail_agents > 0:
+                            best_hyper_text = f" Since there are {extra_avail_agents} agents which cannot be fairly distributed, those will be given to the currently best performaning Hyper Heuristic {best_hyper}."
 
-                    self.logger.info(f"distribute_Resources: Hyper Heuristic {search_operator_space_name} is finalized and its {avail_agents} available agents will be distributed to the remaining {enabled_hypers} Hyper Heuristics ({avail_agents_per_hyper} per HH).{best_hyper_text}\nReasons: {', '.join(finalize_reason)}\n")
-
+                        self.logger.info(f"distribute_Resources: Hyper Heuristic {search_operator_space_name} is finalized and its {avail_agents} available agents will be distributed to the remaining {enabled_hypers} Hyper Heuristics ({avail_agents_per_hyper} per HH).{best_hyper_text}\nReasons: {', '.join(finalize_reason)}\n")
+                    else:
+                        self.logger.info(f"distribute_Resources: Hyper Heuristic {search_operator_space_name} is finalized and was the las remaining HH.\nReasons: {', '.join(finalize_reason)}\n")
                     # json_out is used to write a file for better documentation
                     json_out = {
                         "step": step,
                         "finalize_reason": finalize_reason,
+                        "search_operator_space_name": search_operator_space_name,
                     }
 
                     for hyper_space_name, hyper in self.hypers.items():
@@ -413,6 +428,7 @@ class HyperHeuristicBase:
                             if hyper_space_name == best_hyper:
                                 give_agents += extra_avail_agents
                             num_agents_avail = hyper["hh"].give_avail_agents_for_next_step(give_agents)
+
                         json_out[hyper_space_name] = {
                             "num_agents_currently": hyper["hh"].get_num_agents(),
                             "num_agents_avail": num_agents_avail,
@@ -429,6 +445,19 @@ class HyperHeuristicBase:
 
                     with open(os.path.join(dir_path, f"hh_hyper_{search_operator_space_name}.json") , "w") as fp:
                         json.dump(json_out, fp, indent=4)
+            if enabled_hypers <= 1:
+                json_out = {
+                    "final_step": step
+                }
+                for hyper_space_name, hyper in self.hypers.items():
+                    json_out[hyper_space_name] = {}
+                    for key, val in hyper.items():
+                        if key not in ["hh", "progress_bar"]:
+                            json_out[hyper_space_name][key] = val
+
+                dir_path = os.path.join(self.results_path, f"hh_hyper_{str(self.timestamp)}")
+                with open(os.path.join(dir_path, f"hh_hyper_final.json") , "w") as fp:
+                    json.dump(json_out, fp, indent=4)
         
     def _get_num_enabled_hyper(self):
         enabled_hypers = 0

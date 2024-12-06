@@ -258,7 +258,7 @@ class HeuristicSimulationCoordinatorBase:
             # shutil.copy2(fitness_values_file_path, fitness_values_file_path_old)
             os.remove(fitness_values_file_path)
         with open(fitness_values_file_path, 'w') as f:
-            json.dump(fitness_values, f)
+            json.dump(fitness_values, f, indent=4)
 
 
     '''
