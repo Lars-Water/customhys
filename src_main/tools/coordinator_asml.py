@@ -17,6 +17,7 @@ from pathlib import Path
 import glob
 import itertools
 import xml.etree.ElementTree as ET
+import rich.progress as prog
 
 from experiments import create_sim_asml, create_sim_asml_parallel
 from src.manager import Manager
@@ -255,88 +256,106 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
 
         # TODO: Remove hardcoded filter for ignoring cable colours? Depends on if I change the actualy configuration and parameter setting functionality.
         # Determine the minimal and maximal parameter values for the simulation model parameters.
-        simulation_model_params = self.conf.tryGet("simulation_model", "simulation_model_params")
-        boundaries = {}
-        for ids, simulation_model_param in enumerate(simulation_model_params):
-            ignore_normalization = simulation_model_param['ignore_normalization']
-            if not ignore_normalization:
-                boundaries[simulation_model_param['param_name']+str(ids)] = {
-                    "values": {
-                        "max": simulation_model_param['values'][-1],
-                        "min": simulation_model_param['values'][0]
-                    },
-                    "configuration_pattern": simulation_model_param['configuration_pattern']
-                }
-        print(boundaries)
-        # Generate simulation instances the min and max parameter value configurations.
-        sim_ids = []
-        sim_id_boundaries = {}
-        # print("##### boundaries:")
-        # print(boundaries)
-        tree = ET.parse(self.template_xml_file_path)
-        for parameter, boundaries_local in boundaries.items():
-            sim_id_boundaries[parameter] = {}
-            for boundary in boundaries_local["values"]:
-                value = boundaries_local["values"][boundary]
-                self.logger.debug(f"Generating normalization sim instance for parameter: {parameter} - boundary: {boundary} - value: {value}")
-                sim_id = uuid.uuid4()
-                if parameter.startswith("processor_freq"):
-                    configuration = [
-                        {
-                            "param_name": parameter,
-                            "config_pattern": [boundaries_local['configuration_pattern'][0], x, "frequency"],
-                            "value": value
-                        } for x in range(self.numberOfCoresWithFrequencies)
-                    ]
-                    if boundary == "max":
-                        configuration += [{
-                            "param_name":  "processor_freq",
-                            "config_pattern": [".//core[@active]", x, "active"],
-                            "value": ["true", 1]
-                        } for x in range(len(tree.findall('.//core[@active]')))]
-                elif parameter.startswith("num_processor_cores_active"):
-                    configuration = [
-                        {
-                            "param_name": parameter,
-                            "config_pattern": [boundaries_local['configuration_pattern'][0], 0],
-                            "value": value
-                        }
-                    ]
-                self.generate_design_point(sim_id, configuration)
-                sim_ids.append(sim_id)
-                sim_id_boundaries[parameter][boundary] = sim_id
-        self.logger.info("Evaluating the generated simulation instances.")
-        uids = self.run_multiple_simulation_configuration(sim_ids, step_iteration_data = ["manual_normalization"])
+        with prog.Progress(
+                prog.SpinnerColumn(),
+                prog.TextColumn("[progress.description]{task.description}", justify="right"),
+                prog.TextColumn("[progress.percentage]{task.completed}/{task.total}", justify="right"),
+                prog.BarColumn(),
+                prog.TimeElapsedColumn(),
+        ) as progress:
+            simulation_model_params = self.conf.tryGet("simulation_model", "simulation_model_params")
+            boundaries = {}
+            for ids, simulation_model_param in enumerate(simulation_model_params):
+                ignore_normalization = simulation_model_param['ignore_normalization']
+                if not ignore_normalization:
+                    boundaries[simulation_model_param['param_name']+str(ids)] = {
+                        "values": {
+                            "max": simulation_model_param['values'][-1],
+                            "min": simulation_model_param['values'][0]
+                        },
+                        "configuration_pattern": simulation_model_param['configuration_pattern']
+                    }
+            print(boundaries)
+            # Generate simulation instances the min and max parameter value configurations.
+            sim_ids = []
+            sim_id_boundaries = {}
+            sim_id_bars = {}
+            # print("##### boundaries:")
+            # print(boundaries)
+            tree = ET.parse(self.template_xml_file_path)
+            for parameter, boundaries_local in boundaries.items():
+                sim_id_boundaries[parameter] = {}
+                sim_id_bars[parameter] = {}
+                for boundary in boundaries_local["values"]:
+                    value = boundaries_local["values"][boundary]
+                    self.logger.debug(f"Generating normalization sim instance for parameter: {parameter} - boundary: {boundary} - value: {value}")
+                    sim_id = uuid.uuid4()
+                    bar = progress.add_task(
+                        f"[bold]{parameter}[/bold] {boundary}", 
+                        total=1,
+                        start=True,
+                        completed=-0
+                    )
+                    if parameter.startswith("processor_freq"):
+                        configuration = [
+                            {
+                                "param_name": parameter,
+                                "config_pattern": [boundaries_local['configuration_pattern'][0], x, "frequency"],
+                                "value": value
+                            } for x in range(self.numberOfCoresWithFrequencies)
+                        ]
+                        if boundary == "max":
+                            configuration += [{
+                                "param_name":  "processor_freq",
+                                "config_pattern": [".//core[@active]", x, "active"],
+                                "value": ["true", 1]
+                            } for x in range(len(tree.findall('.//core[@active]')))]
+                    elif parameter.startswith("num_processor_cores_active"):
+                        configuration = [
+                            {
+                                "param_name": parameter,
+                                "config_pattern": [boundaries_local['configuration_pattern'][0], 0],
+                                "value": value
+                            }
+                        ]
+                    self.generate_design_point(sim_id, configuration)
+                    sim_ids.append(sim_id)
+                    sim_id_boundaries[parameter][boundary] = sim_id
+                    sim_id_bars[parameter][boundary] = bar
 
-        for parameter, boundaries_local in boundaries.items():
-            for boundary in boundaries_local["values"]:
-                value = boundaries_local["values"][boundary]
-                uid = list(uids.keys())[list(uids.values()).index(sim_ids.index(sim_id_boundaries[parameter][boundary]))]
-                val_boun = self.determine_boundary_value(uid, parameter, boundary)
-                self.logger.info(f"Determine the boundary value for the objective: {parameter} - boundary: {boundary} - value: {value} --> {val_boun}")
+            self.logger.info("Evaluating the generated simulation instances.")
+            uids = self.run_multiple_simulation_configuration(sim_ids, step_iteration_data = ["manual_normalization"])
 
-        sim_ids.clear()
+            for parameter, boundaries_local in boundaries.items():
+                for boundary in boundaries_local["values"]:
+                    value = boundaries_local["values"][boundary]
+                    progress.advance(sim_id_bars[parameter][boundary])
+                    uid = list(uids.keys())[list(uids.values()).index(sim_ids.index(sim_id_boundaries[parameter][boundary]))]
+                    val_boun = self.determine_boundary_value(uid, parameter, boundary)
+                    self.logger.info(f"Determine the boundary value for the objective: {parameter} - boundary: {boundary} - value: {value} --> {val_boun}")
 
-        if self.remove_design_point_configuration_dummy_path:
-            self.logger.debug("Removing simulation run templates in dummy path.")
-            fo.remove_design_point_configurations_dummy_path(self.generated_path, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
+            sim_ids.clear()
+
+            if self.remove_design_point_configuration_dummy_path:
+                self.logger.debug("Removing simulation run templates in dummy path.")
+                fo.remove_design_point_configurations_dummy_path(self.generated_path, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
+                
+            if self.remove_sim_instance_experiments_folder:
+                self.logger.debug("Removing simulation instances from experiments folder.")
+                fo.remove_sim_instance_folders(self.data_path, uids,
+                                                self.remove_sim_instance_experiments_folder["logs"], 
+                                                self.remove_sim_instance_experiments_folder["results"], 
+                                                self.remove_sim_instance_experiments_folder["runtime"]
+                )
             
-        if self.remove_sim_instance_experiments_folder:
-            self.logger.debug("Removing simulation instances from experiments folder.")
-            fo.remove_sim_instance_folders(self.data_path, uids,
-                                            self.remove_sim_instance_experiments_folder["logs"], 
-                                            self.remove_sim_instance_experiments_folder["results"], 
-                                            self.remove_sim_instance_experiments_folder["runtime"]
+                
+            self._check_normalization()
+            self.logger.info("Boundaries: \n" +
+                "self.min_wfpm_runtime: " + str(self.min_wfpm_runtime) + "\n" +
+                "self.max_wfpm_runtime: " + str(self.max_wfpm_runtime) +"\n" +
+                "self.min_cost: " + str(self.min_cost) + "\n" +
+                "self.max_cost: " + str(self.max_cost) 
             )
-        
-            
-        self._check_normalization()
-        self.logger.info("Boundaries: \n" +
-            "self.min_wfpm_runtime: " + str(self.min_wfpm_runtime) + "\n" +
-            "self.max_wfpm_runtime: " + str(self.max_wfpm_runtime) +"\n" +
-            "self.min_cost: " + str(self.min_cost) + "\n" +
-            "self.max_cost: " + str(self.max_cost) 
-        )
 
 
     def determine_boundary_value(self, sim_uid, parameter, boundary):

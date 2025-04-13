@@ -255,6 +255,7 @@ class Siminstance:
 
             self.stats.record_time_stat("compilation", "make_make_exec_start")
             make_make_output = subprocess.run(make_make_command, cwd=self.path, capture_output=True)
+            print(make_make_command)
             self.record_total_time_stat(("compilation", "make_make_exec_time"), ("compilation", "make_make_exec_start"), ("compilation", "make_make_exec_end"))
 
             self.stats.record_time_stat("compilation", "make_make_store_start")
@@ -274,6 +275,8 @@ class Siminstance:
             make_command = self.__create_omnet_make_command()
             self.record_total_time_stat(("compilation", "make_build_time"), ("compilation", "make_build_start"), ("compilation", "make_build_end"))
 
+            self.logger.warn(make_make_command)
+            self.logger.warn(make_command)
 
             self.logger.info("Running make command: {}".format(make_command))
 

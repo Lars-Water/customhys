@@ -445,7 +445,10 @@ class HyperHeuristicBase:
 
                     with open(os.path.join(dir_path, f"hh_hyper_{search_operator_space_name}.json") , "w") as fp:
                         json.dump(json_out, fp, indent=4)
-            if enabled_hypers <= 1:
+            # When the last HH shuts down, save all relevant information
+            # We activated this HH on top of the function, hence we need to add 1 to the enabled hypers
+            if (enabled_hypers + 1) <= 1:
+                self.logger.info(f'This was the last enabled HH search operator. Saving all stats to a final file.')
                 json_out = {
                     "final_step": step
                 }
@@ -456,7 +459,8 @@ class HyperHeuristicBase:
                             json_out[hyper_space_name][key] = val
 
                 dir_path = os.path.join(self.results_path, f"hh_hyper_{str(self.timestamp)}")
-                with open(os.path.join(dir_path, f"hh_hyper_final.json") , "w") as fp:
+                os.makedirs(dir_path, exist_ok=True)
+                with open(os.path.join(dir_path, f"final.json") , "w") as fp:
                     json.dump(json_out, fp, indent=4)
         
     def _get_num_enabled_hyper(self):

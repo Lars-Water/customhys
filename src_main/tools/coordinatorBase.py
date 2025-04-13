@@ -471,10 +471,8 @@ class HeuristicSimulationCoordinatorBase:
     def get_boundaries(self):
         raise NotImplementedError("You need to implement: get_boundaries().")
 
-
     def manual_normalization(self):
         raise NotImplementedError("You need to implement: manual_normalization().")
-
 
     def determine_boundary_value(self, sim_uid, parameter, boundary):
         raise NotImplementedError("You need to implement: determine_boundary_value().")
