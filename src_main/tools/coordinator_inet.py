@@ -44,11 +44,14 @@ class HeuristicSimulationCoordinatorINET(HeuristicSimulationCoordinatorBase):
         self._nr_of_backbone_switches = nr_of_backbone_switches
         self.ini_file_template_path = os.path.join(self.simulation_model_template_path, "largeNet.ini")
 
+    def problemInstanceFunc(self):
+        return component_config.create_problem_instanceASML
+
     def createDataCollector(self):
         weight_latency = self.conf.tryGet("fitness_config", "weight_latency")
         weight_cost = self.conf.tryGet("fitness_config", "weight_cost")
         self.data_collector = DataCollectorINET(weight_latency, weight_cost, self.dir_design_points_metrics_output)
-
+        
 
     def set_nr_of_backbone_switches(self, nr_of_backbone_switches):
         """
