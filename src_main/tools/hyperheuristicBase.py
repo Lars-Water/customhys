@@ -109,6 +109,7 @@ class HyperHeuristicBase:
             ) as progress:
             self.progress = progress
             all_bars = []
+            self.logger.info(f"{self.search_operators_spaces.keys()}")
 
             for search_operator_space_name in self.search_operators_spaces.keys():
                 space = self.search_operators_spaces[search_operator_space_name]

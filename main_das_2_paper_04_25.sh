@@ -28,7 +28,7 @@ cd ${BASE_PATH}
 eval "ulimit -n 262000"
 ulimit -n 262000
 
-CONFIG_PATH_EXPERIMENT_1="${BASE_PATH}/config/experiment_asml_04_2025/experiment_asml_04_2025.json"
+CONFIG_PATH_EXPERIMENT="${BASE_PATH}/config/experiment_asml_04_2025/experiment_asml_04_2025.json"
 
 
 python3 main.py \
