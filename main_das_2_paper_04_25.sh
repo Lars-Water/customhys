@@ -25,10 +25,13 @@ source setenv
 cd ../inet4.5
 source setenv
 cd ${BASE_PATH}
-eval "ulimit -n 262000"
-ulimit -n 262000
-
 CONFIG_PATH_EXPERIMENT="${BASE_PATH}/config/experiment_asml_04_2025/experiment_asml_04_2025.json"
+
+echo "Checking ulimit"
+set -x #echo on
+ulimit -n 262000
+ulimit -n 
+set +x #echo off
 
 
 python3 main.py \

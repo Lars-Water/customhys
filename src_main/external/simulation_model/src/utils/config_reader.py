@@ -15,13 +15,13 @@ class Config:
     configFilePath: PosixPath = None
     _config = None
 
-    def __init__(self, configFilePath: PosixPath, outputfolderpath = None, name: str = None):
+    def __init__(self, configFilePath: PosixPath, outputfolderpath = None, name: str = None, disabledLoggers: bool=False):
         if outputfolderpath is not None and name is not None:
-            self.logger = logger.logger(name, outputfolderpath)
+            self.logger = logger.logger(name, outputfolderpath, disabled=disabledLoggers)
         elif name is not None:
-            self.logger = logger.loggerRICH(name)
+            self.logger = logger.loggerRICH(name, disabled=disabledLoggers)
         else:
-            self.logger = logger.loggerRICH("Config")
+            self.logger = logger.loggerRICH("Config", disabled=disabledLoggers)
 
         self.logger.info("Default config file: "+str(self.defaultFile))
         if os.path.exists(configFilePath) and os.path.isfile(configFilePath):
@@ -48,6 +48,10 @@ class Config:
                 os.strerror(errno.ENOENT),
                 configFilePath
             )
+    
+    # Custom code by Herget. Close Logging file handlers manually since otherwise we open to many files.
+    def closeLoggerFileHandlers(self):
+        logger.loggerShutdown(self.logger)
 
     def conf(self):
         if self._config == None:

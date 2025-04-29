@@ -4,7 +4,7 @@ import shutil
 from src.siminstance import Siminstance
 from src.utils.config_creator import OmnetSimConfig, SiminstanceConfig
 
-def create_sim(workflow_config, id, dummy_sim_path, dummy_sim, config, pdes=None, ini="omnetpp.ini", libraries=None, ned_paths=None, time_limit=None, metadata=None):
+def create_sim(workflow_config, id, dummy_sim_path, dummy_sim, config, pdes=None, ini="omnetpp.ini", libraries=None, ned_paths=None, time_limit=None, metadata=None, doCompile=True, disabledLoggers=False):
     dummy_sim_folder = os.path.join(dummy_sim_path, dummy_sim)
 
     ##### Create copy of a dummy sim
@@ -21,13 +21,13 @@ def create_sim(workflow_config, id, dummy_sim_path, dummy_sim, config, pdes=None
     config_file = workflow_config["local_sim_config"] + ".json"
     config_path = os.path.join(sim_folder, config_file)
 
-    omnet_config = OmnetSimConfig(True, True, ini, config, "Cmdenv", time_limit=time_limit, pdes=pdes, libraries=libraries, ned_paths=ned_paths, metadata=None)
-    sim_instance_config = SiminstanceConfig("omnet", omnet_config)
+    omnet_config = OmnetSimConfig(True, True, ini, config, "Cmdenv", time_limit=time_limit, pdes=pdes, libraries=libraries, ned_paths=ned_paths, metadata=metadata)
+    sim_instance_config = SiminstanceConfig("omnet", omnet_config, doCompile=doCompile)
     sim_instance_config.write_conf(config_path)
 
-    return Siminstance(sim_folder, workflow_config)
+    return Siminstance(sim_folder, workflow_config, disabledLoggers=disabledLoggers)
 
-def create_sim_without_duplicating(workflow_config, id, dummy_sim_path, dummy_sim, config, pdes=None, ini="omnetpp.ini", libraries=None, ned_paths=None, time_limit=None, metadata=None):
+def create_sim_without_duplicating(workflow_config, id, dummy_sim_path, dummy_sim, config, pdes=None, ini="omnetpp.ini", libraries=None, ned_paths=None, time_limit=None, metadata=None, doCompile=True, disabledLoggers=False):
     sim_folder = os.path.join(dummy_sim_path, dummy_sim)
 
     with open(os.path.join(sim_folder, "id.txt"), "w") as fp:
@@ -37,11 +37,11 @@ def create_sim_without_duplicating(workflow_config, id, dummy_sim_path, dummy_si
     config_file = workflow_config["local_sim_config"] + ".json"
     config_path = os.path.join(sim_folder, config_file)
 
-    omnet_config = OmnetSimConfig(True, True, ini, config, "Cmdenv", time_limit=time_limit, pdes=pdes, libraries=libraries, ned_paths=ned_paths, metadata=None)
-    sim_instance_config = SiminstanceConfig("omnet", omnet_config)
+    omnet_config = OmnetSimConfig(True, True, ini, config, "Cmdenv", time_limit=time_limit, pdes=pdes, libraries=libraries, ned_paths=ned_paths, metadata=metadata)
+    sim_instance_config = SiminstanceConfig("omnet", omnet_config, doCompile=doCompile)
     sim_instance_config.write_conf(config_path)
 
-    return Siminstance(sim_folder, workflow_config)
+    return Siminstance(sim_folder, workflow_config, disabledLoggers=disabledLoggers)
 
 def create_sim_inet_lans(workflow_config, dummy_sim_path, id, inet_base):
     dummy_sim = "dummy_sim_lans"
@@ -166,7 +166,7 @@ def create_sim_asml(workflow_config, dummy_sim_path, id, inet_base):
     #              os.path.join(inet_base, "showcases"), os.path.join(inet_base, "tests", "validation"),
     #              os.path.join(inet_base, "tests", "networks"), os.path.join(inet_base, "tutorials")]
 
-    return create_sim_without_duplicating(workflow_config, id, dummy_sim_path, dummy_sim, config, time_limit=None, ini=ini, libraries=libraries, ned_paths=ned_paths)
+    return create_sim_without_duplicating(workflow_config, id, dummy_sim_path, dummy_sim, config, time_limit=None, ini=ini, libraries=libraries, ned_paths=ned_paths, doCompile=False, disabledLoggers=True)
 
 def create_sim_asml_parallel(workflow_config, dummy_sim_path, id, inet_base):
     dummy_sim = "custom_faezeh" + f"_{str(id)}"
@@ -181,4 +181,4 @@ def create_sim_asml_parallel(workflow_config, dummy_sim_path, id, inet_base):
     #              os.path.join(inet_base, "showcases"), os.path.join(inet_base, "tests", "validation"),
     #              os.path.join(inet_base, "tests", "networks"), os.path.join(inet_base, "tutorials")]
 
-    return create_sim_without_duplicating(workflow_config, id, dummy_sim_path, dummy_sim, config, time_limit=None, ini=ini, libraries=libraries, ned_paths=ned_paths)
+    return create_sim_without_duplicating(workflow_config, id, dummy_sim_path, dummy_sim, config, time_limit=None, ini=ini, libraries=libraries, ned_paths=ned_paths, doCompile=False, disabledLoggers=True)

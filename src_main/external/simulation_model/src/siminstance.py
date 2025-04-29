@@ -6,7 +6,7 @@ import time
 from pathlib import Path, PosixPath
 
 from src.utils.config_reader import Config
-from src.utils.logger import logger
+from src.utils.logger import logger, loggerShutdown
 from src.utils.hash import md5_dir
 from src.utils.stats import Stats
 
@@ -25,7 +25,7 @@ class Siminstance:
 
     stats = None
 
-    def __init__(self, sim_path, workflow_config):
+    def __init__(self, sim_path, workflow_config, disabledLoggers=False):
         self.stats = Stats()
         self.stats.record_time_stat("general", "creation_time")
 
@@ -40,7 +40,7 @@ class Siminstance:
 
         os.makedirs(self.local_logs_path, exist_ok=True)
 
-        self.logger = logger("siminstance_" + str(self.uid), Path(self.local_logs_path))
+        self.logger = logger("siminstance_" + str(self.uid), Path(self.local_logs_path), disabled=disabledLoggers)
         self.logger.info("Path to simulation instance source: " + str(self.path))
         self.logger.info("UID of sim instance: {}".format(self.uid))
         self.logger.info("Local logs path: {}".format(self.local_logs))
@@ -62,7 +62,7 @@ class Siminstance:
         self.logger.info("Local out path: {}".format(self.local_out_path))
 
         self.logger.info("Reading in config file: " + str(self.local_config_path))
-        self.cnf = Config(Path(self.local_config_path), Path(self.local_logs_path), "config_siminstance_" + str(self.uid))
+        self.cnf = Config(Path(self.local_config_path), Path(self.local_logs_path), "config_siminstance_" + str(self.uid), disabledLoggers=disabledLoggers)
 
         # TODO: Change this to a configuration option.
         # NOTE: Code added by Lars. This is a temporary solution to the problem of the output being in a non-standard format.
@@ -244,62 +244,64 @@ class Siminstance:
         # - handle exceptions (read output etc.)
         self.stats.record_time_stat("compilation", "compile_start_time")
 
-        if (self.cnf.tryGet("omnet")):
-            self.logger.info("Omnet config data present in config file")
+        if self.cnf.tryGet("omnet"):
+            if self.cnf.tryGet("compile"):
+                self.logger.info("Omnet config data present in config file")
 
-            self.stats.record_time_stat("compilation", "make_make_build_start")
-            make_make_command = self.__create_omnet_make_make_command()
-            self.record_total_time_stat(("compilation", "make_make_build_time"), ("compilation", "make_make_build_start"), ("compilation", "make_make_build_end"))
+                self.stats.record_time_stat("compilation", "make_make_build_start")
+                make_make_command = self.__create_omnet_make_make_command()
+                self.record_total_time_stat(("compilation", "make_make_build_time"), ("compilation", "make_make_build_start"), ("compilation", "make_make_build_end"))
 
-            self.logger.info("Running opp_makemake command")
+                self.logger.info("Running opp_makemake command")
 
-            self.stats.record_time_stat("compilation", "make_make_exec_start")
-            make_make_output = subprocess.run(make_make_command, cwd=self.path, capture_output=True)
-            print(make_make_command)
-            self.record_total_time_stat(("compilation", "make_make_exec_time"), ("compilation", "make_make_exec_start"), ("compilation", "make_make_exec_end"))
+                self.stats.record_time_stat("compilation", "make_make_exec_start")
+                make_make_output = subprocess.run(make_make_command, cwd=self.path, capture_output=True)
+                self.record_total_time_stat(("compilation", "make_make_exec_time"), ("compilation", "make_make_exec_start"), ("compilation", "make_make_exec_end"))
 
-            self.stats.record_time_stat("compilation", "make_make_store_start")
-            self.string_to_file(make_make_output.stdout.decode("utf-8"), self.local_logs_path, "siminstance_{}_opp_makemake_stdout".format(self.uid))
-            self.string_to_file(make_make_output.stderr.decode("utf-8"), self.local_logs_path, "siminstance_{}_opp_makemake_stderr".format(self.uid))
-            self.record_total_time_stat(("compilation", "make_make_store_time"), ("compilation", "make_make_store_start"), ("compilation", "make_make_store_end"))
+                self.stats.record_time_stat("compilation", "make_make_store_start")
+                self.string_to_file(make_make_output.stdout.decode("utf-8"), self.local_logs_path, "siminstance_{}_opp_makemake_stdout".format(self.uid))
+                self.string_to_file(make_make_output.stderr.decode("utf-8"), self.local_logs_path, "siminstance_{}_opp_makemake_stderr".format(self.uid))
+                self.record_total_time_stat(("compilation", "make_make_store_time"), ("compilation", "make_make_store_start"), ("compilation", "make_make_store_end"))
 
-            self.logger.info("Opp_makemake execution return code: {}".format(make_make_output.returncode))
+                self.logger.info("Opp_makemake execution return code: {}".format(make_make_output.returncode))
 
-            if (make_make_output.returncode == 0):
-                self.logger.info("Opp_makemake execution was successfull")
-            else:
-                self.logger.warn("Opp_makemake execution was not successfull")
-                raise Exception("Opp_makemake execution was not successfull")
+                if (make_make_output.returncode == 0):
+                    self.logger.info("Opp_makemake execution was successfull")
+                else:
+                    self.logger.warn("Opp_makemake execution was not successfull")
+                    raise Exception("Opp_makemake execution was not successfull")
 
-            self.stats.record_time_stat("compilation", "make_build_start")
-            make_command = self.__create_omnet_make_command()
-            self.record_total_time_stat(("compilation", "make_build_time"), ("compilation", "make_build_start"), ("compilation", "make_build_end"))
+                self.stats.record_time_stat("compilation", "make_build_start")
+                make_command = self.__create_omnet_make_command()
+                self.record_total_time_stat(("compilation", "make_build_time"), ("compilation", "make_build_start"), ("compilation", "make_build_end"))
 
-            self.logger.warn(make_make_command)
-            self.logger.warn(make_command)
+                self.logger.warn(make_make_command)
+                self.logger.warn(make_command)
 
-            self.logger.info("Running make command: {}".format(make_command))
+                self.logger.info("Running make command: {}".format(make_command))
 
-            self.stats.record_time_stat("compilation", "make_exec_start")
-            make_output = subprocess.run(make_command, cwd=self.path, capture_output=True)
-            self.record_total_time_stat(("compilation", "make_exec_time"), ("compilation", "make_exec_start"), ("compilation", "make_exec_end"))
+                self.stats.record_time_stat("compilation", "make_exec_start")
+                make_output = subprocess.run(make_command, cwd=self.path, capture_output=True)
+                self.record_total_time_stat(("compilation", "make_exec_time"), ("compilation", "make_exec_start"), ("compilation", "make_exec_end"))
 
-            self.stats.record_time_stat("compilation", "make_store_start")
-            self.string_to_file(make_output.stdout.decode("utf-8"), self.local_logs_path, "siminstance_{}_make_stdout".format(self.uid))
-            self.string_to_file(make_output.stderr.decode("utf-8"), self.local_logs_path, "siminstance_{}_make_stderr".format(self.uid))
-            self.record_total_time_stat(("compilation", "make_store_time"), ("compilation", "make_store_start"), ("compilation", "make_store_end"))
+                self.stats.record_time_stat("compilation", "make_store_start")
+                self.string_to_file(make_output.stdout.decode("utf-8"), self.local_logs_path, "siminstance_{}_make_stdout".format(self.uid))
+                self.string_to_file(make_output.stderr.decode("utf-8"), self.local_logs_path, "siminstance_{}_make_stderr".format(self.uid))
+                self.record_total_time_stat(("compilation", "make_store_time"), ("compilation", "make_store_start"), ("compilation", "make_store_end"))
 
-            self.logger.info("Make execution return code: {}".format(make_output.returncode))
+                self.logger.info("Make execution return code: {}".format(make_output.returncode))
 
-            if (make_output.returncode == 0):
-                self.logger.info("Make execution was successfull")
-            else:
-                self.logger.error("Make execution was not successfull")
-                self.logger.error(make_output)
-                raise Exception("Make execution was not successfull", make_output)
+                if (make_output.returncode == 0):
+                    self.logger.info("Make execution was successfull")
+                else:
+                    self.logger.error("Make execution was not successfull")
+                    self.logger.error(make_output)
+                    raise Exception("Make execution was not successfull", make_output)
+            
+            else: # if self.cnf.tryGet("compile"):
+                self.logger.warn("Compile is deactivated in the SiminstanceConfig. Compile has been skipped.")
 
-
-        else:
+        else: # if self.cnf.tryGet("omnet"):
             self.logger.warn("No supported simulator configuration data was found.")
             raise Exception("No supported simulator configuration data was found.")
 
@@ -381,3 +383,7 @@ class Siminstance:
             for file in os.listdir(self.local_results_path):
                 if file.endswith(".sca"):
                     os.remove(os.path.join(self.local_results_path, file))
+
+        # Custom code by Herget. Close Logging file handlers manually since otherwise we open to many files.
+        self.cnf.closeLoggerFileHandlers()
+        loggerShutdown(self.logger)
