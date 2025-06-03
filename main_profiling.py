@@ -413,7 +413,7 @@ if __name__ == "__main__":
                 yappi_output_dir_base = os.path.join(general_files_path, "profiling_yappi")
                 # e.g. profile every 5 minutes (300 s)
                 # You can adjust interval_seconds as needed
-                profile_dir = start_periodic_profiling(interval_seconds=30, output_subdir=yappi_output_dir_base)
+                profile_dir = start_periodic_profiling(interval_seconds=30*60, output_subdir=yappi_output_dir_base)
                 logger.info(f"Yappi profiling started. Snapshots will be written to: {profile_dir}")
                 profiler_active = True
             else:

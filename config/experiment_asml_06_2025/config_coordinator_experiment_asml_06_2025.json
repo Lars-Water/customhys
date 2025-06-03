@@ -50,7 +50,7 @@
             "jobs": 4,
             "job_cores": 64,
             "job_processes": 1,
-            "job_memory": "120GB",
+            "job_memory": "96GB",
             "num_nodes": 1,
             "num_workers": 1,
             "threads_per_worker": 8,
