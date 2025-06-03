@@ -4,6 +4,7 @@ import time
 
 from multiprocessing import Process
 from pathlib import Path, PosixPath
+from types import SimpleNamespace
 
 from src.designpointqueue import DesignPointQueue
 from src.siminstance import Siminstance
@@ -274,15 +275,23 @@ class Manager:
         all_are_processing = 0
         cached_sim_instances = design_point_queue.cached_get_all()
         if self.data_collector:
-            self.data_collector.append_caching_status_to_design_point_metrics([sim[0].uid for sim in cached_sim_instances], True)
-        for cached_sim_instance in cached_sim_instances:
-            if self.design_point_cache.is_sim_finished(cached_sim_instance[1]):
-                tmp = self.output_handler.copy_sim_results(cached_sim_instance[0], cached_sim_instance[1])
-            elif self.design_point_cache.is_sim_processing(cached_sim_instance[1]):
-                design_point_queue.cached_insert(cached_sim_instance)
+            self.data_collector.append_caching_status_to_design_point_metrics([sim_tuple[0].uid for sim_tuple in cached_sim_instances], True)
+        
+        for current_sim_instance, original_sim_uid in cached_sim_instances:
+            original_cached_sim_placeholder = SimpleNamespace(uid=original_sim_uid)
+
+            if self.design_point_cache.is_sim_finished(original_cached_sim_placeholder):
+                self.output_handler.copy_sim_results(current_sim_instance, original_cached_sim_placeholder)
+                self.design_point_cache.set_sim_finished(current_sim_instance)
+
+            elif self.design_point_cache.is_sim_processing(original_cached_sim_placeholder):
+                design_point_queue.cached_insert((current_sim_instance, original_sim_uid))
                 all_are_processing += 1
+                
             else:
-                design_point_queue.cached_insert(cached_sim_instance)
+                self.logger.warn(f"Original cached sim {original_sim_uid} for {current_sim_instance.uid} is in an unexpected state. Re-queuing.")
+                design_point_queue.cached_insert((current_sim_instance, original_sim_uid))
+
         return (all_are_processing == design_point_queue.chached_amount() and design_point_queue.has_chached())
 
     # Waits for results
