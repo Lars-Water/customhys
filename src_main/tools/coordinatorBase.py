@@ -287,7 +287,7 @@ class HeuristicSimulationCoordinatorBase:
                 self.logger.debug(f"Generating simulation instance for design point: {sim_id}.")
                 self.generate_design_point(sim_id, agent_configuration)
 
-            self.logger.info("Run the generated simulation instances.")
+            self.logger.info("Run the generated simulation instances. ("+str(len(sim_ids))+")\n"+str(file_name_fitness_values)+"\n"+str(step_iteration_data))
             uids = self.run_multiple_simulation_configuration(sim_ids, file_name_fitness_values, step_iteration_data = step_iteration_data)
 
             self.logger.debug("Collect the simulation stats from the simulation instances runs.\n"+str(uids.keys()))
