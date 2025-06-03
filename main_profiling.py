@@ -117,8 +117,8 @@ def experiment_asml(base_path, coordinator_config_file_path):
     if log_path is None:
         log_path = os.path.join(base_path, "data/logs/")
 
-    experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_asml_04_2025/experiment_asml_04_2025.json"))
-    experiment_1_log_path = os.path.join(log_path, "experiments/experiment_asml_04_2025")
+    experiment_1_config_file_path = Path(os.path.join(base_path, "config/experiment_asml_06_2025/experiment_asml_06_2025.json"))
+    experiment_1_log_path = os.path.join(log_path, "experiments/experiment_asml_06_2025")
 
     config_manager_filename = f"experiment_asml_config_manager_{datetime.now().strftime('%Y%m%d%H%M%S')}"
     experiment_1_config = Config(experiment_1_config_file_path, Path(experiment_1_log_path), config_manager_filename)

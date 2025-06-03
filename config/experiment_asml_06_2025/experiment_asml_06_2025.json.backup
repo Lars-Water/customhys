@@ -29,22 +29,22 @@
         "sync_steps_of_hhs": true,
         "spaces": {
             "swarm_dynamic": {
-                "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_04_2025/search_operator_space/swarm_dynamic.txt"
+                "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_06_2025/search_operator_space/swarm_dynamic.txt"
             }
             ,"gravitational": {
-                "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_04_2025/search_operator_space/gravitational.txt"
+                "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_06_2025/search_operator_space/gravitational.txt"
             }
             ,"firefly_dynamic": {
-                "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_04_2025/search_operator_space/firefly_dynamic.txt"
+                "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_06_2025/search_operator_space/firefly_dynamic.txt"
             }
             // ,"genetic_crossover": {
-            //     "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_04_2025/search_operator_space/genetic_crossover.txt"
+            //     "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_06_2025/search_operator_space/genetic_crossover.txt"
             // }
             // ,"genetic_mutation": {
-            //     "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_04_2025/search_operator_space/genetic_mutation.txt"
+            //     "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_06_2025/search_operator_space/genetic_mutation.txt"
             // }
             // ,"differential_mutation": {
-            //     "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_04_2025/search_operator_space/differential_mutation.txt"
+            //     "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_06_2025/search_operator_space/differential_mutation.txt"
             // }
         }
     },

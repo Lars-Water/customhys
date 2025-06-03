@@ -10,7 +10,7 @@ eval "$(/home/mherget/miniconda3/bin/conda shell.bash hook)"
 BASE_PATH="/var/scratch/mherget/hyper-heuristic-dse-2.0"
 
 # Specify the path to the coordinator configuration file here
-CONFIG_PATH_COORDINATOR="${BASE_PATH}/config/experiment_asml_04_2025/config_coordinator_experiment_asml_04_2025.json"
+CONFIG_PATH_COORDINATOR="${BASE_PATH}/config/experiment_asml_06_2025/config_coordinator_experiment_asml_06_2025.json"
 
 # Define PYTHONPATH to Herman's framework.
 export PYTHONPATH="${PYTHONPATH}:${BASE_PATH}/src_main/external/simulation_model"
@@ -25,7 +25,7 @@ source setenv
 cd ../inet4.5
 source setenv
 cd ${BASE_PATH}
-CONFIG_PATH_EXPERIMENT="${BASE_PATH}/config/experiment_asml_04_2025/experiment_asml_04_2025.json"
+CONFIG_PATH_EXPERIMENT="${BASE_PATH}/config/experiment_asml_06_2025/experiment_asml_06_2025.json"
 
 echo "Checking ulimit"
 set -x #echo on
