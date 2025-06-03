@@ -91,7 +91,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
 
         # TODO: Change the hardcoded ini filename to a variable in the configuration file.
         # Duplicate the preferred dummy_sim directory to the custom directory.
-        self.duplicate_directory(self.simulation_model_template_path, design_point_path, files_to_ignore=["platform.xml", "*.pstat", "*.cc", "*.msg", "*.h", "*.csv"])
+        self.duplicate_directory(self.simulation_model_template_path, design_point_path, files_to_ignore=["platform.xml", "*.pstat", "*.cc", "*.msg", "*.h", "*.csv", "*.log", "out/*", ".*", ".settings/", "out", "*.o", "results/*"])
 
         # TODO: Change the hardcoded ini filename to a variable in the configuration file.
         # Write an updated version of the ignored param value file from the directory that was just duplicated.
