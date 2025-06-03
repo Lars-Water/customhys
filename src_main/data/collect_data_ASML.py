@@ -18,7 +18,7 @@ from .collect_dataBase import DataCollectorBase
 
 class DataCollectorASML(DataCollectorBase):
 
-    def __init__(self, weight_wfpm, weight_cost, dir_design_points_metrics_output):
+    def __init__(self, weight_wfpm, weight_cost, dir_design_points_metrics_output, run_name=None):
         """
         Initialize the CollectData object.
 
@@ -30,7 +30,9 @@ class DataCollectorASML(DataCollectorBase):
         Returns:
             None
         """
-        super().__init__(dir_design_points_metrics_output)
+        if run_name is None:
+            run_name = "default"
+        super().__init__(dir_design_points_metrics_output, run_name=run_name)
         self.weight_wfpm = weight_wfpm
         self.weight_cost = weight_cost
 
