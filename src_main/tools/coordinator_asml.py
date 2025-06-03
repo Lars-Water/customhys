@@ -48,7 +48,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
     def createDataCollector(self):
         weight_wfpm = self.conf.tryGet("fitness_config", "weight_wfpm")
         weight_cost= self.conf.tryGet("fitness_config", "weight_wfpm")
-        self.data_collector = DataCollectorASML(weight_wfpm, weight_cost, self.dir_design_points_metrics_output)
+        self.data_collector = DataCollectorASML(weight_wfpm, weight_cost, self.dir_design_points_metrics_output, run_name=self._run_name )
     
     def createHyperHeuristicBase(self):
         self.template_xml_file_path = os.path.join(self.simulation_model_template_path, "platform.xml")
@@ -180,7 +180,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
         Args:
             uid: The unique identifier of the simulation run.
     '''
-    def obtain_simulation_stats(self, uids):
+    def obtain_simulation_stats(self, uids, file_name_fitness_values="fitness_values.json"):
         # TODO: Should rename fitness_values variable accross the board to something else, because this is not the correct term.
         # Load the transformed outputted data from the simulation run.
         fitness_values = []
@@ -219,8 +219,9 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
 
             # Store design point metrics output.
             if self.store_design_points_metrics_values:
+                self.try_load_problems_file_name_fitness_values(file_name_fitness_values)
                 self.logger.debug(f"Storing metrics output values for siminstance {sim_uid}.")
-                self.data_collector.store_design_point_metrics(wfpm, cost, sim_uid, self._run_name)
+                self.data_collector.cache_design_point_metrics_collective(wfpm, cost, sim_uid, file_name_fitness_values)
 
             # Remove the csv file.
             if self.remove_sim_instance_output:
@@ -232,6 +233,8 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
                     "cost": cost
                 }
             })
+        
+        self.data_collector.store_cached_design_point_metrics_collective(file_name_fitness_values)
 
         # return the average of the column 'mean' in the dataframe.
         return fitness_values

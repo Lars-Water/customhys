@@ -95,6 +95,8 @@ class instanceBase(BP):
                     set_space_name=lambda x: self.set_space_name(x),
                     set_file_name_fitness_values=lambda x: self.set_file_name_fitness_values(x),
                     get_file_name_fitness_values=lambda: self.get_file_name_fitness_values(),
+                    store_agents_fitness_values=lambda x: self.store_agents_fitness_values(x),
+                    get_agents_fitness_values=lambda: self.get_agents_fitness_values(), 
                     fitness_value_dir = self.fitness_value_dir,
                     set_step_iteration_data=lambda x,y: self.set_step_iteration_data(x, y),
                     get_step_iteration_data=lambda: self.get_step_iteration_data()

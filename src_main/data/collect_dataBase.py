@@ -12,6 +12,7 @@ from threading import Lock
 
 from src_main.tools.config_reader import Config
 from src_main.visualization import visualization
+from src_main.tools.logger import logger, setLevelLogger
 import src_main.tools.component_config as component_config
 import src_main.data.sim_configurations as sim_configurations
 
@@ -26,7 +27,8 @@ class DataCollectorBase:
                  run_name = None,
                  save_every_x_seconds = 1800, # 30 minutes * 60 seconds
                  save_every_x_entries = 5000,
-                 cleanup_after_x_seconds = 3600 # Default to 1 hour
+                 cleanup_after_x_seconds = 3600, # Default to 1 hour
+                 _init_logger_name = "DataCollectorBase"
                 ):
         """
         Initialize the CollectData object.
@@ -42,6 +44,8 @@ class DataCollectorBase:
         self.dir_design_points_metrics_output = dir_design_points_metrics_output
         os.makedirs(self.dir_design_points_metrics_output, exist_ok=True)
         
+        self.logger = logger(_init_logger_name, self.dir_design_points_metrics_output, disabled=False)
+        
         self.lock_csv = Lock()
         self.locks_raw_backup_csv = {} # Dictionary to hold a lock for each heuristic_name's raw backup
         self.locks_metrics_storage = {} # Dictionary to hold a lock for each heuristic_name's raw backup
@@ -51,6 +55,11 @@ class DataCollectorBase:
 
         self.metricsStorage = {}
         self.metricsMapping: Dict[str, str] = {}
+
+
+        self.cachingStatusCollectiveLazy = {}
+        self.lock_cachingStatusCollectiveLazy = Lock()
+
 
         self.last_save_time = time.time()
         self.last_save_length = 0
@@ -62,6 +71,7 @@ class DataCollectorBase:
         self.metrics_defaults = {}
 
         self.heuristic_name_default = "default"
+        self._create_metrics_storage(self.heuristic_name_default) 
         if run_name is None:
             self.run_name = "default"
         else:
@@ -76,7 +86,7 @@ class DataCollectorBase:
 
     def _create_metrics_storage(self, heuristic_name):
         # Ensure 'last_touched_timestamp' is part of the columns, not the index
-        initial_columns = list(index_col) # Make a mutable copy
+        initial_columns = list(self.index_col) # Make a mutable copy
         if 'last_touched_timestamp' not in initial_columns:
             initial_columns.append('last_touched_timestamp')
         
@@ -91,7 +101,7 @@ class DataCollectorBase:
             self.locks_raw_backup_csv[heuristic_name] = Lock()
             self.locks_metrics_storage[heuristic_name] = Lock()
 
-    def _store_design_point_metrics_df(self, heuristic_name, append_df_original): # Renamed parameter
+    def _store_design_point_metrics_df(self, heuristic_name, append_df_original, save_raw_backup=False): # Renamed parameter
         if not heuristic_name:
             heuristic_name = self.heuristic_name_default
 
@@ -99,28 +109,30 @@ class DataCollectorBase:
             self._create_metrics_storage(heuristic_name)    
 
         # --- Start: New Raw Backup Logic --- 
-        print(f"[store_design_point_metrics_df] heuristic_name backup: {heuristic_name}")
-        raw_backup_csv_path = os.path.join(
-            self.dir_design_points_metrics_output,
-            f"{self.get_heuristic_filename(heuristic_name)}_raw_backup.csv"
-        )
-    
-
-        with self.locks_raw_backup_csv[heuristic_name]: # Use the specific lock
-            append_df_original.to_csv(
-                raw_backup_csv_path,
-                mode='a',
-                header=not os.path.exists(raw_backup_csv_path),
-                index=False 
+        # self.logger.info(f"[store_design_point_metrics_df] heuristic_name backup: {heuristic_name}")
+        if save_raw_backup:
+            raw_backup_csv_path = os.path.join(
+                self.dir_design_points_metrics_output,
+                f"{self.get_heuristic_filename(heuristic_name)}_raw_backup.csv"
             )
-        # --- End: New Raw Backup Logic ---
 
-        # A copy of append_df_original is made here to ensure that the DataFrame
-        # just written to the raw backup (append_df_original) is not altered by
-        # subsequent processing. The copy (append_df_for_main_metrics) will be
-        # modified (e.g., by adding/updating 'last_touched_timestamp', setting the index)
-        # before being integrated into the main metrics storage (self.metricsStorage).
-        append_df_for_main_metrics = append_df_original.copy()
+            with self.locks_raw_backup_csv[heuristic_name]: # Use the specific lock
+                append_df_original.to_csv(
+                    raw_backup_csv_path,
+                    mode='a',
+                    header=not os.path.exists(raw_backup_csv_path),
+                    index=False 
+                )
+            # --- End: New Raw Backup Logic ---
+
+            # A copy of append_df_original is made here to ensure that the DataFrame
+            # just written to the raw backup (append_df_original) is not altered by
+            # subsequent processing. The copy (append_df_for_main_metrics) will be
+            # modified (e.g., by adding/updating 'last_touched_timestamp', setting the index)
+            # before being integrated into the main metrics storage (self.metricsStorage).
+
+
+        append_df_for_main_metrics = append_df_original
 
         current_time = time.time()
         if 'last_touched_timestamp' not in append_df_for_main_metrics.columns:
@@ -132,23 +144,36 @@ class DataCollectorBase:
         if self.index_col[0] in append_df_for_main_metrics.columns:
             append_df_for_main_metrics = append_df_for_main_metrics.set_index(self.index_col[0])
         elif append_df_for_main_metrics.index.name != self.index_col[0]:
-            print(f"Warning: {self.index_col[0]} column not found in append_df for main metrics processing. Index: {append_df_for_main_metrics.index.name}")
+            self.logger.warn(f"{self.index_col[0]} column not found in append_df for main metrics processing. Index: {append_df_for_main_metrics.index.name}")
             pass
 
         # Keep track of mapping between uids and heuristic_name
+        # self.logger.info(f"heuristic_name: {heuristic_name}")
+        # self.logger.info(f"append_df_for_main_metrics: {append_df_for_main_metrics}")
+        # self.logger.info(f"append_df_for_main_metrics.index.astype(str): {append_df_for_main_metrics.index.astype(str)}")
+        append_caching_status_to_design_point_metrics_executes = {}
         for uid in append_df_for_main_metrics.index.astype(str):
-            self.metricsMapping[uid] = heuristic_name
+            self.metricsMapping[str(uid)] = heuristic_name
+            if str(uid) in self.cachingStatusCollectiveLazy:
+                append_caching_status_to_design_point_metrics_executes \
+                    .setdefault(self.cachingStatusCollectiveLazy[str(uid)], []) \
+                    .append(uid)
+        # self.logger.info(f"self.metricsMapping: {self.metricsMapping}")
          
         with self.locks_metrics_storage[heuristic_name]:
             # Add new rows from append_df_for_main_metrics
             new_rows_mask = ~append_df_for_main_metrics.index.isin(self.metricsStorage[heuristic_name].index)
             if new_rows_mask.any():
-                self.metricsStorage[heuristic_name] = pd.concat([self.metricsStorage[heuristic_name], append_df_for_main_metrics[new_rows_mask]])
+                self.metricsStorage[heuristic_name] = pd.concat( [ \
+                        self.metricsStorage[heuristic_name] if not self.metricsStorage[heuristic_name].empty else None, 
+                        append_df_for_main_metrics[new_rows_mask]
+                    ], ignore_index=True)
             
             # Update existing rows in self.metricsDF from append_df_for_main_metrics
             existing_rows_mask = append_df_for_main_metrics.index.isin(self.metricsStorage[heuristic_name].index)
             if existing_rows_mask.any():
                 # For update, ensure that the timestamp is also updated if other values are.
+                # The 'last_touched_timestamp' is already in append_df_for_main_metrics.
                 # The 'last_touched_timestamp' is already in append_df_for_main_metrics.
                 self.metricsStorage[heuristic_name].update(append_df_for_main_metrics[existing_rows_mask])
                 # If update() doesn't hit NA values correctly for timestamp, explicitly set it:
@@ -157,19 +182,38 @@ class DataCollectorBase:
                           self.metricsStorage[heuristic_name].at[sim_id, 'last_touched_timestamp'] = current_time
             
             self._new_data_to_save = True
+            
+        self.logger.info(f" append_caching_status_to_design_point_metrics_executes: {append_caching_status_to_design_point_metrics_executes}")
+        for cached, uids in append_caching_status_to_design_point_metrics_executes.items():
+            self._append_caching_status_to_design_point_metrics(uids, cached)
         
         self._save_to_csv()
 
-    def append_caching_status_to_design_point_metrics(self, uids, cached):
+    def append_caching_status_to_design_point_metrics_lazy(self, uids, cached):
+        # with self.lock_cachingStatusCollectiveLazy.locked():
+        #     time.sleep(0.01)
+        for uid in uids:
+            self.cachingStatusCollectiveLazy[str(uid)] = cached
+
+    def _append_caching_status_to_design_point_metrics(self, uids, cached):
         self.metrics_defaults["Cached"] = {
             "default": False,
             "type": 'bool'
         }
+        self.logger.info(f"uids: {uids}")
+        self.logger.info(f"self.metricsMapping: {self.metricsMapping}")
 
         heur_to_uids: dict[str, list[str]] = {}
-        for sim_uid in uids:
-            hn = self.metricsMapping[sim_uid]   # which file/store this uid belongs to
-            heur_to_uids.setdefault(hn, []).append(sim_uid)
+        with self.lock_cachingStatusCollectiveLazy:
+            for sim_uid in uids:
+                if str(sim_uid) in self.metricsMapping:
+                    heuristic_name = self.metricsMapping[str(sim_uid)]   # which file/store this uid belongs to
+                else:
+                    heuristic_name = self.heuristic_name_default
+                    self.logger.error(f"sim_uid: {sim_uid} not found in self.metricsMapping")
+                    raise ValueError(f"sim_uid: {sim_uid} not found in self.metricsMapping")
+                heur_to_uids.setdefault(heuristic_name, []).append(str(sim_uid))
+                del self.cachingStatusCollectiveLazy[str(sim_uid)]
 
         for heuristic_name, group_uids in heur_to_uids.items():
             with self.locks_metrics_storage[heuristic_name]:
@@ -218,6 +262,7 @@ class DataCollectorBase:
             current_time = time.time()
             target_df = self.metricsStorage[heuristic_name] # Work with the specific heuristic's DataFrame
 
+            append_caching_status_to_design_point_metrics_executes = {}
             for sim_uid, agent_id in uids.items():
                 # Ensure sim_uid is of the same type as the index if it's already set
                 # (e.g. if index is int, convert sim_uid to int)
@@ -235,19 +280,31 @@ class DataCollectorBase:
                 for col_name in data_to_update.keys():
                     if col_name not in target_df.columns:
                         # Initialize column with NaNs or appropriate default type
-                        target_df[col_name] = pd.NA 
+                        target_df[col_name] = pd.NA
 
 
                 if sim_uid not in target_df.index:
                     # Create a new row as a DataFrame to handle column alignment and data types
                     # Ensure the index name matches if target_df has a named index
                     new_row_df = pd.DataFrame([data_to_update], index=pd.Index([sim_uid], name=target_df.index.name))
-                    target_df = pd.concat([target_df, new_row_df])
+                    target_df = pd.concat([ \
+                        target_df if not target_df.empty else None, \
+                        new_row_df if not new_row_df.empty else None \
+                    ])
                 else:
                     for col, val in data_to_update.items():
                         target_df.at[sim_uid, col] = val
+
+                if str(sim_uid) in self.cachingStatusCollectiveLazy:
+                    append_caching_status_to_design_point_metrics_executes \
+                        .setdefault(self.cachingStatusCollectiveLazy[str(sim_uid)], []) \
+                        .append(sim_uid)
             
             self.metricsStorage[heuristic_name] = target_df # Assign back the modified DataFrame
+
+            for cached, uids in append_caching_status_to_design_point_metrics_executes.items():
+                self._append_caching_status_to_design_point_metrics(uids, cached)
+
             self._new_data_to_save = True
         
         self._save_to_csv()
@@ -290,7 +347,10 @@ class DataCollectorBase:
                         df_to_finalize_overall = pd.concat([df_to_finalize_overall, df_to_finalize_heuristic])
                         self.metricsStorage[heuristic_name_iter] = current_df[~finalize_mask].copy() # Update storage
                     
-                df_interim_to_save_overall = pd.concat([df_interim_to_save_overall, self.metricsStorage[heuristic_name_iter].copy()])
+                df_interim_to_save_overall = pd.concat([ \
+                    df_interim_to_save_overall if not df_interim_to_save_overall.empty else None, \
+                    self.metricsStorage[heuristic_name_iter].copy() \
+                ])
         
         # Now calculate triggered_by_entries_interim with the consolidated interim data
         current_total_interim_entries = len(df_interim_to_save_overall.index)
@@ -303,22 +363,22 @@ class DataCollectorBase:
                 # Save finalized data (append mode)
                 if not df_to_finalize_overall.empty:
                     df_to_finalize_overall.to_csv(final_csv_path, mode='a', header=not os.path.exists(final_csv_path), index=True)
-                    print(f"Moved {len(df_to_finalize_overall.index)} rows to {final_csv_path}")
+                    self.logger.info(f"Moved {len(df_to_finalize_overall.index)} rows to {final_csv_path}")
 
                 # Save interim data (overwrite mode)
                 df_interim_to_save_overall.to_csv(interim_csv_path, index=True)
-                print(f"Saved {len(df_interim_to_save_overall.index)} rows to {interim_csv_path}")
+                self.logger.info(f"Saved {len(df_interim_to_save_overall.index)} rows to {interim_csv_path}")
 
                 self.last_save_time = time.time()
                 self.last_save_length = len(df_interim_to_save_overall.index) # Length of what remains as interim
                 self._new_data_to_save = False
                     
                 if force and not (triggered_by_time_interim or triggered_by_entries_interim):
-                    print(f"Interim save forced. Finalized: {len(df_to_finalize_overall.index)}, Interim: {len(df_interim_to_save_overall.index)}")
+                    self.logger.info(f"Interim save forced. Finalized: {len(df_to_finalize_overall.index)}, Interim: {len(df_interim_to_save_overall.index)}")
                 elif triggered_by_time_interim:
-                    print(f"Interim save due to time. Finalized: {len(df_to_finalize_overall.index)}, Interim: {len(df_interim_to_save_overall.index)}")
+                    self.logger.info(f"Interim save due to time. Finalized: {len(df_to_finalize_overall.index)}, Interim: {len(df_interim_to_save_overall.index)}")
                 elif triggered_by_entries_interim:
-                    print(f"Interim save due to entries. Finalized: {len(df_to_finalize_overall.index)}, Interim: {len(df_interim_to_save_overall.index)}")
+                    self.logger.info(f"Interim save due to entries. Finalized: {len(df_to_finalize_overall.index)}, Interim: {len(df_interim_to_save_overall.index)}")
 
         elif force: # Handle force save for __del__ if no other condition met
             with self.lock_csv:
@@ -347,11 +407,11 @@ class DataCollectorBase:
 
                 if not df_to_finalize_on_force.empty:
                     df_to_finalize_on_force.to_csv(final_csv_path, mode='a', header=not os.path.exists(final_csv_path), index=True)
-                    print(f"{log_prefix}Moved {len(df_to_finalize_on_force.index)} rows to {final_csv_path}")
+                    self.logger.info(f"{log_prefix}Moved {len(df_to_finalize_on_force.index)} rows to {final_csv_path}")
 
                 if not df_interim_on_force.empty or self._new_data_to_save: 
                     df_interim_on_force.to_csv(interim_csv_path, index=True)
-                    print(f"{log_prefix}Saved {len(df_interim_on_force.index)} rows to {interim_csv_path}")
+                    self.logger.info(f"{log_prefix}Saved {len(df_interim_on_force.index)} rows to {interim_csv_path}")
                 
                 self._new_data_to_save = False
 
@@ -429,7 +489,7 @@ def read_json_files(directory_path):
                     data = json.load(json_file)
                     json_contents.append((file_name, data))
                 except json.JSONDecodeError as e:
-                    print(f"Error decoding JSON from file '{file_name}': {e}")
+                    self.logger.info(f"Error decoding JSON from file '{file_name}': {e}")
 
     return json_contents
 
@@ -490,8 +550,8 @@ def _find_extreme_avg_files(json_data):
                 min_avg_hh_step = data
                 min_avg_file_name = file_name
 
-    print(f"File with worst 'Avg' fitness: {max_avg_file_name}")
-    print(f"File with best 'Avg' fitness: {min_avg_file_name}")
+    self.logger.info(f"File with worst 'Avg' fitness: {max_avg_file_name}")
+    self.logger.info(f"File with best 'Avg' fitness: {min_avg_file_name}")
     return max_avg_hh_step, min_avg_hh_step
 
 

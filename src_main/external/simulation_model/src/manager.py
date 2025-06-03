@@ -275,7 +275,7 @@ class Manager:
         all_are_processing = 0
         cached_sim_instances = design_point_queue.cached_get_all()
         if self.data_collector:
-            self.data_collector.append_caching_status_to_design_point_metrics([sim_tuple[0].uid for sim_tuple in cached_sim_instances], True)
+            self.data_collector.append_caching_status_to_design_point_metrics_lazy([sim_tuple[0].uid for sim_tuple in cached_sim_instances], True)
         
         for current_sim_instance, original_sim_uid in cached_sim_instances:
             original_cached_sim_placeholder = SimpleNamespace(uid=original_sim_uid)

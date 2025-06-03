@@ -75,8 +75,15 @@ class SearchOperatorSpace:
             return {}
 
     def get_all_problems_file_name_fitness_values(self):
+        self.logger.info(f"[searchOperatorSpace] Getting all problems file name fitness values.")
         problems_file_name_fitness_values = {}
         for problem_space in self.problem_spaces.keys():
-            for problem in self.get_problems(problem_space):
-                problems_file_name_fitness_values[problem.get_file_name_fitness_values()] = problem
+            self.logger.info(f"[searchOperatorSpace] {problem_space}:")
+            problems = self.get_problems(problem_space)
+            self.logger.info(f"[searchOperatorSpace] Getting all problems file name fitness values for problem space: {problem_space}.\n{list(problems.keys())}\n{list(problems)}")
+            for problem in problems:
+                self.logger.info(problem)
+                self.logger.info(problems[problem])
+                self.logger.info(f"[searchOperatorSpace] Getting all problems file name fitness values for problem: {problems[problem]['get_file_name_fitness_values']()}.")
+                problems_file_name_fitness_values[problems[problem]['get_file_name_fitness_values']()] = problems[problem]
         return problems_file_name_fitness_values

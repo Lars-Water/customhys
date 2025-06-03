@@ -25,6 +25,9 @@ import src_main.experiment_flows.experiment_asml as exp_asml_flow
 from src_main.visualization import visualization
 from src_main.tools import file_operations as fo
 from src_main.tools import component_config as cc
+import logging
+from src_main.tools.logger import logger as logger_main, setLevelLogger, loggerRICH
+
 
 from setuptools import setup, find_packages
 from pathlib import Path
@@ -37,6 +40,39 @@ sys.path.append("./src_main/external/simulation_model")
 import shutil
 from datetime import datetime
 
+
+#     def print_all(
+    #     self,
+    #     out=sys.stdout,
+    #     columns={
+    #         0: ("name", 36),
+    #         1: ("ncall", 5),
+    #         2: ("tsub", 8),
+    #         3: ("ttot", 8),
+    #         4: ("tavg", 8)
+    #     }
+    # ):
+
+
+class LoggerWriter:
+    def __init__(self, logger, level=logging.INFO):
+        self.logger = logger
+        self.level = level
+        self._buffer = ""
+
+    def write(self, message):
+        # Accumulate until a newline is seen, then log each full line
+        self._buffer += message
+        while "\n" in self._buffer:
+            line, self._buffer = self._buffer.split("\n", 1)
+            if line:
+                self.logger.log(self.level, line)
+
+    def flush(self):
+        # If anything is left without a newline, log it too
+        if self._buffer:
+            self.logger.log(self.level, self._buffer)
+            self._buffer = ""
 # ------------------------------------------------------------------------------
 # Yappi Profiling Functions
 # ------------------------------------------------------------------------------
@@ -45,18 +81,21 @@ def dump_yappi_stats(interval_seconds, output_dir):
     Every 'interval_seconds' seconds, dump out current Yappi stats to a .pstat file.
     """
     os.makedirs(output_dir, exist_ok=True)
+    logger = logger_main("dump_yappi_stats", output_dir, disabled=False)
+    setLevelLogger(logger, "DEBUG")
 
     counter = 0
     while True:
-        print(f"[INFO] Dumping Yappi stats.")    
+        logger.info(f"Dumping Yappi stats.")    
         time.sleep(interval_seconds)
 
         # Collect the stats object
         func_stats = yappi.get_func_stats()
         thread_stats = yappi.get_thread_stats()
 
+        lw = LoggerWriter(logger, level=logging.INFO)
         # func_stats.print_all()
-        # thread_stats.print_all()
+        thread_stats.print_all(out=lw)
 
         # Build a filename that reflects epoch or a counter
         timestamp = int(time.time())
@@ -64,12 +103,18 @@ def dump_yappi_stats(interval_seconds, output_dir):
         fname_thread_stats = os.path.join(output_dir, f"yappi_snapshot_thread_stats_{counter}.pstat")
 
         # Save in pstat (compatible with pstats / SnakeViz)
+        threads = yappi.get_thread_stats()
+        for thread in threads:
+            logger.info(f"Function stats for ({thread.name}) ({thread.id})")
+            fname_func_stats_thread = os.path.join(output_dir, f"yappi_snapshot_func_stats_{counter}_{thread.name}_{thread.id}.pstat")
+            yappi.get_func_stats(ctx_id=thread.id).save(fname_func_stats_thread, type="pstat")
+
         func_stats.save(fname_func_stats, type="pstat")
+        yappi.clear_stats()
         # thread_stats.save(fname_thread_stats, type="text")
 
-        print_stats = func_stats.sort(sort_type='totaltime', sort_order='desc') 
-        yappi.print_all(print_stats, sys.stdout, limit=10)
-        print(f"[INFO] Yappi stats saved to {fname_func_stats}, {fname_thread_stats}")
+        # yappi.get_func_stats().sort(sort_type='totaltime', sort_order='desc').debug_print()
+        logger.info(f"[INFO] Yappi stats saved to {fname_func_stats}, {fname_thread_stats}")
 
         # Optionally, also reset stats so that next interval is "fresh"
         # yappi.clear_stats() # Uncomment if windowed profiling is preferred
@@ -128,7 +173,7 @@ def remove_directory(directory_path):
 
 
 def experiment_asml(base_path, coordinator_config_file_path):
-    print(f"[INFO] Experiment ASML started.")    
+    logger.info(f"Experiment ASML started.")    
     conf = Config(coordinator_config_file_path, name = "main_conf_logPath")
     log_path = conf.tryGet("output_paths", "log_files")
     if log_path is None:
@@ -145,7 +190,7 @@ def experiment_asml(base_path, coordinator_config_file_path):
     coordinator_params = (base_path, coordinator_config_file_path, nr_of_agents, run_name)
 
     # Run Experiment 1.
-    print(f"[INFO] Experiment ASML running.")    
+    logger.info(f"Experiment ASML running.")    
     exp_asml_flow.run_experiment(experiment_1_config, coordinator_params)
 
 def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches):
@@ -250,7 +295,7 @@ def create_ga_heuristic_space_lhs():
         nr_of_backbone_switches (int): The number of backbone switches for the INET model.
 '''
 def main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, hh_run_dirs_exp_1, hh_run_dirs_exp_2, parameter_tuning, design_space_plot, nr_of_backbone_switches):
-    print(f"[INFO] Running the main function.")
+    logger.info(f"Running the main function.")
     print("##### Customhys version:" + str(customhys.__version__))
     # Run the requested experiments.
     if experiment == '1':
@@ -258,10 +303,10 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, exp
     elif experiment == '2':
         experiment_2(base_path, coordinator_config_file_path)
     elif experiment == 'asml':
-        print(f"[INFO] Try to run the experiment ASML.")    
+        logger.info(f"Try to run the experiment ASML.")    
         experiment_asml(base_path, coordinator_config_file_path)
     elif experiment == 'all':
-        print(f"[INFO] Try to run the experiment 1 and 2.")
+        logger.info(f"Try to run the experiment 1 and 2.")
         experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
         experiment_2(base_path, coordinator_config_file_path)
 
@@ -309,6 +354,8 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, exp
 
 
 if __name__ == "__main__":
+    logger = loggerRICH("MAIN PROFILING")
+    setLevelLogger(logger, "DEBUG")
     parser = argparse.ArgumentParser(description="Run the heuristic simulation workflow.")
     parser.add_argument('--experiment', choices=['1', '2', 'asml', 'all'], required=False, help='Choose which experiment to run')
     parser.add_argument('--visualize', choices=['1', '2', 'all'], required=False, help='Choose which experiment to visualize')
@@ -322,9 +369,9 @@ if __name__ == "__main__":
     parser.add_argument("--param_tune", action="store_true", required=False, help="Flag that enables parameter tuning.")
     parser.add_argument("--design_space_plot", action="store_true", required=False, help="Flag that enables determining the design space.")
 
-    print(f"[INFO] Running with profiling.")
+    logger.info("Running with profiling.")
     args = parser.parse_args()
-    print(f"[INFO] Running with arguments: {args}")
+    logger.info(f"Running with arguments: {args}")
 
     # Convert the arguments to Path objects.
     experiment = args.experiment
@@ -345,14 +392,14 @@ if __name__ == "__main__":
 
     # Check if any experiments are defined.
     if experiment is None:
-        warnings.warn("No experiment defined. The program will continue without running any experiment.", UserWarning)
+        logger.warning("No experiment defined. The program will continue without running any experiment.")
 
     # Check if the coordinator configuration file exists
     if not coordinator_config_file_path.exists():
         raise FileNotFoundError(f"The coordinator configuration file {coordinator_config_file_path} does not exist.")
 
     # --- Yappi Profiling Start ---
-    print(f"[INFO] Yappi Profiling Start")
+    logger.info(f"Yappi Profiling Start")
     # Load coordinator_config to get general_files path for yappi output
     profiler_active = False
     profile_dir = None
@@ -360,25 +407,25 @@ if __name__ == "__main__":
         try:
             coord_conf_for_yappi = Config(coordinator_config_file_path, name="yappi_config_reader")
             general_files_path = coord_conf_for_yappi.tryGet("output_paths", "general_files")
-            print(f"[INFO] General files path: {general_files_path}")
+            logger.info(f"General files path: {general_files_path}")
 
             if general_files_path:
                 yappi_output_dir_base = os.path.join(general_files_path, "profiling_yappi")
                 # e.g. profile every 5 minutes (300 s)
                 # You can adjust interval_seconds as needed
-                profile_dir = start_periodic_profiling(interval_seconds=300, output_subdir=yappi_output_dir_base)
-                print(f"[INFO] Yappi profiling started. Snapshots will be written to: {profile_dir}")
+                profile_dir = start_periodic_profiling(interval_seconds=30, output_subdir=yappi_output_dir_base)
+                logger.info(f"Yappi profiling started. Snapshots will be written to: {profile_dir}")
                 profiler_active = True
             else:
-                print("[WARN] Yappi profiling NOT started: 'output_paths.general_files' not found in coordinator config.")
+                logger.warn(f"Yappi profiling NOT started: 'output_paths.general_files' not found in coordinator config.")
         except Exception as e:
-            print(f"[WARN] Yappi profiling NOT started due to error reading coordinator config: {e}")
+            logger.warn(f"Yappi profiling NOT started due to error reading coordinator config: {e}")
     else:
-        print(f"[WARN] Yappi profiling NOT started: Coordinator config file not found at {coordinator_config_file_path}")
+        logger.warn(f"Yappi profiling NOT started: Coordinator config file not found at {coordinator_config_file_path}")
     # --- End Yappi Profiling Start ---
 
     try:
-        print(f"[INFO] Try to run the main function.")
+        logger.info(f"Try to run the main function.")
         main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, hh_run_dirs_exp_1, hh_run_dirs_exp_2, parameter_tuning, design_space_plot, nr_of_backbone_switches)
     finally:
         # --- Yappi Profiling Stop ---
@@ -386,9 +433,9 @@ if __name__ == "__main__":
             final_snapshot_path = os.path.join(profile_dir, "final_snapshot.pstat")
             try:
                 yappi.get_func_stats().save(final_snapshot_path, type="pstat")
-                print(f"[INFO] Yappi: Final profile snapshot saved to {final_snapshot_path}")
+                logger.info(f"Yappi: Final profile snapshot saved to {final_snapshot_path}")
             except Exception as e:
-                print(f"[ERROR] Yappi: Failed to save final snapshot: {e}")
+                logger.error(f"Yappi: Failed to save final snapshot: {e}")
             yappi.stop()
-            print("[INFO] Yappi profiling stopped.")
+            logger.info("Yappi profiling stopped.")
         # --- End Yappi Profiling Stop ---

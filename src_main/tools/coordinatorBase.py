@@ -70,9 +70,13 @@ class HeuristicSimulationCoordinatorBase:
         if self.log_path is None:
             self.log_path = os.path.join(self._base_path, "data/logs/")
 
+
         coordinator_log_path = Path(os.path.join(self.log_path, "coordinator"))
         self.conf.createLogger(coordinator_log_path, "coordinator_config_manager")
         self.logger = logger("coordinator", coordinator_log_path, disabled=False)
+        
+        if self.conf.tryGet("fitness_config", "normalize_fitness_values") != None:
+            self._normalize = self.conf.tryGet("fitness_config", "normalize_fitness_values")
 
         # Set logger level.
         logger_lvl = self.conf.tryGet("logger_lvl")
@@ -188,6 +192,7 @@ class HeuristicSimulationCoordinatorBase:
             self.logger.warn("Normalization is skipped!")
         self.coordinator_and_simulation_execution_time = 0
         self.simulation_execution_time = 0
+        self.logger.info("Getting all problems file name fitness values.")
         self.problems_file_name_fitness_values = self.hh_base.get_all_problems_file_name_fitness_values()
         return self.hh_base.run_multi_threaded()
 
@@ -257,18 +262,32 @@ class HeuristicSimulationCoordinatorBase:
         # Ensure the in-memory store is initialized.
         # Ideally, this should be in the __init__ method of the class,
         # but this provides a fallback.
-        if not hasattr(self.problems_file_name_fitness_values, file_name_fitness_values):
-            raise ValueError(f"[locally_store_agents_fitness_values] File name fitness values {file_name_fitness_values} not found in {self.problems_file_name_fitness_values}.")
+        # if not hasattr(self, '_in_memory_fitness_values'):
+        #     self._in_memory_fitness_values = {}
+        #     if hasattr(self, 'logger') and self.logger:
+        #         self.logger.info("Initialized `_in_memory_fitness_values` store on first use.")
+        #     # else:
+        #         # Consider a print statement here if logger might not be available,
+        #         # e.g., print("Warning: _in_memory_fitness_values initialized without logger.")
+
         # Use the filename without extension as the key
         # memory_key, _ = os.path.splitext(file_name_fitness_values)
 
         # if hasattr(self, 'logger') and self.logger:
         #     self.logger.info(f"Caching fitness values in memory for key: '{memory_key}' (derived from '{file_name_fitness_values}')")
         
-        # self._in_memory_fitness_values[memory_key] = fitness_values
-        self.problems_file_name_fitness_values[file_name_fitness_values].store_agents_fitness_values(fitness_values)
+        self.try_load_problems_file_name_fitness_values(file_name_fitness_values)
+        self.problems_file_name_fitness_values[file_name_fitness_values]['store_agents_fitness_values'](fitness_values)
+        self.logger.info(f"[coord {file_name_fitness_values}] Agents fitness values: {fitness_values}")
 
 
+    def try_load_problems_file_name_fitness_values(self, file_name_fitness_values):
+        if file_name_fitness_values not in self.problems_file_name_fitness_values:
+            self.logger.info(f"[try_load_problems_file_name_fitness_values] {file_name_fitness_values} not loaded yet. Trying again.")
+            self.problems_file_name_fitness_values = self.hh_base.get_all_problems_file_name_fitness_values()
+            self.logger.info(f"[try_load_problems_file_name_fitness_values] Loaded following problems: {list(self.problems_file_name_fitness_values.keys())}")
+        if file_name_fitness_values not in self.problems_file_name_fitness_values:
+            raise ValueError(f"[try_load_problems_file_name_fitness_values] File name fitness values {file_name_fitness_values} not found in keys of self.problems_file_name_fitness_values: {list(self.problems_file_name_fitness_values.keys())}.")
     '''
         Run the simulation model with the given configuration values.
 
@@ -299,19 +318,21 @@ class HeuristicSimulationCoordinatorBase:
             uids = self.run_multiple_simulation_configuration(sim_ids, file_name_fitness_values, step_iteration_data = step_iteration_data)
 
             self.logger.debug("Collect the simulation stats from the simulation instances runs.\n"+str(uids.keys()))
-            simulation_metrics = self.obtain_simulation_stats(uids)
+            simulation_metrics = self.obtain_simulation_stats(uids, file_name_fitness_values=file_name_fitness_values)
 
             self.logger.info("Locally storing the agents fitness values.")
             fitness_config = self.conf.tryGet("fitness_config")
             fitness_values = fitfunc(fitness_config, simulation_metrics)
 
             if self.store_design_points_metrics_values:
+                self.try_load_problems_file_name_fitness_values(file_name_fitness_values)
                 self.data_collector.append_fitness_and_hh_data_to_design_point_metrics(
                     uids, 
                     fitness_values,
                     step_iteration_data["problem"] if "problem" in step_iteration_data else None,
                     step_iteration_data["step"],
-                    step_iteration_data["iteration"]
+                    step_iteration_data["iteration"],
+                    file_name_fitness_values
                 )
             
             self.locally_store_agents_fitness_values(fitness_values, file_name_fitness_values)
@@ -344,33 +365,33 @@ class HeuristicSimulationCoordinatorBase:
             sim_ids.clear()
             return 0
 
-        else:
-            # Set the values of the parameters in the simulation model.
-            configurations = self.set_param_values(config_values)
+        # else:
+        #     # Set the values of the parameters in the simulation model.
+        #     configurations = self.set_param_values(config_values)
 
-            sim_id = uuid.uuid4()
-            self.generate_design_point(sim_id, configurations)
+        #     sim_id = uuid.uuid4()
+        #     self.generate_design_point(sim_id, configurations)
 
-            # Run the simulation model.
-            uid = self.run_single_simulation_configuration(step_iteration_data = step_iteration_data)
+        #     # Run the simulation model.
+        #     uid = self.run_single_simulation_configuration(step_iteration_data = step_iteration_data)
 
-            # Collect the simulation stats from the simulation run.
-            simulation_metrics = self.obtain_simulation_stats(uid)
+        #     # Collect the simulation stats from the simulation run.
+        #     simulation_metrics = self.obtain_simulation_stats(uid)
 
-            fitness_config = self.conf.tryGet("fitness_config")
-            fitness_value = fitfunc(fitness_config, simulation_metrics)
+        #     fitness_config = self.conf.tryGet("fitness_config")
+        #     fitness_value = fitfunc(fitness_config, simulation_metrics)
 
-            # End timer for simulation run.
-            end_time = time.time()
+        #     # End timer for simulation run.
+        #     end_time = time.time()
 
-            # Add simulation run time to total coordinator time.
-            self.coordinator_and_simulation_execution_time += end_time - start_time
+        #     # Add simulation run time to total coordinator time.
+        #     self.coordinator_and_simulation_execution_time += end_time - start_time
 
-            if self.remove_design_point_configuration_dummy_path:
-                self.logger.debug("Removing simulation run templates in generated path.")
-                fo.remove_design_point_configurations_dummy_path(self.generated_path, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
-            # self.logger.info("Fitness value: {}".format(fitness_value))
-            return fitness_value[0]
+        #     if self.remove_design_point_configuration_dummy_path:
+        #         self.logger.debug("Removing simulation run templates in generated path.")
+        #         fo.remove_design_point_configurations_dummy_path(self.generated_path, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
+        #     # self.logger.info("Fitness value: {}".format(fitness_value))
+        #     return fitness_value[0]
 
 
     '''
