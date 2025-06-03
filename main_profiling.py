@@ -29,9 +29,11 @@ from src_main.tools import component_config as cc
 from setuptools import setup, find_packages
 from pathlib import Path
 
+
 sys.path.insert(0, Path(__file__).parent.as_posix())
-sys.path.ap
-# TODO: Improve and place this function in a separate module.
+sys.path.append("./src_main/external/simulation_model")
+
+
 import shutil
 from datetime import datetime
 
@@ -46,18 +48,29 @@ def dump_yappi_stats(interval_seconds, output_dir):
 
     counter = 0
     while True:
+        print(f"[INFO] Dumping Yappi stats.")    
         time.sleep(interval_seconds)
 
         # Collect the stats object
-        stats = yappi.get_func_stats()
+        func_stats = yappi.get_func_stats()
+        thread_stats = yappi.get_thread_stats()
+
+        # func_stats.print_all()
+        # thread_stats.print_all()
 
         # Build a filename that reflects epoch or a counter
         timestamp = int(time.time())
-        fname = os.path.join(output_dir, f"yappi_snapshot_{timestamp}_{counter}.pstat")
+        fname_func_stats = os.path.join(output_dir, f"yappi_snapshot_func_stats_{counter}.pstat")
+        fname_thread_stats = os.path.join(output_dir, f"yappi_snapshot_thread_stats_{counter}.pstat")
 
         # Save in pstat (compatible with pstats / SnakeViz)
-        stats.save(fname, type="pstat")
-        
+        func_stats.save(fname_func_stats, type="pstat")
+        # thread_stats.save(fname_thread_stats, type="text")
+
+        print_stats = func_stats.sort(sort_type='totaltime', sort_order='desc') 
+        yappi.print_all(print_stats, sys.stdout, limit=10)
+        print(f"[INFO] Yappi stats saved to {fname_func_stats}, {fname_thread_stats}")
+
         # Optionally, also reset stats so that next interval is "fresh"
         # yappi.clear_stats() # Uncomment if windowed profiling is preferred
 
@@ -70,18 +83,21 @@ def start_periodic_profiling(interval_seconds=300,  # e.g. every 5 min
     It:
       1) starts Yappi in wall-clock mode (measures real time, not just CPU),
       2) launches a daemon thread that sleeps for `interval_seconds` and then
-         writes out a .pstat file under output_subdir/SLURM_JOBID_TASKID_*.pstat
+         writes out a .pstat file under the generated output directory.
     """
-    # 1) Grab SLURM-assigned identifiers (to disambiguate per-task files)
-    slurm_job_id = os.environ.get("SLURM_JOB_ID", "nojob")
-    slurm_ntask = os.environ.get("SLURM_NTASKS", "1") # Changed from SLURM_NTASKS to SLURM_NTASKS to match typical SLURM env
-    slurm_task_id = os.environ.get("SLURM_PROCID", "task0") # Changed from SLURM_PROCID to SLURM_PROCID to match typical SLURM env
+    # 1) Determine a unique directory for this profiling session
+    slurm_job_id = os.environ.get("SLURM_JOB_ID")
     
-    # 2) Derive a directory unique to this task
-    #    If not in SLURM, this will be output_subdir/jobnojob_ntasks1_tasktask0
-    task_specific_subdir = f"job{slurm_job_id}_ntasks{slurm_ntask}_task{slurm_task_id}"
-    this_output_dir = os.path.join(output_subdir, task_specific_subdir)
-    os.makedirs(this_output_dir, exist_ok=True)
+    if slurm_job_id:
+        # If running under a SLURM job, use the job ID for the subdirectory name
+        unique_subdir_name = f"job_{slurm_job_id}"
+    else:
+        # Not under SLURM or SLURM_JOB_ID not set, create a unique dir name with a timestamp
+        timestamp_str = datetime.now().strftime("%Y%m%d_%H%M%S_%f") # %f for microseconds
+        unique_subdir_name = f"run_{timestamp_str}"
+        
+    this_output_dir = os.path.join(output_subdir, unique_subdir_name)
+    os.makedirs(this_output_dir, exist_ok=True) # Creates the full path including output_subdir if needed
 
     # 3) Start Yappi
     #    Wall-clock mode is recommended if your per-iteration may include I/O or sleeps
@@ -112,6 +128,7 @@ def remove_directory(directory_path):
 
 
 def experiment_asml(base_path, coordinator_config_file_path):
+    print(f"[INFO] Experiment ASML started.")    
     conf = Config(coordinator_config_file_path, name = "main_conf_logPath")
     log_path = conf.tryGet("output_paths", "log_files")
     if log_path is None:
@@ -128,6 +145,7 @@ def experiment_asml(base_path, coordinator_config_file_path):
     coordinator_params = (base_path, coordinator_config_file_path, nr_of_agents, run_name)
 
     # Run Experiment 1.
+    print(f"[INFO] Experiment ASML running.")    
     exp_asml_flow.run_experiment(experiment_1_config, coordinator_params)
 
 def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches):
@@ -232,6 +250,7 @@ def create_ga_heuristic_space_lhs():
         nr_of_backbone_switches (int): The number of backbone switches for the INET model.
 '''
 def main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, hh_run_dirs_exp_1, hh_run_dirs_exp_2, parameter_tuning, design_space_plot, nr_of_backbone_switches):
+    print(f"[INFO] Running the main function.")
     print("##### Customhys version:" + str(customhys.__version__))
     # Run the requested experiments.
     if experiment == '1':
@@ -239,8 +258,10 @@ def main(base_path, coordinator_config_file_path, heur_run_config_file_path, exp
     elif experiment == '2':
         experiment_2(base_path, coordinator_config_file_path)
     elif experiment == 'asml':
+        print(f"[INFO] Try to run the experiment ASML.")    
         experiment_asml(base_path, coordinator_config_file_path)
     elif experiment == 'all':
+        print(f"[INFO] Try to run the experiment 1 and 2.")
         experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switches)
         experiment_2(base_path, coordinator_config_file_path)
 
@@ -300,7 +321,10 @@ if __name__ == "__main__":
     parser.add_argument("--heur_run_config", type=str, required=False, help="Path to the heuristic run configuration file.")
     parser.add_argument("--param_tune", action="store_true", required=False, help="Flag that enables parameter tuning.")
     parser.add_argument("--design_space_plot", action="store_true", required=False, help="Flag that enables determining the design space.")
+
+    print(f"[INFO] Running with profiling.")
     args = parser.parse_args()
+    print(f"[INFO] Running with arguments: {args}")
 
     # Convert the arguments to Path objects.
     experiment = args.experiment
@@ -328,6 +352,7 @@ if __name__ == "__main__":
         raise FileNotFoundError(f"The coordinator configuration file {coordinator_config_file_path} does not exist.")
 
     # --- Yappi Profiling Start ---
+    print(f"[INFO] Yappi Profiling Start")
     # Load coordinator_config to get general_files path for yappi output
     profiler_active = False
     profile_dir = None
@@ -335,6 +360,7 @@ if __name__ == "__main__":
         try:
             coord_conf_for_yappi = Config(coordinator_config_file_path, name="yappi_config_reader")
             general_files_path = coord_conf_for_yappi.tryGet("output_paths", "general_files")
+            print(f"[INFO] General files path: {general_files_path}")
 
             if general_files_path:
                 yappi_output_dir_base = os.path.join(general_files_path, "profiling_yappi")
@@ -352,6 +378,7 @@ if __name__ == "__main__":
     # --- End Yappi Profiling Start ---
 
     try:
+        print(f"[INFO] Try to run the main function.")
         main(base_path, coordinator_config_file_path, heur_run_config_file_path, experiment, visualize, metaheuristics, hh_run_dirs_exp_1, hh_run_dirs_exp_2, parameter_tuning, design_space_plot, nr_of_backbone_switches)
     finally:
         # --- Yappi Profiling Stop ---

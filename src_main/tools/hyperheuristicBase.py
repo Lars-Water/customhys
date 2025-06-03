@@ -97,6 +97,12 @@ class HyperHeuristicBase:
         self.agents_fitness_values_path = self.conf.tryGet("output_paths", "agents_fitness_values_path")
 
         self.barrier = threading.Barrier(len(self.search_operators_spaces.keys()))
+
+    def has_problems(self, problem_space_name):
+        return self.search_operator_spaces.has_problems(problem_space_name)
+
+    def get_all_problems_file_name_fitness_values(self):
+        return self.search_operator_spaces.get_all_problems_file_name_fitness_values()
         
     def run_multi_threaded(self):
         # with Progress() as progress:

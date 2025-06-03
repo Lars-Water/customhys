@@ -36,7 +36,7 @@ class DesignPointCache:
     stats = None
     cached_hashes = {}
 
-    def __init__(self, config_path, logs_path):
+    def __init__(self, config_path, logs_path, doCache=True):
         self.logs_path = logs_path
         os.makedirs(self.logs_path, exist_ok=True)
 
@@ -51,6 +51,8 @@ class DesignPointCache:
         self.logger.info("Sims path: {}".format(self.sims_path))
 
         self.uids_status = {}
+
+        self.doCache = doCache
 
     def __has_sim_status(self, sim_instance):
         return sim_instance.uid in self.uids_status.keys()
@@ -89,7 +91,7 @@ class DesignPointCache:
         self.__set_sim_state(sim_instance, SimStatus.PROCESSING)
 
     def set_sim_finished(self, sim_instance):
-        if self.cnf.tryGet("cache", "cache_only_finished_sim_instances"):
+        if self.doCache and self.cnf.tryGet("cache", "cache_only_finished_sim_instances"):
             self._set_hash_sim(sim_instance.getCacheHash(), sim_instance)
         self.__set_sim_state(sim_instance, SimStatus.FINISHED)
 
@@ -124,7 +126,7 @@ class DesignPointCache:
         cached_sim_instances = []
         non_cached_sim_instances = []
 
-        if self.cnf.tryGet("cache", "files") is not None and len(self.cnf.tryGet("cache", "files")) > 0:
+        if self.doCache and self.cnf.tryGet("cache", "files") is not None and len(self.cnf.tryGet("cache", "files")) > 0:
             for sim_instance in sim_instances:
                 current_sim_hash = self.calc_design_point_hash_filelist(sim_instance, self.cnf.tryGet("cache", "files"))
                 sim_instance.setCacheHash(current_sim_hash)
@@ -151,24 +153,33 @@ class DesignPointCache:
         return
 
     def _set_hash_sim(self, hash, sim_instance):
-        self.cached_hashes[hash] = sim_instance.uid
+        if self.doCache:
+            self.cached_hashes[hash] = sim_instance.uid
     
     def calc_design_point_hash_single_file(self, sim_instance, filename):
-        file_path = os.path.join(sim_instance.path, filename)
-        hash = self.md5_file_list([file_path])
-        return hash
+        if self.doCache:
+            file_path = os.path.join(sim_instance.path, filename)
+            hash = self.md5_file_list([file_path])
+            return hash
+        else:
+            return None
     
     def calc_design_point_hash_filelist(self, sim_instance, filenames):
-        file_paths = [os.path.join(sim_instance.path, filename) for filename in filenames]
-        hash = self.md5_file_list(file_paths)
-        return hash
-
+        if self.doCache:
+            file_paths = [os.path.join(sim_instance.path, filename) for filename in filenames]
+            hash = self.md5_file_list(file_paths)
+            return hash
+        else:
+            return None
     
     def md5_file_list(self, filenames):
-        hash = hashlib.md5()
-        for fn in filenames:
-            try:
-                hash.update(Path(fn).read_bytes())
-            except IsADirectoryError:
-                pass
-        return hash.digest()
+        if self.doCache:
+            hash = hashlib.md5()
+            for fn in filenames:
+                try:
+                    hash.update(Path(fn).read_bytes())
+                except IsADirectoryError:
+                    pass
+            return hash.digest()
+        else:
+            return None

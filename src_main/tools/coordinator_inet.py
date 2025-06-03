@@ -84,7 +84,7 @@ class HeuristicSimulationCoordinatorINET(HeuristicSimulationCoordinatorBase):
 
         # TODO: Change the hardcoded ini filename to a variable in the configuration file.
         # Duplicate the preferred dummy_sim directory to the custom directory.
-        self.duplicate_directory(self.simulation_model_template_path, design_point_path, "largeNet.ini")
+        self.duplicate_directory(self.simulation_model_template_path, design_point_path, files_to_ignore=["largeNet.ini", "*.pstat"])
 
         # TODO: Change the hardcoded ini filename to a variable in the configuration file.
         # Write an updated version of the ignored param value file from the directory that was just duplicated.
@@ -427,7 +427,7 @@ class HeuristicSimulationCoordinatorINET(HeuristicSimulationCoordinatorBase):
                 sim_instance_path = self.generated_simulation_model_path + f"_{sim_id}"
 
                 # Duplicate the preferred dummy_sim directory to the sim_instance directory.
-                self.duplicate_directory(self.simulation_model_template_path, sim_instance_path, file_to_ignore="largeNet.ini")
+                self.duplicate_directory(self.simulation_model_template_path, sim_instance_path, files_to_ignore=["largeNet.ini", "*.pstat"])
                 # Define the path to the sim_instance ini file.
                 sim_instance_ini_file_path = os.path.join(sim_instance_path, "largeNet.ini")
 
@@ -526,7 +526,7 @@ class HeuristicSimulationCoordinatorINET(HeuristicSimulationCoordinatorBase):
             sim_instance_path = self.generated_simulation_model_path + f"_{sim_id}"
 
             # Duplicate the preferred dummy_sim directory to the sim_instance directory.
-            self.duplicate_directory(self.simulation_model_template_path, sim_instance_path, file_to_ignore="largeNet.ini")
+            self.duplicate_directory(self.simulation_model_template_path, sim_instance_path, files_to_ignore=["largeNet.ini", "*.pstat"])
             # Define the path to the sim_instance ini file.
             sim_instance_ini_file_path = os.path.join(sim_instance_path, "largeNet.ini")
 

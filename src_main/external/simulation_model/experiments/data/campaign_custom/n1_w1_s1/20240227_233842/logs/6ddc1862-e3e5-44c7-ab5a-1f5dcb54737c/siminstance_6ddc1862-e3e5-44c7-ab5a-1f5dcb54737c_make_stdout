@@ -1,3 +1,0 @@
-Creating executable: out/gcc-release//run_sim
-g++   -Wl,-rpath,/var/scratch/lvdwater/omnetpp-6.0.1/lib -Wl,-rpath,/var/scratch/lvdwater/omnetpp-6.0.1/tools/linux.x86_64/lib -Wl,-rpath,.  -Wl,--export-dynamic -L/var/scratch/lvdwater/omnetpp-6.0.1/lib -o out/gcc-release//run_sim   -Wl,--no-as-needed -Wl,--whole-archive  -Wl,--no-whole-archive -loppmain -Wl,-u,_cmdenv_lib -Wl,--no-as-needed -loppcmdenv -loppenvir  -loppsim -ldl -lstdc++ 
-ln -f out/gcc-release//run_sim run_sim

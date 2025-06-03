@@ -50,7 +50,7 @@ class instanceBase(BP):
         self.file_name_fitness_values="fitness_values.json"
         self.fitness_value_dir = fitness_value_dir
         self.step_iteration_data = {"problem": None, 'step': -1, 'iteration': -1}
-
+        self.agents_fitness_values = None
 
     '''
         Set file name for local fitness values file for running multiple HH/MH at once
@@ -64,6 +64,16 @@ class instanceBase(BP):
 
     def get_file_name_fitness_values(self):
         return self.file_name_fitness_values
+
+
+    '''
+        Set file name for local fitness values file for running multiple HH/MH at once
+    '''
+    def store_agents_fitness_values(self, agents_fitness_values):
+        self.agents_fitness_values = agents_fitness_values
+
+    def get_agents_fitness_values(self):
+        return self.agents_fitness_values
 
     '''
         Set which step and iteration is currently evaluated to perform better analysis of cached simulations

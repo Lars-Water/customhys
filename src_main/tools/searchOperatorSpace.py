@@ -73,3 +73,10 @@ class SearchOperatorSpace:
         else:
             self.logger.warn(f"get_problems: The problem space {problems_space_name} does not exist .")
             return {}
+
+    def get_all_problems_file_name_fitness_values(self):
+        problems_file_name_fitness_values = {}
+        for problem_space in self.problem_spaces.keys():
+            for problem in self.get_problems(problem_space):
+                problems_file_name_fitness_values[problem.get_file_name_fitness_values()] = problem
+        return problems_file_name_fitness_values
