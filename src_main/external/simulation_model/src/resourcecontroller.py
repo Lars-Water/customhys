@@ -54,9 +54,23 @@ class ResourceController:
 
                     num_workers = num_jobs * job_processes
 
-                    self.cluster = SLURMCluster(job_directives_skip=["--mem"], cores=job_cores, processes=job_processes, walltime=walltime, death_timeout=5*60*60, job_memory=job_memory, worker_extra_args=['--resources slots={} process=1'.format(job_cores)], log_directory=self.logs_path)
+                    # self.cluster = SLURMCluster( \
+                    #     job_directives_skip=["--mem"], \
+                    #     cores=job_cores, \
+                    #     processes=job_processes, \
+                    #     walltime=walltime, \
+                    #     death_timeout=5*60*60, \
+                    #     memory=job_memory, \
+                    #     worker_extra_args=[], \
+                    #     job_extra_directives = [ \
+                    #     ], \
+                    #     log_directory=self.logs_path, \
+                    #     )
+                    # self.cluster.scale(jobs=num_jobs)
+                    self.cluster = SLURMCluster(job_directives_skip=["--mem"], cores=job_cores, processes=job_processes, walltime=walltime, death_timeout=5*60*60, memory=job_memory, worker_extra_args=['--resources slots={}'.format(job_cores)], log_directory=self.logs_path)
                     self.cluster.scale(jobs=num_jobs)
-                    self.cluster.adapt(maximum_jobs=num_jobs)
+                    
+                    # self.cluster.adapt(maximum_jobs=num_jobs)
 
                     # TODO: check if number of slots does not exceed num of cores per worker
                     # TODO: wait for all workers to arrive?
@@ -78,7 +92,10 @@ class ResourceController:
         self.client = Client(self.cluster, timeout=6*60)
 
         while ((self.client.status == "running") and (len(self.client.scheduler_info()["workers"]) < num_workers)):
-            time.sleep(0.1)
+            time.sleep(2)
+            self.logger.info(f"self.client.status: {self.client.status} | num_workers: {num_workers} | len(self.client.scheduler_info()['workers']): {len(self.client.scheduler_info()['workers'])}")
+            # self.logger.info(f"self.client.scheduler_info(): {self.client.scheduler_info()}") 
+            # self.logger.info(f"self.client.scheduler_info()['workers']: {self.client.scheduler_info()['workers']}") 
 
         try:
             self.client.forward_logging()
@@ -99,7 +116,7 @@ class ResourceController:
     def __submit_task(self, sim_instance):
         self.logger.debug("Sending sim instance {} to worker cluster".format(sim_instance.uid))
         sim_instance.record_time_stat("general", "resource_controller_submit")
-        future = self.client.submit(dask_worker, sim_instance, resources={"slots": sim_instance.num_slots()}, fifo_timeout="50ms", allow_other_workers=True)
+        future = self.client.submit(dask_worker, sim_instance, resources={"slots": sim_instance.num_slots()}, fifo_timeout="50ms")
         self.running_tasks[sim_instance.uid] = future
 
     def __get_all_completed(self):

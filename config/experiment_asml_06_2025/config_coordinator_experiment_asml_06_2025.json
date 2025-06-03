@@ -41,7 +41,7 @@
             "inet_path": "/var/scratch/mherget/omnet/inet4.5",
             "experiments_path": "/var/scratch/mherget/hh_paper_experiment_06_2025/experiments_asml",
             "generated_path": "/var/scratch/mherget/hh_paper_experiment_06_2025/generated",
-            "simulation_model_template_path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/faezeh_old/MultiHostDas6",
+            "simulation_model_template_path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/src_main/external/simulation_model/sims/faezeh_old/paper_06_25",
             "simulation_model_generated_path": "/var/scratch/mherget/hh_paper_experiment_06_2025/generated/custom_faezeh"
         },
         "simulation_model_configuration": {
@@ -49,13 +49,9 @@
             "platform": "DAS",
             "jobs": 4,
             "job_cores": 64,
-            "job_processes": 1,
-            "job_memory": "96GB",
-            "num_nodes": 1,
-            "num_workers": 1,
-            "threads_per_worker": 8,
-            "walltime": "360:0:0",
-            "oversubscribe": true
+            "job_processes": 64,
+            "job_memory": "110GB",
+            "walltime": "360:0:0"
         },
         "simulation_model_params": [
             {
