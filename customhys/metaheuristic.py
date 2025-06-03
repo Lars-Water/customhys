@@ -10,6 +10,7 @@ Created on Thu Sep 26 16:56:01 2019
 import numpy as np
 from . import operators as Operators
 from .population import Population
+from src_main.tools.logger import loggerRICH, setLevelLogger
 
 import os
 import pandas as pd
@@ -56,6 +57,9 @@ class Metaheuristic:
         self.finalisation_conditions = None
         self._problem_function = problem['function']
         self.problem = problem
+
+        self.logger = loggerRICH("Metaheuristic")
+        # setLevelLogger(self.logger, "DEBUG")
 
         # NOTE: CUSTOM BY LARS - PASSING THE PREVIOUS STEP FINALISED AGENT POSITIONS IF PROVIDED
         # Create population
@@ -106,7 +110,9 @@ class Metaheuristic:
 
         # Evaluate fitness values
         self.problem['set_step_iteration_data'](hh_step, self.pop.iteration)
-        self.pop.evaluate_fitness(self._problem_function)
+        self.logger.debug(f"Applying initialiser to problem '{self.problem['get_file_name_fitness_values']()}': {self.problem['get_agents_fitness_values']()}")
+        # self.logger.debug(f"Fitness values (items: {len(self.problem['get_agents_fitness_values']())}): {self.problem['get_agents_fitness_values']()}")
+        self.pop.evaluate_fitness(self._problem_function, self.problem['get_agents_fitness_values']())
 
         # Update population, particular, and global
         self.pop.update_positions('population', 'all')  # Default
@@ -122,7 +128,9 @@ class Metaheuristic:
 
         # Evaluate fitness values
         self.problem['set_step_iteration_data'](hh_step, self.pop.iteration)
-        self.pop.evaluate_fitness(self._problem_function)
+        self.logger.debug(f"Applying search operator '{perturbator}' to problem '{self.problem['get_file_name_fitness_values']()}': {self.problem['get_agents_fitness_values']()}")
+        self.pop.evaluate_fitness(self._problem_function, self.problem['get_agents_fitness_values']())
+        # self.pop.evaluate_fitness(self._problem_function)
 
         # Update population
         if selector in __selectors__:
@@ -242,7 +250,7 @@ class Metaheuristic:
         :return: None.
         """
         if self.verbose:
-            print(text_to_print)
+            self.logger.debug(text_to_print)
 
 
     def _save_best_positions_per_agent_to_csv(self, hh_step, file_label):

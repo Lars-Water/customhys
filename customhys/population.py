@@ -7,6 +7,7 @@ Created on Tue Sep 17 14:29:43 2019
 @author: Jorge Mario Cruz-Duarte (jcrvz.github.io), e-mail: jorge.cruz@tec.mx
 """
 from math import isfinite
+from src_main.tools.logger import loggerRICH, setLevelLogger
 
 import numpy as np
 
@@ -56,6 +57,9 @@ class Population:
             NOTE: CUSTOM CHANGE BY LARS - Flag that determines whether the finalised positions of the previous step should be used for agent initialization in the current step.
         :returns: population object.
         """
+        self.logger = loggerRICH("Population")
+        setLevelLogger(self.logger, "DEBUG")
+
         self.problem = problem
         self.file_name_fitness_values = self.problem['get_file_name_fitness_values']()
         boundaries = problem['boundaries']
@@ -83,6 +87,7 @@ class Population:
         self._positions = np.full((self.num_agents, self.num_dimensions), np.nan)
         self.velocities = np.full((self.num_agents, self.num_dimensions), 0)
         self.fitness = np.full(self.num_agents, np.nan)
+        self.first_fitness_evaluation = True
 
         # General fitness measurements
         self.global_best_position = np.full(self.num_dimensions, np.nan)
@@ -282,7 +287,7 @@ class Population:
             self.global_best_position = np.copy(candidate_position)
             self.global_best_fitness = np.copy(candidate_fitness)
 
-    def evaluate_fitness(self, problem_function):
+    def evaluate_fitness(self, problem_function, fitness_values=None):
         """
         Evaluate the population positions in the problem function.
 
@@ -302,21 +307,46 @@ class Population:
         if self.num_agents > 1:
             # NOTE: CUSTOM CHANGE MADE BY LARS - Custom implementation for parallelized agent evaluation.
             problem_function(self.rescale_back(self.positions))
+
+
+            # --- Original file-based fitness loading (now replaced) ---
             # Build the path relative to the current working directory.
-            current_working_dir = os.getcwd()
-            fitness_value_dir_path = os.path.join(current_working_dir, "data/raw/agents_fitness")
-            if self.problem["fitness_value_dir"] and self.problem["fitness_value_dir"] is not None:
-                fitness_value_dir_path = self.problem["fitness_value_dir"]
-            os.makedirs(fitness_value_dir_path, exist_ok=True)
-            fitness_values_file_path = os.path.join(fitness_value_dir_path, self.file_name_fitness_values)
-            with open(fitness_values_file_path, "r") as fitness_values_file:
-                fitness_values = json.load(fitness_values_file)
+            # current_working_dir = os.getcwd()
+            # fitness_value_dir_path = os.path.join(current_working_dir, "data/raw/agents_fitness")
+            # if self.problem["fitness_value_dir"] and self.problem["fitness_value_dir"] is not None:
+            #     fitness_value_dir_path = self.problem["fitness_value_dir"]
+            # os.makedirs(fitness_value_dir_path, exist_ok=True)
+            # fitness_values_file_path = os.path.join(fitness_value_dir_path, self.file_name_fitness_values)
+            # with open(fitness_values_file_path, "r") as fitness_values_file:
+            #     fitness_values = json.load(fitness_values_file)
+            #     for agent, fitness in fitness_values.items():
+            #         self.fitness[int(agent)] = fitness
+            # --- End of original file-based fitness loading ---
+            
+            # Retrieve fitness values from the problem instance's in-memory store
+            # self.logger.info(f"[popu {self.file_name_fitness_values}] Agents fitness values: {fitness_values}")
+            # if fitness_values is None:
+            #     raise ValueError(f"Warning: In-memory fitness values not found for problem '{self.file_name_fitness_values}' when calling evaluate_fitness. Ensuring self.fitness is initialized for {self.num_agents} agents.")
+
+            # for agent, fitness in fitness_values.items():
+            #     self.fitness[int(agent)] = fitness
+
+            if fitness_values is not None and len(fitness_values) == self.num_agents:
                 for agent, fitness in fitness_values.items():
                     self.fitness[int(agent)] = fitness
+            else:
+                if self.first_fitness_evaluation:
+                    self.logger.warn(f"[First fitness evaluation] Warning: In-memory fitness values not found for problem '{self.file_name_fitness_values}' when calling evaluate_fitness. Ensuring self.fitness is initialized for {self.num_agents} agents.")
+                else:
+                    self.logger.error(f"[Subsequent fitness evaluation] Error: In-memory fitness values not found for problem '{self.file_name_fitness_values}' when calling evaluate_fitness. Ensuring self.fitness is initialized for {self.num_agents} agents.")
+                    raise ValueError(f"[Subsequent fitness evaluation] Error: In-memory fitness values not found for problem '{self.file_name_fitness_values}' when calling evaluate_fitness. Ensuring self.fitness is initialized for {self.num_agents} agents.")
+
         else:
             # Evaluate each agent in this function
             for agent in range(self.num_agents):
                 self.fitness[agent] = problem_function(self.rescale_back(self.positions[agent, :]))
+
+        self.first_fitness_evaluation = False
 
     # ==============
     # INITIALISATORS
