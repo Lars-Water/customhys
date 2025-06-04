@@ -22,6 +22,9 @@ from pathlib import Path
 
 import threading
 import os
+import psutil  # Add this import for CPU affinity
+from concurrent.futures import ProcessPoolExecutor, as_completed  # Add for multiprocessing
+import multiprocessing as mp  # Add for multiprocessing
 
 _using_tensorflow = False
 try:
@@ -156,6 +159,12 @@ class Hyperheuristic:
         self.parameters = parameters
         self.num_agents = self.parameters['num_agents']
         self.num_agents_avail = None
+
+        # Choose evaluation method: 'threading' (with CPU affinity) or 'multiprocessing'
+        # self.evaluation_method = self.parameters.get('evaluation_method', 'threading')
+        # if self.evaluation_method not in ['threading', 'multiprocessing']:
+        #     self.evaluation_method = 'threading'  # Default fallback
+        self.evaluation_method = 'multiprocessing'
 
         self.file_details = file_details
         self.file_label = file_label
@@ -616,12 +625,18 @@ class Hyperheuristic:
             candidate_solution = self._obtain_candidate_solution(sol=current_solution, action=action)
 
             # NOTE: CUSTOM CHANGE BY LARS - PASSING THE FINALISED POSITIONS OF THE PREVIOUS STEP FOR THE CURRENT CANDIDATE EVALUATION POPULATION INITIALISATION.
-            # Evaluate this candidate solution
-            if self.pass_finalised_positions:
-                candidate_performance, candidate_details = self.evaluate_candidate_solution(candidate_solution, collection_finalised_positions_previous_step=self.collection_finalised_positions_previous_step)
+            # Evaluate this candidate solution - Choose evaluation method based on configuration
+            if self.evaluation_method == 'multiprocessing':
+                if self.pass_finalised_positions:
+                    candidate_performance, candidate_details = self.evaluate_candidate_solution_multiprocessing(candidate_solution, collection_finalised_positions_previous_step=self.collection_finalised_positions_previous_step)
+                else:
+                    candidate_performance, candidate_details = self.evaluate_candidate_solution_multiprocessing(candidate_solution)
             else:
-                # NOTE: ORIGINAL VERSION OF CUSTOMHYS.
-                candidate_performance, candidate_details = self.evaluate_candidate_solution(candidate_solution)
+                # Use threading with CPU affinity (default)
+                if self.pass_finalised_positions:
+                    candidate_performance, candidate_details = self.evaluate_candidate_solution(candidate_solution, collection_finalised_positions_previous_step=self.collection_finalised_positions_previous_step)
+                else:
+                    candidate_performance, candidate_details = self.evaluate_candidate_solution(candidate_solution)
 
             end_time = datetime.now()
 
@@ -1106,6 +1121,28 @@ class Hyperheuristic:
         # Run the metaheuristic several times.
         mhs = {}
         fns_mh = []
+        
+        # Get available CPU cores for thread affinity
+        available_cores = list(range(psutil.cpu_count(logical=True)))
+        
+        def run_metaheuristic_with_affinity(mh_instance, core_id, hh_step, file_label):
+            """Wrapper function to set CPU affinity and run metaheuristic"""
+            try:
+                # Set CPU affinity for this thread
+                current_process = psutil.Process()
+                # Distribute threads across cores (round-robin)
+                assigned_core = available_cores[core_id % len(available_cores)]
+                current_process.cpu_affinity([assigned_core])
+                if self.parameters.get('verbose', False):
+                    print(f"Thread {core_id} assigned to CPU core {assigned_core}")
+            except (AttributeError, OSError) as e:
+                # CPU affinity not supported on this system or permission denied
+                if self.parameters.get('verbose', False):
+                    print(f"CPU affinity not available: {e}")
+            
+            # Run the metaheuristic
+            mh_instance.run(hh_step, file_label)
+        
         for i in range(self.parameters['num_replicas']):
             # If a collection of previous steps is passed, define these previous steps for agent population setting of the current step.
             if collection_finalised_positions_previous_step:
@@ -1126,8 +1163,11 @@ class Hyperheuristic:
                             )
                             #    updateProgress=self.updateMHProgress if i == (self.parameters['num_replicas']-1) else None
 
-            # Run this metaheuristic
-            fns_mh.append(threading.Thread(target=mhs[i].run, args=(self.hh_step, self.file_label)))
+            # Run this metaheuristic with CPU affinity
+            fns_mh.append(threading.Thread(
+                target=run_metaheuristic_with_affinity, 
+                args=(mhs[i], i, self.hh_step, self.file_label)
+            ))
 
         proc = []
         for p in fns_mh:
@@ -1160,6 +1200,91 @@ class Hyperheuristic:
 
         # NOTE: CUSTOM CHANGE BY LARS - PASSING EXTRA COLLECTION OF THE FINALISED POSITIONS OF THE CURRENT STEP.
         # Return the performance value and the corresponding details
+        return self.get_performance(fitness_stats), dict(
+            historical=historical_data, fitness=fitness_data, positions=position_data, statistics=fitness_stats)
+
+    def evaluate_candidate_solution_multiprocessing(self, encoded_sequence, collection_finalised_positions_previous_step=None):
+        """
+        Alternative evaluate_candidate_solution using multiprocessing for better CPU utilization.
+        This method replaces threading with multiprocessing for true parallelism.
+        
+        :param list encoded_sequence: Sequence of search operators
+        :param collection_finalised_positions_previous_step: Optional previous step positions
+        :return: Performance and raw data
+        """
+        # Decode the sequence corresponding to the hyper/meta-heuristic
+        search_operators = encoded_sequence
+        if isinstance(encoded_sequence[0], int) or isinstance(encoded_sequence[0], np.int64):
+            search_operators = self.get_operators(encoded_sequence)
+
+        # Prepare arguments for multiprocessing
+        process_args = []
+        for i in range(self.parameters['num_replicas']):
+            # Determine finalised positions for this replica
+            finalised_positions_previous_step = None
+            if collection_finalised_positions_previous_step:
+                finalised_positions_previous_step = collection_finalised_positions_previous_step[i]
+            
+            args = (
+                self.problems[i],
+                search_operators,
+                self.num_agents,
+                self.num_iterations,
+                self.parameters['verbose_mh'],
+                finalised_positions_previous_step,
+                self.pass_finalised_positions,
+                self.hh_step,
+                self.file_label,
+                i  # replica_id
+            )
+            process_args.append(args)
+
+        # Use ProcessPoolExecutor for better resource management
+        num_processes = min(self.parameters['num_replicas'], mp.cpu_count())
+        
+        historical_data = [None] * self.parameters['num_replicas']
+        fitness_data = [None] * self.parameters['num_replicas']
+        position_data = [None] * self.parameters['num_replicas']
+        
+        if self.pass_finalised_positions:
+            self.collection_finalised_positions_previous_step = [None] * self.parameters['num_replicas']
+
+        try:
+            with ProcessPoolExecutor(max_workers=num_processes) as executor:
+                # Submit all tasks
+                future_to_replica = {
+                    executor.submit(_run_metaheuristic_process, args): args[-1] 
+                    for args in process_args
+                }
+                
+                # Collect results as they complete
+                for future in as_completed(future_to_replica):
+                    try:
+                        result = future.result()
+                        replica_id = result['replica_id']
+                        
+                        # Store results in correct order
+                        historical_data[replica_id] = result['historical']
+                        fitness_data[replica_id] = result['fitness']
+                        position_data[replica_id] = result['position']
+                        
+                        # Handle finalised positions if required
+                        if self.pass_finalised_positions and result['final_positions'] is not None:
+                            self.collection_finalised_positions_previous_step[replica_id] = result['final_positions']
+                            
+                    except Exception as e:
+                        print(f"Error in replica {future_to_replica[future]}: {e}")
+                        raise
+                        
+        except Exception as e:
+            print(f"Error in multiprocessing evaluation: {e}")
+            # Fallback to threading method
+            return self.evaluate_candidate_solution(encoded_sequence, collection_finalised_positions_previous_step)
+
+        # Determine performance metric
+        fitness_stats = self.get_statistics(fitness_data)
+        
+        # Return the performance value and details
         return self.get_performance(fitness_stats), dict(
             historical=historical_data, fitness=fitness_data, positions=position_data, statistics=fitness_stats)
 
@@ -1511,3 +1636,46 @@ class HyperheuristicError(Exception):
     Simple HyperheuristicError to manage exceptions.
     """
     pass
+
+# Module-level function for multiprocessing (must be picklable)
+def _run_metaheuristic_process(args):
+    """
+    Module-level function to run a metaheuristic in a separate process.
+    This function must be at module level to be picklable for multiprocessing.
+    """
+    (problem, search_operators, num_agents, num_iterations, verbose_mh, 
+     finalised_positions_previous_step, pass_finalised_positions, 
+     hh_step, file_label, replica_id) = args
+    
+    try:
+        # Set CPU affinity for this process
+        current_process = psutil.Process()
+        available_cores = list(range(psutil.cpu_count(logical=True)))
+        assigned_core = available_cores[replica_id % len(available_cores)]
+        current_process.cpu_affinity([assigned_core])
+    except (AttributeError, OSError):
+        # CPU affinity not supported or permission denied
+        pass
+    
+    # Create and run metaheuristic
+    mh = Metaheuristic(problem,
+                      search_operators,
+                      num_agents,
+                      num_iterations,
+                      verbose=verbose_mh,
+                      finalised_positions_previous_step=finalised_positions_previous_step,
+                      pass_finalised_positions=pass_finalised_positions,
+                      updateProgress=None  # Progress updates don't work well with multiprocessing
+                      )
+    
+    mh.run(hh_step, file_label)
+    
+    # Return results
+    temporal_position, temporal_fitness = mh.get_solution()
+    return {
+        'replica_id': replica_id,
+        'historical': mh.historical,
+        'fitness': temporal_fitness,
+        'position': temporal_position,
+        'final_positions': mh.pop.positions if pass_finalised_positions else None
+    }
