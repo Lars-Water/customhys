@@ -32,7 +32,7 @@ def run_experiment(experiment_config, coordinator_params):
         run_name=run_name,
         nr_of_design_queues = len(search_operators_spaces.keys())*num_replicas,
         experiment_config=experiment_config,
-        normalize=False
+        normalize=True
     ) # noqa 501
     heur_sim_coordinator.set_run_name("ASML_"+str(heur_sim_coordinator.timestamp))
 

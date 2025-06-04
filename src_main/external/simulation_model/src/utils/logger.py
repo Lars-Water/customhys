@@ -56,6 +56,18 @@ def loggerRICH(name):
 
     return logger
 
+def loggerShutdown(logger):
+    logger.warn("Shutdown logger with Handlers:")
+    logger.warn(logger.handlers[:])
+
+    if logger.hasHandlers():
+        for handler in logger.handlers[:]: 
+            if isinstance(handler, logging.FileHandler):
+                handler.close()
+            logger.removeHandler(handler)
+
+    logger.handlers.clear()
+
 def logger(name, outfolder, print_stdout=False, rich_handler=False, disabled=False):
     os.makedirs(outfolder, exist_ok=True)
     outputfile = os.path.join(outfolder, 'log_'+str(name)+'.txt')
@@ -82,7 +94,8 @@ def logger(name, outfolder, print_stdout=False, rich_handler=False, disabled=Fal
     if rich_handler:
         logger.addHandler(RichHandler(level="NOTSET"))
 
-
+    logger.warn("Created logger with Handlers:")
+    logger.warn(logger.handlers)
 
     return logger
 

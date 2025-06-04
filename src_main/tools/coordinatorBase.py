@@ -70,9 +70,13 @@ class HeuristicSimulationCoordinatorBase:
         if self.log_path is None:
             self.log_path = os.path.join(self._base_path, "data/logs/")
 
+
         coordinator_log_path = Path(os.path.join(self.log_path, "coordinator"))
         self.conf.createLogger(coordinator_log_path, "coordinator_config_manager")
         self.logger = logger("coordinator", coordinator_log_path, disabled=False)
+        
+        if self.conf.tryGet("fitness_config", "normalize_fitness_values") != None:
+            self._normalize = self.conf.tryGet("fitness_config", "normalize_fitness_values")
 
         # Set logger level.
         logger_lvl = self.conf.tryGet("logger_lvl")
@@ -164,6 +168,8 @@ class HeuristicSimulationCoordinatorBase:
         self.createHyperHeuristicBase()
         self.manager.set_data_collector(self.data_collector)
 
+        self.problems_file_name_fitness_values = {}
+
 
 
         # clear out old agent finess files
@@ -186,6 +192,8 @@ class HeuristicSimulationCoordinatorBase:
             self.logger.warn("Normalization is skipped!")
         self.coordinator_and_simulation_execution_time = 0
         self.simulation_execution_time = 0
+        self.logger.info("Getting all problems file name fitness values.")
+        self.problems_file_name_fitness_values = self.hh_base.get_all_problems_file_name_fitness_values()
         return self.hh_base.run_multi_threaded()
 
     def set_run_name(self, run_name):
@@ -238,29 +246,48 @@ class HeuristicSimulationCoordinatorBase:
 
     def locally_store_agents_fitness_values(self, fitness_values, file_name_fitness_values="fitness_values.json"):
         """
-        Locally stores the fitness values of agents in a JSON file.
+        Locally caches the fitness values of agents in memory.
+        This method previously stored values in a JSON file but has been changed
+        to use an in-memory dictionary to avoid frequent file I/O.
 
         Args:
             fitness_values (dict): A dictionary containing the fitness values of agents.
+            file_name_fitness_values (str): Identifier for this set of fitness values.
+                                         Its file extension (e.g., .json) will be removed before use as the key.
+                                         Defaults to "fitness_values.json" for compatibility with the previous signature.
 
         Returns:
             None
         """
-        self.logger.info(f"Storing fitness values locally at {self.agents_fitness_dir_path}")
-        os.makedirs(self.agents_fitness_dir_path, exist_ok=True)
-        fitness_values_file_path = os.path.join(self.agents_fitness_dir_path, file_name_fitness_values)
-        fitness_values_file_path_old_nmbr = 0
-        if os.path.exists(fitness_values_file_path):
-            # Keep version of old locally stored fitness values
-            # filenames =  [os.path.basename(x) for x in glob.glob(str(agents_fitness_dir)+"/"+Path(file_name_fitness_values).stem+"*")]
-            # fitness_values_file_path_old_nmbr = max((int(filename.strip(file_name_fitness_values + "_")) if filename.strip(file_name_fitness_values + "_") else -1) for filename in filenames) + 1
-            # fitness_values_file_path_old =  os.path.join(agents_fitness_dir, Path(fitness_values_file_path).stem + "_" + str(fitness_values_file_path_old_nmbr) + ".json")
-            # shutil.copy2(fitness_values_file_path, fitness_values_file_path_old)
-            os.remove(fitness_values_file_path)
-        with open(fitness_values_file_path, 'w') as f:
-            json.dump(fitness_values, f, indent=4)
+        # Ensure the in-memory store is initialized.
+        # Ideally, this should be in the __init__ method of the class,
+        # but this provides a fallback.
+        # if not hasattr(self, '_in_memory_fitness_values'):
+        #     self._in_memory_fitness_values = {}
+        #     if hasattr(self, 'logger') and self.logger:
+        #         self.logger.info("Initialized `_in_memory_fitness_values` store on first use.")
+        #     # else:
+        #         # Consider a print statement here if logger might not be available,
+        #         # e.g., print("Warning: _in_memory_fitness_values initialized without logger.")
+
+        # Use the filename without extension as the key
+        # memory_key, _ = os.path.splitext(file_name_fitness_values)
+
+        # if hasattr(self, 'logger') and self.logger:
+        #     self.logger.info(f"Caching fitness values in memory for key: '{memory_key}' (derived from '{file_name_fitness_values}')")
+        
+        self.try_load_problems_file_name_fitness_values(file_name_fitness_values)
+        self.problems_file_name_fitness_values[file_name_fitness_values]['store_agents_fitness_values'](fitness_values)
+        self.logger.info(f"[coord {file_name_fitness_values}] Agents fitness values: {fitness_values}")
 
 
+    def try_load_problems_file_name_fitness_values(self, file_name_fitness_values):
+        if file_name_fitness_values not in self.problems_file_name_fitness_values:
+            self.logger.info(f"[try_load_problems_file_name_fitness_values] {file_name_fitness_values} not loaded yet. Trying again.")
+            self.problems_file_name_fitness_values = self.hh_base.get_all_problems_file_name_fitness_values()
+            self.logger.info(f"[try_load_problems_file_name_fitness_values] Loaded following problems: {list(self.problems_file_name_fitness_values.keys())}")
+        if file_name_fitness_values not in self.problems_file_name_fitness_values:
+            raise ValueError(f"[try_load_problems_file_name_fitness_values] File name fitness values {file_name_fitness_values} not found in keys of self.problems_file_name_fitness_values: {list(self.problems_file_name_fitness_values.keys())}.")
     '''
         Run the simulation model with the given configuration values.
 
@@ -287,23 +314,25 @@ class HeuristicSimulationCoordinatorBase:
                 self.logger.debug(f"Generating simulation instance for design point: {sim_id}.")
                 self.generate_design_point(sim_id, agent_configuration)
 
-            self.logger.info("Run the generated simulation instances.")
+            self.logger.info("Run the generated simulation instances. ("+str(len(sim_ids))+")\n"+str(file_name_fitness_values)+"\n"+str(step_iteration_data))
             uids = self.run_multiple_simulation_configuration(sim_ids, file_name_fitness_values, step_iteration_data = step_iteration_data)
 
             self.logger.debug("Collect the simulation stats from the simulation instances runs.\n"+str(uids.keys()))
-            simulation_metrics = self.obtain_simulation_stats(uids)
+            simulation_metrics = self.obtain_simulation_stats(uids, file_name_fitness_values=file_name_fitness_values)
 
             self.logger.info("Locally storing the agents fitness values.")
             fitness_config = self.conf.tryGet("fitness_config")
             fitness_values = fitfunc(fitness_config, simulation_metrics)
 
             if self.store_design_points_metrics_values:
+                self.try_load_problems_file_name_fitness_values(file_name_fitness_values)
                 self.data_collector.append_fitness_and_hh_data_to_design_point_metrics(
                     uids, 
                     fitness_values,
                     step_iteration_data["problem"] if "problem" in step_iteration_data else None,
                     step_iteration_data["step"],
-                    step_iteration_data["iteration"]
+                    step_iteration_data["iteration"],
+                    file_name_fitness_values
                 )
             
             self.locally_store_agents_fitness_values(fitness_values, file_name_fitness_values)
@@ -336,33 +365,33 @@ class HeuristicSimulationCoordinatorBase:
             sim_ids.clear()
             return 0
 
-        else:
-            # Set the values of the parameters in the simulation model.
-            configurations = self.set_param_values(config_values)
+        # else:
+        #     # Set the values of the parameters in the simulation model.
+        #     configurations = self.set_param_values(config_values)
 
-            sim_id = uuid.uuid4()
-            self.generate_design_point(sim_id, configurations)
+        #     sim_id = uuid.uuid4()
+        #     self.generate_design_point(sim_id, configurations)
 
-            # Run the simulation model.
-            uid = self.run_single_simulation_configuration(step_iteration_data = step_iteration_data)
+        #     # Run the simulation model.
+        #     uid = self.run_single_simulation_configuration(step_iteration_data = step_iteration_data)
 
-            # Collect the simulation stats from the simulation run.
-            simulation_metrics = self.obtain_simulation_stats(uid)
+        #     # Collect the simulation stats from the simulation run.
+        #     simulation_metrics = self.obtain_simulation_stats(uid)
 
-            fitness_config = self.conf.tryGet("fitness_config")
-            fitness_value = fitfunc(fitness_config, simulation_metrics)
+        #     fitness_config = self.conf.tryGet("fitness_config")
+        #     fitness_value = fitfunc(fitness_config, simulation_metrics)
 
-            # End timer for simulation run.
-            end_time = time.time()
+        #     # End timer for simulation run.
+        #     end_time = time.time()
 
-            # Add simulation run time to total coordinator time.
-            self.coordinator_and_simulation_execution_time += end_time - start_time
+        #     # Add simulation run time to total coordinator time.
+        #     self.coordinator_and_simulation_execution_time += end_time - start_time
 
-            if self.remove_design_point_configuration_dummy_path:
-                self.logger.debug("Removing simulation run templates in generated path.")
-                fo.remove_design_point_configurations_dummy_path(self.generated_path, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
-            # self.logger.info("Fitness value: {}".format(fitness_value))
-            return fitness_value[0]
+        #     if self.remove_design_point_configuration_dummy_path:
+        #         self.logger.debug("Removing simulation run templates in generated path.")
+        #         fo.remove_design_point_configurations_dummy_path(self.generated_path, pattern=self.remove_design_point_configuration_dummy_path_pattern+"*")
+        #     # self.logger.info("Fitness value: {}".format(fitness_value))
+        #     return fitness_value[0]
 
 
     '''
@@ -471,10 +500,8 @@ class HeuristicSimulationCoordinatorBase:
     def get_boundaries(self):
         raise NotImplementedError("You need to implement: get_boundaries().")
 
-
     def manual_normalization(self):
         raise NotImplementedError("You need to implement: manual_normalization().")
-
 
     def determine_boundary_value(self, sim_uid, parameter, boundary):
         raise NotImplementedError("You need to implement: determine_boundary_value().")
@@ -501,12 +528,6 @@ class HeuristicSimulationCoordinatorBase:
             else:
                 self.logger.error("During removing sim instance ({}) output files: File {} is not a file or directory. Could not remove in {}.".format(sim_uid, local_file_path, folder_path))
 
-
-    def ignore_file(self, file_name):
-        def _ignore(_, filenames):
-            return [name for name in filenames if name == file_name]
-        return _ignore
-
     def update_file_params(self, filepath, new_params):
         directory, filename = os.path.split(filepath)
         temp_filepath = os.path.join(directory, f"temp_{filename}")
@@ -528,13 +549,34 @@ class HeuristicSimulationCoordinatorBase:
             print("An error occurred:", e)
 
 
-    def duplicate_directory(self, src_dir, dest_dir, file_to_ignore):
+    def ignore_files(self, files_to_ignore_patterns):
+        import fnmatch  # For wildcard pattern matching
+
+        def _ignore(src, names):
+            # src: the directory being visited by copytree()
+            # names: a list of its contents (files and subdirectories)
+            
+            ignored_names = set()
+            if not files_to_ignore_patterns:
+                return ignored_names # Return empty set if no patterns are provided
+
+            for pattern in files_to_ignore_patterns:
+                # fnmatch.filter returns a list of names from 'names' that match 'pattern'
+                # Add these to our set of ignored names
+                ignored_names.update(fnmatch.filter(names, pattern))
+            
+            return ignored_names # Return the set of names to ignore in the current directory
+        return _ignore
+
+
+    def duplicate_directory(self, src_dir, dest_dir, files_to_ignore):
         # Delete destination directory if it exists
         if os.path.exists(dest_dir):
             shutil.rmtree(dest_dir)
         # Duplicate a new custom dummy sim directory and ignore the given filename.
+        # files_to_ignore is now a list of patterns (e.g., ["*.txt", "temp_*"])
         shutil.copytree(src_dir,
                         dest_dir,
-                        ignore=self.ignore_file(file_to_ignore),              
+                        ignore=self.ignore_files(files_to_ignore),              
                         symlinks=True
         )

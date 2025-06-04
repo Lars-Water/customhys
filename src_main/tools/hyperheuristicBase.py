@@ -21,6 +21,7 @@ import itertools
 import threading
 import copy
 import math
+import psutil  # Add this import for CPU affinity
 # from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn, TextColumn, BarColumn
 import rich.progress as prog
 from tqdm import tqdm
@@ -97,6 +98,12 @@ class HyperHeuristicBase:
         self.agents_fitness_values_path = self.conf.tryGet("output_paths", "agents_fitness_values_path")
 
         self.barrier = threading.Barrier(len(self.search_operators_spaces.keys()))
+
+    def has_problems(self, problem_space_name):
+        return self.search_operator_spaces.has_problems(problem_space_name)
+
+    def get_all_problems_file_name_fitness_values(self):
+        return self.search_operator_spaces.get_all_problems_file_name_fitness_values()
         
     def run_multi_threaded(self):
         # with Progress() as progress:
@@ -109,7 +116,29 @@ class HyperHeuristicBase:
             ) as progress:
             self.progress = progress
             all_bars = []
+            self.logger.info(f"{self.search_operators_spaces.keys()}")
 
+            # Get available CPU cores for thread affinity
+            available_cores = list(range(psutil.cpu_count(logical=True)))
+            self.logger.info(f"Available CPU cores: {len(available_cores)}")
+            
+            def hh_thread_with_affinity(core_id, search_operator_space_name, search_operator_space_path, bars):
+                """Wrapper for hh_thread with CPU affinity"""
+                try:
+                    # Set CPU affinity for this thread
+                    current_process = psutil.Process()
+                    # Assign to specific core (round-robin if more threads than cores)
+                    assigned_core = available_cores[core_id % len(available_cores)]
+                    current_process.cpu_affinity([assigned_core])
+                    self.logger.info(f"Search operator space '{search_operator_space_name}' assigned to CPU core {assigned_core}")
+                except (AttributeError, OSError) as e:
+                    # CPU affinity not supported on this system or permission denied
+                    self.logger.warning(f"CPU affinity not available for '{search_operator_space_name}': {e}")
+                
+                # Run the original hh_thread
+                self.hh_thread(search_operator_space_name, search_operator_space_path, bars)
+
+            core_id = 0
             for search_operator_space_name in self.search_operators_spaces.keys():
                 space = self.search_operators_spaces[search_operator_space_name]
                 search_operator_space_path = space["path"]
@@ -127,13 +156,15 @@ class HyperHeuristicBase:
                 ]
                 all_bars += bars
                 self.threads[search_operator_space_name] = threading.Thread(
-                    target=self.hh_thread, 
+                    target=hh_thread_with_affinity, 
                     args=(
+                        core_id,
                         search_operator_space_name,
                         search_operator_space_path,
                         bars
                     )
-                )       
+                )
+                core_id += 1
                 
             for bar in all_bars:
                 self.progress.start_task(bar)
@@ -445,7 +476,10 @@ class HyperHeuristicBase:
 
                     with open(os.path.join(dir_path, f"hh_hyper_{search_operator_space_name}.json") , "w") as fp:
                         json.dump(json_out, fp, indent=4)
-            if enabled_hypers <= 1:
+            # When the last HH shuts down, save all relevant information
+            # We activated this HH on top of the function, hence we need to add 1 to the enabled hypers
+            if (enabled_hypers + 1) <= 1:
+                self.logger.info(f'This was the last enabled HH search operator. Saving all stats to a final file.')
                 json_out = {
                     "final_step": step
                 }
@@ -456,7 +490,8 @@ class HyperHeuristicBase:
                             json_out[hyper_space_name][key] = val
 
                 dir_path = os.path.join(self.results_path, f"hh_hyper_{str(self.timestamp)}")
-                with open(os.path.join(dir_path, f"hh_hyper_final.json") , "w") as fp:
+                os.makedirs(dir_path, exist_ok=True)
+                with open(os.path.join(dir_path, f"final.json") , "w") as fp:
                     json.dump(json_out, fp, indent=4)
         
     def _get_num_enabled_hyper(self):

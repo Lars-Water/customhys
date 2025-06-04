@@ -25,6 +25,7 @@ def run_experiment(experiment_config, coordinator_params):
 
     # Create the HeuristicSimulationCoordinator.
     base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches = coordinator_params
+    
     heur_sim_coordinator = coordinator_inet.HeuristicSimulationCoordinatorINET(base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches, len(search_operator_space_names)*num_replicas) # noqa 501
     heur_sim_coordinator.set_run_name("INET_LANS_"+str(heur_sim_coordinator.time_stamp))
 

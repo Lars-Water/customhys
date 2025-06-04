@@ -4,6 +4,7 @@ import time
 
 from multiprocessing import Process
 from pathlib import Path, PosixPath
+from types import SimpleNamespace
 
 from src.designpointqueue import DesignPointQueue
 from src.siminstance import Siminstance
@@ -115,7 +116,7 @@ class Manager:
         design_point_queue = self.__get_queue(queue_id)
 
         if design_point_queue:
-            self.logger.info("Inserting sim instances ({}) in design point queue {}".format(len(sim_instances), queue_id))
+            self.logger.info("Inserting sim instances ({}) in design point queue {} (Total: {})".format(len(sim_instances), queue_id, design_point_queue.size()+len(sim_instances)))
             self.sim_queue.insert_list(sim_instances)
 
     def __filter_unique_sim_instances(self, sim_instances):
@@ -151,7 +152,7 @@ class Manager:
         return self.stats.get_stats_dict()
 
     def enqueue_tasks(self, sim_instances, queue_id=None, metadata=None):
-        self.logger.info("Manager received sim instances ({})".format(len(sim_instances)))
+        self.logger.debug("Manager received sim instances ({})".format(len(sim_instances)))
         self.stats.add_stat(len(sim_instances), "general", "num_dp")
         sim_instances = self.__set_sim_instances_time_stat(sim_instances, "general", "environment_entry")
 
@@ -176,16 +177,16 @@ class Manager:
         if (len(cached_sim_instances) > 0):
             design_point_queue.cached_insert_list(cached_sim_instances)
         else:
-            self.logger.info("No cached sim instances to process")
+            self.logger.debug("No cached sim instances to process")
 
         if (len(sim_instances) > 0):
-            self.logger.info("Inserting sim instances ({}) in design point queue {}".format(len(sim_instances), queue_id))
+            self.logger.debug("Inserting sim instances ({}) in design point queue {}".format(len(sim_instances), queue_id))
             sim_instances = self.__set_sim_instances_time_stat(sim_instances, "general", "insert_design_point_queue_start")
             design_point_queue.insert_list(sim_instances)
             sim_instances = self.__set_sim_instances_time_stat(sim_instances, "general", "insert_design_point_queue_end")
             self.design_point_cache.set_sims_waiting(sim_instances)
         else:
-            self.logger.info("No sim instances to enqueue")
+            self.logger.debug("No sim instances to enqueue")
 
         self.stats.write_stats_to_file()
 
@@ -207,29 +208,29 @@ class Manager:
         if not design_point_queue:
             raise Exception("Passed invalid design queue id")
 
-        self.logger.info("Requesting {} sim instances from design point queue {}".format(n, queue_id))
+        self.logger.debug("Requesting {} sim instances from design point queue {}".format(n, queue_id))
         sim_instances = design_point_queue.get(n)
-        self.logger.info("Recieved {} sim instances from design point queue {}".format(len(sim_instances), queue_id))
+        self.logger.debug("Recieved {} sim instances from design point queue {}".format(len(sim_instances), queue_id))
         self.stats.add_stat(len(sim_instances), "general", "num_submit_rc")
 
-        self.logger.info("Sending sim instances ({}) to resource controller".format(len(sim_instances)))
+        self.logger.debug("Sending sim instances ({}) to resource controller".format(len(sim_instances)))
         sim_instances = self.__set_sim_instances_time_stat(sim_instances, "general", "manager_submit_resource_controller_start")
         self.resource_controller.submit_tasks(sim_instances)
         sim_instances = self.__set_sim_instances_time_stat(sim_instances, "general", "manager_submit_resource_controller_end")
 
-        self.logger.info("Setting sim instances ({}) to processing state in cache".format(len(sim_instances)))
+        self.logger.debug("Setting sim instances ({}) to processing state in cache".format(len(sim_instances)))
         self.design_point_cache.set_sims_processing(sim_instances)
 
         return sim_instances
 
     # Does not wait for result
     def submit(self, n):
-        self.logger.info("Requesting {} sim instances from design point queues (highest priority first)".format(n))
+        self.logger.debug("Requesting {} sim instances from design point queues (highest priority first)".format(n))
         sim_instances = []
 
         for design_point_queue_id in self.design_queue_id_order:
             if n <= 0:
-                self.logger.info("All sim instances extracted from design point queues")
+                self.logger.debug("All sim instances extracted from design point queues")
                 break
 
             queue_sim_instances = self.submit_queue(design_point_queue_id, n)
@@ -240,7 +241,7 @@ class Manager:
 
     # Does not wait for results
     def submit_all(self):
-        self.logger.info("Requesting all sim instances from design point queues (highest priority first)")
+        self.logger.debug("Requesting all sim instances from design point queues (highest priority first)")
         sim_instances = []
 
         for design_point_queue_id in self.design_queue_id_order:
@@ -274,15 +275,23 @@ class Manager:
         all_are_processing = 0
         cached_sim_instances = design_point_queue.cached_get_all()
         if self.data_collector:
-            self.data_collector.append_caching_status_to_design_point_metrics([sim[0].uid for sim in cached_sim_instances], True)
-        for cached_sim_instance in cached_sim_instances:
-            if self.design_point_cache.is_sim_finished(cached_sim_instance[1]):
-                tmp = self.output_handler.copy_sim_results(cached_sim_instance[0], cached_sim_instance[1])
-            elif self.design_point_cache.is_sim_processing(cached_sim_instance[1]):
-                design_point_queue.cached_insert(cached_sim_instance)
+            self.data_collector.append_caching_status_to_design_point_metrics_lazy([sim_tuple[0].uid for sim_tuple in cached_sim_instances], True)
+        
+        for current_sim_instance, original_sim_uid in cached_sim_instances:
+            original_cached_sim_placeholder = SimpleNamespace(uid=original_sim_uid)
+
+            if self.design_point_cache.is_sim_finished(original_cached_sim_placeholder):
+                self.output_handler.copy_sim_results(current_sim_instance, original_cached_sim_placeholder)
+                self.design_point_cache.set_sim_finished(current_sim_instance)
+
+            elif self.design_point_cache.is_sim_processing(original_cached_sim_placeholder):
+                design_point_queue.cached_insert((current_sim_instance, original_sim_uid))
                 all_are_processing += 1
+                
             else:
-                design_point_queue.cached_insert(cached_sim_instance)
+                self.logger.warn(f"Original cached sim {original_sim_uid} for {current_sim_instance.uid} is in an unexpected state. Re-queuing.")
+                design_point_queue.cached_insert((current_sim_instance, original_sim_uid))
+
         return (all_are_processing == design_point_queue.chached_amount() and design_point_queue.has_chached())
 
     # Waits for results
@@ -292,16 +301,16 @@ class Manager:
         if not design_point_queue:
             raise Exception("Passed invalid design queue id")
 
-        self.logger.info("Requesting {} sim instances from design point queue {}".format(n, queue_id))
+        self.logger.debug("Requesting {} sim instances from design point queue {}".format(n, queue_id))
         sim_instances = design_point_queue.get(n)
-        self.logger.info("Recieved {} sim instances from design point queue {}".format(len(sim_instances), queue_id))
+        self.logger.debug("Recieved {} sim instances from design point queue {}".format(len(sim_instances), queue_id))
 
         # TODO: move this to the resource_controller?
-        self.logger.info("Setting sim instances ({}) to processing state in cache".format(len(sim_instances)))
+        self.logger.debug("Setting sim instances ({}) to processing state in cache".format(len(sim_instances)))
         self.design_point_cache.set_sims_processing(sim_instances)
         self.stats.add_stat(len(sim_instances), "general", "num_eval_rc")
 
-        self.logger.info("Sending sim instances ({}) to resource controller".format(len(sim_instances)))
+        self.logger.debug("Sending sim instances ({}) to resource controller".format(len(sim_instances)))
         sim_instances = self.__set_sim_instances_time_stat(sim_instances, "general", "manager_evaluate_resource_controller_start")
         sim_instances = self.resource_controller.evaluate_tasks(sim_instances)
         sim_instances = self.__set_sim_instances_time_stat(sim_instances, "general", "manager_evaluate_resource_controller_end")
@@ -311,7 +320,7 @@ class Manager:
         sim_instances = self.__set_sim_instances_time_stat(sim_instances, "general", "output_handler_end")
         self.design_point_cache.set_sims_finished(sim_instances)
         self.stats.add_stat(len(sim_instances), "general", "num_dp_finished")
-        self.logger.warn("num_dp_finished+=" + str(len(sim_instances))+" (total: "+str(self.stats.get_stat("general", "num_dp_finished"))+")")
+        self.logger.debug("num_dp_finished+=" + str(len(sim_instances))+" (total: "+str(self.stats.get_stat("general", "num_dp_finished"))+")")
 
         cached = self.evaluate_cached_sims(design_point_queue)      
 
@@ -319,12 +328,12 @@ class Manager:
 
     # Waits for results
     def evaluate(self, n=1):
-        self.logger.info("Requesting {} sim instances from design point queues (highest priority first)".format(n))
+        self.logger.debug("Requesting {} sim instances from design point queues (highest priority first)".format(n))
         sim_instances = []
 
         for design_point_queue_id in self.design_queue_id_order:
             if n <= 0:
-                self.logger.info("All sim instances extracted from design point queues")
+                self.logger.debug("All sim instances extracted from design point queues")
                 break
 
             queue_sim_instances = self.evaluate_queue(design_point_queue_id, n)

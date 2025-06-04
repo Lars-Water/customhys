@@ -174,11 +174,12 @@ class SiminstanceConfig:
     sim_instance_config = None
     supported_simulators = ["omnet"]
 
-    def __init__(self, simulator, simulator_config):
+    def __init__(self, simulator, simulator_config, doCompile=True):
         self.sim_instance_config = {}
 
         if simulator in SiminstanceConfig.supported_simulators:
             self.sim_instance_config["simulator"] = simulator
+            self.sim_instance_config["compile"] = doCompile
             self.sim_instance_config[simulator] = simulator_config.conf()
         else:
             raise Exception("Unsupported simulator")

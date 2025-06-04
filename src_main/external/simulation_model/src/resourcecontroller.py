@@ -54,8 +54,24 @@ class ResourceController:
 
                     num_workers = num_jobs * job_processes
 
+                    # self.cluster = SLURMCluster( \
+                    #     job_directives_skip=["--mem"], \
+                    #     cores=job_cores, \
+                    #     processes=job_processes, \
+                    #     walltime=walltime, \
+                    #     death_timeout=5*60*60, \
+                    #     memory=job_memory, \
+                    #     worker_extra_args=[], \
+                    #     job_extra_directives = [ \
+                    #     ], \
+                    #     log_directory=self.logs_path, \
+                    #     )
+                    # self.cluster.scale(jobs=num_jobs)
                     self.cluster = SLURMCluster(job_directives_skip=["--mem"], cores=job_cores, processes=job_processes, walltime=walltime, death_timeout=5*60*60, memory=job_memory, worker_extra_args=['--resources slots={}'.format(job_cores)], log_directory=self.logs_path)
                     self.cluster.scale(jobs=num_jobs)
+                    
+                    # self.cluster.adapt(maximum_jobs=num_jobs)
+
                     # TODO: check if number of slots does not exceed num of cores per worker
                     # TODO: wait for all workers to arrive?
                 elif (cluster_type == "local"):
@@ -76,7 +92,10 @@ class ResourceController:
         self.client = Client(self.cluster, timeout=6*60)
 
         while ((self.client.status == "running") and (len(self.client.scheduler_info()["workers"]) < num_workers)):
-            time.sleep(0.1)
+            time.sleep(2)
+            self.logger.info(f"self.client.status: {self.client.status} | num_workers: {num_workers} | len(self.client.scheduler_info()['workers']): {len(self.client.scheduler_info()['workers'])}")
+            # self.logger.info(f"self.client.scheduler_info(): {self.client.scheduler_info()}") 
+            # self.logger.info(f"self.client.scheduler_info()['workers']: {self.client.scheduler_info()['workers']}") 
 
         try:
             self.client.forward_logging()
@@ -95,9 +114,9 @@ class ResourceController:
 
     # Does not wait for sim to complete
     def __submit_task(self, sim_instance):
-        self.logger.info("Sending sim instance {} to worker cluster".format(sim_instance.uid))
+        self.logger.debug("Sending sim instance {} to worker cluster".format(sim_instance.uid))
         sim_instance.record_time_stat("general", "resource_controller_submit")
-        future = self.client.submit(dask_worker, sim_instance, resources={"slots": sim_instance.num_slots()}, fifo_timeout="0ms")
+        future = self.client.submit(dask_worker, sim_instance, resources={"slots": sim_instance.num_slots()}, fifo_timeout="50ms")
         self.running_tasks[sim_instance.uid] = future
 
     def __get_all_completed(self):
@@ -106,7 +125,7 @@ class ResourceController:
             # TODO: check for all other statusses
             future = self.running_tasks[uid]
             if (future.status == "finished"):
-                self.logger.info("Retrieving results for sim instance: {}".format(uid))
+                self.logger.debug("Retrieving results for sim instance: {}".format(uid))
                 completed_sim_instances.append(future.result())
 
         for sim_instance in completed_sim_instances:
@@ -128,11 +147,11 @@ class ResourceController:
 
     def wait_for_tasks(self, sim_instances):
         # TODO: catch sim instance not in running tasks
-        self.logger.info("Retrieving DASK futures for given tasks")
+        self.logger.debug("Retrieving DASK futures for given tasks")
         futures = [self.running_tasks[sim_instance.uid] for sim_instance in sim_instances]
-        self.logger.info("Waiting for all tasks to complete")
+        self.logger.debug("Waiting for all tasks to complete")
         wait(futures)
-        self.logger.info("All tasks have completed")
+        self.logger.debug("All tasks have completed")
 
         completed_sim_instances = [future.result() for future in futures]
         completed_sim_instances = self.__set_sim_instances_time_stat(completed_sim_instances, "general", "resource_controller_retrieval")
@@ -140,12 +159,12 @@ class ResourceController:
 
     def wait_for_active_tasks(self):
         completed_sim_instances = []
-        self.logger.info("Waiting for all active tasks to have completed")
+        self.logger.debug("Waiting for all active tasks to have completed")
 
         for uid in self.running_tasks.keys():
             sim_instance = self.running_tasks[uid].result()
             completed_sim_instances.append(sim_instance)
-            self.logger.info("Retrieving results for sim instance: {}".format(task["uid"]))
+            self.logger.debug("Retrieving results for sim instance: {}".format(task["uid"]))
 
         self.running_tasks = {}
 

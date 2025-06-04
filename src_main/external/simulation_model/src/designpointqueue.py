@@ -65,7 +65,7 @@ class DesignPointQueue:
     def insert(self, design_point):
         if (self.sorting_algo == "FIFO"):
             self.queue.append(design_point)
-            self.logger.info("Inserting design point at the back of the queue")
+            self.logger.debug("Inserting design point at the back of the queue")
         else:
             pass
 
@@ -74,7 +74,7 @@ class DesignPointQueue:
     def insert_list(self, design_points):
         if (self.sorting_algo == "FIFO"):
             self.queue += design_points
-            self.logger.info("Inserting design point at the back of the queue")
+            self.logger.debug("Inserting design point at the back of the queue")
         else:
             pass
 
@@ -82,7 +82,7 @@ class DesignPointQueue:
 
     def pop(self):
         if (self.sorting_algo == "FIFO"):
-            self.logger.info("Popping design point at the front of the queue")
+            self.logger.debug("Popping design point at the front of the queue")
             return self.queue.pop(0)
         else:
             pass
@@ -95,7 +95,7 @@ class DesignPointQueue:
 
         self.stats.add_stat(n, "general", "num_dp_dequeued")
         if (self.sorting_algo == "FIFO"):
-            self.logger.info("Popping {} design points from the front of the queue".format(n))
+            self.logger.debug("Popping {} design points from the front of the queue".format(n))
             design_points = self.queue[:n]
             self.queue = self.queue[n:]
             return design_points
@@ -117,19 +117,19 @@ class DesignPointQueue:
     def set_sorting_algo(self, new_algo):
         if (self.__is_valid_sorting_algo(new_algo)):
             self.sorting_algo = new_algo
-            self.logger.info("Setting design point queue sorting algorithm to: {}".format(self.sorting_algo))
+            self.logger.debug("Setting design point queue sorting algorithm to: {}".format(self.sorting_algo))
             self.sort()
         else:
-            self.logger.info("Received invalid new sorting algorithm. Not changing the current sorting algorithm: {}".format(self.sorting_algo))
+            self.logger.warn("Received invalid new sorting algorithm. Not changing the current sorting algorithm: {}".format(self.sorting_algo))
 
     def size(self):
-        self.logger.info("The current size of the design point queue: {}".format(len(self.queue)))
+        self.logger.debug("The current size of the design point queue: {}".format(len(self.queue)))
         return len(self.queue)
 
     def sort(self):
-        self.logger.info("Sorting the queue according to the sorting algorithm: {}".format(self.sorting_algo))
+        self.logger.debug("Sorting the queue according to the sorting algorithm: {}".format(self.sorting_algo))
         if (self.sorting_algo == "FIFO"):
-            self.logger.info("{} sorting algorithm does not change the current order of the queue".format(self.sorting_algo))
+            self.logger.debug("{} sorting algorithm does not change the current order of the queue".format(self.sorting_algo))
             return
         else:
             pass

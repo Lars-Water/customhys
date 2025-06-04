@@ -1,0 +1,52 @@
+{
+    "hh_parameters": {
+        "cardinality": 3,
+        "cardinality_min": 1,
+        "num_iterations": 20,
+        "num_agents": 42,
+        "as_mh": true,
+        "num_replicas": 1,
+        "num_steps": 50,
+        "stagnation_percentage": 0.37,
+        "max_temperature": 200,
+        "min_temperature": 1e-6,
+        "cooling_rate": 1e-3,
+        "temperature_scheme": "boltzmann",
+        "acceptance_scheme": "exponential",
+        "allow_weight_matrix": true,
+        "trial_overflow": false,
+        "learnt_dataset": null,
+        "repeat_operators": false,
+        "verbose": true,
+        "verbose_mh": false,
+        "learning_portion": 0.37,
+        "solver": "static"
+    },
+    "search_operators": {
+        "optimize_utilization": true,
+        "minimum_amount_of_hhs": 2,
+        "evaluate_after_steps": 8,
+        "sync_steps_of_hhs": true,
+        "spaces": {
+            "swarm_dynamic": {
+                "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_06_2025/search_operator_space/swarm_dynamic.txt"
+            },
+            "gravitational": {
+                "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_06_2025/search_operator_space/gravitational.txt"
+            },
+            "firefly_dynamic": {
+                "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_06_2025/search_operator_space/firefly_dynamic.txt"
+            },
+            "genetic_crossover": {
+                "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_06_2025/search_operator_space/genetic_crossover.txt"
+            },
+            "genetic_mutation": {
+                "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_06_2025/search_operator_space/genetic_mutation.txt"
+            },
+            "differential_mutation": {
+                "path": "/var/scratch/mherget/hyper-heuristic-dse-2.0/config/experiment_asml_06_2025/search_operator_space/differential_mutation.txt"
+            }
+        }
+    },
+    "pass_finalised_positions": false
+}

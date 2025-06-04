@@ -36,7 +36,7 @@ class DesignPointCache:
     stats = None
     cached_hashes = {}
 
-    def __init__(self, config_path, logs_path):
+    def __init__(self, config_path, logs_path, doCache=True):
         self.logs_path = logs_path
         os.makedirs(self.logs_path, exist_ok=True)
 
@@ -52,11 +52,10 @@ class DesignPointCache:
 
         self.uids_status = {}
 
+        self.doCache = doCache
+
     def __has_sim_status(self, sim_instance):
-        if sim_instance.uid in self.uids_status.keys():
-            return True
-        else:
-            return False
+        return sim_instance.uid in self.uids_status.keys()
 
     def __get_sim_status(self, sim_instance):
         if self.__has_sim_status(sim_instance):
@@ -65,11 +64,7 @@ class DesignPointCache:
             return -1
 
     def __is_sim_status(self, sim_instance, sim_status):
-        # self.logger.debug(f"is sim status {sim_instance.uid} // {self.__get_sim_status(sim_instance)} // {self.uids_status.keys()}")
-        if self.__get_sim_status(sim_instance) == sim_status:
-            return True
-        else:
-            return False
+        return self.__get_sim_status(sim_instance) == sim_status
 
     def __set_sim_state(self, sim_instance, sim_status):
         if SimStatus.has_status(sim_status.value):
@@ -96,7 +91,7 @@ class DesignPointCache:
         self.__set_sim_state(sim_instance, SimStatus.PROCESSING)
 
     def set_sim_finished(self, sim_instance):
-        if self.cnf.tryGet("cache", "cache_only_finished_sim_instances"):
+        if self.doCache and self.cnf.tryGet("cache", "cache_only_finished_sim_instances"):
             self._set_hash_sim(sim_instance.getCacheHash(), sim_instance)
         self.__set_sim_state(sim_instance, SimStatus.FINISHED)
 
@@ -127,24 +122,28 @@ class DesignPointCache:
     def filter_finished(self, sim_instances):
         return self.__filter_status(sim_instances, SimStatus.FINISHED)
 
-    # Filter all sim_instances which are already in cache
     def filter_design_point_cache(self, sim_instances):
         cached_sim_instances = []
-        if self.cnf.tryGet("cache", "files") is not None and len(self.cnf.tryGet("cache", "files")) > 0:
+        non_cached_sim_instances = []
+
+        if self.doCache and self.cnf.tryGet("cache", "files") is not None and len(self.cnf.tryGet("cache", "files")) > 0:
             for sim_instance in sim_instances:
-                hash = self.calc_design_point_hash_filelist(sim_instance, self.cnf.tryGet("cache", "files"))
-                if hash not in self.cached_hashes.keys():
+                current_sim_hash = self.calc_design_point_hash_filelist(sim_instance, self.cnf.tryGet("cache", "files"))
+                sim_instance.setCacheHash(current_sim_hash)
+
+                if current_sim_hash not in self.cached_hashes.keys():
                     if not self.cnf.tryGet("cache", "cache_only_finished_sim_instances"):
-                        self._set_hash_sim(hash, sim_instance)
-                    sim_instance.setCacheHash(hash)
-                    self.logger.debug(f"New simulation config found with hash: {hash} (ID: {sim_instance.uid})")
+                        self._set_hash_sim(current_sim_hash, sim_instance)
+                    self.logger.debug(f"New simulation config found with hash: {current_sim_hash} (ID: {sim_instance.uid})")
+                    non_cached_sim_instances.append(sim_instance)
                 else:
-                    cached_sim_instances.append([sim_instance, self.cached_hashes[hash]])
+                    original_sim_uid = self.cached_hashes[current_sim_hash]
+                    cached_sim_instances.append((sim_instance, original_sim_uid))
                     self.set_sim_cached(sim_instance)
+        else:
+            non_cached_sim_instances = sim_instances
 
-
-        return [sim_instance for sim_instance in sim_instances if not self.__has_sim_status(sim_instance)], \
-                cached_sim_instances
+        return non_cached_sim_instances, cached_sim_instances
                
 
     def get_runtime_stats(self):
@@ -154,24 +153,33 @@ class DesignPointCache:
         return
 
     def _set_hash_sim(self, hash, sim_instance):
-        self.cached_hashes[hash] = sim_instance
+        if self.doCache:
+            self.cached_hashes[hash] = sim_instance.uid
     
     def calc_design_point_hash_single_file(self, sim_instance, filename):
-        file_path = os.path.join(sim_instance.path, filename)
-        hash = self.md5_file_list([file_path])
-        return hash
+        if self.doCache:
+            file_path = os.path.join(sim_instance.path, filename)
+            hash = self.md5_file_list([file_path])
+            return hash
+        else:
+            return None
     
     def calc_design_point_hash_filelist(self, sim_instance, filenames):
-        file_paths = [os.path.join(sim_instance.path, filename) for filename in filenames]
-        hash = self.md5_file_list(file_paths)
-        return hash
-
+        if self.doCache:
+            file_paths = [os.path.join(sim_instance.path, filename) for filename in filenames]
+            hash = self.md5_file_list(file_paths)
+            return hash
+        else:
+            return None
     
     def md5_file_list(self, filenames):
-        hash = hashlib.md5()
-        for fn in filenames:
-            try:
-                hash.update(Path(fn).read_bytes())
-            except IsADirectoryError:
-                pass
-        return hash.digest()
+        if self.doCache:
+            hash = hashlib.md5()
+            for fn in filenames:
+                try:
+                    hash.update(Path(fn).read_bytes())
+                except IsADirectoryError:
+                    pass
+            return hash.digest()
+        else:
+            return None

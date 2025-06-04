@@ -5,4 +5,5 @@ matplotlib
 numpy
 pandas
 plotly
+psutil
 type_enforced
