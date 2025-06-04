@@ -118,3 +118,6 @@ bin/
 src_main/external/simulation_model/sims/faezeh_old/
 
 .python-version
+lib64
+pyenv.cfg
+pyvenv.cfg
