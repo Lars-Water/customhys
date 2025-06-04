@@ -1,0 +1,45 @@
+{
+    "search_operators": {
+        "spaces": {
+            "cpu_optimized_example": {
+                "path": "config/experiment_cpu_optimized/search_operator_space/",
+                "description": "Example configuration with CPU optimizations"
+            }
+        },
+        "minimum_amount_of_hhs": 1,
+        "sync_steps_of_hhs": false,
+        "evaluate_after_steps": 10,
+        "optimize_utilization": true
+    },
+    "hh_parameters": {
+        "cardinality": 3,
+        "cardinality_min": 1,
+        "num_iterations": 100,
+        "num_agents": 30,
+        "as_mh": false,
+        "num_replicas": 8,
+        "num_steps": 50,
+        "stagnation_percentage": 0.37,
+        "max_temperature": 1,
+        "min_temperature": 1e-6,
+        "cooling_rate": 1e-3,
+        "temperature_scheme": "fast",
+        "acceptance_scheme": "exponential",
+        "allow_weight_matrix": true,
+        "trial_overflow": false,
+        "repeat_operators": true,
+        "verbose": true,
+        "verbose_mh": false,
+        "learning_portion": 0.37,
+        "solver": "static",
+        "evaluation_method": "threading"
+    },
+    "pass_finalised_positions": false,
+    "description": "CPU-optimized configuration example",
+    "notes": [
+        "Set evaluation_method to 'threading' (default) for CPU affinity",
+        "Set evaluation_method to 'multiprocessing' for true parallelism",
+        "Adjust num_replicas based on available CPU cores",
+        "Monitor system resources to find optimal configuration"
+    ]
+} 

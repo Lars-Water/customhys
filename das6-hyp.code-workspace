@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../hergetZSHsetup"
+		}
+	],
+	"settings": {
+		"git.ignoreLimitWarning": true
+	}
+}

@@ -21,6 +21,7 @@ import itertools
 import threading
 import copy
 import math
+import psutil  # Add this import for CPU affinity
 # from rich.progress import Progress, SpinnerColumn, TimeElapsedColumn, TextColumn, BarColumn
 import rich.progress as prog
 from tqdm import tqdm
@@ -117,6 +118,27 @@ class HyperHeuristicBase:
             all_bars = []
             self.logger.info(f"{self.search_operators_spaces.keys()}")
 
+            # Get available CPU cores for thread affinity
+            available_cores = list(range(psutil.cpu_count(logical=True)))
+            self.logger.info(f"Available CPU cores: {len(available_cores)}")
+            
+            def hh_thread_with_affinity(core_id, search_operator_space_name, search_operator_space_path, bars):
+                """Wrapper for hh_thread with CPU affinity"""
+                try:
+                    # Set CPU affinity for this thread
+                    current_process = psutil.Process()
+                    # Assign to specific core (round-robin if more threads than cores)
+                    assigned_core = available_cores[core_id % len(available_cores)]
+                    current_process.cpu_affinity([assigned_core])
+                    self.logger.info(f"Search operator space '{search_operator_space_name}' assigned to CPU core {assigned_core}")
+                except (AttributeError, OSError) as e:
+                    # CPU affinity not supported on this system or permission denied
+                    self.logger.warning(f"CPU affinity not available for '{search_operator_space_name}': {e}")
+                
+                # Run the original hh_thread
+                self.hh_thread(search_operator_space_name, search_operator_space_path, bars)
+
+            core_id = 0
             for search_operator_space_name in self.search_operators_spaces.keys():
                 space = self.search_operators_spaces[search_operator_space_name]
                 search_operator_space_path = space["path"]
@@ -134,13 +156,15 @@ class HyperHeuristicBase:
                 ]
                 all_bars += bars
                 self.threads[search_operator_space_name] = threading.Thread(
-                    target=self.hh_thread, 
+                    target=hh_thread_with_affinity, 
                     args=(
+                        core_id,
                         search_operator_space_name,
                         search_operator_space_path,
                         bars
                     )
-                )       
+                )
+                core_id += 1
                 
             for bar in all_bars:
                 self.progress.start_task(bar)
