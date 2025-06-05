@@ -32,6 +32,8 @@ from src.utils.config_creator import WorkflowConfig
 from src_main.external.customhys.customhys import hyperheuristic as hh
 
 import uuid
+from src_main.tools.local_parallelization.local_parallelization_context import ParallelizationManagerContext
+from src_main.tools.local_parallelization.local_parallelization_manager import LocalParallelizationManager
 
 
 class HyperHeuristicBase:
@@ -42,10 +44,10 @@ class HyperHeuristicBase:
         self.log_path = log_path
         if self.log_path is None:
             self.log_path = os.path.join(self._base_path, "data/logs/")
-        coordinator_log_path = Path(os.path.join(self.log_path, "coordinator"))
+        self.coordinator_log_path = Path(os.path.join(self.log_path, "coordinator"))
 
-        self.conf = Config(coordinator_config_file_path, outputfolderpath=coordinator_log_path, name="HyperHeuristicBase_config")
-        self.logger = logger("HyperHeuristicBase", coordinator_log_path, rich_handler=True, disabled=False)
+        self.conf = Config(coordinator_config_file_path, outputfolderpath=self.coordinator_log_path, name="HyperHeuristicBase_config")
+        self.logger = logger("HyperHeuristicBase", self.coordinator_log_path, rich_handler=True, disabled=False)
 
         # Set logger level.
         logger_lvl = self.conf.tryGet("logger_lvl")
@@ -99,6 +101,8 @@ class HyperHeuristicBase:
 
         self.barrier = threading.Barrier(len(self.search_operators_spaces.keys()))
 
+        self.local_parallelization_manager = LocalParallelizationManager()
+
     def has_problems(self, problem_space_name):
         return self.search_operator_spaces.has_problems(problem_space_name)
 
@@ -107,6 +111,7 @@ class HyperHeuristicBase:
         
     def run_multi_threaded(self):
         # with Progress() as progress:
+        num_threads = 0
         with prog.Progress(
                 prog.SpinnerColumn(),
                 prog.TextColumn("[progress.description]{task.description}", justify="right"),
@@ -121,24 +126,8 @@ class HyperHeuristicBase:
             # Get available CPU cores for thread affinity
             available_cores = list(range(psutil.cpu_count(logical=True)))
             self.logger.info(f"Available CPU cores: {len(available_cores)}")
-            
-            def hh_thread_with_affinity(core_id, search_operator_space_name, search_operator_space_path, bars):
-                """Wrapper for hh_thread with CPU affinity"""
-                try:
-                    # Set CPU affinity for this thread
-                    current_process = psutil.Process()
-                    # Assign to specific core (round-robin if more threads than cores)
-                    assigned_core = available_cores[core_id % len(available_cores)]
-                    current_process.cpu_affinity([assigned_core])
-                    self.logger.info(f"Search operator space '{search_operator_space_name}' assigned to CPU core {assigned_core}")
-                except (AttributeError, OSError) as e:
-                    # CPU affinity not supported on this system or permission denied
-                    self.logger.warning(f"CPU affinity not available for '{search_operator_space_name}': {e}")
-                
-                # Run the original hh_thread
-                self.hh_thread(search_operator_space_name, search_operator_space_path, bars)
 
-            core_id = 0
+
             for search_operator_space_name in self.search_operators_spaces.keys():
                 space = self.search_operators_spaces[search_operator_space_name]
                 search_operator_space_path = space["path"]
@@ -155,30 +144,32 @@ class HyperHeuristicBase:
                     )
                 ]
                 all_bars += bars
-                self.threads[search_operator_space_name] = threading.Thread(
-                    target=hh_thread_with_affinity, 
-                    args=(
-                        core_id,
-                        search_operator_space_name,
-                        search_operator_space_path,
-                        bars
-                    )
-                )
-                core_id += 1
-                
+                # self.threads[search_operator_space_name] = threading.Thread(
+                #     target=hh_thread_with_affinity, 
+                #     args=(
+                #         search_operator_space_name,
+                #         search_operator_space_path,
+                #         bars
+                #     )
+                # )
+                space = self.search_operators_spaces[search_operator_space_name]
+                search_operator_space_path = space["path"]
+                self.hh_prepare(search_operator_space_name, search_operator_space_path, bars)
+                self.local_parallelization_manager.add_paraproc(self.hh_thread, (search_operator_space_name, search_operator_space_path, bars, self.coordinator_log_path))
+                num_threads += 1
+
             for bar in all_bars:
                 self.progress.start_task(bar)
             
-            self.logger.info(f"Start {len(self.threads)} threads.")
+            self.logger.info(f"Start {num_threads} threads.")
+            self.local_parallelization_manager.start_all_paraprocs()
+            self.local_parallelization_manager.wait_for_all_paraprocs_to_finish(timeout_per_process=None)
 
-            for search_operator_space_name, proc in self.threads.items():
-                proc.start()
-                self.procs.append(proc)
+            self.logger.info(f"Finished {num_threads} threads.")
+            for bar in all_bars:
+                self.progress.stop_task(bar)
 
-            for p in self.procs:
-                p.join()
-
-    def hh_thread(self, search_operator_space_name, search_operator_space_path, bars):
+    def hh_prepare(self, search_operator_space_name, search_operator_space_path, bars):
         # print("##### ("+search_operator_space_name+") Starting thread")
         self.logger.info(f'Starting thread for {search_operator_space_name}.')
         self.logger.debug(f' search_operator_space_name: {search_operator_space_name}\nself.num_replicas: {self.num_replicas}\nself.heur_coordinator.problemInstanceFunc(): {self.heur_coordinator.problemInstanceFunc()}\nself.template_file_path: {self.template_file_path}\n*self.heur_coordinator.get_boundaries(): {self.heur_coordinator.get_boundaries()}\nself.heur_coordinator.simulation_run: {self.heur_coordinator.simulation_run}\nself.agents_fitness_values_path: {self.agents_fitness_values_path}')
@@ -241,40 +232,70 @@ class HyperHeuristicBase:
             }
         }
 
-        # self.progress.start_task(bar_steps)
-        # time.sleep(2)
+    def hh_thread(self, context: 'ParallelizationManagerContext', search_operator_space_name, search_operator_space_path, bars, coordinator_log_path):
+        proc_id_str = context.get_process_id() # e.g., "PARA-0"
+        local_logger = logger(f"HyperHeuristicBase_thread_{search_operator_space_name}", coordinator_log_path, rich_handler=True, disabled=False, prefix=f"hh_thread | P:{proc_id_str} ({search_operator_space_name})")
 
-        # self._task_pause(bar_steps)
-        # time.sleep(4)
-        # self._task_resume(bar_steps)
-        
+        pid = os.getpid()
+        try:
+            numeric_paraproc_id = int(proc_id_str.split('-')[-1])
+        except ValueError:
+            local_logger.error(f"Could not parse numeric ID from '{proc_id_str}'. Defaulting to 0 for task value generation.")
+            numeric_paraproc_id = 0
 
 
-        # Start timer for the heuristic run.
-        start_time = time.time()
+        result_dict = {
+                "search_operator_space_name": search_operator_space_name
+        }
+        try:
+            local_logger.info(f"Started hh_thread for {search_operator_space_name} with PID: {pid}.")
+            local_logger.debug(f' search_operator_space_name: {search_operator_space_name}\nself.num_replicas: {self.num_replicas}\n' + \
+                f'self.heur_coordinator.problemInstanceFunc(): {self.heur_coordinator.problemInstanceFunc()}\n' + \
+                f'self.template_file_path: {self.template_file_path}\n' + \
+                f'*self.heur_coordinator.get_boundaries(): {self.heur_coordinator.get_boundaries()}\n' + \
+                f'self.heur_coordinator.simulation_run: {self.heur_coordinator.simulation_run}\n' + \
+                f'self.agents_fitness_values_path: {self.agents_fitness_values_path}')
 
-        # Start hyper-heuristic run.
-        best_sol, best_perf, hist_curr, hist_best = self.hypers[search_operator_space_name]["hh"].solve()
+            # Start timer for the heuristic run.
+            start_time = time.time()
 
-        # End timer for the heuristic run.
-        end_time = time.time()
-        
-        hh_run_meta_data = collect_data_INET.calculate_distinct_simulation_components(start_time, end_time, self.heur_coordinator)
+            # Start hyper-heuristic run.
+            best_sol, best_perf, hist_curr, hist_best = self.hypers[search_operator_space_name]["hh"].solve(local_logger=local_logger)
 
-        # Save the heuristic run data.
-        # save_run_path = os.path.join(self.results_path, experiment_name)
+            # End timer for the heuristic run.
+            end_time = time.time()
+            
+            hh_run_meta_data = collect_data_INET.calculate_distinct_simulation_components(start_time, end_time, self.heur_coordinator)
 
-        self.logger.info(f"Results for {search_operator_space_name}\nBest solution: {str(best_sol)}\nBest performance: {str(best_perf)}\nBest history: {str(hist_best)}\nCurrent history: {str(hist_curr)} \n {hh_run_meta_data}")
+            # Save the heuristic run data.
+            # save_run_path = os.path.join(self.results_path, experiment_name)
 
-        self.save_runs.append({
-            "search_operator_space_name": search_operator_space_name,
-            "experiment_name": experiment_name,
-            "best_solution": best_sol,
-            "best_performance": best_perf,
-            "current_history": hist_curr,
-            "best_history": hist_best,
-            "run_meta_data": hh_run_meta_data
-        })
+            local_logger.info(f"Results for {search_operator_space_name}\nBest solution: {str(best_sol)}\nBest performance: {str(best_perf)}\nBest history: {str(hist_best)}\nCurrent history: {str(hist_curr)} \n {hh_run_meta_data}")
+
+            result_dict = {
+                "search_operator_space_name": search_operator_space_name,
+                "experiment_name": experiment_name,
+                "best_solution": best_sol,
+                "best_performance": best_perf,
+                "current_history": hist_curr,
+                "best_history": hist_best,
+                "run_meta_data": hh_run_meta_data
+            }
+
+            self.save_runs.append(result_dict)
+        except KeyboardInterrupt:
+            local_logger.warning(f"  PARAPROC [P:{proc_id_str} (PID:{pid})]: KeyboardInterrupt caught directly in paraproc_example_function.")
+            # Allow the wrapper's finally block to handle reporting
+            raise # Re-raise to be caught by the wrapper, ensuring its final logic runs
+        except Exception as e_paraproc:
+            local_logger.exception(f"  PARAPROC [P:{proc_id_str} (PID:{pid})]: Exception caught directly in paraproc_example_function: {type(e_paraproc).__name__} - {e_paraproc}")
+            import traceback
+            tb_str = traceback.format_exc()
+            local_logger.exception(f"  PARAPROC [P:{proc_id_str} (PID:{pid})]: TRACEBACK (paraproc_example_function):\n{tb_str}")
+            # Allow the wrapper's finally block to handle reporting, it will get this exception
+            raise # Re-raise
+
+        local_logger.info(f"Finished hh_thread for {search_operator_space_name} with PID: {pid}.\n{result_dict}")
         
     def _task_pause(self, taskid):
         self._tasks_time_so_far[taskid] = self.progress._tasks[taskid].elapsed

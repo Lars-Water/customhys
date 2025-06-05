@@ -74,6 +74,7 @@ class HeuristicSimulationCoordinatorBase:
         coordinator_log_path = Path(os.path.join(self.log_path, "coordinator"))
         self.conf.createLogger(coordinator_log_path, "coordinator_config_manager")
         self.logger = logger("coordinator", coordinator_log_path, disabled=False)
+        self.logger.setLevel("DEBUG")
         
         if self.conf.tryGet("fitness_config", "normalize_fitness_values") != None:
             self._normalize = self.conf.tryGet("fitness_config", "normalize_fitness_values")
@@ -299,8 +300,8 @@ class HeuristicSimulationCoordinatorBase:
             The fitness value of the simulation run.
     '''
     def simulation_run(self, fitfunc, config_values, file_name_fitness_values="fitness_values.json", step_iteration_data={'step': -1, 'iteration': -1}):
-
         # Start timer for simulation run.
+        self.logger.info(f"simulation_run: {fitfunc}, {config_values}, {file_name_fitness_values}, {step_iteration_data}")
         start_time = time.time()
         # TODO: Merge the following two if statements into one. -> CUSTOMHys should be able to handle both situations?
         if self._nr_of_agents > 1:
@@ -468,6 +469,7 @@ class HeuristicSimulationCoordinatorBase:
             dict: A dictionary mapping Herman's simulation instance UIDs to their corresponding coordinator IDs.
         """
         start_time = time.time()
+        self.logger.info(f"run_multiple_simulation_configuration: {sim_ids}, {file_name_fitness_values}, {step_iteration_data}")
 
         # Create/Get queue id for every problem
         queue_name = Path(file_name_fitness_values).stem
@@ -484,7 +486,7 @@ class HeuristicSimulationCoordinatorBase:
         # Run the configured simulation model.
         self.manager.enqueue_tasks(sim_instances, queue_id=queue_id, metadata=step_iteration_data)
 
-        self.logger.debug(f"(Queue: {queue_id}) Evaluating simulation instances: {uids} with sim ids: {sim_ids}")
+        self.logger.info(f"(Queue: {queue_id}) Evaluating simulation instances: {uids} with sim ids: {sim_ids}")
 
         self.manager.evaluate_queue_all(queue_id)
 
