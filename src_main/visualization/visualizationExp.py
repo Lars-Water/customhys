@@ -38,10 +38,10 @@ class visuExp:
         os.makedirs(self.config["result_path"], exist_ok=True)
         
     def plot(self):
-        self.plotCached()
+        # self.plotCached()
         self.plotParetoSet()
-        self.plotSimulations()
-        self.plotSteps()
+        # self.plotSimulations()
+        # self.plotSteps()
     
     def plotCached(self):
         ps = visuCached(self.config["reason_dir"])
@@ -70,9 +70,9 @@ class visuExp:
         info = ps.extractData(
             self.config["metrics"],
             ["wfpm", "cost"],
-            max_number_design_points = 500,
+            # max_number_design_points = 100,
             max_perc_design_points = 0.25,
-            # min_fitness_value = 0.2,
+            min_fitness_value = 0.2,
             unifiyFitnessValues = False,
             index_col="SimulationID"
         )
@@ -108,8 +108,8 @@ class visuExp:
             self.config["metrics"],
             ["wfpm", "cost"],
             # max_number_design_points = 100,
-            max_perc_design_points = 0.5,
-            # min_fitness_value = 0.25,
+            # max_perc_design_points = 0.5,
+            min_fitness_value = 0.25,
             unifiyFitnessValues = False,
             index_col="SimulationID"
         )
@@ -124,8 +124,8 @@ class visuExp:
             self.config["metrics"],
             ["wfpm", "cost"],
             # max_number_design_points = 100,
-            max_perc_design_points = 0.25,
-            # min_fitness_value = 0.2,
+            # max_perc_design_points = 0.5,
+            min_fitness_value = 0.2,
             unifiyFitnessValues = False,
             index_col="SimulationID"
         )
@@ -140,8 +140,8 @@ class visuExp:
 
         subfolders = [ f.path for f in os.scandir(self.config["mhs"]) if f.is_dir() ]
         ps = visuSteps(subfolders[0], self.config["result_path"])
-        ps.plot_agents(self.config["reason_dir"])
         ps.plot_line_best(self.config["reason_dir"])
+        ps.plot_agents(self.config["reason_dir"])
         for folder in subfolders:
             ps.plot()
 

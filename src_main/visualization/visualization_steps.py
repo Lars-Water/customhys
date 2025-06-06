@@ -329,40 +329,41 @@ class visuSteps(visuBase):
                        info = None
                     ):
         x_axis_name = "Step"
-        y_axis_name = "Number of Agents"
+        y_axis_name = "Fitness"
         x_axis_name, y_axis_name = self._plt_axis_names(x_axis_name, y_axis_name)
                      
-        title = "Agent distribution"
+        title = "Performance"
         plt, x_axis_name, y_axis_name = self._plt(title, x_axis_name, y_axis_name, x_axis_name, y_axis_name, figsize, info)
 
         reasons = self.readDynamicSelectionReasons(reason_dir)
         print(reasons)
         agents_nums = {}
-        ylabels = []
-        df = pd.DataFrame([])
         for search_operator, reason in reasons.items():
-            ylabels.append(search_operator)
-            for step, step_data in reason["steps"].items():
-                df.at[step, search_operator] = step_data["num_agents"]
+            agents_nums[search_operator] = {
+                    
+            }
         ymax = 0
         names = list(mcolors.TABLEAU_COLORS)
+        i = 0
+        for search_operator, reason in reasons.items():
+            df = pd.DataFrame(reason["steps"]).transpose()
+            plt.plot(df["performance"], color=names[i], linestyle = 'dotted')
+            plt.plot(df["best"], label=f"{search_operator}", color=names[i])
+            ymax = max(ymax, max(df["performance"]))
+            ymax = max(ymax, max(df["best"]))
+            i += 1
 
-        print(df.index)
-        ymax = max(ymax, df.transpose().fillna(0).to_numpy().max())
-        self.plot_Reasons(reason_dir, plt, ymax, x_padding=0.4)
-        self.multibarplot(plt,  df.transpose().fillna(0).to_numpy(), xlabels=df.index, ylabels=ylabels)
-        # plt.bar(df["step"]- (i*0.3), df["agents"], 0.4, label=f"{search_operator}", color=names[i]) 
-
+        self.plot_Reasons(reason_dir, plt, ymax)
 
         plt.legend()
         plt.tight_layout()
         # plt.show()
         if plot_file_path == None:
-            plot_file_path = os.path.join(self.result_dir, 'hh_agents_per_step.png')
+            plot_file_path = os.path.join(self.result_dir, 'hh_performance_line.png')
         else: 
             plot_file_path = plot_file_path
         plt.savefig(plot_file_path, dpi=150)
-        print(f"plot_agents: Plot saved as {plot_file_path}")
+        print(f"plot_line_best: Plot saved as {plot_file_path}")
 
     def plot(self):
         self.plot_hh_multiplot()

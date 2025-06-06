@@ -3,14 +3,14 @@ import json
 import pandas as pd
 import math
 import re
-import customhys
 import sys
-
-import warnings
 import os
 import time
 from pathlib import Path
 import argparse
+
+import warnings
+from pathlib import Path
 
 from src_main.tools.config_reader import Config
 import src_main.tools.coordinator_inet as coordinator_inet
@@ -27,6 +27,8 @@ from pathlib import Path
 
 sys.path.insert(0, Path(__file__).parent.as_posix())
 sys.path.append("./src_main/external/simulation_model")
+
+import src_main.external.customhys_local as customhys
 
 def _determine_nr_backbones_from_filename(filename, regex_pattern):
     # Extract the number of backbone switches from the filename.

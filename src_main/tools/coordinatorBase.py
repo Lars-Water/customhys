@@ -27,7 +27,7 @@ import math
 from experiments import create_sim_custom_dummy, create_sim_inet_lans_dummy, create_sim_inet_lans_dummy_parallel
 from src.manager import Manager
 from src.utils.config_creator import WorkflowConfig
-from src_main.external.customhys.customhys import hyperheuristic as hh
+from src_main.external.customhys_local import hyperheuristic as hh
 
 import uuid
 from .local_parallelization.rpc import requires_main_process
@@ -35,6 +35,28 @@ from .local_parallelization.rpc import requires_main_process
 
 class HeuristicSimulationCoordinatorBase:
     hh_base = None
+
+    def __getstate__(self):
+        """
+        Prepare the object's state for pickling.
+        This method is called by the pickle module. We exclude non-serializable
+        attributes like the manager (which may contain locks or Dask clients)
+        and the logger.
+        """
+        state = self.__dict__.copy()
+        # Remove the unpickleable entries.
+        state['manager'] = None
+        state['logger'] = None
+        state['conf'] = None # Config object also holds a logger
+        return state
+
+    def __setstate__(self, state):
+        """
+        Restore the object's state after unpickling.
+        The 'manager' and 'logger' attributes will be None in the child process,
+        which is the desired behavior as they should not be used there.
+        """
+        self.__dict__.update(state)
 
     def __del__(self):
         if hasattr(self, "manager"):

@@ -1,8 +1,8 @@
 import numpy as np
 
 # from external.CUSTOMHys.customhys import benchmark_func as bf
-from customhys import benchmark_func as bf
-import customhys
+from src_main.external.customhys_local import benchmark_func as bf
+import src_main.external.customhys_local as customhys
 
 # Import BasicProblem object for generating a custom optimisation problem.
 from .modelBase import instanceBase

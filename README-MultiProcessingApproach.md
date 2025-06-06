@@ -103,7 +103,7 @@ When adding or modifying functionality, follow this "cookbook":
 4.  **Does the parent need to send a command or update to a child?**
     -   **Action:** Use the "pull" mechanism.
         1.  In `HyperHeuristicBase`, add the data to the `pending_updates` dictionary, keyed by the target `hyper_space_name` and a unique variable name (e.g., `self.pending_updates[space_name]['new_command'] = 'go'`).
-        2.  In the `solve()` loop in `customhys/hyperheuristic.py`, add logic to check for and process your new key from the dictionary returned by `get_pending_updates`.
+        2.  In the `solve()` loop in `customhys_local/hyperheuristic.py`, add logic to check for and process your new key from the dictionary returned by `get_pending_updates`.
 
 ---
 ---
@@ -161,7 +161,7 @@ When adding or modifying functionality, follow this "cookbook":
     "parent_to_child_update": {
       "pattern": "Pull-based",
       "description": "Parent places updates in a 'pending_updates' dictionary. Child periodically calls a `@requires_main_process` getter service (`get_pending_updates`) to check for and pull its own updates.",
-      "files": ["src_main/tools/hyperheuristicBase.py", "src_main/external/customhys/customhys/hyperheuristic.py"]
+      "files": ["src_main/tools/hyperheuristicBase.py", "src_main/external/customhys_local/hyperheuristic.py"]
     },
     "parent_querying_child": {
       "trigger_decorator": "@callable_from_main",

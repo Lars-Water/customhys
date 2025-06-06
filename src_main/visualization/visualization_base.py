@@ -117,81 +117,78 @@ class visuBase:
         max_step_so_far = 0
 
         if not hasattr(self, '_read_reason_dir') or self._read_reason_dir != reason_dir:
-            if not os.path.exists(os.path.join(reason_dir, "final.json")):
-                for filename in os.listdir(reason_dir):
-                    # Construct full file path
-                    file_path = os.path.join(reason_dir, filename)
-                    if filename.endswith('.json') and os.path.isfile(file_path) and not filename.endswith('config.json') and not filename.endswith("solutions.json"):
-                        with open(file_path, 'r', encoding='utf-8') as json_file:
-                            data = json.load(json_file)
-                            if max_step_so_far < data["step"]:
-                                for key in data.keys():
-                                    if type(data[key]) == dict and key not in ["step", "finalize_reason", "search_operator_space_name"]:
-                                        steps_int = [int(x) for x in data[key]["hyper"]["steps"].keys()]
-                                        if data[key]["num_agents_avail"] is not None:
-                                            num_agents_avail = int(data[key]["num_agents_avail"])
-                                        else:
-                                            num_agents_avail = 0
-                                        reasons[key] = {
-                                            "step": max(steps_int),
-                                            "steps": data[key]["hyper"]["steps"],
-                                            "best": data[key]["hyper"]["best"],
-                                            "waiting_for_sync": data[key]["hyper"]["waiting_for_sync"],
-                                            # "num_agents_currently": int(data[key]["num_agents_currently"]),
-                                            # "num_agents_avail": num_agents_avail,
-                                            # "num_agents_all": num_agents_avail + int(data[key]["num_agents_currently"])
-                                        }
-                                        if "stopped" in data[key]["hyper"]:
-                                            reasons[key]["stopped"] = data[key]["hyper"]["stopped"]
-                                max_step_so_far = data["step"]
-                            if "finalize_reason" in data.keys():
-                                reasons_steps[data["step"]] = data["finalize_reason"]
-                for key, reason in reasons.items():
-                    if reason["step"] in reasons_steps.keys():
-                        reason["finalize_reason"] = reasons_steps[reason["step"]]
-                    else:
-                        reason["finalize_reason"] = []
-            else:
-                file_path = os.path.join(reason_dir, "final.json")
-                with open(file_path, 'r', encoding='utf-8') as json_file:
-                    data = json.load(json_file)
-                    for key in data.keys():
-                        if type(data[key]) == dict and key not in ["final_step"]:
-                            steps_int = [int(x) for x in data[key]["steps"].keys()]
-                            reasons[key] = {
-                                "step": max(steps_int),
-                                "steps": data[key]["steps"],
-                                "best": data[key]["best"],
-                                "waiting_for_sync": data[key]["waiting_for_sync"],
-                                "finalize_reason": data[key]["finalize_reason"]
-                            }
+            for filename in os.listdir(reason_dir):
+                # Construct full file path
+                file_path = os.path.join(reason_dir, filename)
+                if filename.endswith('.json') and os.path.isfile(file_path) and not filename.endswith('config.json') and not filename.endswith("solutions.json"):
+                    with open(file_path, 'r', encoding='utf-8') as json_file:
+                        data = json.load(json_file)
+                        if max_step_so_far < data["step"]:
+                            for key in data.keys():
+                                if type(data[key]) == dict and key not in ["step", "finalize_reason", "search_operator_space_name"]:
+                                    steps_int = [int(x) for x in data[key]["hyper"]["steps"].keys()]
+                                    if data[key]["num_agents_avail"] is not None:
+                                        num_agents_avail = int(data[key]["num_agents_avail"])
+                                    else:
+                                        num_agents_avail = 0
+                                    reasons[key] = {
+                                        "step": max(steps_int),
+                                        "steps": data[key]["hyper"]["steps"],
+                                        "best": data[key]["hyper"]["best"],
+                                        "num_agents_currently": int(data[key]["num_agents_currently"]),
+                                        "num_agents_avail": num_agents_avail,
+                                        "num_agents_all": num_agents_avail + int(data[key]["num_agents_currently"])
+                                    }
+                                    if "stopped" in data[key]["hyper"]:
+                                        reasons[key]["stopped"] = data[key]["hyper"]["stopped"]
+                            max_step_so_far = data["step"]
+                        if "finalize_reason" in data.keys():
+                            reasons_steps[data["step"]] = data["finalize_reason"]
 
+            for key, reason in reasons.items():
+                if reason["step"] in reasons_steps.keys():
+                    reason["finalize_reason"] = reasons_steps[reason["step"]]
+                else:
+                    reason["finalize_reason"] = []
 
             self._read_reason_dir = reason_dir
             self.reasons = reasons
         return self.reasons
     
-    def multibarplot(self, plt, data, xlabels, ylabels, fill_ratio = 0.8):
-        l = len(data.T)
-        D = len(data)
-        width = fill_ratio/D
+    def readNumAgens(self, reason_dir):
+        agents = {}
 
-        for i,(d,ylabel) in enumerate(zip(data,ylabels)):
-            plt.bar(np.arange(l) + (i-(D-1)/2) *width,d, width=width, label=ylabel)
+        for filename in os.listdir(reason_dir):
+            # Construct full file path
+            file_path = os.path.join(reason_dir, filename)
+            if filename.endswith('.json') and os.path.isfile(file_path) and not filename.endswith('config.json') and not filename.endswith("solutions.json"):
+                with open(file_path, 'r', encoding='utf-8') as json_file:
+                    data = json.load(json_file)
+                    step = data["step"]
+                    agents[key] = {
+                        "x": [],
+                        "y": []
+                    }
+                    for key in data.keys():
+                        if type(data[key]) == dict and key not in ["step", "finalize_reason", "search_operator_space_name"]:
+                            agents[key] = {
 
-        plt.xticks(np.arange(l), xlabels)
+                            }
 
-    def plot_Reasons(self, reason_dir, plt, ymax, x_padding=0.):
+
+        return agents
+
+    def plot_Reasons(self, reason_dir, plt, ymax):
         if reason_dir:
             reasons = self.readDynamicSelectionReasons(reason_dir)
             done_x = []
             for search_operator, reason in reasons.items():
-                plt.vlines(x=[reason["step"]+x_padding], ymin=0, ymax=ymax, color = 'gray', linestyles='dotted')
+                plt.vlines(x=[reason["step"]], ymin=0, ymax=ymax, color = 'gray', linestyles='dotted')
                 if reason["step"] in done_x:
                     x = reason["step"] + 0.5
                 else: 
                     x = reason["step"] 
-                plt.text(x+0.1+x_padding, ymax, f'{search_operator}: {"|".join(reason["finalize_reason"])}', rotation=90, verticalalignment='top')
+                plt.text(x+ 0.1, ymax, f'{search_operator}: {"|".join(reason["finalize_reason"])}', rotation=90, verticalalignment='top')
                 done_x.append(x)
 
     def exportDataToCSV(self, path, filter_df, backup_df = None):

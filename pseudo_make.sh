@@ -25,7 +25,12 @@ remove_package() {
 
 uninstall_package()  {
   echo "Uninstalling..."
-  python3 -m pip uninstall customhys
+  echo "------------------------------------------------------------"
+  echo "### Uninstalling customhys"
+  python3 -m pip uninstall customhys_local -y
+  echo "------------------------------------------------------------"
+  echo "### Cleaning up old build and dist files"
+  remove_package;
   printf "[Done]\n"
 }
 

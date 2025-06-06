@@ -65,8 +65,6 @@ class visuSimulations(visuBase):
         plt.figure(figsize=figsize)
         plt.rc('text', usetex=True)
 
-        print(localDF[x_axis_name].max(), localDF[x_axis_name].min())
-
         bins = math.ceil( \
             bins_multiplicator * 100 * ( \
                 round(localDF[x_axis_name].max(), 2) \
@@ -103,8 +101,8 @@ if __name__ == "__main__":
         "/home/herget/UvA-git/hh_local/design_point_metrics_ASML_20241127_193140.csv", 
         ["wfpm", "cost"],
         # max_number_design_points = 100,
-        max_perc_design_points = 0.5,
-        # min_fitness_value = 0.,
+        # max_perc_design_points = 0.5,
+        min_fitness_value = 0.25,
         unifiyFitnessValues = False,
         index_col="SimulationID"
     )
@@ -119,8 +117,8 @@ if __name__ == "__main__":
         "/home/herget/UvA-git/hh_local/design_point_metrics_ASML_20241127_193140.csv", 
         ["wfpm", "cost"],
         # max_number_design_points = 100,
-        max_perc_design_points = 0.25,
-        # min_fitness_value = 0.5,
+        # max_perc_design_points = 0.5,
+        min_fitness_value = 0.2,
         unifiyFitnessValues = False,
         index_col="SimulationID"
     )

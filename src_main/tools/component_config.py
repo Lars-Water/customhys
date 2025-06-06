@@ -1,14 +1,16 @@
 import os
 from pathlib import Path
 from scipy.stats import qmc
+import random
 
 from src_main.models import modelINET, modelASML
-from src_main.tools.config_reader import Config
+from src.utils.config_reader import Config
 import numpy as np
 
-from customhys import metaheuristic as mh
+from src_main.external.customhys_local import metaheuristic as mh
 
 import xml.etree.ElementTree as ET
+from src_main.tools.problemSpace import ProblemSpace
 
 
 def determine_heuristic_space(search_operator_space_path):

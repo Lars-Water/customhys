@@ -1,5 +1,5 @@
 include README.md
-include docfiles/*.pdf
-include docfiles/*.png
-include customhys/collections/*
-include customhys/exconf/*
+include LICENSE
+include customhys_local/collections/*
+include customhys_local/exconf/*
+graft src_main

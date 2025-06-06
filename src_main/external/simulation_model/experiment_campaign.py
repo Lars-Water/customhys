@@ -14,6 +14,9 @@ from src.manager import Manager
 from src.siminstance import Siminstance
 from src.outputhandler import OutputHandler
 from src.utils.config_creator import OmnetSimConfig, SiminstanceConfig, WorkflowConfig
+from src.utils.config_reader import Config
+
+import pandas as pd
 
 def campaign(args):
     dummy_sim_path = args.dummy_path

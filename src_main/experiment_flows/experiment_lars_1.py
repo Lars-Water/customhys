@@ -3,7 +3,7 @@ import time
 import threading
 from pathlib import Path
 
-from src_main.external.customhys.customhys import hyperheuristic as hh
+from src_main.external.customhys_local import hyperheuristic as hh
 
 from src_main.data import collect_data_INET
 from src_main.tools import component_config

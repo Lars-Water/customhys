@@ -7,7 +7,7 @@ eval "$(/home/mherget/miniconda3/bin/conda shell.bash hook)"
 # find . -type f -print0 | xargs -0 dos2unix
 
 # Specify the path to the base directory of the hyper-heuristic DSE here.
-BASE_PATH="/var/scratch/mherget/hyper-heuristic-dse-2.0"
+BASE_PATH="/home/mherget/scratch/hyper-heuristic-dse-2.0"
 
 # Specify the path to the coordinator configuration file here
 CONFIG_PATH_COORDINATOR="${BASE_PATH}/config/experiment_asml_06_2025/config_coordinator_experiment_asml_06_2025.json"

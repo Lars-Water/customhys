@@ -26,7 +26,10 @@ def replicated_to_parent(cls):
         # Check if this attribute is marked for replication and push the update
         if name in getattr(self, '_replicated_attributes', []):
             if hasattr(self, 'rpc_context') and self.rpc_context:
-                self.rpc_context.update_parent_attribute(name, value)
+                # IMPORTANT: Only send attribute updates AFTER the initial shadow copy is sent.
+                # This prevents a race condition where updates arrive before the shadow object exists.
+                if self.rpc_context._initial_shadow_copy_sent:
+                    self.rpc_context.update_parent_attribute(name, value)
                 
     cls.__setattr__ = wrapped_setattr
     return cls

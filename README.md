@@ -31,7 +31,7 @@ The modules that comprise this framework depend on some basic Python packages, a
 
 This module includes several benchmark functions as classes to be solved by using optimisation techniques. The class structure is based on Keita Tomochika's repository [optimization-evaluation](https://github.com/keit0222/optimization-evaluation).
 
-Source: [``benchmark_func.py``](customhys/benchmark_func.py)
+Source: [``benchmark_func.py``](src_main/external/customhys_local/benchmark_func.py)
 
 ### 👯‍♂️ Population
 
@@ -127,17 +127,17 @@ data_frame = {dict: N}
 |  |  |  |  |  |  |-- 'positions' = {list: I}
 |  |  |  |  |  |  |  |-- 0 = {list: D}
 |  |  |  |  |  |  |  |  |-- 0 = {float}
-:  :  :  :  :  :  :  :  :
+:  :  :  :  :  :  :  :
 |  |  |  |  |  |  |-- 'centroid' = {list: I}
 |  |  |  |  |  |  |  |-- 0 = {list: D}
 |  |  |  |  |  |  |  |  |-- 0 = {float}
-:  :  :  :  :  :  :  :  :
+:  :  :  :  :  :  :  :
 |  |  |  |  |  |  |-- 'radius' = {list: I}
 |  |  |  |  |  |  |  |-- 0 = {float}
-:  :  :  :  :  :  :  :
+:  :  :  :  :  :  :
 |  |  |  |  |  |  |-- 'stagnation' = {list: I}
 |  |  |  |  |  |  |  |-- 0 = {int}
-:  :  :  :  :  :  :  :
+:  :  :  :  :  :  :
 |  |  |  |  |-- 'statistics' = {dict: 10}
 |  |  |  |  |  |-- 'nob' = {int}
 |  |  |  |  |  |-- 'Min' = {float}

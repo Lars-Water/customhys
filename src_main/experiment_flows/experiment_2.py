@@ -1,12 +1,15 @@
 import time
 import os
+from pathlib import Path
 
-from src_main.external.customhys.customhys import hyperheuristic as hh
-from src_main.external.customhys.customhys import metaheuristic as mh
+from src_main.external.customhys_local import hyperheuristic as hh
+from src_main.external.customhys_local import metaheuristic as mh
 
 from src_main.tools import component_config
 from src_main.tools.config_reader import Config
 from src_main.tools import coordinator_inet
+from src_main.tools.problemSpace import ProblemSpace
+from src_main.tools.searchOperatorSpace import SearchOperatorSpace
 
 from src_main.data import collect_data_INET
 

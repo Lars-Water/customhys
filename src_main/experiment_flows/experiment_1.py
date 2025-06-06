@@ -3,12 +3,13 @@ import time
 import threading
 from pathlib import Path
 
-from src_main.external.customhys.customhys import hyperheuristic as hh
-
 from src_main.data import collect_data_INET
 from src_main.tools import component_config
 from src_main.tools import coordinator_inet
-from src.utils.config_reader import Config
+from src_main.external.customhys_local import hyperheuristic as hh
+from src_main.tools.config_reader import Config
+from src_main.tools.problemSpace import ProblemSpace
+from src_main.tools.searchOperatorSpace import SearchOperatorSpace
 
 save_runs = []
 experiment_config = None

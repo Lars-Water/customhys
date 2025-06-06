@@ -29,7 +29,7 @@ from tqdm import tqdm
 from experiments import create_sim_custom_dummy, create_sim_inet_lans_dummy, create_sim_inet_lans_dummy_parallel
 from src.manager import Manager
 from src.utils.config_creator import WorkflowConfig
-from src_main.external.customhys.customhys import hyperheuristic as hh
+from src_main.external.customhys_local import hyperheuristic as hh
 
 import uuid
 from src_main.tools.local_parallelization.local_parallelization_context import ParallelizationManagerContext
@@ -50,7 +50,9 @@ def _hh_worker_function(context: 'ParallelizationManagerContext', search_operato
         heuristic_space = component_config.determine_heuristic_space(search_operator_space_path)
 
         proxy_coordinator = context.create_proxy(coordinator_copy)
-
+        
+        bar_steps = bars[0]
+        bar_iter = bars[1]
         real_hh_solver = hh.Hyperheuristic(
             heuristic_space=heuristic_space,
             problems=None, 
@@ -61,18 +63,20 @@ def _hh_worker_function(context: 'ParallelizationManagerContext', search_operato
             heur_coordinator=proxy_coordinator, # Pass the proxy for RPC calls
             search_operator_space_name=search_operator_space_name,
             updateMHProgress={
-                "advance": lambda x: proxy_coordinator.hh_base.progress.advance(bars[1].id, x),
-                "start": lambda: proxy_coordinator.hh_base.progress.reset(bars[1].id)
+                "advance": lambda x: proxy_coordinator.hh_base.progress.update(bar_steps, advance=x),
+                "start": lambda: proxy_coordinator.hh_base.progress.start_task(bar_steps),
             },
             rpc_context=context
         )
 
-        proxy_hh_solver = context.create_proxy(real_hh_solver)
+        # Register the local HH solver for state replication and send the initial shadow copy.
+        context.register_main_object_to_replicate(real_hh_solver)
+        context.send_initial_shadow_copy(real_hh_solver)
 
-        # The "solve" method will be called on the proxy.
-        # This allows the proxy to intercept calls if needed, though in this case it won't.
+        # The "solve" method is called on the real object, not a proxy.
+        # State replication is handled by decorators on the Hyperheuristic class.
         start_time = time.time()
-        best_sol, best_perf, hist_curr, hist_best = proxy_hh_solver.solve(local_logger=local_logger)
+        best_sol, best_perf, hist_curr, hist_best = real_hh_solver.solve(local_logger=local_logger)
         end_time = time.time()
 
         # For now, we'll construct a simplified metadata dictionary.
@@ -145,7 +149,7 @@ class HyperHeuristicBase:
             self.results_path = self.conf.tryGet("results_path")
 
          # Configure Hyperheurstic Object.
-        self.search_operators_spaces = self.experiment_config.tryGet('search_operators', 'spaces')
+        self.config_search_operators_spaces = self.experiment_config.tryGet('search_operators', 'spaces')
         self.minimum_amount_of_hhs = self.experiment_config.tryGet("search_operators", "minimum_amount_of_hhs")
         self.sync_steps_of_hhs = self.experiment_config.tryGet('search_operators', 'sync_steps_of_hhs')
         self.evaluate_after_steps = self.experiment_config.tryGet("search_operators", "evaluate_after_steps")
@@ -158,14 +162,14 @@ class HyperHeuristicBase:
         self.nr_of_steps = self.experiment_config.tryGet('hh_parameters', 'num_steps')
         self.num_replicas = self.experiment_config.tryGet('hh_parameters', 'num_replicas') if self.experiment_config.tryGet('hh_parameters', 'num_replicas') > 0 else 1 
         
-        self.nr_of_design_queues = len(self.search_operators_spaces.keys()) * self.num_replicas
+        self.nr_of_design_queues = len(self.config_search_operators_spaces.keys()) * self.num_replicas
         self.coordinator_params = (self.base_path, self.coordinator_config_file_path, self.nr_of_agents, self.run_name)
 
         self.simulation_model_template_path = self.conf.tryGet("simulation_model", "simulation_model_paths", "simulation_model_template_path")
         
         self.agents_fitness_values_path = self.conf.tryGet("output_paths", "agents_fitness_values_path")
 
-        self.barrier = threading.Barrier(len(self.search_operators_spaces.keys()))
+        self.barrier = threading.Barrier(len(self.config_search_operators_spaces.keys()))
 
         self.local_parallelization_manager = LocalParallelizationManager()
 
@@ -192,7 +196,7 @@ class HyperHeuristicBase:
             ) as progress:
             self.progress = progress
             all_bars = []
-            self.logger.info(f"{self._search_operator_spaces.keys()}")
+            self.logger.info(f"{self.config_search_operators_spaces.keys()}")
 
             # Get available CPU cores for thread affinity
             available_cores = list(range(psutil.cpu_count(logical=True)))
@@ -204,8 +208,8 @@ class HyperHeuristicBase:
                 update_callback=self._update_shadow_hh_object
             )
 
-            for search_operator_space_name in self._search_operator_spaces.keys():
-                space = self._search_operator_spaces[search_operator_space_name]
+            for search_operator_space_name in self.config_search_operators_spaces.keys():
+                space = self.config_search_operators_spaces[search_operator_space_name]
                 search_operator_space_path = space["path"]
                 bars = [
                     self.progress.add_task(

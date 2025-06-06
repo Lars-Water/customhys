@@ -5,26 +5,27 @@ import json
 import pandas as pd
 import math
 import re
-import customhys
-
-
-import matplotlib.colors as mcolors
-
-import numpy as np
+import sys
+import os
+import argparse
+from pathlib import Path
 import random
 import datetime
 import scipy.stats as st
 
-import warnings
-import os
+import matplotlib.colors as mcolors
+
+import numpy as np
 import time
-from pathlib import Path
-import argparse
+from setuptools import setup, find_packages
+
+import src_main.external.customhys_local as customhys
 
 from src_main.data import collect_data
 from src_main.visualization import visualization
 
-from setuptools import setup, find_packages
+from src_main.experiment_flows import experiment_1
+from src_main.experiment_flows import experiment_2
 
 
 

@@ -32,7 +32,7 @@
         "fitness_function": "wfpm",
         "weight_wfpm": 0.5,
         "weight_cost": 0.5,
-        "normalize_fitness_values": true
+        "normalize_fitness_values": false
     },
     "simulation_model": {
         "type": "ASML",

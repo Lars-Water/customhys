@@ -3,14 +3,13 @@ import json
 import pandas as pd
 import math
 import re
-import customhys
 import sys
-
-import warnings
 import os
-import time
-from pathlib import Path
 import argparse
+from pathlib import Path
+import time
+import warnings
+from pathlib import Path
 
 # Yappi imports
 import threading
@@ -19,8 +18,9 @@ import yappi
 from src_main.tools.config_reader import Config
 import src_main.tools.coordinator_inet as coordinator_inet
 from src_main.data import collect_data_INET
-import src_main.experiment_flows.experiment_1 as exp_1_flow
-import src_main.experiment_flows.experiment_2 as exp_2_flow
+import src_main.external.customhys_local as customhys
+from src_main.experiment_flows import experiment_1
+from src_main.experiment_flows import experiment_2
 import src_main.experiment_flows.experiment_asml as exp_asml_flow
 from src_main.visualization import visualization
 from src_main.tools import file_operations as fo
@@ -222,7 +222,7 @@ def experiment_1(base_path, coordinator_config_file_path, nr_of_backbone_switche
     coordinator_params = (base_path, coordinator_config_file_path, nr_of_agents, run_name, nr_of_backbone_switches)
 
     # Run Experiment 1.
-    exp_1_flow.run_experiment(experiment_1_config, coordinator_params)
+    experiment_1.run_experiment(experiment_1_config, coordinator_params)
 
 
 def experiment_2(base_path, coordinator_config_file_path):
@@ -249,7 +249,7 @@ def experiment_2(base_path, coordinator_config_file_path):
     experiment_2_config = Config(experiment_2_config_file_path, Path(experiment_2_log_path), config_manager_filename)
 
     # Run Experiment 2.
-    exp_2_flow.run_experiment(base_path, experiment_2_config, coordinator_config_file_path)
+    experiment_2.run_experiment(base_path, experiment_2_config, coordinator_config_file_path)
 
 def create_ga_heurstic_space():
     search_operator_name="genetic_algorithm"
