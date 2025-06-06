@@ -181,6 +181,27 @@ When adding or modifying functionality, follow this "cookbook":
       "This call is intercepted by the `RPCProxy`, which decides to execute locally or remotely."
     ]
   },
+  "operational_context": {
+    "entry_points": {
+      "primary_script": "The main application logic is typically launched via shell scripts like `main_das_2.sh` or directly via `main.py`.",
+      "instantiation_flow": "The entry script instantiates a `HeuristicSimulationCoordinator` subclass (e.g., `HeuristicSimulationCoordinatorASML`). This coordinator object then creates the `HyperHeuristicBase`, which in turn creates the `LocalParallelizationManager` and spawns the child processes. The coordinator instance is the 'root_object' for all RPC calls."
+    },
+    "key_data_structures": [
+      {
+        "name": "hypers",
+        "location": "HyperHeuristicBase",
+        "description": "A dictionary where keys are `search_operator_space_name` strings and values are dictionaries holding the state for each worker. This includes the shadow copy of the child's `Hyperheuristic` object (`['hh']`), its enabled status, progress bars, etc. It is the central state tracker for the parent process."
+      },
+      {
+        "name": "pending_updates",
+        "location": "HyperHeuristicBase",
+        "description": "A dictionary used for parent-to-child communication via the 'pull' mechanism. The parent places commands here (e.g., an updated number of agents), keyed by `search_operator_space_name`. The child process periodically calls `get_pending_updates` to retrieve its commands."
+      }
+    ],
+    "debugging_tips": {
+      "logging": "The system uses a custom logger (`src_main/tools/logger.py`). The main process logs to `data/logs/coordinator/`. Each child process, identified by its `proc_id` (e.g., 'PARA-0'), creates its own separate log file, allowing for isolated debugging of parallel execution."
+    }
+  },
   "potential_issues_and_todos": [
     {
       "id": "TODO-001",
@@ -195,10 +216,10 @@ When adding or modifying functionality, follow this "cookbook":
       "description": "The periodic refresh serializes the entire root object from the child. If a non-pickleable attribute (e.g., a file handle, a thread lock) is added to a replicated object in the future, the refresh mechanism will fail and throw an exception."
     },
     {
-      "id": "TODO-003",
-      "type": "Inconsistency/Bug",
-      "summary": "Progress Bar Updates Will Fail",
-      "description": "The `updateMHProgress` lambda in `_hh_worker_function` calls `proxy_coordinator.hh_base.progress.advance(...)`. This attempts to make an RPC call on the `rich.progress` object's method. However, since we cannot add `@requires_main_process` to a third-party library's method, this call will be executed locally in the child on a non-functional copy and fail silently or throw an error. The correct solution is to wrap the progress calls in dedicated, decorated service methods on `HyperHeuristicBase` itself and call those services from the lambda."
+      "id": "PATTERN-001",
+      "type": "Pattern",
+      "summary": "Wrapping Third-Party Library Calls",
+      "description": "Calls to methods on third-party objects (like a `rich.progress` instance) that live in the main process cannot be decorated directly. The correct pattern, used for progress bar updates, is to wrap these calls in dedicated service methods on a root object class like `HyperHeuristicBase`. These wrapper methods (`progress_advance`, `progress_start_task`) are then decorated with `@requires_main_process`. Child processes call these simple, decorated service methods instead of attempting to make complex proxied calls like `proxy.progress.advance()`."
     },
     {
         "id": "TODO-004",

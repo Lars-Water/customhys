@@ -19,7 +19,7 @@ from . import operators as op
 from . import tools as jt
 from .metaheuristic import Metaheuristic
 from pathlib import Path
-from .logger import loggerRICH
+from src_main.tools.logger import loggerRICH
 from src_main.tools.local_parallelization.rpc import replicated_to_parent, replicate, callable_from_main
 
 import threading

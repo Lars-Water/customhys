@@ -16,7 +16,7 @@ import os
 # NOTE: CUSTOM CHANGE BY LARS - Added json and os for custom implementation of parallelized agent evaluation.
 import json
 import os
-from .logger import loggerRICH
+from src_main.tools.logger import loggerRICH
 
 __all__ = ['Population']
 __selectors__ = ['all', 'greedy', 'metropolis', 'probabilistic']

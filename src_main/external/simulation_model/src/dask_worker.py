@@ -1,7 +1,11 @@
 from time import sleep
 import logging
-from src.utils.logger import setLevelLogger
+import time
+import sys
+import os
+from src_main.tools.logger import setLevelLogger
 from dask.distributed import get_worker
+import subprocess
 
 
 def dask_worker(sim_instance):

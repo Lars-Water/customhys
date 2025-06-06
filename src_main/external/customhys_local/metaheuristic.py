@@ -10,7 +10,7 @@ Created on Thu Sep 26 16:56:01 2019
 import numpy as np
 from . import operators as Operators
 from .population import Population
-from .logger import loggerRICH
+from src_main.tools.logger import loggerRICH
 
 import os
 import pandas as pd

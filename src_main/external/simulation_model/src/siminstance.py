@@ -6,7 +6,7 @@ import time
 from pathlib import Path, PosixPath
 
 from src.utils.config_reader import Config
-from src.utils.logger import logger, loggerShutdown
+from src_main.tools.logger import logger, loggerShutdown
 from src.utils.hash import md5_dir
 from src.utils.stats import Stats
 

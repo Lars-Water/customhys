@@ -3,8 +3,8 @@ import os
 
 from pathlib import Path, PosixPath
 
+from src_main.tools.logger import logger
 from src.utils.config_reader import Config
-from src.utils.logger import logger
 from src.utils.stats import Stats
 
 from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main

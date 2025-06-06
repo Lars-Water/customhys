@@ -1,10 +1,12 @@
 import os
 import type_enforced
 from pathlib import Path, PosixPath
-from . import logger as logger
+from src_main.tools import logger as logger
 import json
 import errno
 import pathlib
+import configparser
+import shutil
 
 @type_enforced.Enforcer
 class Config:
