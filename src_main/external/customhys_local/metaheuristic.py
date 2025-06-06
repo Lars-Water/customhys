@@ -64,7 +64,7 @@ class Metaheuristic:
             self.logger = loggerRICH("Metaheuristic")
         # setLevelLogger(self.logger, "DEBUG")
 
-        self.logger.info(f"Metaheuristic initialised.")
+        self.logger.debug(f"Metaheuristic initialised.")
 
         # NOTE: CUSTOM BY LARS - PASSING THE PREVIOUS STEP FINALISED AGENT POSITIONS IF PROVIDED
         # Create population

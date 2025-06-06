@@ -87,21 +87,27 @@ def LocalParallelizationProcessWrapper( # This wrapper is for the main ParaProcs
     core_to_assign: int | None,
     private_task_request_queue: multiprocessing.Queue,
     managed_shared_task_request_queue: multiprocessing.Queue,
-    root_object_copy: typing.Any
+    root_object_copy: typing.Any,
+    log_path: str = None
 ):
-    _log = loggerRICH(__name__)
+    if log_path is None:
+        log_path = os.path.join(self._base_path, "data/logs/")
+    local_parallelization_log_path = Path(os.path.join(self.log_path, "LocalParallelizationManager"))
+
+    log_prefix = f"Wrapper P{process_id} PID {os.getpid()}"
+    _logger = logger("LocalParallelizationProcessWrapper", local_parallelization_log_path, prefix=log_prefix, disabled=False)
     # MH-DEBUG: Initial entry log for the wrapper
-    _log.debug(f"[Wrapper P{process_id} PID {os.getpid()}] CALLED: LocalParallelizationProcessWrapper entered.")
+    _logger.debug(f"[Wrapper P{process_id} PID {os.getpid()}] CALLED: LocalParallelizationProcessWrapper entered.")
     
-    log_prefix = f"[Wrapper P{process_id} PID {os.getpid()}]"
-    _set_cpu_affinity(core_to_assign, log_prefix)
+    _set_cpu_affinity(core_to_assign, f"[ {log_prefix} ]")
 
     context = ParallelizationManagerContext(
         process_id,
         child_conn_to_manager,
         private_task_request_queue,
         managed_shared_task_request_queue,
-        root_object_copy
+        root_object_copy,
+        log_path
     )
     final_report_message_from_paraproc = f"ParaProc P{process_id} ({target_paraproc_func.__name__}) reached end of wrapper by default."
     
@@ -109,12 +115,12 @@ def LocalParallelizationProcessWrapper( # This wrapper is for the main ParaProcs
         target_paraproc_func(context, *initial_args_tuple)
         final_report_message_from_paraproc = f"ParaProc P{process_id} ({target_paraproc_func.__name__}) completed its execution path."
     except KeyboardInterrupt:
-        _log.warning(f"{log_prefix}: KeyboardInterrupt caught in ParaProc '{target_paraproc_func.__name__}'.")
+        _logger.warning(f"{log_prefix}: KeyboardInterrupt caught in ParaProc '{target_paraproc_func.__name__}'.")
         final_report_message_from_paraproc = f"ParaProc P{process_id} ({target_paraproc_func.__name__}) terminated by KeyboardInterrupt."
     except Exception as e:
         # Log the full traceback for better debugging from the ParaProc's perspective
         tb_str_paraproc = traceback.format_exc()
-        _log.error(f"{log_prefix}: EXCEPTION in ParaProc '{target_paraproc_func.__name__}': {type(e).__name__} - {e}\nFull Traceback:\n{tb_str_paraproc}")
+        _logger.error(f"{log_prefix}: EXCEPTION in ParaProc '{target_paraproc_func.__name__}': {type(e).__name__} - {e}\nFull Traceback:\n{tb_str_paraproc}")
         final_report_message_from_paraproc = f"ParaProc P{process_id} ({target_paraproc_func.__name__}) failed with EXCEPTION: {type(e).__name__} - {e}"
     finally:
         # This ensures completion is reported even if the ParaProc crashes or forgets to call it.
@@ -134,10 +140,17 @@ class ParallelizationManagerContext:
                  completion_pipe_write_end: multiprocessing.connection.Connection,
                  private_task_request_queue: multiprocessing.Queue,
                  managed_shared_task_request_queue: multiprocessing.Queue,
-                 root_object_copy: typing.Any
+                 root_object_copy: typing.Any,
+                 log_path: str = None
                  ):
         self.process_id = paraproc_id
-        self._logger = loggerRICH(f"CTX_P{self.process_id}")
+        self.log_path = log_path
+        if self.log_path is None:
+            self.log_path = os.path.join(self._base_path, "data/logs/")
+        self.local_parallelization_log_path = Path(os.path.join(self.log_path, "LocalParallelizationManager"))
+
+        self._logger = logger("LocalParallelizationManager", self.local_parallelization_log_path, prefix=f"CTX_P {self.process_id}", disabled=False)
+        
         self._completion_pipe_write_end = completion_pipe_write_end
         self._completion_reported = False
         self._private_task_request_queue = private_task_request_queue

@@ -123,9 +123,15 @@ class LocalParallelizationManager:
     # (No class-specific global variables defined here currently)
 
     # --- Init and other necessary functions ---
-    def __init__(self, root_object: typing.Any = None, update_callback: typing.Callable = None):
-        self._logger = loggerRICH(__name__)
-        self._logger.info(f"[MGR (PID {os.getpid()})]: Initializing LocalParallelizationManager...")
+    def __init__(self, root_object: typing.Any = None, update_callback: typing.Callable = None, log_path=None):
+        self.log_path = log_path
+        if self.log_path is None:
+            self.log_path = os.path.join(self._base_path, "data/logs/")
+        self.local_parallelization_log_path = Path(os.path.join(self.log_path, "LocalParallelizationManager"))
+
+        self._logger = logger("LocalParallelizationManager", self.local_parallelization_log_path, prefix=f"MGR (PID {os.getpid()})", disabled=False)
+
+        self._logger.debug(f"Initializing LocalParallelizationManager...")
         # ParaProc Management
         self._paraproc_definitions: dict[str, dict] = {} # Changed to dict {PARA_ID: definition}
         self._processes: dict[str, dict] = {} # Stores active ParaProc processes {PARA_ID: {process_obj, core, pipe_conn}}
@@ -164,23 +170,23 @@ class LocalParallelizationManager:
         if not callable(paraproc_func):
             raise ValueError("paraproc_func must be callable function.")
         if not isinstance(initial_args, tuple):
-            self._logger.warning(f"[MGR (PID {os.getpid()})]: initial_args for {paraproc_func.__name__} not tuple. Converting.")
+            self._logger.warning(f"initial_args for {paraproc_func.__name__} not tuple. Converting.")
             initial_args = (initial_args,)
         
         paraproc_id = self._generate_unique_id("PARA")
         self._paraproc_definitions[paraproc_id] = {'func': paraproc_func, 'args': initial_args}
-        self._logger.debug(f"[MGR (PID {os.getpid()})]: Added ParaProc definition for {paraproc_func.__name__} with ID {paraproc_id} and args: {initial_args}.")
+        self._logger.debug(f"Added ParaProc definition for {paraproc_func.__name__} with ID {paraproc_id} and args: {initial_args}.")
         return paraproc_id
 
     def start_all_paraprocs(self) -> dict[str, multiprocessing.Process]:
         """Starts all defined ParaProcs and returns a dictionary of their IDs and Process objects."""
         if not self._paraproc_definitions:
-            self._logger.warning(f"[MGR (PID {os.getpid()})]: No ParaProcs have been added. Call add_paraproc() before starting.")
+            self._logger.warning(f"No ParaProcs have been added. Call add_paraproc() before starting.")
             return {}
         
         started_paraproc_objects: dict[str, multiprocessing.Process] = {}
         num_procs_to_start = len(self._paraproc_definitions)
-        self._logger.info(f"[MGR (PID {os.getpid()})]: Starting {num_procs_to_start} ParaProcs...")
+        self._logger.info(f"Starting {num_procs_to_start} ParaProcs...")
 
         for paraproc_id, definition in self._paraproc_definitions.items():
             parent_conn_to_child, child_conn_for_paraproc = multiprocessing.Pipe(duplex=False)
@@ -188,7 +194,7 @@ class LocalParallelizationManager:
             
             core_to_assign = self._get_next_available_core()
             if core_to_assign is None and self._available_cpu_cores_list:
-                self._logger.warning(f"[MGR (PID {os.getpid()})]: No specific available core for ParaProc {paraproc_id}. OS will schedule.")
+                self._logger.warning(f"No specific available core for ParaProc {paraproc_id}. OS will schedule.")
             self._assign_core(core_to_assign)
             
             process = multiprocessing.Process(
@@ -201,17 +207,18 @@ class LocalParallelizationManager:
                     core_to_assign,
                     self._private_task_request_queue,
                     self._managed_shared_task_request_queue,
-                    self.root_object
+                    self.root_object,
+                    self.log_path
                 ),
                 daemon=False
             )
             self._processes[paraproc_id] = {'process_obj': process, 'core': core_to_assign, 'pipe_conn': parent_conn_to_child}
-            self._logger.debug(f"[MGR (PID {os.getpid()})]: Launching ParaProc {paraproc_id} ({definition['func'].__name__}) on core {core_to_assign if core_to_assign is not None else 'OS-default'}...")
+            self._logger.debug(f"Launching ParaProc {paraproc_id} ({definition['func'].__name__}) on core {core_to_assign if core_to_assign is not None else 'OS-default'}...")
             process.start()
             child_conn_for_paraproc.close()
             started_paraproc_objects[paraproc_id] = process
 
-        self._logger.info(f"[MGR (PID {os.getpid()})]: All {num_procs_to_start} ParaProcs launched.")
+        self._logger.info(f"All {num_procs_to_start} ParaProcs launched.")
         return started_paraproc_objects
 
     def wait_for_all_paraprocs_to_finish(self, timeout_per_process: typing.Optional[int] = 0):
@@ -232,10 +239,10 @@ class LocalParallelizationManager:
            not self._active_simple_private_tasks and not self._active_group_tasks and
            not self._private_task_groups_registry and
            self._managed_shared_task_request_queue.empty() and not self._shared_tasks_registry):
-            self._logger.info(f"[MGR (PID {os.getpid()})]: No primary procs or any task structures initialized. Exiting manager loop early.")
+            self._logger.info(f"No primary procs or any task structures initialized. Exiting manager loop early.")
             return
 
-        self._logger.info(f"[MGR (PID {os.getpid()})]: Main event loop started. Monitoring ParaProcs and all dynamic/shared tasks.")
+        self._logger.info(f"Main event loop started. Monitoring ParaProcs and all dynamic/shared tasks.")
         active_paraproc_ids = set(self._processes.keys())
         
         start_time = time.monotonic()
@@ -246,16 +253,16 @@ class LocalParallelizationManager:
                 if parent_conn and not parent_conn.closed and parent_conn.poll():
                     try:
                         final_report_obj = parent_conn.recv()
-                        self._logger.info(f"[MGR (PID {os.getpid()})]: Received final report from ParaProc {final_report_obj.get('process_id')}: '{final_report_obj.get('message', 'No message')}' (Status: {final_report_obj.get('status')}).")
+                        self._logger.info(f"Received final report from ParaProc {final_report_obj.get('process_id')}: '{final_report_obj.get('message', 'No message')}' (Status: {final_report_obj.get('status')}).")
                     except EOFError: 
-                        self._logger.warning(f"[MGR (PID {os.getpid()})]: Pipe for ParaProc {process_id} closed unexpectedly (EOF). Assuming completion/crash.")
+                        self._logger.warning(f"Pipe for ParaProc {process_id} closed unexpectedly (EOF). Assuming completion/crash.")
                     except Exception as e_recv: 
-                        self._logger.error(f"[MGR (PID {os.getpid()})]: Error receiving final report from ParaProc {process_id}: {type(e_recv).__name__} - {e_recv}")
+                        self._logger.error(f"Error receiving final report from ParaProc {process_id}: {type(e_recv).__name__} - {e_recv}")
                     finally:
                         if parent_conn and not parent_conn.closed: parent_conn.close()
                         if process_id in self._parent_conns_to_children: del self._parent_conns_to_children[process_id]
                         active_paraproc_ids.discard(process_id)
-                        self._logger.debug(f"[MGR (PID {os.getpid()})]: ParaProc {process_id} marked as completed. Remaining active: {len(active_paraproc_ids)}")
+                        self._logger.debug(f"ParaProc {process_id} marked as completed. Remaining active: {len(active_paraproc_ids)}")
             
             # Handle Private Task Queue
             try:
@@ -268,9 +275,9 @@ class LocalParallelizationManager:
                 elif pt_req_type == 'CALL_SERVICE': self._handle_service_call_request(private_request)
                 elif pt_req_type == 'UPDATE_ATTRIBUTE': self._handle_attribute_update(private_request)
                 elif pt_req_type == 'INITIAL_SHADOW_COPY': self._handle_initial_shadow_copy(private_request)
-                else: self._logger.warning(f"[MGR (PID {os.getpid()})]: Unknown private task request type: {pt_req_type}")
+                else: self._logger.warning(f"Unknown private task request type: {pt_req_type}")
             except queue.Empty: pass
-            except Exception as e: self._logger.error(f"[MGR (PID {os.getpid()})]: Exception processing private task queue: {e}", exc_info=True)
+            except Exception as e: self._logger.error(f"Exception processing private task queue: {e}", exc_info=True)
 
             # Handle Managed Shared Task Queue
             try:
@@ -279,9 +286,9 @@ class LocalParallelizationManager:
                 if st_req_type == 'ADD_SHARED_TASK': self._handle_add_shared_task_request(shared_request)
                 elif st_req_type == 'START_SHARED_TASK': self._handle_start_shared_task_request(shared_request)
                 elif st_req_type == 'WAIT_FOR_SHARED_TASK': self._handle_wait_for_shared_task_request(shared_request)
-                else: self._logger.warning(f"[MGR (PID {os.getpid()})]: Unknown shared task request type: {st_req_type}")
+                else: self._logger.warning(f"Unknown shared task request type: {st_req_type}")
             except queue.Empty: pass
-            except Exception as e: self._logger.error(f"[MGR (PID {os.getpid()})]: Exception processing shared task queue: {e}", exc_info=True)
+            except Exception as e: self._logger.error(f"Exception processing shared task queue: {e}", exc_info=True)
 
             self._check_simple_private_task_completions()
             self._check_group_task_completions()
@@ -299,7 +306,7 @@ class LocalParallelizationManager:
             if (all_paraprocs_done and all_simple_private_done and all_group_tasks_done and
                private_queues_empty and no_pending_group_waiters and
                shared_queues_empty and no_running_shared_tasks and no_pending_shared_waiters):
-                self._logger.info(f"[MGR (PID {os.getpid()})]: All known activities settled. Exiting main event loop.")
+                self._logger.info(f"All known activities settled. Exiting main event loop.")
                 break
             
             if timeout_per_process != 0: # Only check global timeout if individual timeouts are not infinite
@@ -309,12 +316,12 @@ class LocalParallelizationManager:
                 num_defs = len(self._paraproc_definitions)
                 base_timeout = (timeout_per_process * num_defs if num_defs > 0 else timeout_per_process) + 60
                 if (time.monotonic() - start_time) > base_timeout:
-                    self._logger.warning(f"[MGR (PID {os.getpid()})]: Global wait timeout ({base_timeout}s) reached. Forcing shutdown.")
+                    self._logger.warning(f"Global wait timeout ({base_timeout}s) reached. Forcing shutdown.")
                     break
             
             time.sleep(0.005) 
 
-        self._logger.info(f"[MGR (PID {os.getpid()})]: Main event loop finished. Proceeding to join primary ParaProcs.")
+        self._logger.info(f"Main event loop finished. Proceeding to join primary ParaProcs.")
         
         any_forced_termination = False
         for process_id, proc_info in list(self._processes.items()):
@@ -330,14 +337,14 @@ class LocalParallelizationManager:
                 
                 p_obj.join(timeout=actual_join_timeout)
                 if p_obj.is_alive():
-                    self._logger.warning(f"[MGR (PID {os.getpid()})]: Primary ParaProc {process_id} (PID {p_obj.pid}) did not exit cleanly. Terminating.")
+                    self._logger.warning(f"Primary ParaProc {process_id} (PID {p_obj.pid}) did not exit cleanly. Terminating.")
                     any_forced_termination = True
                     p_obj.terminate()
                     p_obj.join(timeout=None) # Ensure termination
-                    if p_obj.is_alive(): self._logger.error(f"[MGR (PID {os.getpid()})]: ParaProc {process_id} FAILED to terminate.")
-                    else: self._logger.info(f"[MGR (PID {os.getpid()})]: ParaProc {process_id} terminated.")
+                    if p_obj.is_alive(): self._logger.error(f"ParaProc {process_id} FAILED to terminate.")
+                    else: self._logger.info(f"ParaProc {process_id} terminated.")
                 else: 
-                    self._logger.debug(f"[MGR (PID {os.getpid()})]: ParaProc {process_id} joined (Exitcode: {p_obj.exitcode}).")
+                    self._logger.debug(f"ParaProc {process_id} joined (Exitcode: {p_obj.exitcode}).")
                 self._release_core(proc_info.get('core'))
         
         self._processes.clear()
@@ -357,7 +364,7 @@ class LocalParallelizationManager:
 
         for task_name, task_entry in list(self._shared_tasks_registry.items()):
             if task_entry.get('process_obj') and task_entry['process_obj'].is_alive():
-                self._logger.warning(f"[MGR (PID {os.getpid()})]: Shared task '{task_name}' still alive. Terminating.")
+                self._logger.warning(f"Shared task '{task_name}' still alive. Terminating.")
                 task_entry['process_obj'].terminate()
                 task_entry['process_obj'].join(timeout=None) # Changed from 1.0
             for pipe_to_waiter in task_entry.get('waiters_result_pipes', []):
@@ -371,14 +378,14 @@ class LocalParallelizationManager:
         self._clear_queue(self._managed_shared_task_request_queue, "shared task request")
 
         if self._assigned_cores:
-            self._logger.info(f"[MGR (PID {os.getpid()})]: Releasing remaining assigned cores: {self._assigned_cores}.")
+            self._logger.info(f"Releasing remaining assigned cores: {self._assigned_cores}.")
             self._assigned_cores.clear()
         
         if any_forced_termination:
-            self._logger.warning(f"[MGR (PID {os.getpid()})]: Shutdown complete. Some processes required forced termination.")
+            self._logger.warning(f"Shutdown complete. Some processes required forced termination.")
         else:
-            self._logger.info(f"[MGR (PID {os.getpid()})]: Shutdown complete. All primary ParaProcs joined or were already finished.")
-        self._logger.info(f"[MGR (PID {os.getpid()})]: ---------------- Manager Processing Finished ----------------")
+            self._logger.info(f"Shutdown complete. All primary ParaProcs joined or were already finished.")
+        self._logger.info(f"---------------- Manager Processing Finished ----------------")
 
     # Group: Getter Functions
     def get_paraproc_process_object(self, paraproc_id: str) -> typing.Optional[multiprocessing.Process]:
@@ -386,7 +393,7 @@ class LocalParallelizationManager:
         proc_info = self._processes.get(paraproc_id)
         if proc_info:
             return proc_info.get('process_obj')
-        self._logger.debug(f"[MGR (PID {os.getpid()})]: No active ParaProc found with ID '{paraproc_id}'.")
+        self._logger.debug(f"No active ParaProc found with ID '{paraproc_id}'.")
         return None
 
     def get_simple_private_task_process_object(self, task_id: str) -> typing.Optional[multiprocessing.Process]:
@@ -394,7 +401,7 @@ class LocalParallelizationManager:
         task_info = self._active_simple_private_tasks.get(task_id)
         if task_info:
             return task_info.get('process_obj')
-        self._logger.debug(f"[MGR (PID {os.getpid()})]: No active simple private task found with ID '{task_id}'.")
+        self._logger.debug(f"No active simple private task found with ID '{task_id}'.")
         return None
 
     def get_group_task_process_object(self, task_id: str) -> typing.Optional[multiprocessing.Process]:
@@ -402,7 +409,7 @@ class LocalParallelizationManager:
         task_info = self._active_group_tasks.get(task_id)
         if task_info:
             return task_info.get('process_obj')
-        self._logger.debug(f"[MGR (PID {os.getpid()})]: No active group task found with ID '{task_id}'.")
+        self._logger.debug(f"No active group task found with ID '{task_id}'.")
         return None
 
     def get_shared_task_process_object(self, task_name: str) -> typing.Optional[multiprocessing.Process]:
@@ -410,7 +417,7 @@ class LocalParallelizationManager:
         task_info = self._shared_tasks_registry.get(task_name)
         if task_info and task_info['status'] == SHARED_TASK_RUNNING:
             return task_info.get('process_obj')
-        self._logger.debug(f"[MGR (PID {os.getpid()})]: No active shared task found with name '{task_name}' or it's not running.")
+        self._logger.debug(f"No active shared task found with name '{task_name}' or it's not running.")
         return None
 
     def get_process_object_by_id(self, general_id: str) -> typing.Optional[multiprocessing.Process]:
@@ -425,7 +432,7 @@ class LocalParallelizationManager:
             proc_obj = self.get_shared_task_process_object(general_id)
             if proc_obj:
                 return proc_obj
-            self._logger.warning(f"[MGR (PID {os.getpid()})]: get_process_object_by_id: ID '{general_id}' does not match known prefixes and is not an active shared task name.")
+            self._logger.warning(f"get_process_object_by_id: ID '{general_id}' does not match known prefixes and is not an active shared task name.")
             return None
 
     # --- Internal functions grouped by usage ---
@@ -444,7 +451,7 @@ class LocalParallelizationManager:
         try:
             core_to_assign = self._get_next_available_core()
             if core_to_assign is None and self._available_cpu_cores_list:
-                self._logger.warning(f"[MGR (PID {os.getpid()})]: No specific core for simple private task {simple_private_task_id}.")
+                self._logger.warning(f"No specific core for simple private task {simple_private_task_id}.")
             
             completion_read_end_from_task, completion_write_end_for_task = multiprocessing.Pipe(duplex=False)
             self._assign_core(core_to_assign)
@@ -469,7 +476,7 @@ class LocalParallelizationManager:
                 'requesting_paraproc_id': requesting_paraproc_id
             }
             
-            self._logger.info(f"[MGR (PID {os.getpid()})]: Launching simple private task {simple_private_task_id} ({target_func.__name__}) for P{requesting_paraproc_id}.")
+            self._logger.info(f"Launching simple private task {simple_private_task_id} ({target_func.__name__}) for P{requesting_paraproc_id}.")
             dyn_process.start()
             completion_write_end_for_task.close()
 
@@ -478,15 +485,15 @@ class LocalParallelizationManager:
                 ack_sent_successfully = True
                 # Don't close the pipe here - it will be used later to send the final result
             else:
-                self._logger.warning(f"[MGR (PID {os.getpid()})]: Result pipe for {simple_private_task_id} closed before ACK could be sent.")
+                self._logger.warning(f"Result pipe for {simple_private_task_id} closed before ACK could be sent.")
 
         except Exception as e_launch:
-            self._logger.error(f"[MGR (PID {os.getpid()})]: Failed to LAUNCH simple private task for P{requesting_paraproc_id}: {e_launch}", exc_info=True)
+            self._logger.error(f"Failed to LAUNCH simple private task for P{requesting_paraproc_id}: {e_launch}", exc_info=True)
             if not result_pipe_to_paraproc_context.closed:
                 try:
                     result_pipe_to_paraproc_context.send({'type': 'LAUNCH_ACK', 'task_id': None, 'success': False, 'error': str(e_launch)})
                 except Exception as e_send_fail_ack:
-                    self._logger.error(f"[MGR (PID {os.getpid()})]: Also failed to send launch failure ACK for P{requesting_paraproc_id}: {e_send_fail_ack}")
+                    self._logger.error(f"Also failed to send launch failure ACK for P{requesting_paraproc_id}: {e_send_fail_ack}")
                 finally:
                     result_pipe_to_paraproc_context.close()
 
@@ -518,11 +525,11 @@ class LocalParallelizationManager:
                     'status': PRIVATE_TASK_STATUS_DEFINED,
                     'process_obj': None, 'core': None, 'result': None, 'error_info': None,
                 }
-                self._logger.info(f"[MGR (PID {os.getpid()})]: P{paraproc_id} added task '{task_name}' (ID: {gprv_task_id}) to group '{group_name}'.")
+                self._logger.info(f"P{paraproc_id} added task '{task_name}' (ID: {gprv_task_id}) to group '{group_name}'.")
                 success_flag = True
                 message_to_context = "Task added to group successfully"
         except Exception as e:
-            self._logger.error(f"[MGR (PID {os.getpid()})]: Error in _handle_add_task_to_private_group: {e}")
+            self._logger.error(f"Error in _handle_add_task_to_private_group: {e}")
             success_flag = False
             message_to_context = f"Internal manager error: {e}"
         finally:
@@ -537,7 +544,7 @@ class LocalParallelizationManager:
 
         if (paraproc_id not in self._private_task_groups_registry or
            group_name not in self._private_task_groups_registry[paraproc_id]['groups']):
-            self._logger.warning(f"[MGR (PID {os.getpid()})]: P{paraproc_id} tried to start non-existent group '{group_name}'.")
+            self._logger.warning(f"P{paraproc_id} tried to start non-existent group '{group_name}'.")
             if not response_pipe.closed: response_pipe.send({'success': False, 'message': "Group not defined or has no tasks"})
         else:
             group_tasks_definitions = self._private_task_groups_registry[paraproc_id]['groups'][group_name]
@@ -559,7 +566,7 @@ class LocalParallelizationManager:
                     self._assign_core(core_to_assign)
                     gprv_task_id = task_details.get('id')
                     if not gprv_task_id:
-                        self._logger.error(f"[MGR (PID {os.getpid()})]: Task '{task_name}' in group '{group_name}' for P{paraproc_id} missing GPRV-ID. Skipping.")
+                        self._logger.error(f"Task '{task_name}' in group '{group_name}' for P{paraproc_id} missing GPRV-ID. Skipping.")
                         continue
                     
                     task_details['core'] = core_to_assign
@@ -578,7 +585,7 @@ class LocalParallelizationManager:
                         'paraproc_id': paraproc_id, 'group_name': group_name, 'task_name': task_name,
                         'completion_conn': manager_read_end_from_grp_task
                     }
-                    self._logger.info(f"[MGR (PID {os.getpid()})]: P{paraproc_id} starting task '{task_name}' (Grp '{group_name}', ID {gprv_task_id}).")
+                    self._logger.info(f"P{paraproc_id} starting task '{task_name}' (Grp '{group_name}', ID {gprv_task_id}).")
                     proc.start()
                     wrapper_write_end_for_grp_task.close()
                     num_started += 1
@@ -593,14 +600,14 @@ class LocalParallelizationManager:
 
         if (paraproc_id not in self._private_task_groups_registry or
            group_name not in self._private_task_groups_registry[paraproc_id]['groups']):
-            self._logger.warning(f"[MGR (PID {os.getpid()})]: P{paraproc_id} waiting for non-existent group '{group_name}'.")
+            self._logger.warning(f"P{paraproc_id} waiting for non-existent group '{group_name}'.")
             if not result_pipe_to_paraproc_context.closed:
                 result_pipe_to_paraproc_context.send({'success': False, 'result': {"error": "Group not defined"}})
                 result_pipe_to_paraproc_context.close()
         else:
             all_done, current_results = self._check_group_completion_status(paraproc_id, group_name)
             if all_done:
-                self._logger.info(f"[MGR (PID {os.getpid()})]: Group '{group_name}' for P{paraproc_id} already complete. Sending results.")
+                self._logger.info(f"Group '{group_name}' for P{paraproc_id} already complete. Sending results.")
                 if not result_pipe_to_paraproc_context.closed:
                     result_payload = {'success': True, 'result': current_results, 'message': 'Group completed'}
                     group_overall_success = True
@@ -614,7 +621,7 @@ class LocalParallelizationManager:
                     for p_pipe in group_waiters:
                         try:
                             if not p_pipe.closed: p_pipe.send(payload_to_waiter)
-                        except Exception as e_notify: self._logger.error(f"[MGR (PID {os.getpid()})]: Error notifying waiter for group '{group_name}': {e_notify}")
+                        except Exception as e_notify: self._logger.error(f"Error notifying waiter for group '{group_name}': {e_notify}")
                         finally:
                             if not p_pipe.closed: p_pipe.close()
                     data['waiters'][group_name] = []
@@ -642,10 +649,10 @@ class LocalParallelizationManager:
                     'process_obj': None, 'core': None, 'result': None, 'error_info': None,
                     'completion_pipe_read_end': None, 'waiters_result_pipes': []
                 }
-                self._logger.info(f"[MGR (PID {os.getpid()})]: Shared task '{task_name}' added/defined.")
+                self._logger.info(f"Shared task '{task_name}' added/defined.")
                 if not response_pipe.closed: response_pipe.send({'success': True, 'message': "Task defined successfully"})
         except Exception as e:
-            self._logger.error(f"[MGR (PID {os.getpid()})]: Error in _handle_add_shared_task_request for '{task_name}': {e}")
+            self._logger.error(f"Error in _handle_add_shared_task_request for '{task_name}': {e}")
             if not response_pipe.closed: response_pipe.send({'success': False, 'message': f"Internal server error: {e}"})
         finally:
             if not response_pipe.closed: response_pipe.close()
@@ -663,7 +670,7 @@ class LocalParallelizationManager:
                     if not response_pipe.closed: response_pipe.send({'success': True, 'message': "Task is already running"})
                 elif task_entry['status'] == SHARED_TASK_COMPLETED or task_entry['status'] == SHARED_TASK_FAILED:
                     task_entry['status'] = SHARED_TASK_DEFINED # Reset to allow re-start
-                    self._logger.info(f"[MGR (PID {os.getpid()})]: Resetting status of {task_name} to DEFINED for re-start.")
+                    self._logger.info(f"Resetting status of {task_name} to DEFINED for re-start.")
 
                 if task_entry['status'] == SHARED_TASK_DEFINED:
                     core_to_assign = self._get_next_available_core()
@@ -678,14 +685,14 @@ class LocalParallelizationManager:
                         'process_obj': proc, 'core': core_to_assign, 'status': SHARED_TASK_RUNNING,
                         'completion_pipe_read_end': manager_read_end, 'result': None, 'error_info': None
                     })
-                    self._logger.info(f"[MGR (PID {os.getpid()})]: Starting shared task '{task_name}'.")
+                    self._logger.info(f"Starting shared task '{task_name}'.")
                     proc.start()
                     wrapper_write_end.close()
                     if not response_pipe.closed: response_pipe.send({'success': True, 'message': "Task started"})
                 elif task_entry['status'] not in [SHARED_TASK_RUNNING, SHARED_TASK_DEFINED]:
                      if not response_pipe.closed: response_pipe.send({'success': False, 'message': f"Task in unexpected state: {task_entry['status']}"})
         except Exception as e:
-            self._logger.error(f"[MGR (PID {os.getpid()})]: Error in _handle_start_shared_task_request for '{task_name}': {e}")
+            self._logger.error(f"Error in _handle_start_shared_task_request for '{task_name}': {e}")
             if not response_pipe.closed: response_pipe.send({'success': False, 'message': f"Internal server error: {e}"})
         finally:
             if not response_pipe.closed: response_pipe.close()
@@ -708,13 +715,13 @@ class LocalParallelizationManager:
                         result_pipe_to_context.send({'success': False, 'result': task_entry['error_info'], 'message': "Failed"})
                 elif task_entry['status'] == SHARED_TASK_RUNNING or task_entry['status'] == SHARED_TASK_DEFINED:
                     task_entry['waiters_result_pipes'].append(result_pipe_to_context)
-                    self._logger.debug(f"[MGR (PID {os.getpid()})]: P{request['requesting_paraproc_id']} waiting for shared task '{task_name}'.")
+                    self._logger.debug(f"P{request['requesting_paraproc_id']} waiting for shared task '{task_name}'.")
                     return # Pipe kept open for waiter
                 else: 
                     if not result_pipe_to_context.closed:
                         result_pipe_to_context.send({'success': False, 'result': None, 'message': f"Unknown task state: {task_entry['status']}"})
         except Exception as e:
-            self._logger.error(f"[MGR (PID {os.getpid()})]: Error in _handle_wait_for_shared_task_request for '{task_name}': {e}")
+            self._logger.error(f"Error in _handle_wait_for_shared_task_request for '{task_name}': {e}")
             if not result_pipe_to_context.closed:
                 result_pipe_to_context.send({'success': False, 'result': None, 'message': f"Internal manager error: {e}"})
         finally:
@@ -737,7 +744,7 @@ class LocalParallelizationManager:
         # Handle periodic state refresh via callback
         if refresh_payload and self.update_callback:
             self.update_callback(requesting_paraproc_id, refresh_payload)
-            self._logger.debug(f"[MGR (PID {os.getpid()})]: Passed refresh payload for {requesting_paraproc_id} to callback.")
+            self._logger.debug(f"Passed refresh payload for {requesting_paraproc_id} to callback.")
         
         try:
             current_obj = self.root_object
@@ -746,7 +753,7 @@ class LocalParallelizationManager:
             
             func_to_call = current_obj
             
-            self._logger.debug(f"[MGR (PID {os.getpid()})]: P{requesting_paraproc_id} calling service '{service_path}'.")
+            self._logger.debug(f"P{requesting_paraproc_id} calling service '{service_path}'.")
             
             if callable(func_to_call):
                 result = func_to_call(*args, **kwargs)
@@ -756,7 +763,7 @@ class LocalParallelizationManager:
             if not response_pipe.closed:
                 response_pipe.send({'result': result})
         except Exception as e:
-            self._logger.error(f"[MGR (PID {os.getpid()})]: Error executing service '{service_path}' for P{requesting_paraproc_id}: {e}", exc_info=True)
+            self._logger.error(f"Error executing service '{service_path}' for P{requesting_paraproc_id}: {e}", exc_info=True)
             if not response_pipe.closed:
                 response_pipe.send({'error': str(e)})
         finally:
@@ -770,9 +777,9 @@ class LocalParallelizationManager:
 
         if payload is not None and self.update_callback:
             self.update_callback(requesting_paraproc_id, payload)
-            self._logger.debug(f"[MGR (PID {os.getpid()})]: Received and processed initial shadow copy from {requesting_paraproc_id}.")
+            self._logger.debug(f"Received and processed initial shadow copy from {requesting_paraproc_id}.")
         elif not self.update_callback:
-            self._logger.warning(f"[MGR (PID {os.getpid()})]: Received initial shadow copy from {requesting_paraproc_id}, but no update_callback is registered. Ignoring.")
+            self._logger.warning(f"Received initial shadow copy from {requesting_paraproc_id}, but no update_callback is registered. Ignoring.")
 
     def _handle_attribute_update(self, request: dict):
         """Handles asynchronous attribute updates by passing them to the callback."""
@@ -783,7 +790,7 @@ class LocalParallelizationManager:
         if self.update_callback:
             # Pass the single attribute update to the owner (HyperHeuristicBase)
             self.update_callback(paraproc_id, attribute_path=attribute_path, value=value)
-            self._logger.debug(f"[MGR (PID {os.getpid()})]: Passed attribute update for '{attribute_path}' from {paraproc_id} to callback.")
+            self._logger.debug(f"Passed attribute update for '{attribute_path}' from {paraproc_id} to callback.")
         else:
             self._logger.warning(f"Received attribute update from {paraproc_id} but no update_callback is registered. Ignoring.")
 
@@ -803,7 +810,7 @@ class LocalParallelizationManager:
 
                     if completion_data.get('status') == 'success':
                         response_for_context = {'status': 'success', 'result': completion_data['result'], 'task_id': task_id_for_context}
-                        self._logger.info(f"[MGR (PID {os.getpid()})]: Simple private task {task_id_for_context} COMPLETED successfully.")
+                        self._logger.info(f"Simple private task {task_id_for_context} COMPLETED successfully.")
                     else:
                         response_for_context = {
                             'status': 'launched_with_exception', 
@@ -814,7 +821,7 @@ class LocalParallelizationManager:
                             },
                             'task_id': task_id_for_context
                         }
-                        self._logger.error(f"[MGR (PID {os.getpid()})]: Simple private task {task_id_for_context} FAILED: {completion_data.get('exception_type')}")
+                        self._logger.error(f"Simple private task {task_id_for_context} FAILED: {completion_data.get('exception_type')}")
                 
                 except EOFError:
                     response_for_context = {'status': 'failure_to_launch', 'error': 'EOFError from task wrapper', 'task_id': task_id}
@@ -823,7 +830,7 @@ class LocalParallelizationManager:
                 finally:
                     if response_for_context and not pipe_to_paraproc_context.closed:
                         try: pipe_to_paraproc_context.send(response_for_context)
-                        except Exception as e_send: self._logger.error(f"[MGR (PID {os.getpid()})]: Failed to send result of {task_id} to ParaProc: {e_send}")
+                        except Exception as e_send: self._logger.error(f"Failed to send result of {task_id} to ParaProc: {e_send}")
                     
                     if not pipe_to_paraproc_context.closed: pipe_to_paraproc_context.close()
                     if not pipe_from_task_wrapper.closed: pipe_from_task_wrapper.close()
@@ -852,14 +859,14 @@ class LocalParallelizationManager:
                 try:
                     completion_data = completion_conn.recv()
                     if completion_data.get('internal_task_id') != gprv_id:
-                        self._logger.error(f"[MGR (PID {os.getpid()})]: GPRV-ID mismatch for group task! Expected {gprv_id}, got {completion_data.get('internal_task_id')}.")
+                        self._logger.error(f"GPRV-ID mismatch for group task! Expected {gprv_id}, got {completion_data.get('internal_task_id')}.")
                         task_entry = self._private_task_groups_registry[paraproc_id]['groups'][group_name][task_name]
                         task_entry['status'] = PRIVATE_TASK_STATUS_FAILED
                         task_entry['error_info'] = "GPRV-ID mismatch"
                         completed_gprv_ids.append(gprv_id)
                         continue
 
-                    self._logger.info(f"[MGR (PID {os.getpid()})]: Group task '{task_name}' (ID {gprv_id}) reported: {completion_data['status']}.")
+                    self._logger.info(f"Group task '{task_name}' (ID {gprv_id}) reported: {completion_data['status']}.")
                     task_entry = self._private_task_groups_registry[paraproc_id]['groups'][group_name][task_name]
                     task_entry['process_obj'] = None 
 
@@ -902,7 +909,7 @@ class LocalParallelizationManager:
 
                 all_done, results = self._check_group_completion_status(paraproc_id, group_name)
                 if all_done:
-                    self._logger.info(f"[MGR (PID {os.getpid()})]: Group '{group_name}' for P{paraproc_id} resolved. Notifying {len(group_waiters)} waiters.")
+                    self._logger.info(f"Group '{group_name}' for P{paraproc_id} resolved. Notifying {len(group_waiters)} waiters.")
                     payload_to_waiter = {'success': True, 'result': results, 'message': 'Group completed'}
                     group_overall_success = True
                     if isinstance(results, dict):
@@ -915,7 +922,7 @@ class LocalParallelizationManager:
                     for p_pipe in group_waiters:
                         try:
                             if not p_pipe.closed: p_pipe.send(payload_to_waiter)
-                        except Exception as e_notify: self._logger.error(f"[MGR (PID {os.getpid()})]: Error notifying waiter for group '{group_name}': {e_notify}")
+                        except Exception as e_notify: self._logger.error(f"Error notifying waiter for group '{group_name}': {e_notify}")
                         finally:
                             if not p_pipe.closed: p_pipe.close()
                     data['waiters'][group_name] = []
@@ -931,7 +938,7 @@ class LocalParallelizationManager:
                         completion_data = pipe_from_wrapper.recv()
                         if completion_data.get('status') == 'success':
                             task_entry.update({'status': SHARED_TASK_COMPLETED, 'result': completion_data['result']})
-                            self._logger.info(f"[MGR (PID {os.getpid()})]: Shared task '{task_name}' COMPLETED.")
+                            self._logger.info(f"Shared task '{task_name}' COMPLETED.")
                             response_to_waiters_payload = {'success': True, 'result': task_entry['result'], 'message': "Completed"}
                         else: 
                             task_entry.update({
@@ -941,7 +948,7 @@ class LocalParallelizationManager:
                                 'message': completion_data.get('exception_message'),
                                 'traceback': completion_data.get('traceback_snippet')
                                 }})
-                            self._logger.error(f"[MGR (PID {os.getpid()})]: Shared task '{task_name}' FAILED. Error: {task_entry['error_info']}")
+                            self._logger.error(f"Shared task '{task_name}' FAILED. Error: {task_entry['error_info']}")
                             response_to_waiters_payload = {'success': False, 'result': task_entry['error_info'], 'message': "Failed in execution"}
                     except EOFError:
                         task_entry.update({'status': SHARED_TASK_FAILED, 'error_info': "EOFError on completion pipe"})
@@ -954,7 +961,7 @@ class LocalParallelizationManager:
                             for waiter_pipe in task_entry.get('waiters_result_pipes', []):
                                 try:
                                     if not waiter_pipe.closed: waiter_pipe.send(response_to_waiters_payload)
-                                except Exception as e_notify: self._logger.error(f"[MGR (PID {os.getpid()})]: Error notifying waiter for '{task_name}': {e_notify}")
+                                except Exception as e_notify: self._logger.error(f"Error notifying waiter for '{task_name}': {e_notify}")
                                 finally: 
                                     if not waiter_pipe.closed: waiter_pipe.close()
                         task_entry['waiters_result_pipes'] = []
@@ -989,14 +996,14 @@ class LocalParallelizationManager:
         if not self._available_cpu_cores_list and cpu_count_total:
             self._available_cpu_cores_list = list(range(cpu_count_total))
             
-        if self._available_cpu_cores_list: self._logger.info(f"[MGR (PID {os.getpid()})]: Potential cores: {self._available_cpu_cores_list}")
-        else: self._logger.warning(f"[MGR (PID {os.getpid()})]: Could not determine specific CPU cores.")
+        if self._available_cpu_cores_list: self._logger.info(f"Potential cores: {self._available_cpu_cores_list}")
+        else: self._logger.warning(f"Could not determine specific CPU cores.")
 
     def _get_next_available_core(self) -> int | None:
         if not self._available_cpu_cores_list: return None
         for core_id in self._available_cpu_cores_list:
             if core_id not in self._assigned_cores: return core_id
-        self._logger.warning(f"[MGR (PID {os.getpid()})]: All identified cores assigned. OS will schedule.")
+        self._logger.warning(f"All identified cores assigned. OS will schedule.")
         return None 
 
     def _assign_core(self, core_id: int | None):
@@ -1043,7 +1050,7 @@ class LocalParallelizationManager:
         for task_id, task_info in list(active_task_dict.items()):
             proc_obj = task_info.get('process_obj')
             if proc_obj and proc_obj.is_alive():
-                self._logger.warning(f"[MGR (PID {os.getpid()})]: {task_type_name} ID {task_id} (PID {proc_obj.pid}) still alive. Terminating.")
+                self._logger.warning(f"{task_type_name} ID {task_id} (PID {proc_obj.pid}) still alive. Terminating.")
                 proc_obj.terminate()
                 proc_obj.join(timeout=None) # Changed from 1.0
             self._release_core(task_info.get('core'))
@@ -1069,4 +1076,4 @@ class LocalParallelizationManager:
                 except queue.Empty: break 
                 except (EOFError, BrokenPipeError, OSError): break
         except Exception: return 
-        if count > 0: self._logger.info(f"[MGR (PID {os.getpid()})]: Cleared {count} items from {queue_name} queue during shutdown.")
+        if count > 0: self._logger.info(f"Cleared {count} items from {queue_name} queue during shutdown.")

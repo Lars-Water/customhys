@@ -205,7 +205,8 @@ class HyperHeuristicBase:
             # The manager is now created here, with the root coordinator object and the update callback
             self.local_parallelization_manager = LocalParallelizationManager(
                 root_object=self.heur_coordinator,
-                update_callback=self._update_shadow_hh_object
+                update_callback=self._update_shadow_hh_object,
+                log_path=self.log_path
             )
 
             for search_operator_space_name in self.config_search_operators_spaces.keys():
