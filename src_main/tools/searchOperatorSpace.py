@@ -15,7 +15,10 @@ from pathlib import Path
 import glob
 import itertools
 
+from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main
+
 class SearchOperatorSpace:
+    @requires_main_process
     def __init__(self, coordinator_config_file_path, log_path):
         log_path = os.path.join(log_path, "search_operators")
         self.logger = logger("SearchOperatorSpace", log_path, disabled=False)
@@ -28,6 +31,7 @@ class SearchOperatorSpace:
 
         self.problem_spaces = {}
     
+    @requires_main_process
     def create_problems(self, problem_space_name, num_replicas, create_problem_instance_func, *args, **kwargs):
         assert callable(create_problem_instance_func)
         self.create_problem_space(problem_space_name)
@@ -36,6 +40,7 @@ class SearchOperatorSpace:
             create_problem_instance_func, 
             *args, **kwargs)
 
+    @requires_main_process
     def create_problem_space(self, problem_space_name, log_already_exist = False):
         if self.has_problem_space(problem_space_name):
             if log_already_exist:
@@ -48,21 +53,25 @@ class SearchOperatorSpace:
                 self.log_path
             )
 
+    @requires_main_process
     def remove_problem_space(self, problem_space_name):
         if self.has_problem_space(problem_space_name):
             self.logger.info(f"Removing problem space {problem_space_name}.")
             del self._problems[problem_space_name]
 
+    @requires_main_process
     def has_problem_space(self, problem_space_name):
         return problem_space_name in self.problem_spaces.keys()
     
 
+    @requires_main_process
     def has_problems(self, problem_space_name):
         if self.has_problem_space(problem_space_name):
             return self.problem_spaces[problem_space_name].has_problems()
         else:
             return False
 
+    @requires_main_process
     def get_problems(self, problem_space_name):
         if self.has_problem_space(problem_space_name):
             if self.problem_spaces[problem_space_name].has_problems():
@@ -74,6 +83,7 @@ class SearchOperatorSpace:
             self.logger.warn(f"get_problems: The problem space {problems_space_name} does not exist .")
             return {}
 
+    @requires_main_process
     def get_all_problems_file_name_fitness_values(self):
         self.logger.info(f"[searchOperatorSpace] Getting all problems file name fitness values.")
         problems_file_name_fitness_values = {}

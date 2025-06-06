@@ -15,12 +15,15 @@ from src_main.visualization import visualization
 from src_main.tools.logger import logger, setLevelLogger
 import src_main.tools.component_config as component_config
 import src_main.data.sim_configurations as sim_configurations
+from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main
 
 
 class DataCollectorBase:
+    @requires_main_process
     def __del__(self):
         self._save_to_csv(force=True)
 
+    @requires_main_process
     def __init__(self, 
                  dir_design_points_metrics_output, 
                  index_col = ['SimulationID'], 
@@ -78,12 +81,15 @@ class DataCollectorBase:
             self.run_name = run_name
 
     
+    @requires_main_process
     def get_base_filename(self):
         return f"design_point_metrics_{self.run_name}"
     
+    @requires_main_process
     def get_heuristic_filename(self, heuristic_name):
         return f"{self.get_base_filename()}_{heuristic_name}"
 
+    @requires_main_process
     def _create_metrics_storage(self, heuristic_name):
         # Ensure 'last_touched_timestamp' is part of the columns, not the index
         initial_columns = list(self.index_col) # Make a mutable copy
@@ -101,6 +107,7 @@ class DataCollectorBase:
             self.locks_raw_backup_csv[heuristic_name] = Lock()
             self.locks_metrics_storage[heuristic_name] = Lock()
 
+    @requires_main_process
     def _store_design_point_metrics_df(self, heuristic_name, append_df_original, save_raw_backup=False): # Renamed parameter
         if not heuristic_name:
             heuristic_name = self.heuristic_name_default
@@ -189,12 +196,14 @@ class DataCollectorBase:
         
         self._save_to_csv()
 
+    @requires_main_process
     def append_caching_status_to_design_point_metrics_lazy(self, uids, cached):
         # with self.lock_cachingStatusCollectiveLazy.locked():
         #     time.sleep(0.01)
         for uid in uids:
             self.cachingStatusCollectiveLazy[str(uid)] = cached
 
+    @requires_main_process
     def _append_caching_status_to_design_point_metrics(self, uids, cached):
         self.metrics_defaults["Cached"] = {
             "default": False,
@@ -253,6 +262,7 @@ class DataCollectorBase:
                 # 4) Mark that there is new data to save (if you batch-persist later)
                 self._new_data_to_save = True
 
+    @requires_main_process
     def append_fitness_and_hh_data_to_design_point_metrics(self, uids, fitness_values, search_operator, step, iteration, file_name_fitness_values="fitness_values.json"):
         heuristic_name = file_name_fitness_values
         if heuristic_name not in self.metricsStorage:
@@ -309,6 +319,7 @@ class DataCollectorBase:
         
         self._save_to_csv()
 
+    @requires_main_process
     def _save_to_csv(self, force=False):
         if not self._new_data_to_save and not force:
             return
@@ -415,6 +426,7 @@ class DataCollectorBase:
                 
                 self._new_data_to_save = False
 
+    @requires_main_process
     def _set_metrics_defaults(self, heuristic_name, acquire_lock=True):
         # This method manipulates self.metricsStorage[heuristic_name]. 
         # If acquire_lock is True, it will manage the lock itself.
@@ -427,6 +439,7 @@ class DataCollectorBase:
             # Assumes lock is already held by the caller
             self._INTERNAL_apply_defaults_to_df(heuristic_name)
 
+    @requires_main_process
     def _INTERNAL_apply_defaults_to_df(self, heuristic_name):
         # Helper method containing the original logic of _set_metricsDF_defaults
         # This is always called when locks_metrics_storage[heuristic_name] is held (either by this method or by caller)

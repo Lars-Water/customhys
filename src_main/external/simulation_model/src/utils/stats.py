@@ -2,9 +2,12 @@ import time
 import os
 import json
 
+from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main
+
 class Stats:
     stats = None
 
+    @requires_main_process
     def __init__(self, pre_stats=None, file_path=None):
         if pre_stats and isinstance(pre_stats, dict):
             self.stats = pre_stats
@@ -12,6 +15,7 @@ class Stats:
             self.stats = {}
         self.file_path = file_path
 
+    @requires_main_process
     def set_file_path(self, file_path):
         self.file_path = file_path
 
@@ -53,6 +57,7 @@ class Stats:
 
         return cur_dict
 
+    @requires_main_process
     def has_stat(self, *args):
         cur = self.stats
         for arg in args:
@@ -66,6 +71,7 @@ class Stats:
         else:
             return True
 
+    @requires_main_process
     def get_stat(self, *args):
         if self.has_stat(*args):
             cur = self.stats
@@ -75,18 +81,22 @@ class Stats:
         else:
             return None
 
+    @requires_main_process
     def record_stat(self, val, *args):
         merge_dict = Stats.create_dict_from_args_val(val, *args)
         self.stats = Stats.update_dict(self.stats, merge_dict)
 
+    @requires_main_process
     def record_time_stat(self, *args):
         record_time = time.time()
         self.record_stat(record_time, *args)
         return record_time
 
+    @requires_main_process
     def inc_stat(self, *args):
         self.add_stat(1, *args)
 
+    @requires_main_process
     def add_stat(self, val, *args):
         old_val = self.get_stat(*args)
         new_val = val
@@ -96,9 +106,11 @@ class Stats:
 
         self.record_stat(new_val, *args)
 
+    @requires_main_process
     def get_stats_dict(self):
         return self.stats
 
+    @requires_main_process
     def write_stats_to_file(self, file_path=None):
         if file_path is None:
             file_path = self.file_path

@@ -21,6 +21,7 @@ from experiments import create_sim_custom_dummy, create_sim_inet_lans_dummy, cre
 from src.manager import Manager
 from src.utils.config_reader import Config
 from src.utils.config_creator import WorkflowConfig
+from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main
 
 import uuid
 
@@ -47,6 +48,7 @@ class HeuristicSimulationCoordinatorINET(HeuristicSimulationCoordinatorBase):
     def problemInstanceFunc(self):
         return component_config.create_problem_instance
 
+    @requires_main_process
     def createDataCollector(self):
         weight_latency = self.conf.tryGet("fitness_config", "weight_latency")
         weight_cost = self.conf.tryGet("fitness_config", "weight_cost")
@@ -290,6 +292,7 @@ class HeuristicSimulationCoordinatorINET(HeuristicSimulationCoordinatorBase):
 
     # TODO: Remove redundancy of multiple ini file writing.
     # TODO: Improve code, because now it's very chaotic, e.g. 4 simulations seems not to be necessary but that could also only be for linear objective relationships.
+    @requires_main_process
     def manual_normalization(self):
         """
         Manually determines the min and max values for the objective parameters.
@@ -374,6 +377,7 @@ class HeuristicSimulationCoordinatorINET(HeuristicSimulationCoordinatorBase):
         self._check_normalization()
 
 
+    @requires_main_process
     def determine_boundary_value(self, sim_uid, parameter, boundary):
         csv_file_path = os.path.join(self.data_path, "results", str(sim_uid), "x.csv")
         df = pd.read_csv(csv_file_path)
@@ -410,6 +414,7 @@ class HeuristicSimulationCoordinatorINET(HeuristicSimulationCoordinatorBase):
     '''
         Perform the parameter tuning workflow.
     '''
+    @requires_main_process
     def parameter_tuning_workflow(self):
         self.logger.info("Configuring parameter tuning workflow..")
         parameter_names = self.conf.tryGet("parameter_tuning", "parameter_names")
@@ -459,6 +464,7 @@ class HeuristicSimulationCoordinatorINET(HeuristicSimulationCoordinatorBase):
             sim_uid: The unique identifier of the simulation run.
             parameter_names: The names of the parameters tuned in the simulation model.
     '''
+    @requires_main_process
     def determine_sim_instance_parameter_tuning_results(self, sim_uid, parameter_names):
         # TODO: Change scavetool output filename to something more descriptive.
         folder_path = os.path.join(self.data_path, "results", sim_uid)

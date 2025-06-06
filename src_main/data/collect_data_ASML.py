@@ -17,8 +17,11 @@ import src_main.data.sim_configurations as sim_configurations
 
 from .collect_dataBase import DataCollectorBase
 
+from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main
+
 class DataCollectorASML(DataCollectorBase):
 
+    @requires_main_process
     def __init__(self, weight_wfpm, weight_cost, dir_design_points_metrics_output, run_name=None):
         """
         Initialize the CollectData object.
@@ -42,6 +45,7 @@ class DataCollectorASML(DataCollectorBase):
         self.lock_collective_append_list = {}
         self.condition_collective_append_list = {}
 
+    @requires_main_process
     def store_design_point_metrics(self, wfpm, cost, sim_uid, heuristic_name):
 
         # Determine weighted metric values._
@@ -54,6 +58,7 @@ class DataCollectorASML(DataCollectorBase):
         
         self._store_design_point_metrics_df(heuristic_name, append_df)
 
+    @requires_main_process
     def cache_design_point_metrics_collective(self, wfpm, cost, sim_uid, heuristic_name):
 
         # Determine weighted metric values._
@@ -71,6 +76,7 @@ class DataCollectorASML(DataCollectorBase):
 
         self.collective_append_list[heuristic_name][sim_uid] = [sim_uid, wfpm, cost, adjusted_wfpm, adjusted_cost]
 
+    @requires_main_process
     def store_cached_design_point_metrics_collective(self, heuristic_name):
         self.logger.info(f" ### [Store cached design point metrics] self.collective_append_list: {self.collective_append_list}")
         

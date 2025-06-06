@@ -39,10 +39,11 @@ import logging
 import traceback
 import typing
 import os # For getpid in _log method
-from src_main.tools.logger import loggerRICH
+from src_main.tools.logger import logger
 import queue # For dynamic task request queue
 from .rpc import RPCProxy
 from .local_parallelization_helpers import _set_cpu_affinity
+from pathlib import Path
 
 # --- Module Overview ---
 # This module defines the `ParallelizationManagerContext` class.
@@ -91,8 +92,8 @@ def LocalParallelizationProcessWrapper( # This wrapper is for the main ParaProcs
     log_path: str = None
 ):
     if log_path is None:
-        log_path = os.path.join(self._base_path, "data/logs/")
-    local_parallelization_log_path = Path(os.path.join(self.log_path, "LocalParallelizationManager"))
+        log_path = os.path.join(os.getcwd(), "logs/")
+    local_parallelization_log_path = Path(os.path.join(log_path, "LocalParallelizationManager"))
 
     log_prefix = f"Wrapper P{process_id} PID {os.getpid()}"
     _logger = logger("LocalParallelizationProcessWrapper", local_parallelization_log_path, prefix=log_prefix, disabled=False)

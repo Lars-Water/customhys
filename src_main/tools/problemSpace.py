@@ -14,7 +14,10 @@ from pathlib import Path
 import glob
 import itertools
 
+from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main
+
 class ProblemSpace:
+    @requires_main_process
     def __init__(self, problem_space_name, coordinator_config_file_path, log_path):
         self.logger = logger(f"problemSpace_{problem_space_name}", log_path, disabled=False)
         self.conf = Config(coordinator_config_file_path, log_path, f"problemSpace_{problem_space_name}_config")
@@ -23,6 +26,7 @@ class ProblemSpace:
         self.logger.info(f"Setting up problem space {self.problem_space_name}.")
         self._problems = {}    
     
+    @requires_main_process
     def create_problems(self, num_replicas, create_problem_instance_func, *args, **kwargs):
         assert callable(create_problem_instance_func)
 
@@ -37,6 +41,7 @@ class ProblemSpace:
 
         return self._problems
 
+    @requires_main_process
     def create_and_append_problem(self, create_problem_instance_func, *args, **kwargs):
         assert callable(create_problem_instance_func)
 
@@ -52,6 +57,7 @@ class ProblemSpace:
 
         return self._problems
 
+    @requires_main_process
     def remove_problem(self, replica_id=None):
         if self.has_problems():
             if replica_id is None:
@@ -60,9 +66,11 @@ class ProblemSpace:
                 self.logger.info(f"Removing problem {replica_id}.")
                 del self._problems[replica_id]
 
+    @requires_main_process
     def has_problems(self):
         return len(self._problems) > 0
 
+    @requires_main_process
     def get_problems(self):
         if self.has_problems():
             return self._problems

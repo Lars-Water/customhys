@@ -16,9 +16,11 @@ import src_main.tools.component_config as component_config
 import src_main.data.sim_configurations as sim_configurations
 
 from .collect_dataBase import DataCollectorBase
+from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main
 
 class DataCollectorINET(DataCollectorBase):
 
+    @requires_main_process
     def __init__(self, weight_latency, weight_cost, dir_design_points_metrics_output):
         """
         Initialize the CollectData object.
@@ -36,6 +38,7 @@ class DataCollectorINET(DataCollectorBase):
         self.weight_cost = weight_cost
 
 
+    @requires_main_process
     def store_design_point_metrics(self, latency_df, cost_df, sim_uid, heuristic_name):
         """
         Stores the design point metrics in a CSV file.

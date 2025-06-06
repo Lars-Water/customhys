@@ -16,6 +16,9 @@ from src.utils.config_reader import Config
 from src.utils.logger import logger
 from src.utils.stats import Stats
 
+from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main
+
+
 class ResourceController:
     logger = None
     cnf = None
@@ -28,6 +31,7 @@ class ResourceController:
     scheduler_address = None
     main_pid = None
 
+    @requires_main_process
     def __init__(self, config_path, logs_path):
         # TODO:
         # - check if all required config options are available/correct
@@ -95,10 +99,10 @@ class ResourceController:
                 self.logger.info(f"Client connected: {self.client}")
                 self.logger.info(f"Scheduler info: {self.client.scheduler_info()}")
                 
-                try:
-                    self.client.forward_logging()
-                except Exception as e:
-                    self.logger.error(f"Error while client.forward_logging(): {e}. It is disabled.")
+                # try:
+                #     self.client.forward_logging()
+                # except Exception as e:
+                #     self.logger.error(f"Error while client.forward_logging(): {e}. It is disabled.")
 
         return self.client
 
@@ -130,6 +134,7 @@ class ResourceController:
         self.logger.info(f"future: {future}")
         self.running_tasks[sim_instance.uid] = future
 
+    @requires_main_process
     def __get_all_completed(self):
         completed_sim_instances = []
         for i, uid in enumerate(self.running_tasks.keys()):
@@ -169,6 +174,7 @@ class ResourceController:
         completed_sim_instances = self.__set_sim_instances_time_stat(completed_sim_instances, "general", "resource_controller_retrieval")
         return completed_sim_instances
 
+    @requires_main_process
     def wait_for_active_tasks(self):
         completed_sim_instances = []
         self.get_client() # Ensure client is initialized
@@ -183,6 +189,7 @@ class ResourceController:
 
         return completed_sim_instances
 
+    @requires_main_process
     def get_runtime_stats(self):
         return self.stats.get_stats_dict()
 

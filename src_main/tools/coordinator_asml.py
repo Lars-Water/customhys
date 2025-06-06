@@ -27,6 +27,7 @@ from src.utils.config_creator import WorkflowConfig
 import uuid
 
 from .coordinatorBase import HeuristicSimulationCoordinatorBase
+from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main
 
 
 class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
@@ -45,11 +46,13 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
     def problemInstanceFunc(self):
         return component_config.create_problem_instanceASML
 
+    @requires_main_process
     def createDataCollector(self):
         weight_wfpm = self.conf.tryGet("fitness_config", "weight_wfpm")
         weight_cost= self.conf.tryGet("fitness_config", "weight_wfpm")
         self.data_collector = DataCollectorASML(weight_wfpm, weight_cost, self.dir_design_points_metrics_output, run_name=self._run_name )
     
+    @requires_main_process
     def createHyperHeuristicBase(self):
         self.template_xml_file_path = os.path.join(self.simulation_model_template_path, "platform.xml")
         self.hh_base = HyperHeuristicBase(
@@ -243,6 +246,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
     def get_boundaries(self):
         return self.min_wfpm_runtime, self.max_wfpm_runtime, self.min_cost, self.max_cost
 
+    @requires_main_process
     def manual_normalization(self):
         """
         Manually determines the min and max values for the objective parameters.
@@ -361,6 +365,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
             )
 
 
+    @requires_main_process
     def determine_boundary_value(self, sim_uid, parameter, boundary):
     # TODO ASML
         csv_file_path = os.path.join(self.data_path, "results", str(sim_uid), "x.csv")

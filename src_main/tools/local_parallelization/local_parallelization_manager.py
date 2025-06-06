@@ -39,7 +39,8 @@ import time
 import os
 import typing
 import logging
-from src_main.tools.logger import loggerRICH
+from pathlib import Path
+from src_main.tools.logger import logger
 import queue # For dynamic task request queue
 # traceback is no longer directly used here, it's in helpers.py
 # import traceback 
@@ -126,7 +127,7 @@ class LocalParallelizationManager:
     def __init__(self, root_object: typing.Any = None, update_callback: typing.Callable = None, log_path=None):
         self.log_path = log_path
         if self.log_path is None:
-            self.log_path = os.path.join(self._base_path, "data/logs/")
+            self.log_path = os.path.join(os.getcwd(), "logs/")
         self.local_parallelization_log_path = Path(os.path.join(self.log_path, "LocalParallelizationManager"))
 
         self._logger = logger("LocalParallelizationManager", self.local_parallelization_log_path, prefix=f"MGR (PID {os.getpid()})", disabled=False)

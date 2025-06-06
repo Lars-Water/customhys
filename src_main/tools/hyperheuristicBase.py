@@ -171,8 +171,6 @@ class HyperHeuristicBase:
 
         self.barrier = threading.Barrier(len(self.config_search_operators_spaces.keys()))
 
-        self.local_parallelization_manager = LocalParallelizationManager()
-
     @property
     @requires_main_process
     def search_operator_spaces(self):
@@ -263,6 +261,7 @@ class HyperHeuristicBase:
             for bar in all_bars:
                 self.progress.stop_task(bar)
 
+    @requires_main_process
     def _update_shadow_hh_object(self, proc_id, hh_object_copy=None, attribute_path=None, value=None):
         """
         Callback function to update a shadow HH object.
@@ -293,6 +292,7 @@ class HyperHeuristicBase:
         """A service for a child to pull all pending updates."""
         return self.pending_updates.pop(space_name, None)
 
+    @requires_main_process
     def _call_method_on_shadow(self, space_name, method_name, *args, **kwargs):
         """
         Safely calls a method on a child's shadow object,
@@ -309,6 +309,7 @@ class HyperHeuristicBase:
         else:
             raise AttributeError(f"Method '{method_name}' is not marked as @callable_from_main and cannot be called by the parent process.")
 
+    @requires_main_process
     def hh_prepare(self, search_operator_space_name, search_operator_space_path, bars):
         # print("##### ("+search_operator_space_name+") Starting thread")
         self.logger.info(f'Starting thread for {search_operator_space_name}.')
@@ -416,11 +417,13 @@ class HyperHeuristicBase:
 
     #     local_logger.info(f"Finished hh_thread for {search_operator_space_name} with PID: {pid}.\n{result_dict}")
         
+    @requires_main_process
     def _task_pause(self, taskid):
         self._tasks_time_so_far[taskid] = self.progress._tasks[taskid].elapsed
         self.logger.warn(f"PAUSE {taskid}: {self._tasks_time_so_far[taskid] }")
         self.progress.stop_task(taskid)
 
+    @requires_main_process
     def _task_resume(self, taskid):
         time_so_far = self._tasks_time_so_far[taskid]
         # del self._tasks_time_so_far[taskid]
@@ -487,6 +490,7 @@ class HyperHeuristicBase:
 
         return finalize, reas
 
+    @requires_main_process
     def _checkFinalization_internal(self, 
                              search_operator_space_name,  
                              step, 
@@ -509,6 +513,7 @@ class HyperHeuristicBase:
     def _is_evaluation_time(self, step):
         return self.evaluate_after_steps <= step and (step % self.evaluate_after_steps) == 0
 
+    @requires_main_process
     def _best_hyper(self):
         best_perf = 1
         best_name = None
@@ -520,6 +525,7 @@ class HyperHeuristicBase:
 
         return best_name
 
+    @requires_main_process
     def _is_worst_hyper(self, search_operator_space_name, step):
         worst_perf = -1
         worst_name = None
@@ -648,6 +654,7 @@ class HyperHeuristicBase:
                 with open(os.path.join(dir_path, f"final.json") , "w") as fp:
                     json.dump(json_out, fp, indent=4)
 
+    @requires_main_process
     def _get_num_enabled_hyper(self):
         enabled_hypers = 0
         for search_operator_space_name, hyper in self.hypers.items():

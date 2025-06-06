@@ -8,6 +8,7 @@ from pathlib import Path, PosixPath
 from src.utils.config_reader import Config
 from src.utils.logger import logger
 from src.utils.stats import Stats
+from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main
 
 class OutputHandler:
     logger = None
@@ -16,6 +17,7 @@ class OutputHandler:
     config_path = None
     stats = None
 
+    @requires_main_process
     def __init__(self, config_path, logs_path, collect_data = None):
         self.logs_path = logs_path
         self.config_path = config_path
