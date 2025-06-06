@@ -39,6 +39,14 @@ import logging
 import typing
 import os # For getpid in _log method
 from src_main.tools.logger import loggerRICH
+import queue # For dynamic task request queue
+from .local_parallelization_wrappers import (
+    LocalParallelizationProcessWrapper,
+    _simple_private_task_wrapper,
+    _group_member_task_wrapper,
+    ManagedSharedProcessWrapper
+)
+from .rpc import RPCProxy
 
 # --- Module Overview ---
 # This module defines the `ParallelizationManagerContext` class.
@@ -84,19 +92,19 @@ class ParallelizationManagerContext:
     # (No class-specific global variables defined here currently)
 
     # --- Init and other necessary functions ---
-    def __init__(self, process_id: str, conn_to_manager: typing.Any, # multiprocessing.Connection
+    def __init__(self, paraproc_id: str,
+                 completion_pipe_write_end: multiprocessing.connection.Connection,
                  private_task_request_queue: multiprocessing.Queue,
-                 managed_shared_task_request_queue: multiprocessing.Queue):
-        # MH-DEBUG: Initial entry log for the context constructor
-        self._logger = loggerRICH(__name__)
-        self._logger.debug(f"[CTX P{process_id} (PID {os.getpid()})] CALLED: ParallelizationManagerContext __init__ entered.")
-
-        self.process_id = process_id
-        self._conn_to_manager = conn_to_manager # For ParaProc completion reporting
-        self._completion_reported = False
-        self._private_task_request_queue = private_task_request_queue # For simple private tasks & group tasks
-        self._managed_shared_task_request_queue = managed_shared_task_request_queue # For shared tasks
-        self._private_task_pipes: dict[str, multiprocessing.connection.Connection] = {} # For non-blocking private task results {task_id: pipe_read_end}
+                 managed_shared_task_request_queue: multiprocessing.Queue,
+                 root_object_copy: typing.Any
+                 ):
+        self.process_id = paraproc_id
+        self._logger = loggerRICH(f"CTX_P{self.process_id}")
+        self._completion_pipe_write_end = completion_pipe_write_end
+        self._private_task_request_queue = private_task_request_queue
+        self._managed_shared_task_request_queue = managed_shared_task_request_queue
+        self._private_task_pipes: dict[str, multiprocessing.connection.Connection] = {}
+        self._root_object_copy = root_object_copy # Keep a reference to the root for refresh
 
     def __del__(self):
         if hasattr(self, '_completion_reported') and not self._completion_reported:
@@ -557,3 +565,68 @@ class ParallelizationManagerContext:
             error_payload = response_data.get('error') if isinstance(response_data, dict) else "Communication error or invalid response format"
             self._logger.error(f"[CTX P{self.process_id} (PID {os.getpid()})]: Failed to get result for {log_action_description} '{entity_id}' due to: {error_payload}")
             return False, entity_id, error_payload 
+
+    def create_proxy(self) -> RPCProxy:
+        """Wraps the local root object copy in an RPCProxy."""
+        return RPCProxy(self._root_object_copy, self)
+
+    def get_refresh_payload(self) -> typing.Any:
+        """Returns the entire local object state for periodic refresh."""
+        return self._root_object_copy
+
+    def update_parent_attribute(self, attribute_path: str, value: typing.Any):
+        """Asynchronously sends an attribute update to the parent process."""
+        request = {
+            'type': 'UPDATE_ATTRIBUTE',
+            'requesting_paraproc_id': self.process_id,
+            'attribute_path': attribute_path,
+            'value': value
+        }
+        self._private_task_request_queue.put(request) # Fire and forget
+
+    def _call_service_rpc(self, service_path: str, refresh_payload: typing.Any, *args, **kwargs) -> typing.Any:
+        """Internal method to make a raw RPC call to the manager."""
+        parent_conn, child_conn = multiprocessing.Pipe(duplex=False)
+        
+        request = {
+            'type': 'CALL_SERVICE',
+            'requesting_paraproc_id': self.process_id,
+            'service_path': service_path,
+            'args': args,
+            'kwargs': kwargs,
+            'refresh_payload': refresh_payload,
+            'response_pipe_write_end': child_conn
+        }
+
+        try:
+            self._private_task_request_queue.put(request)
+            if parent_conn.poll(timeout=None):
+                response = parent_conn.recv()
+            else:
+                raise TimeoutError(f"Timeout waiting for RPC response for: {service_path}")
+            
+            if 'error' in response:
+                raise RuntimeError(f"Error from main process for service '{service_path}': {response['error']}")
+
+            return response['result']
+        finally:
+            parent_conn.close()
+            child_conn.close()
+
+    def get_progress_proxy(self, bar_type: str, bars: list) -> dict:
+        """
+        Returns a dictionary of lambdas to control a Rich progress bar from a child process.
+        This is a workaround for the fact that the progress object itself is not pickleable.
+        """
+        bar_map = {'bar_steps': 0, 'bar_iter': 1}
+        bar_index = bar_map.get(bar_type)
+        if bar_index is None:
+            raise ValueError(f"Unknown bar_type: {bar_type}")
+        
+        bar_id = bars[bar_index]
+
+        return {
+            'advance': lambda x: self.call_service('progress_advance', bar_id, x),
+            'reset': lambda: self.call_service('progress_reset', bar_id),
+            'update': lambda **kwargs: self.call_service('progress_update', bar_id, **kwargs)
+        } 

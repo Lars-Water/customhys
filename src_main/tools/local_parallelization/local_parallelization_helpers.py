@@ -133,4 +133,18 @@ def _generic_task_wrapper(
             try:
                 completion_conn_to_manager.close()
             except Exception as e_close:
-                _log.error(f"{log_prefix} (PID {os.getpid()}) EXCEPTION closing completion_conn for {target_func.__name__}: {e_close}") 
+                _log.error(f"{log_prefix} (PID {os.getpid()}) EXCEPTION closing completion_conn for {target_func.__name__}: {e_close}")
+
+# This ensures that even if psutil fails, the manager can fall back to a default.
+def get_cpu_count_for_manager():
+    return 0
+
+def requires_main_process(func):
+    """
+    Decorator to mark a method as stateful and requiring execution
+    on the single, authoritative object in the main process.
+    Any method NOT marked with this will be executed locally in the child process
+    if called through an RPCProxy.
+    """
+    func._requires_main_process = True
+    return func 

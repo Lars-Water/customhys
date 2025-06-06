@@ -53,6 +53,7 @@ from .local_parallelization_wrappers import (
     _group_member_task_wrapper,
     ManagedSharedProcessWrapper
 )
+from .rpc import requires_main_process # This might be used by objects passed to the manager
 # ParallelizationManagerContext is instantiated within LocalParallelizationProcessWrapper
 
 # --- Module Overview ---
@@ -121,7 +122,7 @@ class LocalParallelizationManager:
     # (No class-specific global variables defined here currently)
 
     # --- Init and other necessary functions ---
-    def __init__(self):
+    def __init__(self, root_object: typing.Any = None, update_callback: typing.Callable = None):
         self._logger = loggerRICH(__name__)
         self._logger.info(f"[MGR (PID {os.getpid()})]: Initializing LocalParallelizationManager...")
         # ParaProc Management
@@ -148,7 +149,9 @@ class LocalParallelizationManager:
 
         # Managed Shared Task Management
         self._managed_shared_task_request_queue = multiprocessing.Queue()
+        self.root_object = root_object
         self._shared_tasks_registry: dict[str, dict] = {} # {task_name: details}
+        self.update_callback = update_callback
 
         self._initialize_cpu_cores() # Call helper for CPU core setup
 
@@ -260,6 +263,8 @@ class LocalParallelizationManager:
                 elif pt_req_type == 'ADD_TASK_TO_PRIVATE_GROUP': self._handle_add_task_to_private_group(private_request)
                 elif pt_req_type == 'START_PRIVATE_TASK_GROUP': self._handle_start_private_task_group(private_request)
                 elif pt_req_type == 'WAIT_FOR_PRIVATE_TASK_GROUP': self._handle_wait_for_private_task_group(private_request)
+                elif pt_req_type == 'CALL_SERVICE': self._handle_service_call_request(private_request)
+                elif pt_req_type == 'UPDATE_ATTRIBUTE': self._handle_attribute_update(private_request)
                 else: self._logger.warning(f"[MGR (PID {os.getpid()})]: Unknown private task request type: {pt_req_type}")
             except queue.Empty: pass
             except Exception as e: self._logger.error(f"[MGR (PID {os.getpid()})]: Exception processing private task queue: {e}", exc_info=True)
@@ -716,6 +721,57 @@ class LocalParallelizationManager:
                   result_pipe_to_context not in self._shared_tasks_registry[task_name].get('waiters_result_pipes', [])))
                 ):
                 result_pipe_to_context.close()
+
+    def _handle_service_call_request(self, request: dict):
+        """Handles CALL_SERVICE requests from ParaProc contexts by dynamically resolving the path."""
+        service_path = request['service_path']
+        args = request.get('args', [])
+        kwargs = request.get('kwargs', {})
+        response_pipe = request['response_pipe_write_end']
+        requesting_paraproc_id = request['requesting_paraproc_id']
+        refresh_payload = request.get('refresh_payload')
+
+        # Handle periodic state refresh via callback
+        if refresh_payload and self.update_callback:
+            self.update_callback(requesting_paraproc_id, refresh_payload)
+            self._logger.debug(f"[MGR (PID {os.getpid()})]: Passed refresh payload for {requesting_paraproc_id} to callback.")
+        
+        try:
+            current_obj = self.root_object
+            for attr_name in service_path.split('.'):
+                current_obj = getattr(current_obj, attr_name)
+            
+            func_to_call = current_obj
+            
+            self._logger.debug(f"[MGR (PID {os.getpid()})]: P{requesting_paraproc_id} calling service '{service_path}'.")
+            
+            if callable(func_to_call):
+                result = func_to_call(*args, **kwargs)
+            else:
+                result = func_to_call
+
+            if not response_pipe.closed:
+                response_pipe.send({'result': result})
+        except Exception as e:
+            self._logger.error(f"[MGR (PID {os.getpid()})]: Error executing service '{service_path}' for P{requesting_paraproc_id}: {e}", exc_info=True)
+            if not response_pipe.closed:
+                response_pipe.send({'error': str(e)})
+        finally:
+            if not response_pipe.closed:
+                response_pipe.close()
+
+    def _handle_attribute_update(self, request: dict):
+        """Handles asynchronous attribute updates by passing them to the callback."""
+        paraproc_id = request['requesting_paraproc_id']
+        attribute_path = request['attribute_path']
+        value = request['value']
+
+        if self.update_callback:
+            # Pass the single attribute update to the owner (HyperHeuristicBase)
+            self.update_callback(paraproc_id, attribute_path=attribute_path, value=value)
+            self._logger.debug(f"[MGR (PID {os.getpid()})]: Passed attribute update for '{attribute_path}' from {paraproc_id} to callback.")
+        else:
+            self._logger.warning(f"Received attribute update from {paraproc_id} but no update_callback is registered. Ignoring.")
 
     # Group: Completion Checkers (for polling various task types)
     def _check_simple_private_task_completions(self):

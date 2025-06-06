@@ -30,6 +30,7 @@ from src.utils.config_creator import WorkflowConfig
 from src_main.external.customhys.customhys import hyperheuristic as hh
 
 import uuid
+from .local_parallelization.rpc import requires_main_process
 
 
 class HeuristicSimulationCoordinatorBase:
@@ -183,7 +184,7 @@ class HeuristicSimulationCoordinatorBase:
         raise NotImplementedError("You need to implement a HyperHeuristic Base (createHyperHeuristicBase()).")
 
     def problemInstanceFunc(self):
-        raise NotImplementedError("You need to set a problem instance creator (problemInstanceFunc()) which returns a problem instance function.")
+        raise NotImplementedError("You need to implement a problem instance creator (problemInstanceFunc()) which returns a problem instance function.")
 
     def run(self):
         if self._normalize:
@@ -195,6 +196,7 @@ class HeuristicSimulationCoordinatorBase:
         self.simulation_execution_time = 0
         self.logger.info("Getting all problems file name fitness values.")
         self.problems_file_name_fitness_values = self.hh_base.get_all_problems_file_name_fitness_values()
+        # The hh_base object already has the coordinator, no need to pass it again.
         return self.hh_base.run_multi_threaded()
 
     def set_run_name(self, run_name):
@@ -299,6 +301,7 @@ class HeuristicSimulationCoordinatorBase:
         Returns:
             The fitness value of the simulation run.
     '''
+    @requires_main_process
     def simulation_run(self, fitfunc, config_values, file_name_fitness_values="fitness_values.json", step_iteration_data={'step': -1, 'iteration': -1}):
         # Start timer for simulation run.
         self.logger.info(f"simulation_run: {fitfunc}, {config_values}, {file_name_fitness_values}, {step_iteration_data}")
