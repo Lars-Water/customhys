@@ -1,4 +1,4 @@
-from src_main.tools.logger import logger, setLevelLogger
+from src_main.tools.logger import logger, setLevelLogger, setup_multiprocess_logging, stop_multiprocess_logging
 import src_main.tools.component_config as component_config
 import src_main.tools.file_operations as fo
 from src_main.tools.config_reader import Config
@@ -107,12 +107,65 @@ def _hh_worker_function(context: 'ParallelizationManagerContext', search_operato
 class HyperHeuristicBase:
     _search_operator_spaces = None
 
+    def __getstate__(self):
+        """Prepares the object for pickling, removing non-serializable attributes."""
+        state = self.__dict__.copy()
+        non_serializable = [
+            'lock_hypers', 'barrier', 'progress', 'threads', 'procs', 
+            'local_parallelization_manager', 'logger', 'conf',
+            '_search_operator_spaces' # This object also has a logger and conf
+        ]
+        for attr in non_serializable:
+            if attr in state:
+                del state[attr]
+        # The 'hypers' dict contains lambda functions for the progress bar, which are not pickleable.
+        # We need to create a sanitized copy.
+        if 'hypers' in state:
+            state['hypers'] = self._pickle_safe_hypers(state['hypers'])
+        
+        return state
+
+    def __setstate__(self, state):
+        """Restores the object after pickling."""
+        self.__dict__.update(state)
+        # Re-initialize the non-serializable attributes to a safe default state.
+        self.lock_hypers = None
+        self.barrier = None
+        self.progress = None
+        self.threads = {}
+        self.procs = []
+        self.local_parallelization_manager = None
+        # In the child process, the logger will be re-configured by the logger factory
+        # to use the QueueHandler, so we don't need to do anything complex here.
+        self.logger = logger("HyperHeuristicBase_deserialized", self.coordinator_log_path, rich_handler=True, disabled=True)
+        self.conf = None
+        self._search_operator_spaces = None
+
+    @requires_main_process
+    def _pickle_safe_hypers(self, hypers_dict):
+        """
+        Creates a deep copy of the hypers dictionary, removing non-pickleable
+        lambda functions from the 'progress_bar' entry.
+        """
+        safe_hypers = {}
+        for name, data in hypers_dict.items():
+            safe_data = data.copy()
+            if 'progress_bar' in safe_data:
+                # The progress_bar dict contains lambdas. Replace it with a placeholder.
+                safe_data['progress_bar'] = {'status': 'not_available_in_child_process'}
+            safe_hypers[name] = safe_data
+        return safe_hypers
+
+    @requires_main_process
     def __init__(self, heur_coordinator, base_path, coordinator_config_file_path, experiment_config,  template_file_path, log_path=None, file_label_base="EXP-", experiment_name_base="experiment_", run_name = "experiment_"):       
         self.coordinator_config_file_path = coordinator_config_file_path
         self.log_path = log_path
         if self.log_path is None:
             self.log_path = os.path.join(self._base_path, "data/logs/")
         self.coordinator_log_path = Path(os.path.join(self.log_path, "coordinator"))
+
+        # Setup centralized logging
+        setup_multiprocess_logging(self.log_path)
 
         self.conf = Config(coordinator_config_file_path, outputfolderpath=self.coordinator_log_path, name="HyperHeuristicBase_config")
         self.logger = logger("HyperHeuristicBase", self.coordinator_log_path, rich_handler=True, disabled=False)
@@ -171,10 +224,24 @@ class HyperHeuristicBase:
 
         self.barrier = threading.Barrier(len(self.config_search_operators_spaces.keys()))
 
+    @requires_main_process
+    def shutdown(self):
+        """Shuts down the centralized logging listener."""
+        self.logger.info("Shutting down multiprocessing logger.")
+        stop_multiprocess_logging()
+
     @property
     @requires_main_process
     def search_operator_spaces(self):
         return self._search_operator_spaces
+
+    @requires_main_process
+    def get_problems(self, problem_space_name):
+        if self._search_operator_spaces.has_problem_space(problem_space_name):
+            problems = self._search_operator_spaces.get_problems(problem_space_name)
+            return problems
+        else:
+            return None
 
     @requires_main_process
     def has_problems(self, problem_space_name):

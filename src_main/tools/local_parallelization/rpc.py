@@ -1,5 +1,14 @@
 import typing
 
+def managed_by_main_process(cls):
+    """
+    A class decorator to mark a class as being managed by the main process.
+    The RPCProxy will automatically create sub-proxies for any attribute
+    that is an instance of a class decorated with this.
+    """
+    cls._is_main_process_managed = True
+    return cls
+
 def requires_main_process(func):
     """
     Decorator to mark a method as stateful and requiring execution
@@ -70,7 +79,12 @@ class RPCProxy:
         except AttributeError:
             raise AttributeError(f"'{type(self._local_object).__name__}' object has no attribute '{name}' in its local copy.")
 
-        # If the attribute is NOT callable (i.e., it's a property/variable) AND it's decorated,
+        # NEW: If the attribute is an instance of a class marked as managed,
+        # return a new proxy for that nested object.
+        if hasattr(type(attr), '_is_main_process_managed'):
+            return RPCProxy(attr, self._rpc_context, self._path + (name,))
+
+        # If the attribute is NOT callable (i.e., a property) AND it's decorated,
         # we must fetch its value from the main process.
         if not callable(attr) and hasattr(attr, '_requires_main_process'):
             full_path_str = ".".join(self._path + (name,))

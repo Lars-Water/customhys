@@ -17,13 +17,13 @@ class Config:
     configFilePath: PosixPath = None
     _config = None
 
-    def __init__(self, configFilePath: PosixPath, outputfolderpath = None, name: str = None):
+    def __init__(self, configFilePath: PosixPath, outputfolderpath = None, name: str = None, prefix: str = ""):
         if outputfolderpath is not None and name is not None:
-            self.logger = logger.logger(name, outputfolderpath)
+            self.logger = logger.logger(name, outputfolderpath, prefix=prefix)
         elif name is not None:
-            self.logger = logger.loggerRICH(name)
+            self.logger = logger.loggerRICH(name, prefix=prefix)
         else:
-            self.logger = logger.loggerRICH("Config")
+            self.logger = logger.loggerRICH("Config", prefix=prefix)
 
         self.logger.info("Default config file: "+str(self.defaultFile))
         if os.path.exists(configFilePath) and os.path.isfile(configFilePath):

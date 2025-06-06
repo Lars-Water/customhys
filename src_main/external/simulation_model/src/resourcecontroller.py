@@ -123,6 +123,7 @@ class ResourceController:
         return sims
 
     # Does not wait for sim to complete
+    @requires_main_process
     def __submit_task(self, sim_instance):
         self.logger.debug("Sending sim instance {} to worker cluster".format(sim_instance.uid))
         sim_instance.record_time_stat("general", "resource_controller_submit")
@@ -161,14 +162,15 @@ class ResourceController:
         self.submit_tasks(sim_instances)
         return self.wait_for_tasks(sim_instances)
 
+    @requires_main_process
+    def get_futures_from_sim_instances(self, sim_instances):
+        return [self.running_tasks[sim_instance.uid] for sim_instance in sim_instances]
+
     def wait_for_tasks(self, sim_instances):
         # TODO: catch sim instance not in running tasks
         self.get_client()  # Ensure client is initialized
-        self.logger.debug("Retrieving DASK futures for given tasks")
-        futures = [self.running_tasks[sim_instance.uid] for sim_instance in sim_instances]
-        self.logger.debug("Waiting for all tasks to complete")
+        futures = self.get_futures_from_sim_instances(sim_instances)
         wait(futures)
-        self.logger.debug("All tasks have completed")
 
         completed_sim_instances = [future.result() for future in futures]
         completed_sim_instances = self.__set_sim_instances_time_stat(completed_sim_instances, "general", "resource_controller_retrieval")

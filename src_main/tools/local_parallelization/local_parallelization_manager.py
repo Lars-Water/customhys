@@ -44,6 +44,7 @@ from src_main.tools.logger import logger
 import queue # For dynamic task request queue
 # traceback is no longer directly used here, it's in helpers.py
 # import traceback 
+import pickle
 
 # --- Imports from local modules ---
 # Assuming these files are in the same package directory
@@ -748,25 +749,39 @@ class LocalParallelizationManager:
             self._logger.debug(f"Passed refresh payload for {requesting_paraproc_id} to callback.")
         
         try:
+            # NEW: Resolve nested attribute paths
             current_obj = self.root_object
             for attr_name in service_path.split('.'):
                 current_obj = getattr(current_obj, attr_name)
             
-            func_to_call = current_obj
+            # The final object in the path is the one we call or get.
+            target_obj_or_method = current_obj
             
             self._logger.debug(f"P{requesting_paraproc_id} calling service '{service_path}'.")
             
-            if callable(func_to_call):
-                result = func_to_call(*args, **kwargs)
+            # If the resolved path points to a callable method, call it.
+            # Otherwise, it's an attribute access, so we just return its value.
+            if callable(target_obj_or_method):
+                result = target_obj_or_method(*args, **kwargs)
             else:
-                result = func_to_call
+                result = target_obj_or_method
 
             if not response_pipe.closed:
-                response_pipe.send({'result': result})
+                try:
+                    response_pipe.send({'result': result})
+                except (pickle.PicklingError, TypeError) as e:
+                    error_msg = f"Serialization error for result of '{service_path}': {type(e).__name__} - {e}"
+                    self._logger.error(error_msg, exc_info=True)
+                    if not response_pipe.closed:
+                        response_pipe.send({'error': error_msg})
         except Exception as e:
-            self._logger.error(f"Error executing service '{service_path}' for P{requesting_paraproc_id}: {e}", exc_info=True)
+            error_msg = f"Error executing service '{service_path}' for P{requesting_paraproc_id}: {type(e).__name__} - {e}"
+            self._logger.error(error_msg, exc_info=True)
             if not response_pipe.closed:
-                response_pipe.send({'error': str(e)})
+                try:
+                    response_pipe.send({'error': error_msg})
+                except Exception as e_send:
+                    self._logger.error(f"Failed to send error back to P{requesting_paraproc_id} for service '{service_path}': {e_send}")
         finally:
             if not response_pipe.closed:
                 response_pipe.close()

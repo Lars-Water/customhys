@@ -41,26 +41,45 @@ class HeuristicSimulationCoordinatorBase:
         """
         Prepare the object's state for pickling.
         This method is called by the pickle module. We exclude non-serializable
-        attributes like the manager (which may contain locks or Dask clients)
-        and the logger.
+        attributes that are owned directly by this class.
         """
         state = self.__dict__.copy()
-        # Remove the unpickleable entries.
-        state['manager'] = None
-        state['logger'] = None
-        state['conf'] = None # Config object also holds a logger
+        # Attributes to remove before pickling
+        non_serializable = ['manager', 'logger', 'conf', 'data_collector']
+        for attr in non_serializable:
+            if attr in state:
+                del state[attr]
         return state
 
     def __setstate__(self, state):
         """
         Restore the object's state after unpickling.
-        The 'manager' and 'logger' attributes will be None in the child process,
-        which is the desired behavior as they should not be used there.
+        This method is called in worker processes.
         """
         self.__dict__.update(state)
+        # Re-initialize non-serializable attributes.
+        self.manager = None
+        self.data_collector = None
+        
+        # In a worker process, re-initialize the config and logger.
+        # The config file path is assumed to be part of the pickled state.
+        if hasattr(self, 'coordinator_config_file_path'):
+            self.conf = Config(self.coordinator_config_file_path, name=f"coordinator_config_worker_{os.getpid()}", prefix=f"COORD_CONF|P:{os.getpid()}")
+        else:
+            self.conf = None
+
+        # The logger in a worker process should be set up to use the
+        # multiprocessing queue. The logger factory function should handle this.
+        # The log_path should also be in the pickled state.
+        if hasattr(self, 'log_path') and self.log_path:
+            coordinator_log_path = Path(os.path.join(self.log_path, "coordinator"))
+            self.logger = logger(f"coordinator_worker_{os.getpid()}", coordinator_log_path, rich_handler=True, disabled=False, prefix=f"COORD|P:{os.getpid()}")
+        else:
+            # Fallback to a disabled logger if path is not available
+            self.logger = loggerRICH(f"coordinator_worker_fallback_{os.getpid()}", prefix=f"COORD|P:{os.getpid()}")
 
     def __del__(self):
-        if hasattr(self, "manager"):
+        if hasattr(self, "manager") and self.manager is not None:
             self.manager.shutdown()
 
     '''
@@ -209,22 +228,34 @@ class HeuristicSimulationCoordinatorBase:
     def createHyperHeuristicBase(self):
         raise NotImplementedError("You need to implement a HyperHeuristic Base (createHyperHeuristicBase()).")
 
+    @requires_main_process
+    def shutdown(self):
+        """Shuts down the coordinator and its components."""
+        if self.hh_base:
+            self.hh_base.shutdown()
+        if hasattr(self, "manager") and self.manager is not None:
+            self.manager.shutdown()
+
     def problemInstanceFunc(self):
         raise NotImplementedError("You need to implement a problem instance creator (problemInstanceFunc()) which returns a problem instance function.")
 
     @requires_main_process
     def run(self):
-        if self._normalize:
-            self.logger.info("Start manual normalization.")
-            self.manual_normalization()
-        else:
-            self.logger.warn("Normalization is skipped!")
-        self.coordinator_and_simulation_execution_time = 0
-        self.simulation_execution_time = 0
-        self.logger.info("Getting all problems file name fitness values.")
-        self.problems_file_name_fitness_values = self.hh_base.get_all_problems_file_name_fitness_values()
-        # The hh_base object already has the coordinator, no need to pass it again.
-        return self.hh_base.run_multi_threaded()
+        try:
+            if self._normalize:
+                self.logger.info("Start manual normalization.")
+                self.manual_normalization()
+            else:
+                self.logger.warn("Normalization is skipped!")
+            self.coordinator_and_simulation_execution_time = 0
+            self.simulation_execution_time = 0
+            self.logger.info("Getting all problems file name fitness values.")
+            self.problems_file_name_fitness_values = self.hh_base.get_all_problems_file_name_fitness_values()
+            # The hh_base object already has the coordinator, no need to pass it again.
+            return self.hh_base.run_multi_threaded()
+        finally:
+            self.logger.info("Run finished. Shutting down coordinator components.")
+            self.shutdown()
 
     @requires_main_process
     def set_run_name(self, run_name):
@@ -332,27 +363,27 @@ class HeuristicSimulationCoordinatorBase:
     '''
     def simulation_run(self, fitfunc, config_values, file_name_fitness_values="fitness_values.json", step_iteration_data={'step': -1, 'iteration': -1}):
         # Start timer for simulation run.
-        self.logger.info(f"simulation_run: {fitfunc}, {config_values}, {file_name_fitness_values}, {step_iteration_data}")
+        self.logger.debug(f"simulation_run: {fitfunc}, {config_values}, {file_name_fitness_values}, {step_iteration_data}")
         start_time = time.time()
         # TODO: Merge the following two if statements into one. -> CUSTOMHys should be able to handle both situations?
         if self._nr_of_agents > 1:
-            self.logger.info(f"Determining the simulation model parameters for the configuration values.")
+            self.logger.debug(f"Determining the simulation model parameters for the configuration values.")
             configurations = self.set_agents_param_values(config_values)
             sim_ids = []
-            self.logger.info("Generating sim instances for the agents.")
+            self.logger.debug("Generating sim instances for the agents.")
             for agent_configuration in configurations:
                 sim_id = uuid.uuid4()
                 sim_ids.append(sim_id)
                 self.logger.debug(f"Generating simulation instance for design point: {sim_id}.")
                 self.generate_design_point(sim_id, agent_configuration)
 
-            self.logger.info("Run the generated simulation instances. ("+str(len(sim_ids))+")\n"+str(file_name_fitness_values)+"\n"+str(step_iteration_data))
+            self.logger.debug("Run the generated simulation instances. ("+str(len(sim_ids))+")\n"+str(file_name_fitness_values)+"\n"+str(step_iteration_data))
             uids = self.run_multiple_simulation_configuration(sim_ids, file_name_fitness_values, step_iteration_data = step_iteration_data)
 
             self.logger.debug("Collect the simulation stats from the simulation instances runs.\n"+str(uids.keys()))
             simulation_metrics = self.obtain_simulation_stats(uids, file_name_fitness_values=file_name_fitness_values)
 
-            self.logger.info("Locally storing the agents fitness values.")
+            self.logger.debug("Locally storing the agents fitness values.")
             fitness_config = self.conf.tryGet("fitness_config")
             fitness_values = fitfunc(fitness_config, simulation_metrics)
 
@@ -500,7 +531,7 @@ class HeuristicSimulationCoordinatorBase:
             dict: A dictionary mapping Herman's simulation instance UIDs to their corresponding coordinator IDs.
         """
         start_time = time.time()
-        self.logger.info(f"run_multiple_simulation_configuration: {sim_ids}, {file_name_fitness_values}, {step_iteration_data}")
+        self.logger.debug(f"run_multiple_simulation_configuration: {sim_ids}, {file_name_fitness_values}, {step_iteration_data}")
 
         # Create/Get queue id for every problem
         queue_name = Path(file_name_fitness_values).stem
@@ -517,7 +548,7 @@ class HeuristicSimulationCoordinatorBase:
         # Run the configured simulation model.
         self.manager.enqueue_tasks(sim_instances, queue_id=queue_id, metadata=step_iteration_data)
 
-        self.logger.info(f"(Queue: {queue_id}) Evaluating simulation instances: {uids} with sim ids: {sim_ids}")
+        self.logger.debug(f"(Queue: {queue_id}) Evaluating simulation instances: {uids} with sim ids: {sim_ids}")
 
         self.manager.evaluate_queue_all(queue_id)
 
@@ -530,15 +561,19 @@ class HeuristicSimulationCoordinatorBase:
         return uids
 
 
+    @requires_main_process
     def get_boundaries(self):
         raise NotImplementedError("You need to implement: get_boundaries().")
 
+    @requires_main_process
     def manual_normalization(self):
         raise NotImplementedError("You need to implement: manual_normalization().")
 
+    @requires_main_process
     def determine_boundary_value(self, sim_uid, parameter, boundary):
         raise NotImplementedError("You need to implement: determine_boundary_value().")
 
+    @requires_main_process
     def _check_normalization(self):
         raise NotImplementedError("You need to implement: _check_normalization().")
 

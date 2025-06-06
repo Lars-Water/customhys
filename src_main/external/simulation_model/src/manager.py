@@ -16,15 +16,15 @@ from src_main.tools.logger import logger
 from src.utils.config_reader import Config
 from src.utils.stats import Stats
 
-from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main
+from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main, managed_by_main_process
 
+@managed_by_main_process
 class Manager:
     logger = None
     cnf = None
     start_time = None
     stats = None
 
-    @requires_main_process
     def __init__(self, config_path, logs_path, stats_file=None, data_collector = None):
         if stats_file is None:
             stats_file = os.path.join(logs_path, "statistics.json")
@@ -77,15 +77,12 @@ class Manager:
         self.stats.set_file_path(self.stats_file)
         
         
-    @requires_main_process
     def set_data_collector(self, data_collector):
         self.data_collector = data_collector
         
-    @requires_main_process
     def __has_queue(self, queue_id):
         return queue_id in self.design_point_queues.keys()
 
-    @requires_main_process
     def __get_queue(self, queue_id):
         if self.__has_queue(queue_id):
             return self.design_point_queues[queue_id]
@@ -93,11 +90,9 @@ class Manager:
             self.logger.info("Queue for given id does not exist")
             return None
 
-    @requires_main_process
     def __get_highest_prio_queue(self):
         return self.design_point_queues[self.design_queue_id_order[0]]
 
-    @requires_main_process
     def __get_first_non_empty_queue(self):
         for design_point_queue_id in self.design_queue_id_order:
             design_point_queue = self.design_point_queues[design_point_queue_id]
@@ -106,14 +101,12 @@ class Manager:
 
         return None
 
-    @requires_main_process
     def __get_first_from_design_point_queue(self, queue_id):
         if self.__has_queue(queue_id):
             return self.design_point_queues[queue_id]
         else:
             raise Exception("Passed invalid design queue id")
 
-    @requires_main_process
     def __get_first_from_design_point_queues(self):
         design_point_queue_id = self.__get_first_non_empty_queue()
         if design_point_queue:
@@ -122,7 +115,6 @@ class Manager:
         else:
             return None
 
-    @requires_main_process
     def __insert_design_point_queue(self, sim_instances, queue_id):
         design_point_queue = self.__get_queue(queue_id)
 
@@ -130,7 +122,6 @@ class Manager:
             self.logger.info("Inserting sim instances ({}) in design point queue {} (Total: {})".format(len(sim_instances), queue_id, design_point_queue.size()+len(sim_instances)))
             self.sim_queue.insert_list(sim_instances)
 
-    @requires_main_process
     def __filter_unique_sim_instances(self, sim_instances):
         num_received = len(sim_instances)
 
@@ -146,7 +137,6 @@ class Manager:
 
         return unique
 
-    @requires_main_process
     def __filter_cached_sim_instances(self, sim_instances):
         num_received = len(sim_instances)
         sim_instances, cached_sim_instances = self.design_point_cache.filter_design_point_cache(sim_instances)
@@ -154,7 +144,6 @@ class Manager:
         self.logger.info("Filtered {} sim instances based on cache".format(num_received - num_not_in_cache))
         return sim_instances, cached_sim_instances
 
-    @requires_main_process
     def __set_sim_instances_time_stat(self, sim_instances, *args):
         sims = []
         for sim_instance in sim_instances:
@@ -162,7 +151,6 @@ class Manager:
             sims += [sim_instance]
         return sims
 
-    @requires_main_process
     def get_runtime_stats(self):
         return self.stats.get_stats_dict()
 
@@ -197,7 +185,7 @@ class Manager:
         if (len(sim_instances) > 0):
             self.logger.debug("Inserting sim instances ({}) in design point queue {}".format(len(sim_instances), queue_id))
             sim_instances = self.__set_sim_instances_time_stat(sim_instances, "general", "insert_design_point_queue_start")
-            design_point_queue.insert_list(sim_instances)
+            design_point_queue.insert_list(sim_instances)t
             sim_instances = self.__set_sim_instances_time_stat(sim_instances, "general", "insert_design_point_queue_end")
             self.design_point_cache.set_sims_waiting(sim_instances)
         else:
@@ -206,7 +194,6 @@ class Manager:
         self.stats.write_stats_to_file()
 
     # Does not wait for results
-    @requires_main_process
     def submit_queue_all(self, queue_id):
         design_point_queue = self.__get_queue(queue_id)
 
@@ -218,7 +205,6 @@ class Manager:
         return self.submit_queue(queue_id, n=n)
 
     # Does not wait for result
-    @requires_main_process
     def submit_queue(self, queue_id, n=1):
         design_point_queue = self.__get_queue(queue_id)
 
@@ -241,7 +227,6 @@ class Manager:
         return sim_instances
 
     # Does not wait for result
-    @requires_main_process
     def submit(self, n):
         self.logger.debug("Requesting {} sim instances from design point queues (highest priority first)".format(n))
         sim_instances = []
@@ -258,7 +243,6 @@ class Manager:
         return sim_instances
 
     # Does not wait for results
-    @requires_main_process
     def submit_all(self):
         self.logger.debug("Requesting all sim instances from design point queues (highest priority first)")
         sim_instances = []
@@ -290,7 +274,6 @@ class Manager:
             i += 1     
         return sim_instances
     
-    @requires_main_process
     def evaluate_cached_sims(self, design_point_queue):
         all_are_processing = 0
         cached_sim_instances = design_point_queue.cached_get_all()
@@ -373,7 +356,6 @@ class Manager:
 
         return sim_instances
 
-    @requires_main_process
     def shutdown(self):
         self.design_point_cache.shutdown()
         design_point_runtime = self.design_point_cache.get_runtime_stats()

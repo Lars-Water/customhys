@@ -87,21 +87,46 @@ class instanceBase(BP):
     def get_step_iteration_data(self):
         return self.step_iteration_data
 
+    # Helper function to be pickled
+    def _get_function_value_wrapper(self, x):
+        return self.get_function_value(x)
+
+    def _set_space_name_wrapper(self, x):
+        self.set_space_name(x)
+
+    def _set_file_name_fitness_values_wrapper(self, x):
+        self.set_file_name_fitness_values(x)
+
+    def _get_file_name_fitness_values_wrapper(self):
+        return self.get_file_name_fitness_values()
+
+    def _store_agents_fitness_values_wrapper(self, x):
+        self.store_agents_fitness_values(x)
+
+    def _get_agents_fitness_values_wrapper(self):
+        return self.get_agents_fitness_values()
+
+    def _set_step_iteration_data_wrapper(self, x, y):
+        self.set_step_iteration_data(x, y)
+
+    def _get_step_iteration_data_wrapper(self):
+        return self.get_step_iteration_data()
+
     def get_formatted_problem(self, is_constrained=True, fts=None):
-        return dict(function=lambda x: self.get_function_value(x),
+        return dict(function=self._get_function_value_wrapper,
                     boundaries=(self.min_search_range, self.max_search_range),
                     is_constrained=is_constrained,
                     features=self.get_features(fts=fts),
                     func_name=self.func_name,
                     dimensions=self.variable_num,
-                    set_space_name=lambda x: self.set_space_name(x),
-                    set_file_name_fitness_values=lambda x: self.set_file_name_fitness_values(x),
-                    get_file_name_fitness_values=lambda: self.get_file_name_fitness_values(),
-                    store_agents_fitness_values=lambda x: self.store_agents_fitness_values(x),
-                    get_agents_fitness_values=lambda: self.get_agents_fitness_values(), 
+                    set_space_name=self._set_space_name_wrapper,
+                    set_file_name_fitness_values=self._set_file_name_fitness_values_wrapper,
+                    get_file_name_fitness_values=self._get_file_name_fitness_values_wrapper,
+                    store_agents_fitness_values=self._store_agents_fitness_values_wrapper,
+                    get_agents_fitness_values=self._get_agents_fitness_values_wrapper, 
                     fitness_value_dir = self.fitness_value_dir,
-                    set_step_iteration_data=lambda x,y: self.set_step_iteration_data(x, y),
-                    get_step_iteration_data=lambda: self.get_step_iteration_data()
+                    set_step_iteration_data=self._set_step_iteration_data_wrapper,
+                    get_step_iteration_data=self._get_step_iteration_data_wrapper
         )
 
     '''
@@ -109,6 +134,9 @@ class instanceBase(BP):
     '''
     def get_func_val(self, variables, *args):
         return self.sim_run(self.fitfunc, variables, self.file_name_fitness_values, self.step_iteration_data)
+
+    def get_function_value(self, variables, *args):
+        return self.get_func_val(variables, *args)
 
 
     '''

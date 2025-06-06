@@ -7,7 +7,9 @@ from src_main.tools.logger import logger
 from src.utils.config_reader import Config
 from src.utils.stats import Stats
 
-from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main
+from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main, managed_by_main_process
+
+@managed_by_main_process
 class DesignPointQueue:
     id = None
     priority = None
@@ -20,7 +22,6 @@ class DesignPointQueue:
 
     supported_sorting_algos = ["FIFO"]
 
-    @requires_main_process
     def __init__(self, config_path, logs_path, id):
         self.id = id
         # TODO: validate that 'id' can be used in file/folder names
@@ -56,7 +57,6 @@ class DesignPointQueue:
             self.logger.warn("No design point queues config data present in config file")
             raise Exception("No design point queues config data present in config file")
 
-    @requires_main_process
     def __is_valid_sorting_algo(self, sorting_algo):
         self.logger.info("Checking validity of sorting algorithm param: {}".format(sorting_algo))
         if (sorting_algo == "FIFO"):
@@ -65,7 +65,6 @@ class DesignPointQueue:
         else:
             return False
 
-    @requires_main_process
     def insert(self, design_point):
         if (self.sorting_algo == "FIFO"):
             self.queue.append(design_point)
@@ -75,7 +74,6 @@ class DesignPointQueue:
 
         self.stats.inc_stat("general", "num_dp_queued")
 
-    @requires_main_process
     def insert_list(self, design_points):
         if (self.sorting_algo == "FIFO"):
             self.queue += design_points
@@ -85,7 +83,6 @@ class DesignPointQueue:
 
         self.stats.inc_stat("general", "num_dp_queued")
 
-    @requires_main_process
     def pop(self):
         if (self.sorting_algo == "FIFO"):
             self.logger.debug("Popping design point at the front of the queue")
@@ -95,7 +92,6 @@ class DesignPointQueue:
 
         self.stats.inc_stat("general", "num_dp_dequeued")
 
-    @requires_main_process
     def get(self, n):
         if self.size() < n:
             n = self.size()
@@ -110,11 +106,9 @@ class DesignPointQueue:
             pass
 
 
-    @requires_main_process
     def get_list(self):
         return self.queue
 
-    @requires_main_process
     def empty(self):
         current_queue = self.queue
         self.queue = []
@@ -123,7 +117,6 @@ class DesignPointQueue:
 
         return current_queue
 
-    @requires_main_process
     def set_sorting_algo(self, new_algo):
         if (self.__is_valid_sorting_algo(new_algo)):
             self.sorting_algo = new_algo
@@ -132,12 +125,10 @@ class DesignPointQueue:
         else:
             self.logger.warn("Received invalid new sorting algorithm. Not changing the current sorting algorithm: {}".format(self.sorting_algo))
 
-    @requires_main_process
     def size(self):
         self.logger.debug("The current size of the design point queue: {}".format(len(self.queue)))
         return len(self.queue)
 
-    @requires_main_process
     def sort(self):
         self.logger.debug("Sorting the queue according to the sorting algorithm: {}".format(self.sorting_algo))
         if (self.sorting_algo == "FIFO"):
@@ -146,38 +137,31 @@ class DesignPointQueue:
         else:
             pass
 
-    @requires_main_process
     def cached_insert(self, design_point):
         if (self.sorting_algo == "FIFO"):
             self.queue_cached.append(design_point)
         else:
             pass
 
-    @requires_main_process
     def cached_insert_list(self, design_points):
         if (self.sorting_algo == "FIFO"):
             self.queue_cached += design_points
         else:
             pass
 
-    @requires_main_process
     def cached_get_all(self):
         tmp = self.queue_cached[:]
         self.queue_cached = []
         return tmp
     
-    @requires_main_process
     def has_chached(self):
         return self.chached_amount() != 0
 
-    @requires_main_process
     def chached_amount(self):
         return len(self.queue_cached)
 
-    @requires_main_process
     def get_runtime_stats(self):
         return self.stats.get_stats_dict()
 
-    @requires_main_process
     def shutdown(self):
         return

@@ -174,9 +174,9 @@ class Hyperheuristic:
             
             # This now transparently fetches the remote search_operator_spaces object
             # and then we call get_problems on our local copy of it.
-            search_operator_spaces = self.heur_coordinator.hh_base.search_operator_spaces
-            if search_operator_spaces.has_problems(search_operator_space_name):
-                self.problems = search_operator_spaces.get_problems(search_operator_space_name)
+            problems = self.heur_coordinator.hh_base.get_problems(search_operator_space_name)
+            if problems is not None and len(problems) > 0:
+                self.problems = problems
             else:
                 err = f'Could not find problems for {search_operator_space_name}.'
                 raise HyperheuristicError(err)

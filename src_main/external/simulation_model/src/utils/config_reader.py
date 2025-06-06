@@ -25,22 +25,22 @@ class Config:
         else:
             self.logger = logger.loggerRICH("Config", disabled=disabledLoggers)
 
-        self.logger.info("Default config file: "+str(self.defaultFile))
+        self.logger.debug("Default config file: "+str(self.defaultFile))
         if os.path.exists(configFilePath) and os.path.isfile(configFilePath):
             self.configFilePath = configFilePath
-            self.logger.info("Using config file: "+str(self.configFilePath))
+            self.logger.debug("Using config file: "+str(self.configFilePath))
         else:
             self.configFilePath = self.defaultFile
         self.readConfig(self.configFilePath)
 
     def createLogger(self, outputfolderpath: PosixPath, name: str):
         self.logger = logger.logger(name, outputfolderpath)
-        self.logger.info("Init logger later then init()")
-        self.logger.info("Reread config file.")
+        self.logger.debug("Init logger later then init()")
+        self.logger.debug("Reread config file.")
         self.readConfig(self.configFilePath)
 
     def readConfig(self, configFilePath: PosixPath = defaultFile):
-        self.logger.info("Loading config file: "+str(configFilePath))
+        self.logger.debug("Loading config file: "+str(configFilePath))
         if os.path.exists(configFilePath) and os.path.isfile(configFilePath):
             f = open(configFilePath)
             self._config = json.load(f)
