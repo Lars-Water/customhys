@@ -67,8 +67,8 @@ class Config:
                 conf = conf[arg]
             return conf
         except Exception as err:
-            self.logger.warn("Could not get: "+ str(args))
-            self.logger.exception(str(err))
+            self.logger.debug("Could not get: "+ str(args))
+            self.logger.debug(str(err))
             return None
 
 if __name__ == "__main__":

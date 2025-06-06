@@ -16,9 +16,10 @@ from src.utils.config_reader import Config
 from src_main.tools.logger import logger
 from src.utils.stats import Stats
 
-from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main
+from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main, managed_by_main_process
 
 
+@managed_by_main_process
 class ResourceController:
     logger = None
     cnf = None
@@ -31,7 +32,6 @@ class ResourceController:
     scheduler_address = None
     main_pid = None
 
-    @requires_main_process
     def __init__(self, config_path, logs_path):
         # TODO:
         # - check if all required config options are available/correct
@@ -44,18 +44,18 @@ class ResourceController:
 
         self.logger = logger("resource_controller", Path(self.logs_path), disabled=False)
 
-        self.logger.info("Reading in config file: " + str(config_path))
+        self.logger.debug("Reading in config file: " + str(config_path))
         self.logger.setLevel("DEBUG")
         self.cnf = Config(Path(config_path), Path(self.logs_path), "config_resource_controller")
 
         self.num_workers = 1
 
         if (self.cnf.tryGet("resource_controller")):
-            self.logger.info("Resource controller config provided")
+            self.logger.debug("Resource controller config provided")
             if (self.cnf.tryGet("resource_controller", "cluster")):
                 cluster_type = self.cnf.tryGet("resource_controller", "cluster", "interface")
                 if (cluster_type == "SLURM"):
-                    self.logger.info("Resource controller config specifies supported cluster {}".format(cluster_type))
+                    self.logger.debug("Resource controller config specifies supported cluster {}".format(cluster_type))
 
                     num_jobs = self.cnf.tryGet("resource_controller", "cluster", "jobs")
                     job_cores = self.cnf.tryGet("resource_controller", "cluster", "job_cores")
@@ -69,22 +69,22 @@ class ResourceController:
                     self.cluster.scale(jobs=num_jobs)
                     
                 elif (cluster_type == "local"):
-                    self.logger.info("Resource controller config specifies supported cluster {}".format(cluster_type))
+                    self.logger.debug("Resource controller config specifies supported cluster {}".format(cluster_type))
 
                     self.num_workers = self.cnf.tryGet("resource_controller", "cluster", "n_workers")
                     threads_per_worker = self.cnf.tryGet("resource_controller", "cluster", "threads_per_worker")
                     self.cluster = LocalCluster(n_workers=self.num_workers, threads_per_worker=threads_per_worker, resources={"slots": threads_per_worker})
                 else:
-                    self.logger.info("Unsupported cluster {} specified in config".format(cluster_type))
-                    self.logger.info("Assuming default local dask cluster instead")
+                    self.logger.debug("Unsupported cluster {} specified in config".format(cluster_type))
+                    self.logger.debug("Assuming default local dask cluster instead")
                     self.cluster = LocalCluster(n_workers=1, threads_per_worker=6, resources={"slots": 6})
         else:
-            self.logger.info("No resource controller config provided")
-            self.logger.info("Assuming local dask cluster")
+            self.logger.debug("No resource controller config provided")
+            self.logger.debug("Assuming local dask cluster")
             self.cluster = LocalCluster(n_workers=1, threads_per_worker=6, resources={"slots": 6})
 
         self.scheduler_address = self.cluster.scheduler_address
-        self.logger.info(f"Dask scheduler running at: {self.scheduler_address}")
+        self.logger.debug(f"Dask scheduler running at: {self.scheduler_address}")
 
         self.running_tasks = {}
         self.running_tasks_slow = {}
@@ -92,12 +92,12 @@ class ResourceController:
     def get_client(self):
         with self._client_lock:
             if self.client is None:
-                self.logger.info(f"Creating Dask client for process {os.getpid()} connecting to {self.scheduler_address}")
+                self.logger.debug(f"Creating Dask client for process {os.getpid()} connecting to {self.scheduler_address}")
                 self.client = Client(self.scheduler_address, timeout=60, set_as_default=True)
-                self.logger.info(f"Waiting for workers...")
+                self.logger.debug(f"Waiting for workers...")
                 self.client.wait_for_workers(self.num_workers)
-                self.logger.info(f"Client connected: {self.client}")
-                self.logger.info(f"Scheduler info: {self.client.scheduler_info()}")
+                self.logger.debug(f"Client connected: {self.client}")
+                self.logger.debug(f"Scheduler info: {self.client.scheduler_info()}")
                 
                 # try:
                 #     self.client.forward_logging()
@@ -123,19 +123,17 @@ class ResourceController:
         return sims
 
     # Does not wait for sim to complete
-    @requires_main_process
     def __submit_task(self, sim_instance):
         self.logger.debug("Sending sim instance {} to worker cluster".format(sim_instance.uid))
         sim_instance.record_time_stat("general", "resource_controller_submit")
         client = self.get_client()
         with client.as_current():
-            self.logger.info(f"Client.current(): {Client.current()}")
-            self.logger.info(f"Client.current().scheduler_info(): {Client.current().scheduler_info()}")
+            self.logger.debug(f"Client.current(): {Client.current()}")
+            self.logger.debug(f"Client.current().scheduler_info(): {Client.current().scheduler_info()}")
             future = Client.current().submit(dask_worker, sim_instance, resources={"slots": sim_instance.num_slots()}, fifo_timeout="50ms")
-        self.logger.info(f"future: {future}")
+        self.logger.debug(f"future: {future}")
         self.running_tasks[sim_instance.uid] = future
 
-    @requires_main_process
     def __get_all_completed(self):
         completed_sim_instances = []
         for i, uid in enumerate(self.running_tasks.keys()):
@@ -152,7 +150,7 @@ class ResourceController:
 
     # Does not wait for sims to complete
     def submit_tasks(self, sim_instances):
-        self.logger.info("Sending all tasks ({}) in queue to worker cluster".format(len(sim_instances)))
+        self.logger.debug("Sending all tasks ({}) in queue to worker cluster".format(len(sim_instances)))
         for sim_instance in sim_instances:
             self.__submit_task(sim_instance)
 
@@ -162,7 +160,6 @@ class ResourceController:
         self.submit_tasks(sim_instances)
         return self.wait_for_tasks(sim_instances)
 
-    @requires_main_process
     def get_futures_from_sim_instances(self, sim_instances):
         return [self.running_tasks[sim_instance.uid] for sim_instance in sim_instances]
 
@@ -176,7 +173,6 @@ class ResourceController:
         completed_sim_instances = self.__set_sim_instances_time_stat(completed_sim_instances, "general", "resource_controller_retrieval")
         return completed_sim_instances
 
-    @requires_main_process
     def wait_for_active_tasks(self):
         completed_sim_instances = []
         self.get_client() # Ensure client is initialized
@@ -191,17 +187,16 @@ class ResourceController:
 
         return completed_sim_instances
 
-    @requires_main_process
     def get_runtime_stats(self):
         return self.stats.get_stats_dict()
 
     def shutdown(self):
-        self.logger.info("Shutting down ResourceController.")
+        self.logger.debug("Shutting down ResourceController.")
         if self.client:
             self.client.close()
         if self.cluster:
             # Only the main process should close the cluster
             if os.getpid() == self.main_pid:
                 self.cluster.close()
-        self.logger.info("ResourceController shutdown complete.")
+        self.logger.debug("ResourceController shutdown complete.")
         return

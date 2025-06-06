@@ -49,8 +49,14 @@ def _hh_worker_function(context: 'ParallelizationManagerContext', search_operato
     try:
         heuristic_space = component_config.determine_heuristic_space(search_operator_space_path)
 
-        proxy_coordinator = context.create_proxy(coordinator_copy)
+        # The coordinator_copy is deserialized but needs its RPC-dependent
+        # components initialized. We do this here using the worker's context.
+        if hasattr(coordinator_copy, 'finish_initialization_in_worker'):
+            coordinator_copy.finish_initialization_in_worker(context)
         
+        # Now that the local coordinator object is fully initialized, wrap it in a proxy.
+        proxy_coordinator = context.create_proxy(coordinator_copy)
+
         bar_steps = bars[0]
         bar_iter = bars[1]
         real_hh_solver = hh.Hyperheuristic(
@@ -225,8 +231,28 @@ class HyperHeuristicBase:
         self.barrier = threading.Barrier(len(self.config_search_operators_spaces.keys()))
 
     @requires_main_process
+    def get_shared_manager_address_and_authkey(self):
+        """
+        RPC-callable method that delegates to the parallelization manager.
+        """
+        return self.local_parallelization_manager.get_shared_manager_address_and_authkey()
+
+    @requires_main_process
     def shutdown(self):
-        """Shuts down the centralized logging listener."""
+        """
+        Orchestrates the shutdown of all major components, including the
+        parallelization manager and the main simulation environment manager.
+        """
+        self.logger.info("Shutting down HyperHeuristicBase...")
+        if self.local_parallelization_manager:
+            self.logger.info("Shutting down LocalParallelizationManager.")
+            self.local_parallelization_manager.shutdown()
+        
+        # The coordinator holds the reference to the main simulation manager.
+        if self.heur_coordinator and hasattr(self.heur_coordinator, 'manager') and self.heur_coordinator.manager:
+            self.logger.info("Shutting down the main simulation Manager.")
+            self.heur_coordinator.manager.shutdown()
+
         self.logger.info("Shutting down multiprocessing logger.")
         stop_multiprocess_logging()
 
@@ -432,71 +458,6 @@ class HyperHeuristicBase:
             }
         }
 
-    # def hh_thread(self, context: 'ParallelizationManagerContext', search_operator_space_name, search_operator_space_path, bars, coordinator_log_path):
-    #     proc_id_str = context.get_process_id() # e.g., "PARA-0"
-    #     local_logger = logger(f"HyperHeuristicBase_thread_{search_operator_space_name}", coordinator_log_path, rich_handler=True, disabled=False, prefix=f"hh_thread | P:{proc_id_str} ({search_operator_space_name})")
-
-    #     pid = os.getpid()
-    #     try:
-    #         numeric_paraproc_id = int(proc_id_str.split('-')[-1])
-    #     except ValueError:
-    #         local_logger.error(f"Could not parse numeric ID from '{proc_id_str}'. Defaulting to 0 for task value generation.")
-    #         numeric_paraproc_id = 0
-
-
-    #     result_dict = {
-    #             "search_operator_space_name": search_operator_space_name
-    #     }
-    #     try:
-    #         local_logger.info(f"Started hh_thread for {search_operator_space_name} with PID: {pid}.")
-    #         local_logger.debug(f' search_operator_space_name: {search_operator_space_name}\nself.num_replicas: {self.num_replicas}\n' + \
-    #             f'self.heur_coordinator.problemInstanceFunc(): {self.heur_coordinator.problemInstanceFunc()}\n' + \
-    #             f'self.template_file_path: {self.template_file_path}\n' + \
-    #             f'*self.heur_coordinator.get_boundaries(): {self.heur_coordinator.get_boundaries()}\n' + \
-    #             f'self.heur_coordinator.simulation_run: {self.heur_coordinator.simulation_run}\n' + \
-    #             f'self.agents_fitness_values_path: {self.agents_fitness_values_path}')
-
-    #         # Start timer for the heuristic run.
-    #         start_time = time.time()
-
-    #         # Start hyper-heuristic run.
-    #         best_sol, best_perf, hist_curr, hist_best = self.hypers[search_operator_space_name]["hh"].solve(local_logger=local_logger)
-
-    #         # End timer for the heuristic run.
-    #         end_time = time.time()
-            
-    #         hh_run_meta_data = collect_data_INET.calculate_distinct_simulation_components(start_time, end_time, self.heur_coordinator)
-
-    #         # Save the heuristic run data.
-    #         # save_run_path = os.path.join(self.results_path, experiment_name)
-
-    #         local_logger.info(f"Results for {search_operator_space_name}\nBest solution: {str(best_sol)}\nBest performance: {str(best_perf)}\nBest history: {str(hist_best)}\nCurrent history: {str(hist_curr)} \n {hh_run_meta_data}")
-
-    #         result_dict = {
-    #             "search_operator_space_name": search_operator_space_name,
-    #             "experiment_name": experiment_name,
-    #             "best_solution": best_sol,
-    #             "best_performance": best_perf,
-    #             "current_history": hist_curr,
-    #             "best_history": hist_best,
-    #             "run_meta_data": hh_run_meta_data
-    #         }
-
-    #         self.save_runs.append(result_dict)
-    #     except KeyboardInterrupt:
-    #         local_logger.warning(f"  PARAPROC [P:{proc_id_str} (PID:{pid})]: KeyboardInterrupt caught directly in paraproc_example_function.")
-    #         # Allow the wrapper's finally block to handle reporting
-    #         raise # Re-raise to be caught by the wrapper, ensuring its final logic runs
-    #     except Exception as e_paraproc:
-    #         local_logger.exception(f"  PARAPROC [P:{proc_id_str} (PID:{pid})]: Exception caught directly in paraproc_example_function: {type(e_paraproc).__name__} - {e_paraproc}")
-    #         import traceback
-    #         tb_str = traceback.format_exc()
-    #         local_logger.exception(f"  PARAPROC [P:{proc_id_str} (PID:{pid})]: TRACEBACK (paraproc_example_function):\n{tb_str}")
-    #         # Allow the wrapper's finally block to handle reporting, it will get this exception
-    #         raise # Re-raise
-
-    #     local_logger.info(f"Finished hh_thread for {search_operator_space_name} with PID: {pid}.\n{result_dict}")
-        
     @requires_main_process
     def _task_pause(self, taskid):
         self._tasks_time_so_far[taskid] = self.progress._tasks[taskid].elapsed

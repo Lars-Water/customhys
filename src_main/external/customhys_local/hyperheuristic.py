@@ -176,7 +176,18 @@ class Hyperheuristic:
             # and then we call get_problems on our local copy of it.
             problems = self.heur_coordinator.hh_base.get_problems(search_operator_space_name)
             if problems is not None and len(problems) > 0:
-                self.problems = problems
+                # The 'problems' variable is a dictionary where each value is another
+                # dictionary representing a problem. The 'function' key in this inner
+                # dictionary holds a bound method (_get_function_value_wrapper) whose
+                # __self__ attribute is the actual problem instance object. We need to
+                # patch the 'sim_run' attribute on that underlying object.
+                problem_list = []
+                for prob_dict in problems.values():
+                    # Access the underlying problem object and patch it.
+                    problem_instance = prob_dict['function'].__self__
+                    problem_instance.sim_run = self.heur_coordinator.simulation_run
+                    problem_list.append(prob_dict)
+                self.problems = problem_list
             else:
                 err = f'Could not find problems for {search_operator_space_name}.'
                 raise HyperheuristicError(err)

@@ -126,13 +126,17 @@ class instanceBase(BP):
                     get_agents_fitness_values=self._get_agents_fitness_values_wrapper, 
                     fitness_value_dir = self.fitness_value_dir,
                     set_step_iteration_data=self._set_step_iteration_data_wrapper,
-                    get_step_iteration_data=self._get_step_iteration_data_wrapper
+                    get_step_iteration_data=self._get_step_iteration_data_wrapper,
+                    sim_run=self.sim_run,
+                    fitfunc=self.fitfunc
         )
 
     '''
         Run the simulation model with the given variables.
     '''
     def get_func_val(self, variables, *args):
+        # 'self' is the instanceASML object. We call the sim_run attribute,
+        # which has been patched in the worker to be an RPC proxy call.
         return self.sim_run(self.fitfunc, variables, self.file_name_fitness_values, self.step_iteration_data)
 
     def get_function_value(self, variables, *args):

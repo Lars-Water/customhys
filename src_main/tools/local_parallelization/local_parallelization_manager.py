@@ -42,9 +42,9 @@ import logging
 from pathlib import Path
 from src_main.tools.logger import logger
 import queue # For dynamic task request queue
-# traceback is no longer directly used here, it's in helpers.py
-# import traceback 
+import traceback
 import pickle
+from multiprocessing.managers import BaseManager
 
 # --- Imports from local modules ---
 # Assuming these files are in the same package directory
@@ -57,6 +57,13 @@ from .local_parallelization_wrappers import (
 from .rpc import requires_main_process # This might be used by objects passed to the manager
 from .local_parallelization_context import LocalParallelizationProcessWrapper
 # ParallelizationManagerContext is instantiated within LocalParallelizationProcessWrapper
+
+# --- Custom Manager for Shared Queues ---
+class SharedObjectManager(BaseManager):
+    pass
+
+# Register the Queue class with our custom manager
+SharedObjectManager.register('get_queue', queue.Queue)
 
 # --- Module Overview ---
 # This module provides the `LocalParallelizationManager` class, the central orchestrator
@@ -126,6 +133,10 @@ class LocalParallelizationManager:
 
     # --- Init and other necessary functions ---
     def __init__(self, root_object: typing.Any = None, update_callback: typing.Callable = None, log_path=None):
+        # This manager controls shared objects that can be passed safely between processes.
+        self._shared_obj_manager = SharedObjectManager()
+        self._shared_obj_manager.start()
+
         self.log_path = log_path
         if self.log_path is None:
             self.log_path = os.path.join(os.getcwd(), "logs/")
@@ -164,7 +175,178 @@ class LocalParallelizationManager:
 
         self._initialize_cpu_cores() # Call helper for CPU core setup
 
-    # --- "Exposed" functions grouped by usage ---
+    def get_shared_manager_address_and_authkey(self):
+        """Returns the connection details for the shared object manager."""
+        # We access the private _authkey attribute, as the public `authkey`
+        # property is not reliably available on the server-side instance.
+        # We also convert the AuthenticationString to standard bytes to allow it
+        # to be pickled and sent to the child process.
+        return self._shared_obj_manager.address, bytes(self._shared_obj_manager._authkey)
+
+    def create_managed_queue(self):
+        """Creates a queue from the centralized multiprocessing.Manager."""
+        return self._shared_obj_manager.get_queue()
+
+    def shutdown(self):
+        """Gracefully shuts down all managed processes and resources."""
+        self._logger.info(f"------------------ Manager Shutdown Initiated ------------------")
+        self._logger.info(f"Main event loop started. Monitoring ParaProcs and all dynamic/shared tasks.")
+        active_paraproc_ids = set(self._processes.keys())
+        
+        start_time = time.monotonic()
+        while True:
+            # Check for ParaProc completions
+            for process_id in list(active_paraproc_ids):
+                parent_conn = self._parent_conns_to_children.get(process_id)
+                if parent_conn and not parent_conn.closed and parent_conn.poll():
+                    try:
+                        final_report_obj = parent_conn.recv()
+                        self._logger.info(f"Received final report from ParaProc {final_report_obj.get('process_id')}: '{final_report_obj.get('message', 'No message')}' (Status: {final_report_obj.get('status')}).")
+                    except EOFError: 
+                        self._logger.warning(f"Pipe for ParaProc {process_id} closed unexpectedly (EOF). Assuming completion/crash.")
+                    except Exception as e_recv: 
+                        self._logger.error(f"Error receiving final report from ParaProc {process_id}: {type(e_recv).__name__} - {e_recv}")
+                    finally:
+                        if parent_conn and not parent_conn.closed: parent_conn.close()
+                        if process_id in self._parent_conns_to_children: del self._parent_conns_to_children[process_id]
+                        active_paraproc_ids.discard(process_id)
+                        self._logger.debug(f"ParaProc {process_id} marked as completed. Remaining active: {len(active_paraproc_ids)}")
+            
+            # Handle Private Task Queue
+            try:
+                private_request = self._private_task_request_queue.get_nowait()
+                pt_req_type = private_request.get('type')
+                if pt_req_type == 'LAUNCH_PRIVATE_PROCESS': self._handle_simple_private_process_request(private_request)
+                elif pt_req_type == 'ADD_TASK_TO_PRIVATE_GROUP': self._handle_add_task_to_private_group(private_request)
+                elif pt_req_type == 'START_PRIVATE_TASK_GROUP': self._handle_start_private_task_group(private_request)
+                elif pt_req_type == 'WAIT_FOR_PRIVATE_TASK_GROUP': self._handle_wait_for_private_task_group(private_request)
+                elif pt_req_type == 'CALL_SERVICE': self._handle_service_call_request(private_request)
+                elif pt_req_type == 'UPDATE_ATTRIBUTE': self._handle_attribute_update(private_request)
+                elif pt_req_type == 'INITIAL_SHADOW_COPY': self._handle_initial_shadow_copy(private_request)
+                else: self._logger.warning(f"Unknown private task request type: {pt_req_type}")
+            except queue.Empty: pass
+            except Exception as e: self._logger.error(f"Exception processing private task queue: {e}", exc_info=True)
+
+            # Handle Managed Shared Task Queue
+            try:
+                shared_request = self._managed_shared_task_request_queue.get_nowait()
+                st_req_type = shared_request.get('type')
+                if st_req_type == 'ADD_SHARED_TASK': self._handle_add_shared_task_request(shared_request)
+                elif st_req_type == 'START_SHARED_TASK': self._handle_start_shared_task_request(shared_request)
+                elif st_req_type == 'WAIT_FOR_SHARED_TASK': self._handle_wait_for_shared_task_request(shared_request)
+                else: self._logger.warning(f"Unknown shared task request type: {st_req_type}")
+            except queue.Empty: pass
+            except Exception as e: self._logger.error(f"Exception processing shared task queue: {e}", exc_info=True)
+
+            self._check_simple_private_task_completions()
+            self._check_group_task_completions()
+            self._check_managed_shared_task_completions()
+            
+            all_paraprocs_done = not active_paraproc_ids
+            all_simple_private_done = not self._active_simple_private_tasks
+            all_group_tasks_done = not self._active_group_tasks
+            private_queues_empty = self._private_task_request_queue.empty()
+            no_pending_group_waiters = not any(data.get('waiters', {}) for data in self._private_task_groups_registry.values())
+            shared_queues_empty = self._managed_shared_task_request_queue.empty()
+            no_running_shared_tasks = not any(entry['status'] == SHARED_TASK_RUNNING for entry in self._shared_tasks_registry.values())
+            no_pending_shared_waiters = not any(entry.get('waiters_result_pipes') for entry in self._shared_tasks_registry.values())
+
+            if (all_paraprocs_done and all_simple_private_done and all_group_tasks_done and
+               private_queues_empty and no_pending_group_waiters and
+               shared_queues_empty and no_running_shared_tasks and no_pending_shared_waiters):
+                self._logger.info(f"All known activities settled. Exiting main event loop.")
+                break
+            
+            if timeout_per_process != 0: # Only check global timeout if individual timeouts are not infinite
+                # Calculate a generous global timeout based on timeout_per_process
+                # If self._paraproc_definitions is empty, but there were processes (e.g. from a previous run if manager is reused, though not typical)
+                # fall back to a simpler timeout_per_process + 60.
+                num_defs = len(self._paraproc_definitions)
+                base_timeout = (timeout_per_process * num_defs if num_defs > 0 else timeout_per_process) + 60
+                if (time.monotonic() - start_time) > base_timeout:
+                    self._logger.warning(f"Global wait timeout ({base_timeout}s) reached. Forcing shutdown.")
+                    break
+            
+            time.sleep(0.005) 
+
+        self._logger.info(f"Main event loop finished. Proceeding to join primary ParaProcs.")
+        
+        any_forced_termination = False
+        for process_id, proc_info in list(self._processes.items()):
+            p_obj = proc_info.get('process_obj')
+            if p_obj:
+                actual_join_timeout = None # Default to infinite for join
+                if timeout_per_process != 0:
+                    # Simplified join timeout per process if a specific timeout_per_process is given
+                    # Ensure a minimum sensible join timeout if timeout_per_process is very small but not 0
+                    num_processes = len(self._processes) if self._processes else 1
+                    calculated_timeout = timeout_per_process // num_processes
+                    actual_join_timeout = max(5, calculated_timeout) 
+                
+                p_obj.join(timeout=actual_join_timeout)
+                if p_obj.is_alive():
+                    self._logger.warning(f"Primary ParaProc {process_id} (PID {p_obj.pid}) did not exit cleanly. Terminating.")
+                    any_forced_termination = True
+                    p_obj.terminate()
+                    p_obj.join(timeout=None) # Ensure termination
+                    if p_obj.is_alive(): self._logger.error(f"ParaProc {process_id} FAILED to terminate.")
+                    else: self._logger.info(f"ParaProc {process_id} terminated.")
+                else: 
+                    self._logger.debug(f"ParaProc {process_id} joined (Exitcode: {p_obj.exitcode}).")
+                self._release_core(proc_info.get('core'))
+        
+        self._processes.clear()
+        self._paraproc_definitions.clear()
+
+        self._cleanup_remaining_tasks(self._active_simple_private_tasks, "simple private task")
+        self._cleanup_remaining_tasks(self._active_group_tasks, "active group member task")
+        
+        for paraproc_id, data in list(self._private_task_groups_registry.items()):
+            for group_name, pipes in list(data.get('waiters', {}).items()):
+                for pipe_to_waiter in pipes:
+                    if not pipe_to_waiter.closed:
+                        try: pipe_to_waiter.send({'success': False, 'result': {"error": "Manager shutting down; group result not obtained."}, 'message': 'Manager shutdown'})
+                        except: pass
+                        finally: pipe_to_waiter.close()
+        self._private_task_groups_registry.clear()
+
+        for task_name, task_entry in list(self._shared_tasks_registry.items()):
+            if task_entry.get('process_obj') and task_entry['process_obj'].is_alive():
+                self._logger.warning(f"Shared task '{task_name}' still alive. Terminating.")
+                task_entry['process_obj'].terminate()
+                task_entry['process_obj'].join(timeout=None) # Changed from 1.0
+            for pipe_to_waiter in task_entry.get('waiters_result_pipes', []):
+                if not pipe_to_waiter.closed:
+                    try: pipe_to_waiter.send({'success': False, 'result': None, 'message': "Shared task did not complete; manager shutdown."})
+                    except: pass
+                    finally: pipe_to_waiter.close()
+        self._shared_tasks_registry.clear()
+
+        self._clear_queue(self._private_task_request_queue, "private task request")
+        self._clear_queue(self._managed_shared_task_request_queue, "shared task request")
+
+        if self._assigned_cores:
+            self._logger.info(f"Releasing remaining assigned cores: {self._assigned_cores}.")
+            self._assigned_cores.clear()
+        
+        if any_forced_termination:
+            self._logger.warning(f"Shutdown complete. Some processes required forced termination.")
+        else:
+            self._logger.info(f"Shutdown complete. All primary ParaProcs joined or were already finished.")
+        self._logger.info(f"---------------- Manager Processing Finished ----------------")
+
+        # Ensure all processes are terminated
+        self._terminate_all_remaining_processes()
+
+        # Clean up queues
+        self._logger.debug("Closing communication queues...")
+        self._private_task_request_queue.close()
+        self._managed_shared_task_request_queue.close()
+
+        # Shutdown the custom shared object manager
+        self._shared_obj_manager.shutdown()
+
+        self._logger.info(f"---------------- Manager Shutdown Finished -----------------")
 
     # Group: ParaProc Lifecycle & Orchestration
     def add_paraproc(self, paraproc_func: callable, initial_args: tuple = ()) -> str:
@@ -1093,3 +1275,18 @@ class LocalParallelizationManager:
                 except (EOFError, BrokenPipeError, OSError): break
         except Exception: return 
         if count > 0: self._logger.info(f"Cleared {count} items from {queue_name} queue during shutdown.")
+
+    def _terminate_all_remaining_processes(self):
+        # This method is called during shutdown to ensure all processes are terminated
+        for process_id, proc_info in list(self._processes.items()):
+            p_obj = proc_info.get('process_obj')
+            if p_obj:
+                p_obj.terminate()
+                p_obj.join(timeout=None) # Ensure termination
+                self._release_core(proc_info.get('core'))
+        self._processes.clear()
+
+    def _update_shadow_hh_object(self, proc_id, payload):
+        # This seems to be a placeholder or legacy method.
+        # Implement the logic to update the shadow HyperHeuristic object
+        pass

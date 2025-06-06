@@ -72,14 +72,22 @@ class RPCProxy:
         self.__dict__['_call_counter'] = 0
 
     def __getattr__(self, name: str) -> typing.Any:
+        if self.__dict__['_local_object'] is None:
+            # This proxy is in "remote-only" mode. Assume any attribute access
+            # is valid on the remote object and return a new proxy for the next
+            # segment in the path. The final check happens in __call__ or when
+            # a remote property is accessed.
+            return RPCProxy(None, self._rpc_context, self._path + (name,))
+
         # Get the attribute from the local copied object first.
         # This lets us inspect it for decorators before deciding what to do.
         try:
             attr = getattr(self._local_object, name)
         except AttributeError:
+            # If the local object exists but the attribute doesn't, it's a true error.
             raise AttributeError(f"'{type(self._local_object).__name__}' object has no attribute '{name}' in its local copy.")
 
-        # NEW: If the attribute is an instance of a class marked as managed,
+        # If the attribute is an instance of a class marked as managed,
         # return a new proxy for that nested object.
         if hasattr(type(attr), '_is_main_process_managed'):
             return RPCProxy(attr, self._rpc_context, self._path + (name,))
@@ -97,6 +105,19 @@ class RPCProxy:
         return RPCProxy(attr, self._rpc_context, self._path + (name,))
 
     def __call__(self, *args, **kwargs) -> typing.Any:
+        if self.__dict__['_local_object'] is None:
+            # This is a call on a method of a remote-only object.
+            # The path to this proxy represents the full method path.
+            full_path_str = ".".join(self._path)
+            # We must assume this is a stateful RPC call.
+            # The periodic refresh mechanism is also tied to stateful calls.
+            self.__dict__['_call_counter'] += 1
+            refresh_payload = None
+            if self._call_counter % 10 == 0:
+                refresh_payload = self._rpc_context.get_refresh_payload()
+            
+            return self._rpc_context._call_service_rpc(full_path_str, refresh_payload, *args, **kwargs)
+
         # The target method is the local object itself
         target_method = self._local_object
         

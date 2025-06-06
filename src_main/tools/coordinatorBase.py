@@ -26,9 +26,10 @@ import math
 
 from experiments import create_sim_custom_dummy, create_sim_inet_lans_dummy, create_sim_inet_lans_dummy_parallel
 from src.manager import Manager
+from src.manager_child import ManagerChild
 from src.utils.config_creator import WorkflowConfig
 from src_main.external.customhys_local import hyperheuristic as hh
-from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main
+from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main, RPCProxy
 
 import uuid
 from .local_parallelization.rpc import requires_main_process
@@ -36,6 +37,7 @@ from .local_parallelization.rpc import requires_main_process
 
 class HeuristicSimulationCoordinatorBase:
     hh_base = None
+    local_manager = None
 
     def __getstate__(self):
         """
@@ -45,7 +47,7 @@ class HeuristicSimulationCoordinatorBase:
         """
         state = self.__dict__.copy()
         # Attributes to remove before pickling
-        non_serializable = ['manager', 'logger', 'conf', 'data_collector']
+        non_serializable = ['manager', 'local_manager', 'logger', 'conf', 'data_collector']
         for attr in non_serializable:
             if attr in state:
                 del state[attr]
@@ -58,25 +60,26 @@ class HeuristicSimulationCoordinatorBase:
         """
         self.__dict__.update(state)
         # Re-initialize non-serializable attributes.
-        self.manager = None
+        self.manager = None 
+        self.local_manager = None # Will be initialized later
         self.data_collector = None
         
         # In a worker process, re-initialize the config and logger.
         # The config file path is assumed to be part of the pickled state.
         if hasattr(self, 'coordinator_config_file_path'):
             self.conf = Config(self.coordinator_config_file_path, name=f"coordinator_config_worker_{os.getpid()}", prefix=f"COORD_CONF|P:{os.getpid()}")
+            # The logger in a worker process should be set up to use the
+            # multiprocessing queue. The logger factory function should handle this.
+            # The log_path should also be in the pickled state.
+            if hasattr(self, 'log_path') and self.log_path:
+                coordinator_log_path = Path(os.path.join(self.log_path, "coordinator"))
+                self.logger = logger(f"coordinator_worker_{os.getpid()}", coordinator_log_path, rich_handler=True, disabled=False, prefix=f"COORD|P:{os.getpid()}")
+                # self.local_manager = ManagerChild(self.proxy_itself, self.workflow_config_file_path, coordinator_log_path)
+            else:
+                self.logger = logger(f"coordinator_worker_fallback_{os.getpid()}", prefix=f"COORD|P:{os.getpid()}")
         else:
             self.conf = None
-
-        # The logger in a worker process should be set up to use the
-        # multiprocessing queue. The logger factory function should handle this.
-        # The log_path should also be in the pickled state.
-        if hasattr(self, 'log_path') and self.log_path:
-            coordinator_log_path = Path(os.path.join(self.log_path, "coordinator"))
-            self.logger = logger(f"coordinator_worker_{os.getpid()}", coordinator_log_path, rich_handler=True, disabled=False, prefix=f"COORD|P:{os.getpid()}")
-        else:
-            # Fallback to a disabled logger if path is not available
-            self.logger = loggerRICH(f"coordinator_worker_fallback_{os.getpid()}", prefix=f"COORD|P:{os.getpid()}")
+            self.logger = logger(f"coordinator_worker_fallback_{os.getpid()}", prefix=f"COORD|P:{os.getpid()}")
 
     def __del__(self):
         if hasattr(self, "manager") and self.manager is not None:
@@ -142,6 +145,7 @@ class HeuristicSimulationCoordinatorBase:
 
         # Define params for configuration file creation.
         workflow_config_file = os.path.join(self.data_path, "config.json")
+        self.workflow_config_file_path = workflow_config_file # Store the dynamic path
         workflow_results_folder = os.path.join(self.data_path, "results")
         workflow_logs_folder = os.path.join(self.data_path, "logs")
         workflow_runtime_folder = os.path.join(self.data_path, "runtime")
@@ -182,6 +186,10 @@ class HeuristicSimulationCoordinatorBase:
             workflow_logs_folder, 
             stats_file = os.path.join(self.results_path, self._run_name + "_stats.json")
         ) 
+        # In the main process, the local_manager is the main manager itself.
+        # In worker processes, this will be reset to None during unpickling
+        # and then re-initialized to a ManagerChild.
+        self.local_manager = self.manager
 
 
         # Define variables for coordinator functionalities.
@@ -233,8 +241,10 @@ class HeuristicSimulationCoordinatorBase:
         """Shuts down the coordinator and its components."""
         if self.hh_base:
             self.hh_base.shutdown()
-        if hasattr(self, "manager") and self.manager is not None:
-            self.manager.shutdown()
+        # The shutdown of the main simulation manager is now handled
+        # by HyperHeuristicBase to ensure a clean, single sequence.
+        # if hasattr(self, "manager") and self.manager is not None:
+        #     self.manager.shutdown()
 
     def problemInstanceFunc(self):
         raise NotImplementedError("You need to implement a problem instance creator (problemInstanceFunc()) which returns a problem instance function.")
@@ -505,10 +515,10 @@ class HeuristicSimulationCoordinatorBase:
             self.uids.append(uid)
 
         # Run the configured simulation model.
-        self.manager.enqueue_tasks(sim_instances, metadata=step_iteration_data)
+        self.local_manager.enqueue_tasks(sim_instances, metadata=step_iteration_data)
 
         # TEMP: Check uid handling
-        evaluated_sim_instances = self.manager.evaluate_all()
+        evaluated_sim_instances = self.local_manager.evaluate_all()
         uid = evaluated_sim_instances[0].uid
 
         end_time = time.time()
@@ -522,7 +532,9 @@ class HeuristicSimulationCoordinatorBase:
 
     def run_multiple_simulation_configuration(self, sim_ids, file_name_fitness_values="fitness_values.json", step_iteration_data={'step': -1, 'iteration': -1}):
         """
-        Run multiple simulation configurations.
+        This method is now a wrapper that utilizes the new ManagerChild for orchestration.
+        It prepares the simulation instances and then delegates the actual
+        enqueueing and evaluation.
 
         Args:
             sim_ids (list): A list of simulation IDs.
@@ -545,12 +557,13 @@ class HeuristicSimulationCoordinatorBase:
         sim_instances = [self.create_dummy_parallel(self.config, self.generated_path, sim_id, self.inet_path) for sim_id in sim_ids]
         uids = {sim_instance.uid: id for id, sim_instance in enumerate(sim_instances)}
 
-        # Run the configured simulation model.
-        self.manager.enqueue_tasks(sim_instances, queue_id=queue_id, metadata=step_iteration_data)
+        # Run the configured simulation model via the main manager proxy.
+        self.local_manager.enqueue_tasks(sim_instances, queue_id=queue_id, metadata=step_iteration_data)
 
         self.logger.debug(f"(Queue: {queue_id}) Evaluating simulation instances: {uids} with sim ids: {sim_ids}")
 
-        self.manager.evaluate_queue_all(queue_id)
+        # Delegate the blocking evaluation to the child's local manager.
+        self.local_manager.evaluate_queue_all(queue_id)
 
         end_time = time.time()
 
@@ -648,3 +661,29 @@ class HeuristicSimulationCoordinatorBase:
                         ignore=self.ignore_files(files_to_ignore),              
                         symlinks=True
         )
+
+    def finish_initialization_in_worker(self, rpc_context):
+        """
+        Completes the object's initialization after being deserialized in a worker process.
+        This method is called by the worker function once the RPC context is available,
+        and it sets up components that require a connection to the main process,
+        like the ManagerChild.
+        """
+        if hasattr(self, 'workflow_config_file_path') and self.workflow_config_file_path:
+            coordinator_log_path = Path(os.path.join(self.log_path, "coordinator"))
+            
+            # Create a remote-only proxy for the manager.
+            manager_proxy = RPCProxy(None, rpc_context, ('manager',))
+
+            # Create a full proxy to the coordinator itself.
+            coordinator_proxy = RPCProxy(self, rpc_context)
+
+            self.local_manager = ManagerChild(manager_proxy, coordinator_proxy, self.workflow_config_file_path, coordinator_log_path)
+        else:
+            self.local_manager = None
+            if self.logger:
+                self.logger.error("Could not initialize ManagerChild: workflow_config_file_path not found.")
+
+    @requires_main_process
+    def set_problem_space(self, problem_space):
+        self.problem_space = problem_space
