@@ -45,7 +45,7 @@ class HeuristicSimulationCoordinatorINET(HeuristicSimulationCoordinatorBase):
         self.ini_file_template_path = os.path.join(self.simulation_model_template_path, "largeNet.ini")
 
     def problemInstanceFunc(self):
-        return component_config.create_problem_instanceASML
+        return component_config.create_problem_instance
 
     def createDataCollector(self):
         weight_latency = self.conf.tryGet("fitness_config", "weight_latency")

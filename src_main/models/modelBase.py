@@ -4,6 +4,7 @@ import numpy as np
 from customhys import benchmark_func as bf
 import customhys
 
+from src_main.tools.logger import loggerRICH
 
 # Import BasicProblem object for generating a custom optimisation problem.
 BP = bf.BasicProblem
@@ -51,6 +52,7 @@ class instanceBase(BP):
         self.fitness_value_dir = fitness_value_dir
         self.step_iteration_data = {"problem": None, 'step': -1, 'iteration': -1}
         self.agents_fitness_values = None
+        self.logger = loggerRICH("instanceBase")
 
     '''
         Set file name for local fitness values file for running multiple HH/MH at once

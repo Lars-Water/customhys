@@ -380,11 +380,11 @@ class Manager:
 
         end_time = time.time()
         print("Started at {}".format(time.strftime("%H:%M:%S %d/%m/%Y", time.gmtime(self.start_time))))
-        print("Number of design points received: {}".format(self.stats.get_stat("general", "num_dp")))
-        print("Number of unique design points received: {}".format(self.stats.get_stat("general", "num_dp_unique")))
-        print("Number of unique design points processed: {}".format(self.stats.get_stat("general", "num_dp_finished")))
-        print("Number of design points which were already cached: {}".format(self.stats.get_stat("general", "num_dp_cached")))
-        print("Throughput unique design points: {:.3f} evaluations per second".format(self.stats.get_stat("general", "num_dp_finished")/(end_time - self.start_time)))
+        print("Number of design points received: {}".format(self.stats.get_stat("general", "num_dp") or 0))
+        print("Number of unique design points received: {}".format(self.stats.get_stat("general", "num_dp_unique") or 0))
+        print("Number of unique design points processed: {}".format(self.stats.get_stat("general", "num_dp_finished") or 0))
+        print("Number of design points which were already cached: {}".format(self.stats.get_stat("general", "num_dp_cached") or 0))
+        print("Throughput unique design points: {:.3f} evaluations per second".format((self.stats.get_stat("general", "num_dp_finished") or 0)/(end_time - self.start_time)))
         print("Shutdown at {}".format(time.strftime("%H:%M:%S %d/%m/%Y", time.gmtime(end_time))))
 
         self.stats.write_stats_to_file()

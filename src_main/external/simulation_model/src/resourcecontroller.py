@@ -2,10 +2,11 @@ import json
 import os
 import sys
 import time
+import threading
 
 from multiprocessing import Process
 from pathlib import Path, PosixPath
-from dask.distributed import LocalCluster, Client, wait
+from dask.distributed import LocalCluster, Client, get_client, wait
 from dask_jobqueue import SLURMCluster
 
 from src.dask_worker import dask_worker
@@ -23,21 +24,27 @@ class ResourceController:
     client = None
     running_tasks = None
     stats = None
+    _client_lock = None
+    scheduler_address = None
+    main_pid = None
 
     def __init__(self, config_path, logs_path):
         # TODO:
         # - check if all required config options are available/correct
         self.logs_path = logs_path
         os.makedirs(self.logs_path, exist_ok=True)
+        self._client_lock = threading.Lock()
+        self.main_pid = os.getpid()
 
         self.stats = Stats()
 
         self.logger = logger("resource_controller", Path(self.logs_path), disabled=False)
 
         self.logger.info("Reading in config file: " + str(config_path))
+        self.logger.setLevel("DEBUG")
         self.cnf = Config(Path(config_path), Path(self.logs_path), "config_resource_controller")
 
-        num_workers = 1
+        self.num_workers = 1
 
         if (self.cnf.tryGet("resource_controller")):
             self.logger.info("Resource controller config provided")
@@ -52,34 +59,17 @@ class ResourceController:
                     job_memory = self.cnf.tryGet("resource_controller", "cluster", "job_memory")
                     walltime =  self.cnf.tryGet("resource_controller", "cluster", "walltime")
 
-                    num_workers = num_jobs * job_processes
+                    self.num_workers = num_jobs * job_processes
 
-                    # self.cluster = SLURMCluster( \
-                    #     job_directives_skip=["--mem"], \
-                    #     cores=job_cores, \
-                    #     processes=job_processes, \
-                    #     walltime=walltime, \
-                    #     death_timeout=5*60*60, \
-                    #     memory=job_memory, \
-                    #     worker_extra_args=[], \
-                    #     job_extra_directives = [ \
-                    #     ], \
-                    #     log_directory=self.logs_path, \
-                    #     )
-                    # self.cluster.scale(jobs=num_jobs)
                     self.cluster = SLURMCluster(job_directives_skip=["--mem"], cores=job_cores, processes=job_processes, walltime=walltime, death_timeout=5*60*60, memory=job_memory, worker_extra_args=['--resources slots={}'.format(job_cores)], log_directory=self.logs_path)
                     self.cluster.scale(jobs=num_jobs)
                     
-                    # self.cluster.adapt(maximum_jobs=num_jobs)
-
-                    # TODO: check if number of slots does not exceed num of cores per worker
-                    # TODO: wait for all workers to arrive?
                 elif (cluster_type == "local"):
                     self.logger.info("Resource controller config specifies supported cluster {}".format(cluster_type))
 
-                    num_workers = self.cnf.tryGet("resource_controller", "cluster", "n_workers")
+                    self.num_workers = self.cnf.tryGet("resource_controller", "cluster", "n_workers")
                     threads_per_worker = self.cnf.tryGet("resource_controller", "cluster", "threads_per_worker")
-                    self.cluster = LocalCluster(n_workers=num_workers, threads_per_worker=threads_per_worker, resources={"slots": threads_per_worker})
+                    self.cluster = LocalCluster(n_workers=self.num_workers, threads_per_worker=threads_per_worker, resources={"slots": threads_per_worker})
                 else:
                     self.logger.info("Unsupported cluster {} specified in config".format(cluster_type))
                     self.logger.info("Assuming default local dask cluster instead")
@@ -89,21 +79,37 @@ class ResourceController:
             self.logger.info("Assuming local dask cluster")
             self.cluster = LocalCluster(n_workers=1, threads_per_worker=6, resources={"slots": 6})
 
-        self.client = Client(self.cluster, timeout=6*60)
-
-        while ((self.client.status == "running") and (len(self.client.scheduler_info()["workers"]) < num_workers)):
-            time.sleep(2)
-            self.logger.info(f"self.client.status: {self.client.status} | num_workers: {num_workers} | len(self.client.scheduler_info()['workers']): {len(self.client.scheduler_info()['workers'])}")
-            # self.logger.info(f"self.client.scheduler_info(): {self.client.scheduler_info()}") 
-            # self.logger.info(f"self.client.scheduler_info()['workers']: {self.client.scheduler_info()['workers']}") 
-
-        try:
-            self.client.forward_logging()
-        except:
-            self.logger.error("Error whille client.forward_logging(). It is disabled.")
-            print("Error whille client.forward_logging(). It is disabled.")
+        self.scheduler_address = self.cluster.scheduler_address
+        self.logger.info(f"Dask scheduler running at: {self.scheduler_address}")
 
         self.running_tasks = {}
+        self.running_tasks_slow = {}
+
+    def get_client(self):
+        with self._client_lock:
+            if self.client is None:
+                self.logger.info(f"Creating Dask client for process {os.getpid()} connecting to {self.scheduler_address}")
+                self.client = Client(self.scheduler_address, timeout=60, set_as_default=True)
+                self.logger.info(f"Waiting for workers...")
+                self.client.wait_for_workers(self.num_workers)
+                self.logger.info(f"Client connected: {self.client}")
+                self.logger.info(f"Scheduler info: {self.client.scheduler_info()}")
+                
+                try:
+                    self.client.forward_logging()
+                except Exception as e:
+                    self.logger.error(f"Error while client.forward_logging(): {e}. It is disabled.")
+
+        return self.client
+
+    def get_running_tasks(self, uids):
+        running_tasks = {}
+        for uid in uids:
+            if uid in self.running_tasks:
+                running_tasks[uid] = self.running_tasks[uid]
+            elif uid in self.running_tasks_slow:
+                running_tasks[uid] = self.running_tasks_slow[uid]
+        return running_tasks
 
     def __set_sim_instances_time_stat(self, sim_instances, *args):
         sims = []
@@ -116,7 +122,12 @@ class ResourceController:
     def __submit_task(self, sim_instance):
         self.logger.debug("Sending sim instance {} to worker cluster".format(sim_instance.uid))
         sim_instance.record_time_stat("general", "resource_controller_submit")
-        future = self.client.submit(dask_worker, sim_instance, resources={"slots": sim_instance.num_slots()}, fifo_timeout="50ms")
+        client = self.get_client()
+        with client.as_current():
+            self.logger.info(f"Client.current(): {Client.current()}")
+            self.logger.info(f"Client.current().scheduler_info(): {Client.current().scheduler_info()}")
+            future = Client.current().submit(dask_worker, sim_instance, resources={"slots": sim_instance.num_slots()}, fifo_timeout="50ms")
+        self.logger.info(f"future: {future}")
         self.running_tasks[sim_instance.uid] = future
 
     def __get_all_completed(self):
@@ -147,6 +158,7 @@ class ResourceController:
 
     def wait_for_tasks(self, sim_instances):
         # TODO: catch sim instance not in running tasks
+        self.get_client()  # Ensure client is initialized
         self.logger.debug("Retrieving DASK futures for given tasks")
         futures = [self.running_tasks[sim_instance.uid] for sim_instance in sim_instances]
         self.logger.debug("Waiting for all tasks to complete")
@@ -159,12 +171,13 @@ class ResourceController:
 
     def wait_for_active_tasks(self):
         completed_sim_instances = []
+        self.get_client() # Ensure client is initialized
         self.logger.debug("Waiting for all active tasks to have completed")
 
-        for uid in self.running_tasks.keys():
+        for uid in list(self.running_tasks.keys()):
             sim_instance = self.running_tasks[uid].result()
             completed_sim_instances.append(sim_instance)
-            self.logger.debug("Retrieving results for sim instance: {}".format(task["uid"]))
+            self.logger.debug("Retrieving results for sim instance: {}".format(uid))
 
         self.running_tasks = {}
 
@@ -174,6 +187,12 @@ class ResourceController:
         return self.stats.get_stats_dict()
 
     def shutdown(self):
-        # TODO:
-        # - close dask stuff
+        self.logger.info("Shutting down ResourceController.")
+        if self.client:
+            self.client.close()
+        if self.cluster:
+            # Only the main process should close the cluster
+            if os.getpid() == self.main_pid:
+                self.cluster.close()
+        self.logger.info("ResourceController shutdown complete.")
         return

@@ -5,6 +5,7 @@ from rich.logging import RichHandler
 
 logging.Formatter.format
 
+
 class CustomFormatter(logging.Formatter):
     # def formatDebug(self, exc_info):
     #     """
@@ -28,11 +29,28 @@ class CustomFormatter(logging.Formatter):
         )
         return s
 
-def loggerSTDOUT(name):
-    formatter = CustomFormatter(
-        fmt='[ %(name)s  %(asctime)s  %(levelname)-8s ]  %(message)s',
-        datefmt='%d-%m-%Y %H:%M:%S'
+def prep_prefix(prefix):
+    prefix = prefix.strip()
+    if prefix != "":
+        prefix = " [ " + prefix + " ]"
+    return prefix
+
+def default_formatter (prefix=""):
+    prefix = prep_prefix(prefix)
+    return CustomFormatter(
+        fmt='[ %(name)s  %(asctime)s  %(levelname)-8s ]' + prefix + ' %(message)s',
+        datefmt='%d.%m.%Y %H:%M:%S'
     )
+
+def rich_formatter (prefix=""):
+    prefix = prep_prefix(prefix)
+    return CustomFormatter(
+        fmt='[ ' + prefix + ' ] %(message)s',
+        datefmt='%d.%m.%Y %H:%M:%S'
+    )
+
+def loggerSTDOUT(name):
+    formatter = default_formatter()
 
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
@@ -44,10 +62,7 @@ def loggerSTDOUT(name):
     return logger
 
 def loggerRICH(name):
-    formatter = CustomFormatter(
-        fmt='[ %(name)s  %(asctime)s  %(levelname)-8s ]  %(message)s',
-        datefmt='%d-%m-%Y %H:%M:%S'
-    )
+    formatter = rich_formatter()
 
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
@@ -68,13 +83,10 @@ def loggerShutdown(logger):
 
     logger.handlers.clear()
 
-def logger(name, outfolder, print_stdout=False, rich_handler=False, disabled=False):
+def logger(name, outfolder, print_stdout=False, rich_handler=False, disabled=False, prefix=""):
     os.makedirs(outfolder, exist_ok=True)
     outputfile = os.path.join(outfolder, 'log_'+str(name)+'.txt')
-    formatter = CustomFormatter(
-        fmt='[ %(name)s  %(asctime)s  %(levelname)-8s ]  %(message)s',
-        datefmt='%d-%m-%Y %H:%M:%S'
-    )
+    formatter = default_formatter(prefix=prefix)
 
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)
@@ -92,10 +104,9 @@ def logger(name, outfolder, print_stdout=False, rich_handler=False, disabled=Fal
         logger.addHandler(screen_handler)
 
     if rich_handler:
-        logger.addHandler(RichHandler(level="NOTSET"))
-
-    logger.warn("Created logger with Handlers:")
-    logger.warn(logger.handlers)
+        rich_handler = RichHandler(level="NOTSET")
+        rich_handler.setFormatter(rich_formatter(prefix=prefix))
+        logger.addHandler(rich_handler)
 
     return logger
 
