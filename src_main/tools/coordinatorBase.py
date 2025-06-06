@@ -71,6 +71,7 @@ class HeuristicSimulationCoordinatorBase:
             coordinator_config_file_path: The path to the configuration file of the coordinator.
             nr_of_agents: The number of agents to run the simulation model with.
     '''
+    @requires_main_process
     def __init__(self, base_path, coordinator_config_file_path, nr_of_agents, run_name=None,  nr_of_design_queues=0, experiment_config=None, normalize=True): 
         self._base_path = base_path
         self._nr_of_agents = nr_of_agents
@@ -311,6 +312,7 @@ class HeuristicSimulationCoordinatorBase:
         self.logger.info(f"[coord {file_name_fitness_values}] Agents fitness values: {fitness_values}")
 
 
+    @requires_main_process
     def try_load_problems_file_name_fitness_values(self, file_name_fitness_values):
         if file_name_fitness_values not in self.problems_file_name_fitness_values:
             self.logger.info(f"[try_load_problems_file_name_fitness_values] {file_name_fitness_values} not loaded yet. Trying again.")

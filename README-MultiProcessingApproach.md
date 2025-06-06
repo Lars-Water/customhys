@@ -2,6 +2,8 @@
 
 This document details the multiprocessing architecture used in this project. It is designed to solve the challenges of state management when using `fork`-based multiprocessing, ensuring both correctness and performance.
 
+**Note:** A comprehensive audit of all functions requiring the `@requires_main_process` decorator has been completed. The full list of decorated functions can be found in the [Decorator Audit File](./README-MultiProcessingApproach-Tags.md).
+
 ## 1. The Problem: State Fragmentation
 
 The core of the application involves running multiple `Hyperheuristic` instances in parallel to explore different search operator spaces. The initial approach used Python's `multiprocessing.Process` to create these parallel workers.

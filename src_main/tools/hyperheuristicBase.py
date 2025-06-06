@@ -63,8 +63,8 @@ def _hh_worker_function(context: 'ParallelizationManagerContext', search_operato
             heur_coordinator=proxy_coordinator, # Pass the proxy for RPC calls
             search_operator_space_name=search_operator_space_name,
             updateMHProgress={
-                "advance": lambda x: proxy_coordinator.hh_base.progress.update(bar_steps, advance=x),
-                "start": lambda: proxy_coordinator.hh_base.progress.start_task(bar_steps),
+                "advance": lambda x: proxy_coordinator.hh_base.progress_advance(bar_steps, x),
+                "start": lambda: proxy_coordinator.hh_base.progress_start_task(bar_steps),
             },
             rpc_context=context
         )
@@ -176,12 +176,15 @@ class HyperHeuristicBase:
     def search_operator_spaces(self):
         return self._search_operator_spaces
 
+    @requires_main_process
     def has_problems(self, problem_space_name):
         return self._search_operator_spaces.has_problems(problem_space_name)
 
+    @requires_main_process
     def get_all_problems_file_name_fitness_values(self):
         return self._search_operator_spaces.get_all_problems_file_name_fitness_values()
         
+    @requires_main_process
     def run_multi_threaded(self):
         # with Progress() as progress:
         num_threads = 0
@@ -286,6 +289,16 @@ class HyperHeuristicBase:
                 self.logger.debug(f"Updated shadow attribute '{attribute_path}' for process {proc_id} ({space_name}).")
             else:
                 self.logger.warning(f"Received attribute update for {proc_id} ({space_name}) but shadow object does not exist yet. Update ignored.")
+
+    @requires_main_process
+    def progress_advance(self, task_id, advance_by):
+        """Service method to advance a progress bar task from a child process."""
+        self.progress.update(task_id, advance=advance_by)
+
+    @requires_main_process
+    def progress_start_task(self, task_id):
+        """Service method to start a progress bar task from a child process."""
+        self.progress.start_task(task_id)
 
     @requires_main_process
     def get_pending_updates(self, space_name):
