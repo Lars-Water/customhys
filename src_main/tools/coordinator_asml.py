@@ -204,7 +204,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
                     break
                 except:
                     i_trys += 1
-                    self.logger.error("Error reading "+str(csv_file_path)+" (Try #"+str(i_trys)+"), TRYING AGAIN IN 200MS.")
+                    self.logger.debug("Error reading "+str(csv_file_path)+" (Try #"+str(i_trys)+"), TRYING AGAIN IN 200MS.")
                     # os.listdir(csv_file_path_dbg)
                     time.sleep(0.2)
 

@@ -706,6 +706,12 @@ class HeuristicSimulationCoordinatorBase:
                         symlinks=True
         )
 
+    def get_shared_obj_manager(self):
+        if self.local_manager is not None:
+            return self.local_manager.get_shared_obj_manager()
+        else:
+            return None
+
     def finish_initialization_in_worker(self, rpc_context):
         """
         Completes the object's initialization after being deserialized in a worker process.

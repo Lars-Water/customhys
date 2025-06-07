@@ -41,6 +41,9 @@ class ManagerChild:
         self.shared_obj_manager = SharedObjectManager(address=address, authkey=authkey)
         self.shared_obj_manager.connect()
 
+    def get_shared_obj_manager(self):
+        return self.shared_obj_manager
+
     def set_sim_instances_time_stat(self, sim_instances, *args):
         """A local method to iterate over sim instances and record timing stats."""
         sims = []

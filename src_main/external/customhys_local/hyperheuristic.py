@@ -70,6 +70,8 @@ class Hyperheuristic:
         state['rpc_context'] = None
         # The heur_coordinator is an RPCProxy object, which also holds the unpickleable context.
         state['heur_coordinator'] = None
+        # The 'shared_obj_manager' is a multiprocessing manager and cannot be pickled.
+        state['shared_obj_manager'] = None
         # The 'problems' attribute can contain unpickleable lambda functions.
         state['problems'] = None
         # The 'updateMHProgress' attribute contains unpickleable lambda functions for the progress bar.
@@ -85,6 +87,8 @@ class Hyperheuristic:
         """
         self.__dict__.update(state)
         self.logger = None
+        self.loggerIsLocal = False
+        self.shared_obj_manager = self.heur_coordinator.get_shared_obj_manager()
 
     def __init__(self, heuristic_space='default.txt', problems=None, parameters=None, file_label='', weights_array=None, pass_finalised_positions=False, file_details=None, heur_coordinator=None, search_operator_space_name = None, updateMHProgress = None, rpc_context=None):
         """
@@ -127,7 +131,10 @@ class Hyperheuristic:
         :param boolean pass_finalised_positions: Optional
             Boolean that determines if a finalised step should be passed to the subequent step.
         """
+        self.loggerIsLocal = False
         self.rpc_context = rpc_context
+
+        self.shared_obj_manager = heur_coordinator.get_shared_obj_manager()
 
         # Read the heuristic space
         if isinstance(heuristic_space, list):
@@ -562,13 +569,18 @@ class Hyperheuristic:
         if self.heur_coordinator is not None:
             # These calls now go through the RPC Proxy. The decorator on the
             # target methods will ensure they run in the main process.
+            result_queue = self.shared_obj_manager.get_queue(self.search_operator_space_name+"_check_finalisation_"+str(step))
             finalize_heur, finalize_reason_heur = self.heur_coordinator.hh_base.hh_checkFinalization(
                             self.search_operator_space_name,
                             step, 
                             stag_counter,
                             self.best_performance,
-                            self.current_performance
+                            self.current_performance,
+                            result_queue
                         )
+
+            self.logger.info(f"Waiting for result from {self.search_operator_space_name} check finalisation {step}")
+            finalize_heur, finalize_reason_heur = result_queue.get()
             finalize_reason += finalize_reason_heur
             finalize = finalize or finalize_heur
                         
@@ -589,9 +601,10 @@ class Hyperheuristic:
         return [self.heuristic_space[index] for index in sequence]
 
     def solve(self, mode=None, save_steps=True, local_logger=None):
-        if local_logger is not None and self.logger is None:
+        if local_logger is not None and not self.loggerIsLocal:
             # self.logger.debug(f"Replacing logger with local logger from solve: {local_logger}")
             self.logger = local_logger
+            self.loggerIsLocal = True
             
         mode = mode if mode is not None else self.parameters["solver"]
 

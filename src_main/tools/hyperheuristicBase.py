@@ -520,9 +520,8 @@ class HyperHeuristicBase:
                              step,
                              stag_counter,
                              best_performance,
-                             current_performance):
-        finalize = False
-        reas = []
+                             current_performance, 
+                             result_queue):
         # First order of business: Update our own data for comparisions
         # Lock: see below - tldr: avoid edge case
         with self.lock_hypers:
@@ -541,6 +540,24 @@ class HyperHeuristicBase:
         # and only if we are the correct step interval
         self.logger.debug(f"hh_checkFinalization for {search_operator_space_name} (Step: {step}, stag_counter: {stag_counter}):\n{self.hypers[search_operator_space_name]}") # DEBUG
         enabled_hypers = self._get_num_enabled_hyper()
+        wait_thread = threading.Thread(
+            target=self.hh_checkFinalization_thread,
+            args=(search_operator_space_name, step, stag_counter, best_performance, current_performance, enabled_hypers, result_queue)
+        )
+        wait_thread.daemon = True # Allows main program to exit even if thread is running
+        wait_thread.start()
+
+    @requires_main_process
+    def hh_checkFinalization_thread(self,
+                             search_operator_space_name,
+                             step,
+                             stag_counter,
+                             best_performance,
+                             current_performance,
+                             enabled_hypers,
+                             result_queue):
+        finalize = False
+        reas = []
         if int(enabled_hypers) > int(self.minimum_amount_of_hhs) and self._is_evaluation_time(step):
             # If the check should always use the same step (sync_steps_of_hhs) then we need all HHs to reach this point, otherwise we check with the best we can 
             if self.sync_steps_of_hhs:
@@ -549,20 +566,19 @@ class HyperHeuristicBase:
                 start_wait = time.time()
                 self.barrier.wait()
                 wait_time = time.time() - start_wait
-                self.hypers[search_operator_space_name]["waiting_for_sync"]["total"] += wait_time
-                self.hypers[search_operator_space_name]["waiting_for_sync"]["in_step"][step] = wait_time
+
+                self.logger.info(f"{search_operator_space_name} was waiting for {wait_time} seconds to check the extra finalization critera (synced). (Step: {step}, stag_counter: {stag_counter})")
                 # self.hypers[search_operator_space_name]["progress_bar"]["start"]()
-                finalize, reas = self._checkFinalization_internal(search_operator_space_name, step, stag_counter, best_performance, current_performance)
+                finalize, reas = self._checkFinalization_internal(search_operator_space_name, step, stag_counter, best_performance, current_performance, wait_time)
             else: 
                 # Lock is used, that only one HH at a time can be deactivated
                 # edge case: one HH upates its best value while another one is deactivating a HH
-                with self.lock_hypers:
-                    finalize, reas = self._checkFinalization_internal(search_operator_space_name, step, stag_counter, best_performance, current_performance)
+                finalize, reas = self._checkFinalization_internal(search_operator_space_name, step, stag_counter, best_performance, current_performance)
             self.logger.info(f"The extra finalize check for {search_operator_space_name} returns: {finalize}.") # DEBUG
         else:
             self.logger.debug(f"{search_operator_space_name} - Step: {step} - No extra check done")
 
-        return finalize, reas
+        result_queue.put((finalize, reas))
 
     @requires_main_process
     def _checkFinalization_internal(self, 
@@ -570,19 +586,23 @@ class HyperHeuristicBase:
                              step, 
                              stag_counter,
                              best_performance,
-                             current_performance):
-        reas = []
-        finalize = not self.hypers[search_operator_space_name]["enabled"]
-        if finalize:
-            reas.append("HH1")
-        if self.experiment_config is not None:  
-            if self._is_evaluation_time(step):
-                finalize_is_worst = self._is_worst_hyper(search_operator_space_name, step)
-                if finalize_is_worst:
-                    reas.append("HH2")
-                finalize =  finalize or finalize_is_worst
+                             current_performance,
+                             wait_time):
+        with self.lock_hypers:
+            reas = []
+            self.hypers[search_operator_space_name]["waiting_for_sync"]["total"] += wait_time
+            self.hypers[search_operator_space_name]["waiting_for_sync"]["in_step"][step] = wait_time
+            finalize = not self.hypers[search_operator_space_name]["enabled"]
+            if finalize:
+                reas.append("HH1")
+            if self.experiment_config is not None:  
+                if self._is_evaluation_time(step):
+                    finalize_is_worst = self._is_worst_hyper(search_operator_space_name, step)
+                    if finalize_is_worst:
+                        reas.append("HH2")
+                    finalize =  finalize or finalize_is_worst
 
-        return finalize, reas
+            return finalize, reas
 
     def _is_evaluation_time(self, step):
         return self.evaluate_after_steps <= step and (step % self.evaluate_after_steps) == 0
