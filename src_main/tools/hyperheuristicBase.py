@@ -69,8 +69,8 @@ def _hh_worker_function(context: 'ParallelizationManagerContext', search_operato
             heur_coordinator=proxy_coordinator, # Pass the proxy for RPC calls
             search_operator_space_name=search_operator_space_name,
             updateMHProgress={
-                "advance": lambda x: proxy_coordinator.hh_base.progress_advance(bar_steps, x),
-                "start": lambda: proxy_coordinator.hh_base.progress_start_task(bar_steps),
+                "advance": lambda x: proxy_coordinator.hh_base.progress_advance(bar_iter, x),
+                "start": lambda: proxy_coordinator.hh_base.progress_reset(bar_iter)
             },
             rpc_context=context
         )
@@ -392,6 +392,39 @@ class HyperHeuristicBase:
     def progress_start_task(self, task_id):
         """Service method to start a progress bar task from a child process."""
         self.progress.start_task(task_id)
+
+    @requires_main_process
+    def progress_reset(self, task_id):
+        """Service method to reset a progress bar task from a child process."""
+        self.progress.reset(task_id)
+
+    @requires_main_process
+    def store_fitness_values_for_problem(self, file_name_fitness_values, fitness_values):
+        """
+        RPC-callable method to store fitness values in the main process's ProblemSpace.
+        """
+        self.logger.debug(f"Main process received request to store fitness values for {file_name_fitness_values}: {fitness_values}")
+        if self._search_operator_spaces:
+            self._search_operator_spaces.store_fitness_values(file_name_fitness_values, fitness_values)
+        else:
+            self.logger.error("Cannot store fitness values: _search_operator_spaces is not initialized in the main process.")
+
+    @requires_main_process
+    def get_fitness_values_for_problem(self, file_name_fitness_values):
+        """
+        RPC-callable method to retrieve fitness values from the main process's ProblemSpace.
+        """
+        self.logger.debug(f"Main process received request to get fitness values for {file_name_fitness_values}")
+        if self._search_operator_spaces:
+            problems = self._search_operator_spaces.get_all_problems_file_name_fitness_values()
+            if file_name_fitness_values in problems:
+                return problems[file_name_fitness_values].get('get_agents_fitness_values')()
+            else:
+                self.logger.warning(f"Could not find problem for {file_name_fitness_values} to get fitness values.")
+                return None
+        else:
+            self.logger.error("Cannot get fitness values: _search_operator_spaces is not initialized in the main process.")
+            return None
 
     @requires_main_process
     def get_pending_updates(self, space_name):

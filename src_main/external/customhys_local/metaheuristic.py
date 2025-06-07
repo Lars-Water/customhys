@@ -26,7 +26,7 @@ class Metaheuristic:
         search operators from op, and it is based on a population from Population.
     """
     def __init__(self, problem, search_operators=None, num_agents: int = 30, num_iterations: int = 100,
-                 initial_scheme: str = 'random', verbose: bool = False, finalised_positions_previous_step = None,  pass_finalised_positions = False, updateProgress=None, logger=None):
+                 initial_scheme: str = 'random', verbose: bool = False, finalised_positions_previous_step = None,  pass_finalised_positions = False, updateProgress=None, logger=None, heur_coordinator=None):
         """
         Create a population-based metaheuristic by employing different simple search operators.
 
@@ -57,6 +57,7 @@ class Metaheuristic:
         self.finalisation_conditions = None
         self._problem_function = problem['function']
         self.problem = problem
+        self.heur_coordinator = heur_coordinator
 
         if logger is not None:
             self.logger = logger
@@ -116,8 +117,8 @@ class Metaheuristic:
         # Evaluate fitness values
         self.problem['set_step_iteration_data'](hh_step, self.pop.iteration)
         self.logger.debug(f"Applying initialiser to problem '{self.problem['get_file_name_fitness_values']()}': {self.problem['get_agents_fitness_values']()}")
-        # self.logger.debug(f"Fitness values (items: {len(self.problem['get_agents_fitness_values']())}): {self.problem['get_agents_fitness_values']()}")
-        self.pop.evaluate_fitness(self._problem_function, self.problem['get_agents_fitness_values']())
+        
+        self.pop.evaluate_fitness(self._problem_function, fitness_values=self.problem['get_agents_fitness_values']())
 
         # Update population, particular, and global
         self.pop.update_positions('population', 'all')  # Default
@@ -134,7 +135,9 @@ class Metaheuristic:
         # Evaluate fitness values
         self.problem['set_step_iteration_data'](hh_step, self.pop.iteration)
         self.logger.debug(f"Applying search operator '{perturbator}' to problem '{self.problem['get_file_name_fitness_values']()}': {self.problem['get_agents_fitness_values']()}")
-        self.pop.evaluate_fitness(self._problem_function, self.problem['get_agents_fitness_values']())
+        
+        fresh_fitness = self.heur_coordinator.hh_base.get_fitness_values_for_problem(self.problem['get_file_name_fitness_values']())
+        self.pop.evaluate_fitness(self._problem_function, fitness_values=fresh_fitness)
         # self.pop.evaluate_fitness(self._problem_function)
 
         # Update population
@@ -164,6 +167,7 @@ class Metaheuristic:
             self.updateProgress["start"]()
 
         # Apply initialiser / Random Sampling
+        self.logger.debug("Applying initialiser / Random Sampling")
         self.apply_initialiser(hh_step=hh_step, file_label =file_label)
 
         # TODO: Save design points in CSV file.
@@ -187,6 +191,7 @@ class Metaheuristic:
             for perturbator, selector in zip(self.perturbators, self.selectors):
 
                 # Apply the corresponding search operator
+                self.logger.debug(f"Applying search operator '{perturbator}' with selector '{selector}'")
                 self.apply_search_operator(perturbator, selector, hh_step=hh_step)
 
                 # Update historical variables
@@ -200,6 +205,8 @@ class Metaheuristic:
                 self.updateProgress["advance"](1)
 
             # TODO: Save design points in CSV file.
+
+            self.logger.debug("Metaheuristic run finished")
 
         # NOTE: CUSTOM CHANGE BY LARS - Save the best position per agent of the finished MH.
         if self.pass_finalised_positions:

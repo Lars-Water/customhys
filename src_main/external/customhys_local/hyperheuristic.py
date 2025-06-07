@@ -74,6 +74,7 @@ class Hyperheuristic:
         state['problems'] = None
         # The 'updateMHProgress' attribute contains unpickleable lambda functions for the progress bar.
         state['updateMHProgress'] = None
+        state['logger'] = None
         return state
 
     def __setstate__(self, state):
@@ -83,6 +84,7 @@ class Hyperheuristic:
         which is the desired behavior for a data-only object.
         """
         self.__dict__.update(state)
+        self.logger = None
 
     def __init__(self, heuristic_space='default.txt', problems=None, parameters=None, file_label='', weights_array=None, pass_finalised_positions=False, file_details=None, heur_coordinator=None, search_operator_space_name = None, updateMHProgress = None, rpc_context=None):
         """
@@ -210,10 +212,9 @@ class Hyperheuristic:
         self.num_agents_avail = None
 
         # Choose evaluation method: 'threading' (with CPU affinity) or 'multiprocessing'
-        # self.evaluation_method = self.parameters.get('evaluation_method', 'threading')
-        # if self.evaluation_method not in ['threading', 'multiprocessing']:
-        #     self.evaluation_method = 'threading'  # Default fallback
-        self.evaluation_method = 'multiprocessing'
+        self.evaluation_method = self.parameters.get('evaluation_method', 'threading')
+        if self.evaluation_method not in ['threading', 'multiprocessing']:
+            self.evaluation_method = 'threading'  # Default fallback
 
         self.file_details = file_details
         self.file_label = file_label
@@ -229,7 +230,8 @@ class Hyperheuristic:
             self.collection_finalised_positions_previous_step = []
         self.updateMHProgress = updateMHProgress
 
-        self.logger = loggerRICH("CustomHyS_Hyperheuristic")
+        # self.logger = loggerRICH("CustomHyS_Hyperheuristic")
+        self.logger = None
 
 
         # _save_step(0, {}, self.parameters, self.file_details, self.file_label)
@@ -517,8 +519,7 @@ class Hyperheuristic:
         if acceptation_scheme == 'exponential':
             probability = np.min([np.exp(-delta / (energy_zero * temp)), 1]) if prob is None else prob
             if self.parameters['verbose']:
-                print(', [Delta: {:.2e}, ArgProb: {:.2e}, Prob: {:.2f}]'.format(
-                    delta, -delta / (energy_zero * temp), probability), end=' ')
+                self.logger.info(f', [Delta: {delta:.2e}, ArgProb: {(-delta / (energy_zero * temp)):.2e}, Prob: {probability:.2f}]')
             return np.random.rand() < probability
         elif acceptation_scheme == 'boltzmann':
             probability = 1. / (1. + np.exp(delta / temp)) if prob is None else prob
@@ -588,8 +589,8 @@ class Hyperheuristic:
         return [self.heuristic_space[index] for index in sequence]
 
     def solve(self, mode=None, save_steps=True, local_logger=None):
-        if local_logger is not None:
-            self.logger.debug(f"Replacing logger with local logger from solve: {local_logger}")
+        if local_logger is not None and self.logger is None:
+            # self.logger.debug(f"Replacing logger with local logger from solve: {local_logger}")
             self.logger = local_logger
             
         mode = mode if mode is not None else self.parameters["solver"]
@@ -1219,7 +1220,8 @@ class Hyperheuristic:
                                finalised_positions_previous_step=finalised_positions_previous_step,
                                pass_finalised_positions=self.pass_finalised_positions,
                                updateProgress=self.updateMHProgress,
-                               logger=self.logger
+                               logger=self.logger,
+                               heur_coordinator=self.heur_coordinator
                             )
                             #    updateProgress=self.updateMHProgress if i == (self.parameters['num_replicas']-1) else None
 
@@ -1244,12 +1246,15 @@ class Hyperheuristic:
         self.logger.debug(f"Finished running {self.parameters['num_replicas']} metaheuristics in parallel.")
 
         for i in range(self.parameters['num_replicas']):
+            self.logger.info(f"MH[{i}]: {mhs[i]} ")
+            # self.logger.info(f"MH[{i}].historical: {mhs[i].historical} ")
             # Store the historical values from this run
             historical_data.append(mhs[i].historical)
 
 
             # Read and store the solution obtained
             _temporal_position, _temporal_fitness = mhs[i].get_solution()
+            self.logger.debug(f"MH[{i}].get_solution(): {_temporal_position}, {_temporal_fitness}")
             fitness_data.append(_temporal_fitness)
             position_data.append(_temporal_position)
 
@@ -1262,6 +1267,7 @@ class Hyperheuristic:
 
         # Determine a performance metric once finish the repetitions
         fitness_stats = self.get_statistics(fitness_data)
+        self.logger.debug(f"Fitness stats: {fitness_stats}")
 
         # NOTE: CUSTOM CHANGE BY LARS - PASSING EXTRA COLLECTION OF THE FINALISED POSITIONS OF THE CURRENT STEP.
         # Return the performance value and the corresponding details
@@ -1348,6 +1354,7 @@ class Hyperheuristic:
 
         # Determine performance metric
         fitness_stats = self.get_statistics(fitness_data)
+        self.logger.info(f"Fitness stats: {fitness_stats}")
         
         # Return the performance value and details
         return self.get_performance(fitness_stats), dict(
@@ -1423,8 +1430,8 @@ class Hyperheuristic:
         :return: The computed performance.
         """
         # return statistics['Med']                                                                  # Option 1
-        # return statistics['Avg'] + statistics['Std']                                              # Option 2
-        return statistics['Med'] + statistics['IQR']  # Option 3
+        return statistics['Avg'] + statistics['Std']                                              # Option 2
+        # return statistics['Med'] + statistics['IQR']  # Option 3
         # return statistics['Avg'] + statistics['Std'] + statistics['Med'] + statistics['IQR']      # Option 4
 
     @staticmethod

@@ -12,7 +12,7 @@ from src.resourcecontroller import ResourceController
 from src.outputhandler import OutputHandler
 from src.designpointcache import DesignPointCache
 
-from src_main.tools.logger import logger
+from src_main.tools.logger import logger, loggerRICH
 from src.utils.config_reader import Config
 from src.utils.stats import Stats
 
@@ -193,6 +193,8 @@ class Manager:
 
         self.stats.write_stats_to_file()
 
+        return queue_id
+
     # Does not wait for results
     def submit_queue_all(self, queue_id):
         design_point_queue = self.__get_queue(queue_id)
@@ -337,9 +339,10 @@ class Manager:
         into the queue provided by the child process.
         """
         try:
-            self.logger.debug(f"Background thread started, waiting for {len(sim_instances)} tasks.")
+            # logger = loggerRICH("_wait_and_put_results")
+            # logger.info(f"[_wait_and_put_results] Background thread started, waiting for {len(sim_instances)} tasks.")
             completed = self.resource_controller.wait_for_tasks(sim_instances)
-            self.logger.debug(f"Background thread: tasks finished, putting {len(completed)} results into queue.")
+            # logger.info(f"[_wait_and_put_results] Background thread: tasks finished, putting {len(completed)} results into queue.")
             result_queue.put(completed)
         except Exception as e:
             self.logger.exception(f"Exception in manager's background result thread: {e}")
@@ -364,6 +367,27 @@ class Manager:
         wait_thread = threading.Thread(
             target=self._wait_and_put_results,
             args=(sim_instances, result_queue)
+        )
+        wait_thread.daemon = True # Allows main program to exit even if thread is running
+        wait_thread.start()
+        
+        
+    def evaluate_cached_sims_async(self, queue_id, result_queue):
+        design_point_queue = self.__get_queue(queue_id)
+        if not design_point_queue:
+            raise Exception(f"Passed invalid design queue id: {queue_id}")
+
+        def while_loop(design_point_queue, result_queue):
+            i = 0
+            while self.evaluate_cached_sims(design_point_queue) and design_point_queue.has_chached():
+                time.sleep(1)
+                i += 1
+            result_queue.put(i)
+
+        # Start a background thread to wait for the results
+        wait_thread = threading.Thread(
+            target=while_loop,
+            args=(design_point_queue, result_queue)
         )
         wait_thread.daemon = True # Allows main program to exit even if thread is running
         wait_thread.start()
@@ -399,3 +423,62 @@ class Manager:
         return completed_sim_instances
 
 # TODO: add dequeue, wait_for, get_results, etc. functions
+
+    def evaluate_queue_pre(self, queue_id, n=1):
+        design_point_queue = self.__get_queue(queue_id)
+
+        if not design_point_queue:
+            raise Exception("Passed invalid design queue id")
+
+        if n == 0:
+            n = design_point_queue.size()
+
+
+        self.logger.debug("Requesting {} sim instances from design point queue {}".format(n, queue_id))
+        sim_instances = design_point_queue.get(n)
+        self.logger.debug("Recieved {} sim instances from design point queue {}".format(len(sim_instances), queue_id))
+
+        # TODO: move this to the resource_controller?
+        self.logger.debug("Setting sim instances ({}) to processing state in cache".format(len(sim_instances)))
+        self.design_point_cache.set_sims_processing(sim_instances)
+        self.stats.add_stat(len(sim_instances), "general", "num_eval_rc")
+
+        self.logger.debug("Sending sim instances ({}) to resource controller".format(len(sim_instances)))
+        sim_instances = self.set_sim_instances_time_stat(sim_instances, "general", "manager_evaluate_resource_controller_start")
+
+        return sim_instances
+
+    def evaluate_queue_post(self, queue_id, sim_instances):
+        design_point_queue = self.__get_queue(queue_id)
+        sim_instances = self.set_sim_instances_time_stat(sim_instances, "general", "manager_evaluate_resource_controller_end")
+
+        self.design_point_cache.set_sims_finished(sim_instances)
+        self.stats.add_stat(len(sim_instances), "general", "num_dp_finished")
+        self.logger.debug("num_dp_finished+=" + str(len(sim_instances))+" (total: "+str(self.stats.get_stat("general", "num_dp_finished"))+")")
+
+        cached = self.evaluate_cached_sims(design_point_queue)      
+
+        return sim_instances
+
+    def evaluate_cached_sims(self, design_point_queue):
+        all_are_processing = 0
+        cached_sim_instances = design_point_queue.cached_get_all()
+        if self.data_collector:
+            self.data_collector.append_caching_status_to_design_point_metrics_lazy([sim_tuple[0].uid for sim_tuple in cached_sim_instances], True)
+        
+        for current_sim_instance, original_sim_uid in cached_sim_instances:
+            original_cached_sim_placeholder = SimpleNamespace(uid=original_sim_uid)
+
+            if self.design_point_cache.is_sim_finished(original_cached_sim_placeholder):
+                self.output_handler.copy_sim_results(current_sim_instance, original_cached_sim_placeholder)
+                self.design_point_cache.set_sim_finished(current_sim_instance)
+
+            elif self.design_point_cache.is_sim_processing(original_cached_sim_placeholder):
+                design_point_queue.cached_insert((current_sim_instance, original_sim_uid))
+                all_are_processing += 1
+                
+            else:
+                self.logger.warn(f"Original cached sim {original_sim_uid} for {current_sim_instance.uid} is in an unexpected state. Re-queuing.")
+                design_point_queue.cached_insert((current_sim_instance, original_sim_uid))
+
+        return (all_are_processing == design_point_queue.chached_amount() and design_point_queue.has_chached())

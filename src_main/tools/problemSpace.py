@@ -35,9 +35,11 @@ class ProblemSpace:
 
         self.logger.info(f"Creating {num_replicas} problems.")
         for rep in range(num_replicas):
-            self._problems[rep] = create_problem_instance_func(*args, **kwargs)
-            self._problems[rep]['set_file_name_fitness_values']("fitness_values_"+str(self.problem_space_name)+"_replica_"+str(rep)+".json")        
-            self._problems[rep]['set_space_name'](str(self.problem_space_name))
+            problem = create_problem_instance_func(*args, **kwargs)
+            problem['set_file_name_fitness_values']("fitness_values_"+str(self.problem_space_name)+"_replica_"+str(rep)+".json")        
+            problem['set_space_name'](str(self.problem_space_name))
+            
+            self._problems[rep] = problem
 
         return self._problems
 

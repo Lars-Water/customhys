@@ -97,3 +97,14 @@ class SearchOperatorSpace:
                 self.logger.info(f"[searchOperatorSpace] Getting all problems file name fitness values for problem: {problems[problem]['get_file_name_fitness_values']()}.")
                 problems_file_name_fitness_values[problems[problem]['get_file_name_fitness_values']()] = problems[problem]
         return problems_file_name_fitness_values
+
+    @requires_main_process
+    def store_fitness_values(self, file_name_fitness_values, fitness_values):
+        """Stores the fitness values for a given problem file name."""
+        all_problems = self.get_all_problems_file_name_fitness_values()
+        if file_name_fitness_values in all_problems:
+            problem = all_problems[file_name_fitness_values]
+            problem['store_agents_fitness_values'](fitness_values)
+            self.logger.debug(f"Stored fitness for {file_name_fitness_values}")
+        else:
+            self.logger.warning(f"Could not find problem for {file_name_fitness_values} to store fitness values.")

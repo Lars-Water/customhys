@@ -399,30 +399,30 @@ if __name__ == "__main__":
         raise FileNotFoundError(f"The coordinator configuration file {coordinator_config_file_path} does not exist.")
 
     # --- Yappi Profiling Start ---
-    logger.info(f"Yappi Profiling Start")
-    # Load coordinator_config to get general_files path for yappi output
+    # logger.info(f"Yappi Profiling Start")
+    # # Load coordinator_config to get general_files path for yappi output
     profiler_active = False
-    profile_dir = None
-    if coordinator_config_file_path.exists():
-        try:
-            coord_conf_for_yappi = Config(coordinator_config_file_path, name="yappi_config_reader")
-            general_files_path = coord_conf_for_yappi.tryGet("output_paths", "general_files")
-            logger.info(f"General files path: {general_files_path}")
+    # profile_dir = None
+    # if coordinator_config_file_path.exists():
+    #     try:
+    #         coord_conf_for_yappi = Config(coordinator_config_file_path, name="yappi_config_reader")
+    #         general_files_path = coord_conf_for_yappi.tryGet("output_paths", "general_files")
+    #         logger.info(f"General files path: {general_files_path}")
 
-            if general_files_path:
-                yappi_output_dir_base = os.path.join(general_files_path, "profiling_yappi")
-                # e.g. profile every 5 minutes (300 s)
-                # You can adjust interval_seconds as needed
-                profile_dir = start_periodic_profiling(interval_seconds=30*60, output_subdir=yappi_output_dir_base)
-                logger.info(f"Yappi profiling started. Snapshots will be written to: {profile_dir}")
-                profiler_active = True
-            else:
-                logger.warn(f"Yappi profiling NOT started: 'output_paths.general_files' not found in coordinator config.")
-        except Exception as e:
-            logger.warn(f"Yappi profiling NOT started due to error reading coordinator config: {e}")
-    else:
-        logger.warn(f"Yappi profiling NOT started: Coordinator config file not found at {coordinator_config_file_path}")
-    # --- End Yappi Profiling Start ---
+    #         if general_files_path:
+    #             yappi_output_dir_base = os.path.join(general_files_path, "profiling_yappi")
+    #             # e.g. profile every 5 minutes (300 s)
+    #             # You can adjust interval_seconds as needed
+    #             profile_dir = start_periodic_profiling(interval_seconds=30*60, output_subdir=yappi_output_dir_base)
+    #             logger.info(f"Yappi profiling started. Snapshots will be written to: {profile_dir}")
+    #             profiler_active = True
+    #         else:
+    #             logger.warn(f"Yappi profiling NOT started: 'output_paths.general_files' not found in coordinator config.")
+    #     except Exception as e:
+    #         logger.warn(f"Yappi profiling NOT started due to error reading coordinator config: {e}")
+    # else:
+    #     logger.warn(f"Yappi profiling NOT started: Coordinator config file not found at {coordinator_config_file_path}")
+    # # --- End Yappi Profiling Start ---
 
     try:
         logger.info(f"Try to run the main function.")

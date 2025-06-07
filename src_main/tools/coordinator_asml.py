@@ -94,7 +94,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
 
         # TODO: Change the hardcoded ini filename to a variable in the configuration file.
         # Duplicate the preferred dummy_sim directory to the custom directory.
-        self.duplicate_directory(self.simulation_model_template_path, design_point_path, files_to_ignore=["platform.xml", "*.pstat", "*.cc", "*.msg", "*.h", "*.csv", "*.log", "out/*", ".*", ".settings/", "out", "*.o", "results/*"])
+        self.duplicate_directory(self.simulation_model_template_path, design_point_path, files_to_ignore=["platform.xml", "*.pstat", "*.cc", "*.msg", "*.h", "*.csv", "*.log", "out/*", ".*", ".settings/", "out", "*.o"]) # , "results/*"
 
         # TODO: Change the hardcoded ini filename to a variable in the configuration file.
         # Write an updated version of the ignored param value file from the directory that was just duplicated.
@@ -212,7 +212,8 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
             if (i_trys >= 1000): 
                 df = pd.read_csv(csv_file_path)
             
-
+            # print("########################")
+            # self.logger.info(f"DF: {df}")
             # Determine end-to-end delay statistics.
             simtime_df = df[df["name"].fillna("").str.endswith("#waverage")]
             wfpm = pd.to_numeric(simtime_df.loc[simtime_df['value'].idxmax()]['value'], downcast='float')
@@ -339,7 +340,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
                     progress.advance(sim_id_bars[parameter][boundary])
                     uid = list(uids.keys())[list(uids.values()).index(sim_ids.index(sim_id_boundaries[parameter][boundary]))]
                     val_boun = self.determine_boundary_value(uid, parameter, boundary)
-                    self.logger.info(f"Determine the boundary value for the objective: {parameter} - boundary: {boundary} - value: {value} --> {val_boun}")
+                    self.logger.debug(f"Determine the boundary value for the objective: {parameter} - boundary: {boundary} - value: {value} --> {val_boun}")
 
             sim_ids.clear()
 
@@ -357,7 +358,7 @@ class HeuristicSimulationCoordinatorASML(HeuristicSimulationCoordinatorBase):
             
                 
             self._check_normalization()
-            self.logger.info("Boundaries: \n" +
+            self.logger.debug("Boundaries: \n" +
                 "self.min_wfpm_runtime: " + str(self.min_wfpm_runtime) + "\n" +
                 "self.max_wfpm_runtime: " + str(self.max_wfpm_runtime) +"\n" +
                 "self.min_cost: " + str(self.min_cost) + "\n" +

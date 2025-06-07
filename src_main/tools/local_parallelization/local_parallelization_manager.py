@@ -40,8 +40,9 @@ import os
 import typing
 import logging
 from pathlib import Path
-from src_main.tools.logger import logger
-import queue # For dynamic task request queue
+import queue
+from src_main.tools.logger import logger, loggerRICH
+from multiprocessing import Queue as MPQueue # For dynamic task request queue
 import traceback
 import pickle
 from multiprocessing.managers import BaseManager
@@ -62,8 +63,14 @@ from .local_parallelization_context import LocalParallelizationProcessWrapper
 class SharedObjectManager(BaseManager):
     pass
 
+queues = {}
+def SharedObjectManagerQueue(id):
+    # logger = loggerRICH("SharedObjectManagerQueue")
+    # logger.info(f"Creating MPQueue with id {id}")
+    queues[id] = queue.Queue()
+    return queues[id]
 # Register the Queue class with our custom manager
-SharedObjectManager.register('get_queue', queue.Queue)
+SharedObjectManager.register('get_queue', SharedObjectManagerQueue)
 
 # --- Module Overview ---
 # This module provides the `LocalParallelizationManager` class, the central orchestrator

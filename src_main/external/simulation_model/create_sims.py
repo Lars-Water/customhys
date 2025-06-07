@@ -181,4 +181,4 @@ def create_sim_asml_parallel(workflow_config, dummy_sim_path, id, inet_base):
     #              os.path.join(inet_base, "showcases"), os.path.join(inet_base, "tests", "validation"),
     #              os.path.join(inet_base, "tests", "networks"), os.path.join(inet_base, "tutorials")]
 
-    return create_sim_without_duplicating(workflow_config, id, dummy_sim_path, dummy_sim, config, time_limit=None, ini=ini, libraries=libraries, ned_paths=ned_paths, doCompile=False, disabledLoggers=False)
+    return create_sim_without_duplicating(workflow_config, id, dummy_sim_path, dummy_sim, config, time_limit=None, ini=ini, libraries=libraries, ned_paths=ned_paths, doCompile=False, disabledLoggers=True)

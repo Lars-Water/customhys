@@ -22,6 +22,7 @@ import glob
 import itertools
 from threading import Lock
 import math
+import threading
 
 
 from experiments import create_sim_custom_dummy, create_sim_inet_lans_dummy, create_sim_inet_lans_dummy_parallel
@@ -30,6 +31,7 @@ from src.manager_child import ManagerChild
 from src.utils.config_creator import WorkflowConfig
 from src_main.external.customhys_local import hyperheuristic as hh
 from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main, RPCProxy
+from src_main.tools.logger import loggerRICH
 
 import uuid
 from .local_parallelization.rpc import requires_main_process
@@ -63,6 +65,8 @@ class HeuristicSimulationCoordinatorBase:
         self.manager = None 
         self.local_manager = None # Will be initialized later
         self.data_collector = None
+        if hasattr(self, '_rich_logger_initialized'):
+            del self._rich_logger_initialized
         
         # In a worker process, re-initialize the config and logger.
         # The config file path is assumed to be part of the pickled state.
@@ -116,9 +120,11 @@ class HeuristicSimulationCoordinatorBase:
         self.log_path = self.conf.tryGet("output_paths", "log_files")
         if self.log_path is None:
             self.log_path = os.path.join(self._base_path, "data/logs/")
+        os.makedirs(self.log_path, exist_ok=True)
 
 
         coordinator_log_path = Path(os.path.join(self.log_path, "coordinator"))
+        os.makedirs(coordinator_log_path, exist_ok=True)
         self.conf.createLogger(coordinator_log_path, "coordinator_config_manager")
         self.logger = logger("coordinator", coordinator_log_path, disabled=False)
         self.logger.setLevel("DEBUG")
@@ -142,6 +148,7 @@ class HeuristicSimulationCoordinatorBase:
         self.timestamp = time.strftime("%Y%m%d_%H%M%S")
         self.timestamp_int = int(time.time()) 
         self.data_path = os.path.join(experiments_path, "data", f"campaign_{sim_model}", f"n{str(num_nodes)}_w{str(num_workers)}_s{str(self._nr_of_sims)}", self.timestamp)
+        os.makedirs(self.data_path, exist_ok=True)
 
         # Define params for configuration file creation.
         workflow_config_file = os.path.join(self.data_path, "config.json")
@@ -149,6 +156,9 @@ class HeuristicSimulationCoordinatorBase:
         workflow_results_folder = os.path.join(self.data_path, "results")
         workflow_logs_folder = os.path.join(self.data_path, "logs")
         workflow_runtime_folder = os.path.join(self.data_path, "runtime")
+        os.makedirs(workflow_results_folder, exist_ok=True)
+        os.makedirs(workflow_logs_folder, exist_ok=True)
+        os.makedirs(workflow_runtime_folder, exist_ok=True)
         
         self.files_to_keep = []
         if self.conf.tryGet("coordinator_functionalities", "sim_instance_output_files_to_keep"):
@@ -216,6 +226,7 @@ class HeuristicSimulationCoordinatorBase:
         self.dir_design_points_metrics_output = self.conf.tryGet("output_paths", "design_points_metrics_output")
         if self.dir_design_points_metrics_output is None or not self.dir_design_points_metrics_output:
             self.dir_design_points_metrics_output = os.path.join(self.data_path, "design_points_metrics")
+        os.makedirs(self.dir_design_points_metrics_output, exist_ok=True)
 
         self.createDataCollector()
         self.createHyperHeuristicBase()
@@ -331,36 +342,54 @@ class HeuristicSimulationCoordinatorBase:
         Returns:
             None
         """
-        # Ensure the in-memory store is initialized.
-        # Ideally, this should be in the __init__ method of the class,
-        # but this provides a fallback.
-        # if not hasattr(self, '_in_memory_fitness_values'):
-        #     self._in_memory_fitness_values = {}
-        #     if hasattr(self, 'logger') and self.logger:
-        #         self.logger.info("Initialized `_in_memory_fitness_values` store on first use.")
-        #     # else:
-        #         # Consider a print statement here if logger might not be available,
-        #         # e.g., print("Warning: _in_memory_fitness_values initialized without logger.")
+        if any(np.isnan(v) for v in fitness_values.values()):
+            self.logger.warning(f"NaN value detected in fitness values for {file_name_fitness_values}: {fitness_values}")
 
-        # Use the filename without extension as the key
-        # memory_key, _ = os.path.splitext(file_name_fitness_values)
+        # This method runs in the worker. self.hh_base is a proxy to the main process's HyperHeuristicBase object.
+        # We call the new method on the main process to store the values there.
+        if hasattr(self, 'hh_base') and self.hh_base is not None:
+             self.hh_base.store_fitness_values_for_problem(file_name_fitness_values, fitness_values)
+             # Now, immediately get the stored values back from the main process to ensure the local state is up-to-date
+             updated_fitness_values = self.hh_base.get_fitness_values_for_problem(file_name_fitness_values)
+             if updated_fitness_values is not None:
+                self.problems_file_name_fitness_values[file_name_fitness_values]['store_agents_fitness_values'](updated_fitness_values)
+                self.logger.debug(f"[coord {file_name_fitness_values}] Synced fitness values from main process: {updated_fitness_values}")
+             else:
+                self.logger.error(f"Failed to sync fitness values for {file_name_fitness_values} from main process.")
 
-        # if hasattr(self, 'logger') and self.logger:
-        #     self.logger.info(f"Caching fitness values in memory for key: '{memory_key}' (derived from '{file_name_fitness_values}')")
-        
-        self.try_load_problems_file_name_fitness_values(file_name_fitness_values)
-        self.problems_file_name_fitness_values[file_name_fitness_values]['store_agents_fitness_values'](fitness_values)
-        self.logger.info(f"[coord {file_name_fitness_values}] Agents fitness values: {fitness_values}")
+        else:
+             self.logger.error("Cannot store fitness values: hh_base proxy not available in coordinator worker.")
+
+        self.logger.debug(f"[coord {file_name_fitness_values}] Relayed agents fitness values to main process: {fitness_values}")
+
+        if not hasattr(self, 'agents_fitness_dir_path') or not self.agents_fitness_dir_path:
+            self.logger.error("agents_fitness_dir_path is not configured. Cannot store fitness values.")
+            return
+
+        # Ensure the directory exists
+        os.makedirs(self.agents_fitness_dir_path, exist_ok=True)
+        file_path = os.path.join(self.agents_fitness_dir_path, file_name_fitness_values)
+
+        # The fitness_values are a dictionary with int keys; json can handle that.
+        # The values are np.float64, which need to be converted for json serialization.
+        serializable_fitness_values = {k: float(v) for k, v in fitness_values.items()}
+
+        try:
+            with open(file_path, 'w') as f:
+                json.dump(serializable_fitness_values, f, indent=4)
+            self.logger.debug(f"Fitness values for {file_name_fitness_values} stored successfully at {file_path}")
+        except Exception as e:
+            self.logger.error(f"Failed to store fitness values to {file_path}: {e}")
 
 
-    @requires_main_process
     def try_load_problems_file_name_fitness_values(self, file_name_fitness_values):
         if file_name_fitness_values not in self.problems_file_name_fitness_values:
-            self.logger.info(f"[try_load_problems_file_name_fitness_values] {file_name_fitness_values} not loaded yet. Trying again.")
+            self.logger.debug(f"[try_load_problems_file_name_fitness_values] {file_name_fitness_values} not loaded yet. Trying again.")
             self.problems_file_name_fitness_values = self.hh_base.get_all_problems_file_name_fitness_values()
-            self.logger.info(f"[try_load_problems_file_name_fitness_values] Loaded following problems: {list(self.problems_file_name_fitness_values.keys())}")
+            self.logger.debug(f"[try_load_problems_file_name_fitness_values] Loaded following problems: {list(self.problems_file_name_fitness_values.keys())}")
         if file_name_fitness_values not in self.problems_file_name_fitness_values:
             raise ValueError(f"[try_load_problems_file_name_fitness_values] File name fitness values {file_name_fitness_values} not found in keys of self.problems_file_name_fitness_values: {list(self.problems_file_name_fitness_values.keys())}.")
+        return self.problems_file_name_fitness_values
     '''
         Run the simulation model with the given configuration values.
 
@@ -392,10 +421,20 @@ class HeuristicSimulationCoordinatorBase:
 
             self.logger.debug("Collect the simulation stats from the simulation instances runs.\n"+str(uids.keys()))
             simulation_metrics = self.obtain_simulation_stats(uids, file_name_fitness_values=file_name_fitness_values)
+            self.logger.debug(f"Retrieved simulation metrics: {simulation_metrics}")
 
             self.logger.debug("Locally storing the agents fitness values.")
             fitness_config = self.conf.tryGet("fitness_config")
             fitness_values = fitfunc(fitness_config, simulation_metrics)
+            fitness_values = {k: np.float64(v) for k, v in fitness_values.items()}
+            self.logger.debug(f"Calculated fitness values: {fitness_values}")
+
+            if any(np.isnan(v) for v in fitness_values.values()):
+                self.logger.error("NaN value detected in fitness values!")
+                self.logger.error(f"Problem: {file_name_fitness_values}")
+                self.logger.error(f"Step/Iteration: {step_iteration_data}")
+                self.logger.error(f"Simulation Metrics: {simulation_metrics}")
+                self.logger.error(f"Fitness Values: {fitness_values}")
 
             if self.store_design_points_metrics_values:
                 self.try_load_problems_file_name_fitness_values(file_name_fitness_values)
@@ -542,25 +581,30 @@ class HeuristicSimulationCoordinatorBase:
         Returns:
             dict: A dictionary mapping Herman's simulation instance UIDs to their corresponding coordinator IDs.
         """
+        if not getattr(self, '_rich_logger_initialized', False):
+            self.logger = loggerRICH("run_multiple_simulation_configuration")
+            self._rich_logger_initialized = True
+            
         start_time = time.time()
-        self.logger.debug(f"run_multiple_simulation_configuration: {sim_ids}, {file_name_fitness_values}, {step_iteration_data}")
+        # self.logger.info(f"run_multiple_simulation_configuration: {sim_ids}, {file_name_fitness_values}, {step_iteration_data}")
 
         # Create/Get queue id for every problem
-        queue_name = Path(file_name_fitness_values).stem
+        queue_name = f"{Path(file_name_fitness_values).stem}_{threading.get_ident()}"
         if queue_name not in self.queues:
             self.queues[queue_name] = f'q{len(self.queues)}'
         queue_id = self.queues[queue_name]
 
-        self.logger.debug(f"(Queue: {queue_id}) Enqueing sim instances.")
+        # self.logger.info(f"(Queue: {queue_id}) Enqueing sim instances.")
 
         # Configuring siminstances.
         sim_instances = [self.create_dummy_parallel(self.config, self.generated_path, sim_id, self.inet_path) for sim_id in sim_ids]
         uids = {sim_instance.uid: id for id, sim_instance in enumerate(sim_instances)}
 
         # Run the configured simulation model via the main manager proxy.
-        self.local_manager.enqueue_tasks(sim_instances, queue_id=queue_id, metadata=step_iteration_data)
+        queue_id_enqueud = self.local_manager.enqueue_tasks(sim_instances, queue_id=queue_id, metadata=step_iteration_data)
+        # self.logger.info(f"Queue id enqueued: {queue_id_enqueud}")
 
-        self.logger.debug(f"(Queue: {queue_id}) Evaluating simulation instances: {uids} with sim ids: {sim_ids}")
+        # self.logger.info(f"(Queue: {queue_id}) Evaluating simulation instances: {uids} with sim ids: {sim_ids}")
 
         # Delegate the blocking evaluation to the child's local manager.
         self.local_manager.evaluate_queue_all(queue_id)

@@ -7,6 +7,7 @@ from multiprocessing.managers import BaseManager
 
 from src.outputhandler import OutputHandler
 from src.designpointqueue import DesignPointQueue
+from src_main.tools.logger import loggerRICH
 
 # --- Custom Manager for Shared Queues ---
 class SharedObjectManager(BaseManager):
@@ -40,7 +41,7 @@ class ManagerChild:
         self.shared_obj_manager = SharedObjectManager(address=address, authkey=authkey)
         self.shared_obj_manager.connect()
 
-    def _set_sim_instances_time_stat(self, sim_instances, *args):
+    def set_sim_instances_time_stat(self, sim_instances, *args):
         """A local method to iterate over sim instances and record timing stats."""
         sims = []
         for sim_instance in sim_instances:
@@ -49,27 +50,17 @@ class ManagerChild:
         return sims
 
     def enqueue_tasks(self, *args, **kwargs):
-        self.manager_proxy.enqueue_tasks(*args, **kwargs)
+        return self.manager_proxy.enqueue_tasks(*args, **kwargs)
 
     def evaluate_queue_all(self, queue_id):
-        """
-        Evaluates all tasks in a specific queue.
-        This method orchestrates the evaluation by first telling the main
-        Manager to submit the tasks, then enters a local blocking loop
-        to wait for completion, and finally processes the output locally.
-        """
-        design_point_queue = self.manager_proxy.get_queue_object(queue_id)
-        if not design_point_queue:
-            raise Exception(f"Passed invalid design queue id: {queue_id}")
+        sim_instances = self.evaluate_queue(queue_id, n=0)
 
-        n = design_point_queue.size()
-        sim_instances = self.evaluate_queue(queue_id, n=n)
+        # self.logger.warn(f"Evaluatring queue {queue_id}: {design_point_queue.has_chached()} {str(design_point_queue.chached_amount())}")
 
-        # Handle cached simulations after the main batch is done
-        i = 0
-        while self.evaluate_cached_sims(design_point_queue) and design_point_queue.has_chached():
-            time.sleep(5)
-            i += 1
+        result_queue = self.shared_obj_manager.get_queue(queue_id+"_cached_sims_queue")
+        self.manager_proxy.evaluate_cached_sims_async(queue_id, result_queue)
+
+        i = result_queue.get()
         return sim_instances
 
     def evaluate_queue(self, queue_id, n=1):
@@ -78,16 +69,11 @@ class ManagerChild:
         to complete, and processes the output.
         This is the core evaluation loop for the child process.
         """
-        design_point_queue = self.manager_proxy.get_queue_object(queue_id)
-        if not design_point_queue:
-            raise Exception(f"Passed invalid design queue id: {queue_id}")
 
-        sim_instances_to_eval = design_point_queue.get(n)
-        if not sim_instances_to_eval:
-            return []
+        sim_instances_to_eval = self.manager_proxy.evaluate_queue_pre(queue_id, n)
 
-        # Get a shareable queue from the connected manager.
-        result_queue = self.shared_obj_manager.get_queue()
+
+        result_queue = self.shared_obj_manager.get_queue(queue_id+"_result_queue")
 
         # This is a non-blocking RPC call that submits the tasks and
         # provides a queue for the main process to send the results back.
@@ -96,26 +82,15 @@ class ManagerChild:
         # Block efficiently until the results are available in the queue.
         # The main process's background thread will put the results here when done.
         results = result_queue.get()
-
-        # Check if the main process sent an exception instead of a result list
         if isinstance(results, Exception):
-            self.logger.error("The main manager process encountered an error during evaluation.")
-            raise results # Re-raise the exception in the child process
-            
-        completed_sim_instances = results
-        completed_sim_instances = self._set_sim_instances_time_stat(completed_sim_instances, "general", "resource_controller_retrieval")
+            raise results
 
-        # Process output LOCALLY
-        completed_sim_instances = self._set_sim_instances_time_stat(completed_sim_instances, "general", "output_handler_start")
-        completed_sim_instances = self.output_handler.clean_sims(completed_sim_instances)
-        completed_sim_instances = self._set_sim_instances_time_stat(completed_sim_instances, "general", "output_handler_end")
+        results = self.manager_proxy.evaluate_queue_post(queue_id, results)
+        results = self.set_sim_instances_time_stat(results, "general", "output_handler_start")
+        results = self.output_handler.clean_sims(results)
+        results = self.set_sim_instances_time_stat(results, "general", "output_handler_end")
 
-        # Set finished state via RPC
-        self.manager_proxy.design_point_cache.set_sims_finished(completed_sim_instances)
-
-        self.evaluate_cached_sims(design_point_queue)      
-
-        return completed_sim_instances
+        return results
 
     def evaluate_all(self):
         """Evaluates all tasks from all queues."""

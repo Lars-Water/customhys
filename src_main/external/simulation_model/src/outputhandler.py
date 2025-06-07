@@ -7,7 +7,7 @@ import threading
 from pathlib import Path, PosixPath
 
 from src.utils.config_reader import Config
-from src_main.tools.logger import logger
+from src_main.tools.logger import logger, loggerRICH
 from src.utils.stats import Stats
 from src_main.tools.local_parallelization.rpc import requires_main_process, callable_from_main
 
@@ -18,7 +18,6 @@ class OutputHandler:
     config_path = None
     stats = None
 
-    @requires_main_process
     def __init__(self, config_path, logs_path, collect_data = None):
         self.logs_path = logs_path
         self.config_path = config_path
@@ -28,23 +27,23 @@ class OutputHandler:
 
         self.logger = logger("output_handler", Path(self.logs_path), disabled=False)
 
-        self.logger.info("Reading in config file: {}".format(self.config_path))
+        self.logger.debug("Reading in config file: {}".format(self.config_path))
         self.cnf = Config(Path(self.config_path), Path(self.logs_path), "config_output_handler")
 
         self.sims_path = self.cnf.tryGet("sims_path")
-        self.logger.info("Sims path: {}".format(self.sims_path))
+        self.logger.debug("Sims path: {}".format(self.sims_path))
 
         self.global_results = self.cnf.tryGet("global_sim_results")
         os.makedirs(self.global_results, exist_ok=True)
-        self.logger.info("Global results path: {}".format(self.global_results))
+        self.logger.debug("Global results path: {}".format(self.global_results))
 
         self.global_logs = self.cnf.tryGet("global_sim_logs")
         os.makedirs(self.global_logs, exist_ok=True)
-        self.logger.info("Global logs path: {}".format(self.global_logs))
+        self.logger.debug("Global logs path: {}".format(self.global_logs))
 
         self.global_runtime = self.cnf.tryGet("global_sim_runtime")
         os.makedirs(self.global_runtime, exist_ok=True)
-        self.logger.info("Global runtime path: {}".format(self.global_runtime))
+        self.logger.debug("Global runtime path: {}".format(self.global_runtime))
 
         self.collect_data = collect_data
 
@@ -89,6 +88,7 @@ class OutputHandler:
         return sim_instance_target
 
     def clean_sim(self, sim_instance):
+        self.logger.debug(f"Cleaning {sim_instance.uid} sim instance")
         sim_instance = self.__retrieve_results_data(sim_instance)
         sim_instance = self.__retrieve_files_to_keep(sim_instance)
         sim_instance = self.__retrieve_runtime_data(sim_instance)
@@ -100,39 +100,39 @@ class OutputHandler:
 
     def __move_folder(self, old, new, description, id):
         if (os.path.isdir(new)):
-            self.logger.info("Removing old {} folder for {}".format(description, id))
+            self.logger.debug("Removing old {} folder for {}".format(description, id))
             shutil.rmtree(new)
 
-        self.logger.info("Moving {} at '{}' to '{}'".format(description, old, new))
+        self.logger.debug("Moving {} at '{}' to '{}'".format(description, old, new))
         shutil.move(old, new)
 
     def __copy_folder(self, old, new, description, id):
         if (os.path.isdir(new)):
-            self.logger.info("Removing old {} folder for {}".format(description, id))
+            self.logger.debug("Removing old {} folder for {}".format(description, id))
             shutil.rmtree(new)
 
-        self.logger.info("Copying {} at '{}' to '{}'".format(description, old, new))
+        self.logger.debug("Copying {} at '{}' to '{}'".format(description, old, new))
         shutil.copytree(old, new)
 
     def __remove_folder(self, old, description, id):
         if (os.path.isdir(old)):
-            self.logger.info("Removing {} folder for {}".format(description, id))
+            self.logger.debug("Removing {} folder for {}".format(description, id))
             shutil.rmtree(old)
 
     def __move_file(self, old, new, description, id):
         if (os.path.isfile(new)):
-            self.logger.info("Removing old {} file for {}".format(description, id))
+            self.logger.debug("Removing old {} file for {}".format(description, id))
             os.remove(new)
 
-        self.logger.info("Moving {} at '{}' to '{}'".format(description, old, new))
+        self.logger.debug("Moving {} at '{}' to '{}'".format(description, old, new))
         shutil.move(old, new)
 
     def __copy_file(self, old, new, description, id):
         if (os.path.isfile(new)):
-            self.logger.info("Removing old {} file for {}".format(description, id))
+            self.logger.debug("Removing old {} file for {}".format(description, id))
             os.remove(new)
 
-        self.logger.info("Copying {} at '{}' to '{}'".format(description, old, new))
+        self.logger.debug("Copying {} at '{}' to '{}'".format(description, old, new))
         shutil.copy2(old, new)
 
         
@@ -140,7 +140,7 @@ class OutputHandler:
         os.makedirs(self.sim_global_results_path(sim_instance), exist_ok=True)
         sim_local_path = sim_instance.path
         sim_global_results_path = self.sim_global_results_path(sim_instance)
-        self.logger.info("files_to_keep: {}".format(self.cnf.tryGet("output_handler", "files_to_keep")))
+        self.logger.debug("files_to_keep: {}".format(self.cnf.tryGet("output_handler", "files_to_keep")))
 
         if self.cnf.tryGet("output_handler", "files_to_keep"):
             for file in self.cnf.tryGet("output_handler", "files_to_keep"):
@@ -185,7 +185,7 @@ class OutputHandler:
 
         sim_global_runtime_stats_path = self.sim_global_runtime_stats_path(sim_instance)
         sim_instance.set_processed_time()
-        self.logger.info("Writing runtime stats data to '{}'".format(sim_global_runtime_stats_path))
+        self.logger.debug("Writing runtime stats data to '{}'".format(sim_global_runtime_stats_path))
 
         with open(sim_global_runtime_stats_path, "w") as fp:
             json.dump(sim_instance.get_stats_dict(), fp, indent=4)

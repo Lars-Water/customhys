@@ -2,7 +2,7 @@
     "hh_parameters": {
         "cardinality": 3,
         "cardinality_min": 1,
-        "num_iterations": 4,
+        "num_iterations": 10,
         "num_agents": 16,
         "as_mh": true,
         "num_replicas": 4,
@@ -20,7 +20,8 @@
         "verbose": true,
         "verbose_mh": false,
         "learning_portion": 0.37,
-        "solver": "static"
+        "solver": "static",
+        "evaluation_method": "threading"
     },
     "search_operators": {
         "optimize_utilization": true,
